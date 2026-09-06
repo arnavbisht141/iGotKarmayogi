@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/navigation";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Compass,
   BookOpen,
-  Search,
   ShieldAlert,
   User,
   LogOut,
@@ -26,16 +25,69 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [activeSection, setActiveSection] = useState<string>("");
 
   const isActive = (path: string) => pathname === path || pathname?.startsWith(`${path}/`);
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "hi" : "en");
+  };
+
+  // Track active section via scroll position on homepage
+  useEffect(() => {
+    if (pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
+
+    const sectionIds = ["hero", "about", "how-it-works", "resources", "help"];
+
+    const updateActiveSection = () => {
+      const header = document.querySelector("header");
+      const headerHeight = header ? header.getBoundingClientRect().height : 120;
+      const scrollPos = window.scrollY + headerHeight + 60;
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el && scrollPos >= el.offsetTop) {
+          setActiveSection(sectionIds[i]);
+          return;
+        }
+      }
+      setActiveSection("hero");
+    };
+
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    updateActiveSection();
+
+    return () => window.removeEventListener("scroll", updateActiveSection);
+  }, [pathname]);
+
+  // Precision smooth scroll handler for anchor links
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    if (pathname === "/") {
+      e.preventDefault();
+      if (targetId === "hero") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.pushState(null, "", "/");
+        setActiveSection("hero");
+        return;
+      }
+      const el = document.getElementById(targetId);
+      if (el) {
+        const header = document.querySelector("header");
+        const headerHeight = header ? header.getBoundingClientRect().height : 120;
+        const targetTop = el.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+        window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+        window.history.pushState(null, "", `/#${targetId}`);
+        setActiveSection(targetId);
+      }
+    }
+  };
+
+  const handleMobileAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    setMobileMenuOpen(false);
+    handleAnchorClick(e, targetId);
   };
 
   return (
@@ -79,7 +131,15 @@ export function Navbar() {
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
-        <a href={user ? "/home" : "/"} className="flex items-center gap-3 group">
+        <Link
+          href={user ? "/home" : "/"}
+          onClick={(e) => {
+            if (!user && pathname === "/") {
+              handleAnchorClick(e, "hero");
+            }
+          }}
+          className="flex items-center gap-3 group"
+        >
           <div className="h-10 w-10 rounded-lg bg-[#241E20] flex items-center justify-center text-[#C8A8A9] shadow-xs border border-[#965C66]/30">
             <Award className="h-6 w-6" />
           </div>
@@ -96,33 +156,58 @@ export function Navbar() {
               {t("nav.subBrand")}
             </p>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop Navigation & Actions */}
         <div className="hidden md:flex items-center gap-1.5">
-          {/* Subdued Placeholders */}
-          <a
-            href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 transition-colors"
+          <Link
+            href="/#about"
+            onClick={(e) => handleAnchorClick(e, "about")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              activeSection === "about"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+            }`}
           >
-            About
-          </a>
-          <a
-            href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 transition-colors"
+            {t("nav.about")}
+          </Link>
+          <Link
+            href="/#how-it-works"
+            onClick={(e) => handleAnchorClick(e, "how-it-works")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              activeSection === "how-it-works"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+            }`}
           >
-            Resources
-          </a>
-          <a
-            href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 transition-colors"
+            {t("nav.howItWorks")}
+          </Link>
+          <Link
+            href="/#resources"
+            onClick={(e) => handleAnchorClick(e, "resources")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              activeSection === "resources"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+            }`}
           >
-            Help
-          </a>
+            {t("nav.resources")}
+          </Link>
+          <Link
+            href="/#help"
+            onClick={(e) => handleAnchorClick(e, "help")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              activeSection === "help"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+            }`}
+          >
+            {t("nav.help")}
+          </Link>
 
           {user && (
             <>
-              <a
+              <Link
                 href="/home"
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   pathname === "/home"
@@ -131,8 +216,8 @@ export function Navbar() {
                 }`}
               >
                 Home
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/my-learning"
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive("/my-learning") || isActive("/progress")
@@ -142,9 +227,9 @@ export function Navbar() {
               >
                 <BookOpen className="h-3.5 w-3.5" />
                 {t("nav.myLearning")}
-              </a>
+              </Link>
               {isAdmin && (
-                <a
+                <Link
                   href="/admin"
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isActive("/admin")
@@ -154,23 +239,23 @@ export function Navbar() {
                 >
                   <ShieldAlert className="h-3.5 w-3.5 text-[#965C66]" />
                   {t("nav.admin")}
-                </a>
+                </Link>
               )}
             </>
           )}
 
           {/* Discover placed immediately to the left of Sign In */}
-          <a
+          <Link
             href="/discover"
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               isActive("/discover") || isActive("/courses")
                 ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
                 : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
             }`}
           >
-            <Compass className="h-4 w-4 text-[#965C66]" />
+            <Compass className="h-3.5 w-3.5 text-[#965C66]" />
             {t("nav.discover")}
-          </a>
+          </Link>
 
           {/* Auth Actions: Sign In immediately left of Register */}
           {user ? (
@@ -199,22 +284,22 @@ export function Navbar() {
                     <p className="text-xs font-semibold text-[#241E20]">{user.full_name}</p>
                     <p className="text-[11px] text-[#5A5052] truncate">{user.email}</p>
                   </div>
-                  <a
+                  <Link
                     href="/profile"
                     onClick={() => setProfileDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#965C66]/5 hover:text-[#965C66]"
                   >
                     <User className="h-3.5 w-3.5 text-slate-400" />
                     {t("nav.profile")}
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/profile?tab=settings"
                     onClick={() => setProfileDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#965C66]/5 hover:text-[#965C66]"
                   >
                     <Settings className="h-3.5 w-3.5 text-slate-400" />
                     {t("nav.settings")}
-                  </a>
+                  </Link>
                   <div className="border-t border-slate-100 my-1" />
                   <button
                     onClick={() => {
@@ -231,7 +316,7 @@ export function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2 ml-1">
-              <a href="/login">
+              <Link href="/login">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -239,15 +324,15 @@ export function Navbar() {
                 >
                   {t("nav.login")}
                 </Button>
-              </a>
-              <a href="/register">
+              </Link>
+              <Link href="/register">
                 <Button
                   size="sm"
                   className="bg-[#965C66] hover:bg-[#824E57] text-white font-medium shadow-xs rounded-lg px-4 border border-[#965C66] transition-colors"
                 >
                   {t("nav.register")}
                 </Button>
-              </a>
+              </Link>
             </div>
           )}
         </div>
@@ -267,70 +352,94 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-[#C8A8A9]/40 bg-white px-4 pt-2 pb-4 space-y-1">
           {user && (
-            <a
+            <Link
               href="/home"
               className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-[#965C66]/5"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
-            </a>
+            </Link>
           )}
-          <a
+          <Link
             href="/discover"
-            className="block px-3 py-2 rounded-lg text-base font-medium text-[#241E20] hover:bg-[#965C66]/5"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-[#241E20] hover:bg-[#965C66]/5"
             onClick={() => setMobileMenuOpen(false)}
           >
+            <Compass className="h-4 w-4 text-[#965C66]" />
             {t("nav.discover")}
-          </a>
-          <a
-            href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-[#5A5052] hover:bg-[#965C66]/5"
-            onClick={() => setMobileMenuOpen(false)}
+          </Link>
+          <Link
+            href="/#about"
+            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+              activeSection === "about"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
+                : "text-[#5A5052] hover:bg-[#965C66]/5"
+            }`}
+            onClick={(e) => handleMobileAnchorClick(e, "about")}
           >
-            About
-          </a>
-          <a
-            href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-[#5A5052] hover:bg-[#965C66]/5"
-            onClick={() => setMobileMenuOpen(false)}
+            {t("nav.about")}
+          </Link>
+          <Link
+            href="/#how-it-works"
+            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+              activeSection === "how-it-works"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
+                : "text-[#5A5052] hover:bg-[#965C66]/5"
+            }`}
+            onClick={(e) => handleMobileAnchorClick(e, "how-it-works")}
           >
-            Resources
-          </a>
-          <a
-            href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-[#5A5052] hover:bg-[#965C66]/5"
-            onClick={() => setMobileMenuOpen(false)}
+            {t("nav.howItWorks")}
+          </Link>
+          <Link
+            href="/#resources"
+            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+              activeSection === "resources"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
+                : "text-[#5A5052] hover:bg-[#965C66]/5"
+            }`}
+            onClick={(e) => handleMobileAnchorClick(e, "resources")}
           >
-            Help
-          </a>
+            {t("nav.resources")}
+          </Link>
+          <Link
+            href="/#help"
+            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+              activeSection === "help"
+                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
+                : "text-[#5A5052] hover:bg-[#965C66]/5"
+            }`}
+            onClick={(e) => handleMobileAnchorClick(e, "help")}
+          >
+            {t("nav.help")}
+          </Link>
           {user && (
-            <a
+            <Link
               href="/my-learning"
               className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-[#965C66]/5"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t("nav.myLearning")}
-            </a>
+            </Link>
           )}
           {isAdmin && (
-            <a
+            <Link
               href="/admin"
               className="block px-3 py-2 rounded-lg text-base font-medium text-[#965C66] hover:bg-[#965C66]/5"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t("nav.admin")}
-            </a>
+            </Link>
           )}
           <div className="pt-4 border-t border-slate-100">
             {user ? (
               <div className="space-y-1">
-                <a
+                <Link
                   href="/profile"
                   className="block px-3 py-2 text-sm text-[#5A5052]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t("nav.profile")}
-                </a>
+                </Link>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
@@ -343,16 +452,16 @@ export function Navbar() {
               </div>
             ) : (
               <div className="flex flex-col gap-2 pt-2">
-                <a href="/login" className="w-full">
+                <Link href="/login" className="w-full">
                   <Button variant="outline" className="w-full border-[#C8A8A9]/60 text-[#241E20]">
                     {t("nav.login")}
                   </Button>
-                </a>
-                <a href="/register" className="w-full">
+                </Link>
+                <Link href="/register" className="w-full">
                   <Button className="w-full bg-[#965C66] hover:bg-[#824E57] text-white">
                     {t("nav.register")}
                   </Button>
-                </a>
+                </Link>
               </div>
             )}
           </div>
@@ -361,4 +470,3 @@ export function Navbar() {
     </header>
   );
 }
-

@@ -15,6 +15,10 @@ const translations: Translations = {
   // Navigation
   "nav.brand": { en: "iGOT Karmayogi", hi: "आईगॉट कर्मयोगी" },
   "nav.subBrand": { en: "Official Statistical & Civil Service Learning", hi: "आधिकारिक सांख्यिकी एवं सिविल सेवा शिक्षण" },
+  "nav.about": { en: "About", hi: "परिचय" },
+  "nav.howItWorks": { en: "How it Works", hi: "यह कैसे कार्य करता है" },
+  "nav.resources": { en: "Resources", hi: "संसाधन" },
+  "nav.help": { en: "Help", hi: "सहायता" },
   "nav.discover": { en: "Discover", hi: "अन्वेषण करें" },
   "nav.myLearning": { en: "My Learning", hi: "मेरी शिक्षा" },
   "nav.search": { en: "Search Catalogue", hi: "पाठ्यक्रम खोजें" },
