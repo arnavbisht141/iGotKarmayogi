@@ -1,294 +1,229 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Compass,
   ArrowRight,
-  ShieldCheck,
-  Award,
-  CheckCircle,
-  BarChart3,
-  Building2,
-  FileCheck2,
-  BookOpen,
-  Sparkles,
-  Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { fetchApi } from "@/lib/api";
-import { CoursePreview } from "@/lib/types";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRouter } from "next/navigation";
+
+// Extensible hero carousel slides from public directory with their natural aspect ratios
+const HERO_SLIDES = [
+  {
+    src: "/karmayogi.jpg",
+    alt: "Mission Karmayogi civil service capacity building session",
+    aspectRatio: "657 / 301",
+  },
+  {
+    src: "/government-meeting.jpg",
+    alt: "Government administrative cadre review and collaborative meeting",
+    aspectRatio: "673 / 290",
+  },
+  {
+    src: "/ai-daksh.jpg",
+    alt: "AI-Daksh civil service intelligence and analytical tools",
+    aspectRatio: "716 / 395",
+  },
+];
 
 export default function EntryLandingPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [courses, setCourses] = useState<CoursePreview[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // Carousel state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    // If user is already logged in, redirect directly to home
+    // If user is already logged in, redirect directly to dashboard home
     if (user) {
       router.push("/home");
-      return;
     }
-
-    fetchApi<{ courses: CoursePreview[] }>("/discover/courses?sort=popular")
-      .then((data) => {
-        setCourses(data.courses.slice(0, 4));
-      })
-      .catch((err) => console.error("Failed loading preview courses:", err))
-      .finally(() => setLoading(false));
   }, [user, router]);
 
+  // Automatic slide rotation (5s interval)
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isPaused]);
+
+  const handlePrev = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+  }, []);
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-950 text-white py-20 lg:py-28 border-b border-slate-800">
-        {/* Subtle decorative grid */}
-        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40" />
+    <div className="flex flex-col min-h-[calc(100vh-140px)] bg-[#EEE8E9]">
+      {/* 1. Hero & Statistics Section: Unified in consistent container with #EEE8E9 background */}
+      <section className="bg-[#EEE8E9] text-[#241E20] pt-10 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 flex-1">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Two-Column Hero Grid: Left Content (7 cols) and Right Carousel (5 cols), Top-Aligned */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
+            {/* Left Column: Top-Aligned with Badge at Top */}
+            <div className="lg:col-span-7 xl:col-span-7 flex flex-col justify-start text-left">
+              {/* Institutional Eyebrow Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#965C66]/10 text-[#965C66] text-xs font-semibold mb-3 w-fit border border-[#965C66]/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#965C66]" />
+                Mission Karmayogi Bharat • MoSPI
+              </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700 mb-6 text-xs text-slate-300">
-            <span className="h-2 w-2 rounded-full bg-amber-500" />
-            <span>Mission Karmayogi • India's National Public Service Learning Infrastructure</span>
-          </div>
+              {/* Concise Title fitting on ONE LINE on desktop */}
+              <h1 className="text-2xl sm:text-3xl lg:text-[28px] xl:text-[32px] font-bold tracking-tight text-[#241E20] leading-tight lg:whitespace-nowrap">
+                National Learning Platform for Civil Services
+              </h1>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl leading-tight">
-            AI-Enabled Skill Intelligence for India&apos;s Civil Servants
-          </h1>
-
-          <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl leading-relaxed">
-            Delivering standardized, accredited professional competencies for the Official Statistical System (MoSPI), Central Ministries, and public administrators.
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="/login">
-              <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-8 shadow-md">
-                Official Sign In <ArrowRight className="h-4 w-4 ml-1" />
-              </Button>
-            </a>
-            <a href="/discover">
-              <Button size="lg" variant="outline" className="border-slate-700 text-slate-200 hover:bg-slate-900 px-8">
-                <Compass className="h-4 w-4 mr-2 text-amber-400" /> Explore Courses
-              </Button>
-            </a>
-          </div>
-
-          {/* Quick Metrics */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl w-full border-t border-slate-800 pt-8 text-slate-300">
-            <div>
-              <p className="text-2xl font-bold text-white">40,000+</p>
-              <p className="text-xs text-slate-400">Civil Servants Trained</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">100%</p>
-              <p className="text-xs text-slate-400">MoSPI Standardized</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">UN-NQAF</p>
-              <p className="text-xs text-slate-400">Quality Frameworks</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">Verifiable</p>
-              <p className="text-xs text-slate-400">Government Credentials</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Platform Section (Miro: About Platform) */}
-      <section id="about" className="py-16 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <Badge variant="saffron" className="mb-2">About The Initiative</Badge>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-              A Competency-Driven Learning Paradigm
-            </h2>
-            <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              Moving the civil service from rules-based training to roles-based competency mastery, aligned with the National Programme for Civil Services Capacity Building (NPCSCB).
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="border-slate-200 bg-slate-50/50">
-              <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center mb-4">
-                  <BarChart3 className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Statistical Integrity</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Rigorous curricula on National Sample Surveys (NSS), Consumer Price Index (CPI), and National Accounts compilation.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-slate-50/50">
-              <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center mb-4">
-                  <FileCheck2 className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Certified Assessments</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Every course concludes with a verified MCQ assessment with minimum 70% passing threshold, awarding official credentials.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-slate-50/50">
-              <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-slate-900 text-amber-400 flex items-center justify-center mb-4">
-                  <Sparkles className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">AI-Orchestrated Assistant</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Built-in LangGraph Copilot providing immediate civil service guidance, regulatory clarifications, and methodology lookups.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Explore Courses Section (Miro: Explore Courses - Unauthenticated Preview) */}
-      <section id="explore" className="py-16 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
-            <div>
-              <Badge variant="secondary" className="mb-2">Course Catalogue Preview</Badge>
-              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-                Accredited Government Training Modules
-              </h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Preview courses offered by NSSO, CSO, NSSTA, and accredited institutes like ISTM.
+              {/* Short, clear subtitle directly underneath */}
+              <p className="mt-3 text-sm sm:text-base text-[#5A5052] font-normal leading-relaxed max-w-xl">
+                Standardized competency frameworks, accredited modules, and verified certifications for India&apos;s public administrators.
               </p>
+
+              {/* Pill-shaped action buttons in consistent Muted Rose styling */}
+              <div className="mt-7 flex flex-wrap items-center gap-3.5">
+                <a href="/login">
+                  <Button
+                    size="lg"
+                    className="rounded-full bg-[#965C66] hover:bg-[#824E57] text-white font-medium text-sm px-6 py-2.5 shadow-xs transition-all flex items-center gap-2 border border-[#965C66] cursor-pointer"
+                  >
+                    Official Sign In <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </a>
+                <a href="/discover">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-full border-[#965C66]/40 text-[#965C66] hover:bg-[#965C66]/10 hover:border-[#965C66] hover:text-[#824E57] font-medium text-sm px-6 py-2.5 transition-all flex items-center gap-2 bg-transparent cursor-pointer"
+                  >
+                    <Compass className="h-4 w-4 text-[#965C66]" /> Explore Courses
+                  </Button>
+                </a>
+              </div>
             </div>
-            <a href="/discover" className="mt-4 sm:mt-0 inline-flex items-center text-sm font-semibold text-slate-900 hover:text-amber-700">
-              View Complete Catalogue <ArrowRight className="h-4 w-4 ml-1" />
-            </a>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {courses.map((course) => (
-              <Card key={course.id} className="flex flex-col h-full bg-white hover:border-slate-400 transition-all">
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <Badge variant={course.source === "external" ? "external" : "secondary"}>
-                        {course.source === "external" ? "ISTM Accredited" : "MoSPI Internal"}
-                      </Badge>
-                      <span className="text-xs text-slate-500 font-medium">{course.duration_hours} hrs</span>
-                    </div>
-
-                    <h4 className="font-bold text-slate-900 text-base line-clamp-2 mb-2">
-                      {course.title}
-                    </h4>
-
-                    <p className="text-xs text-slate-500 line-clamp-3 mb-4 leading-relaxed">
-                      {course.overview}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-                    <span className="font-semibold text-slate-800 truncate max-w-[140px]">
-                      {course.organization}
-                    </span>
-                    <a
-                      href={`/courses/${course.id}`}
-                      className="text-amber-700 hover:text-amber-800 font-semibold inline-flex items-center"
+            {/* Right Column: Hero Image Carousel (~35-40% width), Top-Aligned with Badge, Right-Edge Aligned */}
+            <div className="lg:col-span-5 xl:col-span-5 w-full flex flex-col items-end">
+              <div className="w-full">
+                {/* Clean White Frame: Top edge aligned with Badge, object-contain to NEVER crop any image */}
+                <div
+                  className="relative w-full h-[195px] sm:h-[215px] bg-white rounded-xl border border-[#C8A8A9]/50 shadow-xs p-2 sm:p-2.5 overflow-hidden group"
+                  onMouseEnter={() => setIsPaused(true)}
+                  onMouseLeave={() => setIsPaused(false)}
+                >
+                  {HERO_SLIDES.map((slide, idx) => (
+                    <div
+                      key={slide.src}
+                      className={`absolute inset-0 p-2 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                        idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                      }`}
                     >
-                      Overview <ArrowRight className="h-3 w-3 ml-0.5" />
-                    </a>
-                  </div>
+                      <img
+                        src={slide.src}
+                        alt={slide.alt}
+                        className="w-full h-full object-contain block select-none"
+                        loading={idx === 0 ? "eager" : "lazy"}
+                      />
+                    </div>
+                  ))}
+
+                  {/* Subtle previous/next hover buttons on frame */}
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    aria-label="Previous slide"
+                    className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 h-6 w-6 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center shadow-xs border border-[#C8A8A9]/40 transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    aria-label="Next slide"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 h-6 w-6 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center shadow-xs border border-[#C8A8A9]/40 transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* How it Works Section (Miro: How it Works) */}
-      <section id="how-it-works" className="py-16 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <Badge variant="outline" className="mb-2">Operational Roadmap</Badge>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-              How the Karmayogi Learning Journey Works
-            </h2>
-            <p className="mt-3 text-slate-600 text-sm">
-              A structured 4-step progression from role onboarding to recognized certification.
-            </p>
-          </div>
+                {/* Small, subtle pagination indicators & controls underneath */}
+                <div className="mt-2 flex items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    aria-label="Previous slide"
+                    className="h-5 w-5 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center border border-[#C8A8A9]/40 shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="relative flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="h-9 w-9 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center mb-4">
-                1
-              </span>
-              <h4 className="font-bold text-slate-900 mb-1">Onboard Role</h4>
-              <p className="text-xs text-slate-600">
-                Specify your ministry, department, cadre, and official assignments during 5-step onboarding.
-              </p>
-            </div>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/90 rounded-full border border-[#C8A8A9]/40 shadow-2xs">
+                    {HERO_SLIDES.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCurrentSlide(idx)}
+                        aria-label={`Slide ${idx + 1}`}
+                        className={`transition-all duration-300 rounded-full cursor-pointer ${
+                          idx === currentSlide
+                            ? "w-3.5 h-1 bg-[#965C66]"
+                            : "w-1 h-1 bg-[#C8A8A9]/70 hover:bg-[#965C66]/60"
+                        }`}
+                      />
+                    ))}
+                  </div>
 
-            <div className="relative flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="h-9 w-9 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center mb-4">
-                2
-              </span>
-              <h4 className="font-bold text-slate-900 mb-1">Discover & Study</h4>
-              <p className="text-xs text-slate-600">
-                Consume video lectures, CAPI field simulation labs, and in-lesson concept practice tasks.
-              </p>
-            </div>
-
-            <div className="relative flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="h-9 w-9 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center mb-4">
-                3
-              </span>
-              <h4 className="font-bold text-slate-900 mb-1">Pass Assessment</h4>
-              <p className="text-xs text-slate-600">
-                Complete objective MCQ tests with immediate correctness feedback and answer breakdowns.
-              </p>
-            </div>
-
-            <div className="relative flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="h-9 w-9 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center mb-4">
-                4
-              </span>
-              <h4 className="font-bold text-slate-900 mb-1">Earn Certificate</h4>
-              <p className="text-xs text-slate-600">
-                Receive verifiable digital credentials stored in your permanent civil service profile.
-              </p>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    aria-label="Next slide"
+                    className="h-5 w-5 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center border border-[#C8A8A9]/40 shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Call to Action Bar */}
-      <section className="bg-slate-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-          <div>
-            <h3 className="text-2xl font-bold">Ready to advance your official statistical expertise?</h3>
-            <p className="text-sm text-slate-400 mt-1">
-              Sign in with your official government email or create your employee credentials today.
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <a href="/login">
-              <Button variant="outline" className="text-white border-slate-700 hover:bg-slate-800">
-                Sign In
-              </Button>
-            </a>
-            <a href="/register">
-              <Button variant="saffron">
-                Register New Official
-              </Button>
-            </a>
+          {/* Statistics Bar: In the EXACT same container, visually aligned with hero content left and right edges */}
+          <div className="mt-10 sm:mt-12 pt-6 sm:pt-7 border-t border-[#C8A8A9]/35">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x md:divide-[#C8A8A9]/35">
+              {/* Item 1: Aligns directly with the left edge of the hero content */}
+              <div className="text-left md:pr-6">
+                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">40,000+</p>
+                <p className="text-xs font-medium text-[#5A5052] mt-0.5">Civil Servants Trained</p>
+              </div>
+
+              {/* Item 2 */}
+              <div className="text-left md:px-6">
+                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">100%</p>
+                <p className="text-xs font-medium text-[#5A5052] mt-0.5">MoSPI Standardized</p>
+              </div>
+
+              {/* Item 3 */}
+              <div className="text-left md:px-6">
+                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">UN-NQAF</p>
+                <p className="text-xs font-medium text-[#5A5052] mt-0.5">Quality Frameworks</p>
+              </div>
+
+              {/* Item 4: Left-aligned within column matching items 1-3 */}
+              <div className="text-left md:pl-6">
+                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">Verifiable</p>
+                <p className="text-xs font-medium text-[#5A5052] mt-0.5">Government Credentials</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
     </div>
   );
 }
+

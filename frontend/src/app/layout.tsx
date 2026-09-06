@@ -20,16 +20,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 antialiased flex flex-col`}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.className} min-h-screen bg-[#EEE8E9] text-[#241E20] antialiased flex flex-col`}
+        suppressHydrationWarning
+      >
         <I18nProvider>
           <AuthProvider>
             <Navbar />
-            <main className="flex-1 w-full">{children}</main>
+            <main className="flex-1 w-full" suppressHydrationWarning>{children}</main>
             <AiAssistantWidget />
             {/* National Footer */}
-            <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
-              <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500" suppressHydrationWarning>
+              <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4" suppressHydrationWarning>
                 <p>
                   © 2026 iGOT Karmayogi Bharat • Capacity Building Commission • Ministry of Statistics and Programme Implementation
                 </p>

@@ -62,22 +62,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#EEE8E9]">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-slate-900 text-amber-400 items-center justify-center mb-3 shadow-sm">
+          <div className="inline-flex h-12 w-12 rounded-xl bg-[#241E20] text-[#C8A8A9] border border-[#965C66]/30 items-center justify-center mb-3 shadow-xs">
             <Award className="h-7 w-7" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Official Account</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Register your profile for statistical capacity building & certifications
+          <h2 className="text-2xl font-bold text-[#241E20] tracking-tight">Create Official Account</h2>
+          <p className="text-xs text-[#5A5052] mt-1">
+            Register your profile for statistical capacity building &amp; certifications
           </p>
         </div>
 
-        <Card className="border-slate-200 shadow-sm bg-white">
+        <Card className="border-[#C8A8A9]/50 shadow-md shadow-[#965C66]/5 bg-white rounded-2xl">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-bold text-slate-900">Civil Servant Registration</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg font-bold text-[#241E20]">Civil Servant Registration</CardTitle>
+            <CardDescription className="text-xs text-[#5A5052]">
               Step 1 of 2: Create login credentials before role onboarding
             </CardDescription>
           </CardHeader>
@@ -92,92 +92,92 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-[#241E20] mb-1">
                   Full Name (As in Official Records)
                 </label>
                 <div className="relative">
-                  <UserIcon className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <UserIcon className="absolute left-3 top-2.5 h-4 w-4 text-[#965C66]/60" />
                   <Input
                     type="text"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="e.g. Smt. Priya Sharma"
-                    className="pl-9 text-xs"
+                    className="pl-9 text-xs border-[#C8A8A9]/60 focus-visible:ring-[#965C66] focus-visible:border-[#965C66]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-[#241E20] mb-1">
                   Government / Official Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[#965C66]/60" />
                   <Input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="priya.sharma@mospi.gov.in"
-                    className="pl-9 text-xs"
+                    className="pl-9 text-xs border-[#C8A8A9]/60 focus-visible:ring-[#965C66] focus-visible:border-[#965C66]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-[#241E20] mb-1">
                   Create Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-[#965C66]/60" />
                   <Input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="pl-9 text-xs"
+                    className="pl-9 text-xs border-[#C8A8A9]/60 focus-visible:ring-[#965C66] focus-visible:border-[#965C66]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-[#241E20] mb-1">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-[#965C66]/60" />
                   <Input
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repeat password"
-                    className="pl-9 text-xs"
+                    className="pl-9 text-xs border-[#C8A8A9]/60 focus-visible:ring-[#965C66] focus-visible:border-[#965C66]"
                   />
                 </div>
               </div>
 
-              <div className="p-3 bg-amber-50/60 border border-amber-200/60 rounded-lg text-[11px] text-amber-900 leading-relaxed">
-                <p className="font-semibold mb-0.5">Role-Based Customization</p>
+              <div className="p-3.5 bg-[#965C66]/8 border border-[#C8A8A9]/50 rounded-xl text-[11px] text-[#44383A] leading-relaxed">
+                <p className="font-semibold text-[#965C66] mb-0.5">Role-Based Customization</p>
                 After submitting, you will be guided through a 5-step role onboarding wizard to configure your ministry, designation, and competency targets.
               </div>
 
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 text-xs mt-2"
+                className="w-full bg-[#965C66] hover:bg-[#824E57] text-white font-semibold py-2.5 text-xs mt-2 rounded-lg shadow-xs transition-colors border border-[#965C66]"
               >
                 {loading ? "Creating Account..." : "Create Account & Proceed to Onboarding"}
               </Button>
             </form>
           </CardContent>
 
-          <CardFooter className="pt-2 border-t border-slate-100 text-xs text-center justify-center">
-            <span className="text-slate-600">
+          <CardFooter className="pt-2 border-t border-[#C8A8A9]/30 text-xs text-center justify-center">
+            <span className="text-[#5A5052]">
               Already have an official account?{" "}
-              <a href="/login" className="font-semibold text-amber-700 hover:text-amber-800">
+              <a href="/login" className="font-semibold text-[#965C66] hover:text-[#824E57]">
                 Sign In
               </a>
             </span>
