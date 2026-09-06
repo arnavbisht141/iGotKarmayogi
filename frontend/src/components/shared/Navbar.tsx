@@ -39,10 +39,10 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#C8A8A9]/40 bg-white/95 backdrop-blur-md" suppressHydrationWarning>
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md" suppressHydrationWarning>
       {/* Top Mission Karmayogi Marquee Announcement (Homepage) */}
       {pathname === "/" && (
-        <div className="bg-[#EAE2E3] text-[#7A4E57] text-[11px] py-1 border-b border-[#C8A8A9]/50 overflow-hidden relative select-none">
+        <div className="bg-slate-100 text-slate-700 text-[11px] py-1 border-b border-slate-200 overflow-hidden relative select-none">
           <div className="flex w-full overflow-hidden">
             <div className="animate-marquee flex items-center gap-16 font-medium tracking-wide">
               <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
@@ -55,10 +55,10 @@ export function Navbar() {
       )}
 
       {/* Top Ministry Ribbon */}
-      <div className="bg-[#965C66] text-white text-[11px] px-4 py-1.5 flex items-center justify-between border-b border-[#824E57]">
+      <div className="bg-[#1E3A8A] text-white text-[11px] px-4 py-1.5 flex items-center justify-between border-b border-blue-900">
         <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-1.5 font-medium">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#EEE8E9]/90" />
+            <span className="inline-block w-2 h-2 rounded-full bg-amber-400" />
             <span className="text-white font-semibold">Government of India</span>
             <span className="text-white/40">|</span>
             <span className="text-white/90">Ministry of Statistics &amp; Programme Implementation (MoSPI)</span>
@@ -67,9 +67,9 @@ export function Navbar() {
             <span className="hidden md:inline text-white/80">Mission Karmayogi Digital Learning Portal</span>
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 text-white hover:text-white font-medium bg-white/15 hover:bg-white/25 px-2.5 py-0.5 rounded cursor-pointer transition-colors border border-white/20"
+              className="flex items-center gap-1.5 text-white hover:text-white font-medium bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded cursor-pointer transition-colors border border-white/20"
             >
-              <Languages className="h-3 w-3 text-[#EEE8E9]" />
+              <Languages className="h-3 w-3 text-white/90" />
               <span>{language === "en" ? "हिन्दी (HI)" : "English (EN)"}</span>
             </button>
           </div>
@@ -80,19 +80,19 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <a href={user ? "/home" : "/"} className="flex items-center gap-3 group">
-          <div className="h-10 w-10 rounded-lg bg-[#241E20] flex items-center justify-center text-[#C8A8A9] shadow-xs border border-[#965C66]/30">
+          <div className="h-10 w-10 rounded-lg bg-[#1E3A8A] flex items-center justify-center text-white shadow-xs border border-blue-900">
             <Award className="h-6 w-6" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-lg font-bold text-[#241E20] tracking-tight">
+              <span className="text-lg font-bold text-[#0F172A] tracking-tight">
                 {t("nav.brand")}
               </span>
-              <span className="text-[10px] uppercase font-bold bg-[#965C66]/10 text-[#965C66] px-1.5 py-0.2 rounded border border-[#965C66]/20">
+              <span className="text-[10px] uppercase font-bold bg-amber-50 text-amber-900 px-1.5 py-0.2 rounded border border-amber-300">
                 MoSPI
               </span>
             </div>
-            <p className="text-[10px] text-[#5A5052] font-medium leading-none">
+            <p className="text-[10px] text-slate-500 font-medium leading-none">
               {t("nav.subBrand")}
             </p>
           </div>
@@ -103,19 +103,19 @@ export function Navbar() {
           {/* Subdued Placeholders */}
           <a
             href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 transition-colors"
+            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
           >
             About
           </a>
           <a
             href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 transition-colors"
+            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
           >
             Resources
           </a>
           <a
             href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 transition-colors"
+            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
           >
             Help
           </a>
@@ -126,8 +126,8 @@ export function Navbar() {
                 href="/home"
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   pathname === "/home"
-                    ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                    : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                    ? "bg-blue-50 text-[#1E3A8A] font-semibold border border-blue-200"
+                    : "text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50"
                 }`}
               >
                 Home
@@ -136,8 +136,8 @@ export function Navbar() {
                 href="/my-learning"
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   isActive("/my-learning") || isActive("/progress")
-                    ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                    : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                    ? "bg-blue-50 text-[#1E3A8A] font-semibold border border-blue-200"
+                    : "text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50"
                 }`}
               >
                 <BookOpen className="h-3.5 w-3.5" />
@@ -148,11 +148,11 @@ export function Navbar() {
                   href="/admin"
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isActive("/admin")
-                      ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                      : "text-[#965C66] hover:bg-[#965C66]/10"
+                      ? "bg-blue-50 text-[#1E3A8A] font-semibold border border-blue-200"
+                      : "text-[#1E3A8A] hover:bg-blue-50"
                   }`}
                 >
-                  <ShieldAlert className="h-3.5 w-3.5 text-[#965C66]" />
+                  <ShieldAlert className="h-3.5 w-3.5 text-[#1E3A8A]" />
                   {t("nav.admin")}
                 </a>
               )}
@@ -164,11 +164,11 @@ export function Navbar() {
             href="/discover"
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
               isActive("/discover") || isActive("/courses")
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                ? "bg-blue-50 text-[#1E3A8A] font-semibold border border-blue-200"
+                : "text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50"
             }`}
           >
-            <Compass className="h-4 w-4 text-[#965C66]" />
+            <Compass className="h-4 w-4 text-[#1E3A8A]" />
             {t("nav.discover")}
           </a>
 
@@ -177,16 +177,16 @@ export function Navbar() {
             <div className="relative ml-2">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2.5 p-1.5 rounded-full hover:bg-[#965C66]/10 border border-[#C8A8A9]/40 transition-colors cursor-pointer"
+                className="flex items-center gap-2.5 p-1.5 rounded-full hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
               >
-                <div className="h-8 w-8 rounded-full bg-[#965C66] text-white flex items-center justify-center font-bold text-xs">
+                <div className="h-8 w-8 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center font-bold text-xs">
                   {user.full_name?.charAt(0) || "U"}
                 </div>
                 <div className="text-left pr-2">
-                  <p className="text-xs font-semibold text-[#241E20] leading-tight">
+                  <p className="text-xs font-semibold text-[#0F172A] leading-tight">
                     {user.full_name}
                   </p>
-                  <p className="text-[10px] text-[#5A5052] capitalize">
+                  <p className="text-[10px] text-slate-500 capitalize">
                     {user.role}
                   </p>
                 </div>
@@ -194,15 +194,15 @@ export function Navbar() {
 
               {/* Profile Dropdown */}
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#C8A8A9]/40 bg-white py-1 shadow-lg z-50 animate-in fade-in zoom-in-95">
+                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-50 animate-in fade-in zoom-in-95">
                   <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs font-semibold text-[#241E20]">{user.full_name}</p>
-                    <p className="text-[11px] text-[#5A5052] truncate">{user.email}</p>
+                    <p className="text-xs font-semibold text-[#0F172A]">{user.full_name}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
                   </div>
                   <a
                     href="/profile"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#965C66]/5 hover:text-[#965C66]"
+                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 hover:text-[#1E3A8A]"
                   >
                     <User className="h-3.5 w-3.5 text-slate-400" />
                     {t("nav.profile")}
@@ -210,7 +210,7 @@ export function Navbar() {
                   <a
                     href="/profile?tab=settings"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#965C66]/5 hover:text-[#965C66]"
+                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 hover:text-[#1E3A8A]"
                   >
                     <Settings className="h-3.5 w-3.5 text-slate-400" />
                     {t("nav.settings")}
@@ -235,7 +235,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-[#241E20] hover:text-[#965C66] hover:bg-[#965C66]/10 font-medium px-3.5"
+                  className="text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-100 font-medium px-3.5"
                 >
                   {t("nav.login")}
                 </Button>
@@ -243,7 +243,7 @@ export function Navbar() {
               <a href="/register">
                 <Button
                   size="sm"
-                  className="bg-[#965C66] hover:bg-[#824E57] text-white font-medium shadow-xs rounded-lg px-4 border border-[#965C66] transition-colors"
+                  className="bg-[#1E3A8A] hover:bg-[#1D3557] text-white font-medium shadow-xs rounded-lg px-4 border border-[#1E3A8A] transition-colors"
                 >
                   {t("nav.register")}
                 </Button>
@@ -256,7 +256,7 @@ export function Navbar() {
         <div className="flex md:hidden items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-[#5A5052] hover:bg-[#965C66]/10"
+            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -265,11 +265,11 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#C8A8A9]/40 bg-white px-4 pt-2 pb-4 space-y-1">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
           {user && (
             <a
               href="/home"
-              className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-[#965C66]/5"
+              className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
@@ -277,28 +277,28 @@ export function Navbar() {
           )}
           <a
             href="/discover"
-            className="block px-3 py-2 rounded-lg text-base font-medium text-[#241E20] hover:bg-[#965C66]/5"
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-900 hover:bg-blue-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             {t("nav.discover")}
           </a>
           <a
             href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-[#5A5052] hover:bg-[#965C66]/5"
+            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             About
           </a>
           <a
             href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-[#5A5052] hover:bg-[#965C66]/5"
+            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             Resources
           </a>
           <a
             href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-[#5A5052] hover:bg-[#965C66]/5"
+            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             Help
@@ -306,7 +306,7 @@ export function Navbar() {
           {user && (
             <a
               href="/my-learning"
-              className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-[#965C66]/5"
+              className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t("nav.myLearning")}
@@ -315,7 +315,7 @@ export function Navbar() {
           {isAdmin && (
             <a
               href="/admin"
-              className="block px-3 py-2 rounded-lg text-base font-medium text-[#965C66] hover:bg-[#965C66]/5"
+              className="block px-3 py-2 rounded-lg text-base font-medium text-[#1E3A8A] hover:bg-blue-50"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t("nav.admin")}
@@ -326,7 +326,7 @@ export function Navbar() {
               <div className="space-y-1">
                 <a
                   href="/profile"
-                  className="block px-3 py-2 text-sm text-[#5A5052]"
+                  className="block px-3 py-2 text-sm text-slate-600"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t("nav.profile")}
@@ -344,12 +344,12 @@ export function Navbar() {
             ) : (
               <div className="flex flex-col gap-2 pt-2">
                 <a href="/login" className="w-full">
-                  <Button variant="outline" className="w-full border-[#C8A8A9]/60 text-[#241E20]">
+                  <Button variant="outline" className="w-full border-slate-300 text-slate-800">
                     {t("nav.login")}
                   </Button>
                 </a>
                 <a href="/register" className="w-full">
-                  <Button className="w-full bg-[#965C66] hover:bg-[#824E57] text-white">
+                  <Button className="w-full bg-[#1E3A8A] hover:bg-[#1D3557] text-white">
                     {t("nav.register")}
                   </Button>
                 </a>

@@ -1,27 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #EEE8E9;
-  --foreground: #241E20;
-  --color-rose-primary: #965C66;
-  --color-rose-secondary: #C8A8A9;
-  --color-rose-supporting: #BC9798;
-  --color-rose-light: #C2A0A2;
-  --color-charcoal: #241E20;
-  --color-slate-grey: #727A97;
-  --color-powder-blue: #B2BCD2;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --color-primary: #1E3A8A;
+  --color-primary-hover: #1D3557;
+  --color-accent-saffron: #EA580C;
+  --color-slate-border: #E2E8F0;
+  --color-slate-text: #334155;
+  --color-slate-muted: #64748B;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-rose-primary: var(--color-rose-primary);
-  --color-rose-secondary: var(--color-rose-secondary);
-  --color-rose-supporting: var(--color-rose-supporting);
-  --color-rose-light: var(--color-rose-light);
-  --color-charcoal: var(--color-charcoal);
-  --color-slate-grey: var(--color-slate-grey);
-  --color-powder-blue: var(--color-powder-blue);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-accent-saffron: var(--color-accent-saffron);
+  --color-slate-border: var(--color-slate-border);
+  --color-slate-text: var(--color-slate-text);
+  --color-slate-muted: var(--color-slate-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
