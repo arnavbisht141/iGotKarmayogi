@@ -93,5 +93,26 @@ A visual redesign was implemented across the frontend of **iGOT Karmayogi (MoSPI
 ---
 
 ### 7. Global Layout & Theme Tokens (`frontend/src/app/layout.tsx`, `frontend/src/app/globals.css`)
-- Configured `layout.tsx` `<body>` to default to `bg-[#EEE8E9] text-[#241E20]`.
-- Registered palette variables in CSS theme tokens.
+- Configured `layout.tsx` `<body>` to default to `bg-[#F8FAFC] text-slate-900`.
+- Registered palette variables in CSS theme tokens for official iGOT Karmayogi navy (`#1E3A8A`), saffron (`#EA580C`), and slate (`#0F172A`, `#F8FAFC`).
+
+---
+
+### 8. Header & Landing Page Aesthetic Refinements (`arnav` branch)
+1. **Marquee Floating Text Removal (`Navbar.tsx`):**
+   - Removed the top-level scrolling marquee announcement banner (`{pathname === "/" && <div className="animate-marquee ...">...</div>}`).
+   - Transition seamlessly starts at the top dark navy Ministry Ribbon.
+2. **MoSPI Badge Box Removals:**
+   - Removed the amber `[MoSPI]` pill badge next to `iGOT Karmayogi` in the header logo.
+   - Removed the eyebrow badge box `[• Mission Karmayogi Bharat • MoSPI]` above the main line in the landing page body.
+3. **Unified Navigation Typography (`Navbar.tsx`):**
+   - Updated `About`, `Resources`, and `Help` to have the exact same font size (`text-sm`), weight (`font-medium`), padding (`px-3.5 py-2`), and hover states (`text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50`) as `Discover`.
+   - Updated mobile drawer items to matching unified sizing.
+4. **Enlarged Authentication Buttons (`Navbar.tsx`):**
+   - Enlarged `Sign In` button to `h-10 px-4 text-sm font-semibold` with ghost styling.
+   - Enlarged `Register` button to `h-10 px-5 text-sm font-semibold` with official navy background (`bg-[#1E3A8A] hover:bg-[#1D3557]`).
+5. **Polished Hero & Statistics Section (`page.tsx`):**
+   - Top-aligned headline with authoritative sizing: `text-3xl sm:text-4xl lg:text-[36px] font-extrabold text-slate-900 leading-tight`.
+   - Elevated CTA buttons: `Official Sign In` and `Explore Courses` both styled at `h-11 px-7 font-semibold text-sm rounded-lg`.
+   - Refined statistics section to `100% Accredited Curriculum` (removing repetitive MoSPI tagging) and enlarged metrics to `text-3xl sm:text-4xl font-extrabold text-[#1E3A8A]`.
+
