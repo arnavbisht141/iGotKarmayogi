@@ -64,30 +64,24 @@ export default function EntryLandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Two-Column Hero Grid: Left Content (7 cols) and Right Carousel (5 cols), Top-Aligned */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
-            {/* Left Column: Top-Aligned with Badge at Top */}
+            {/* Left Column: Top-Aligned */}
             <div className="lg:col-span-7 xl:col-span-7 flex flex-col justify-start text-left">
-              {/* Institutional Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold mb-3 w-fit border border-blue-200/80">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1E3A8A]" />
-                Mission Karmayogi Bharat • MoSPI
-              </div>
-
-              {/* Concise Title fitting on ONE LINE on desktop */}
-              <h1 className="text-2xl sm:text-3xl lg:text-[30px] xl:text-[34px] font-bold tracking-tight text-[#0F172A] leading-tight lg:whitespace-nowrap">
+              {/* Official Portal Title */}
+              <h1 className="text-3xl sm:text-4xl lg:text-[36px] font-extrabold tracking-tight text-slate-900 leading-tight">
                 National Learning Platform for Civil Services
               </h1>
 
-              {/* Short, clear subtitle directly underneath */}
-              <p className="mt-3 text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl">
+              {/* Clear subtitle directly underneath */}
+              <p className="mt-4 text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
                 Standardized competency frameworks, accredited modules, and verified certifications for India&apos;s public administrators.
               </p>
 
               {/* Action buttons in official Karmayogi styling */}
-              <div className="mt-7 flex flex-wrap items-center gap-3.5">
+              <div className="mt-8 flex flex-wrap items-center gap-4">
                 <a href="/login">
                   <Button
                     size="lg"
-                    className="rounded-lg bg-[#1E3A8A] hover:bg-[#1D3557] text-white font-medium text-sm px-6 py-2.5 shadow-sm transition-all flex items-center gap-2 border border-[#1E3A8A] cursor-pointer"
+                    className="h-11 px-7 rounded-lg bg-[#1E3A8A] hover:bg-[#1D3557] text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 border border-[#1E3A8A] cursor-pointer"
                   >
                     Official Sign In <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -96,7 +90,7 @@ export default function EntryLandingPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="rounded-lg border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400 hover:text-[#1E3A8A] font-medium text-sm px-6 py-2.5 transition-all flex items-center gap-2 bg-white cursor-pointer"
+                    className="h-11 px-7 rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 hover:text-[#1E3A8A] font-semibold text-sm transition-all flex items-center gap-2 bg-white cursor-pointer"
                   >
                     <Compass className="h-4 w-4 text-[#1E3A8A]" /> Explore Courses
                   </Button>
@@ -109,7 +103,7 @@ export default function EntryLandingPage() {
               <div className="w-full">
                 {/* Clean White Frame */}
                 <div
-                  className="relative w-full h-[195px] sm:h-[215px] bg-white rounded-xl border border-slate-200 shadow-sm p-2 sm:p-2.5 overflow-hidden group"
+                  className="relative w-full h-[200px] sm:h-[225px] bg-white rounded-xl border border-slate-200 shadow-sm p-2 sm:p-2.5 overflow-hidden group"
                   onMouseEnter={() => setIsPaused(true)}
                   onMouseLeave={() => setIsPaused(false)}
                 >
@@ -189,30 +183,30 @@ export default function EntryLandingPage() {
           </div>
 
           {/* Statistics Bar: In the EXACT same container, visually aligned with hero content left and right edges */}
-          <div className="mt-10 sm:mt-12 pt-6 sm:pt-7 border-t border-slate-200">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x md:divide-slate-200">
+          <div className="mt-12 sm:mt-14 pt-7 sm:pt-8 border-t border-slate-200">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-slate-200">
               {/* Item 1: Aligns directly with the left edge of the hero content */}
               <div className="text-left md:pr-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E3A8A]">40,000+</p>
-                <p className="text-xs font-medium text-slate-600 mt-0.5">Civil Servants Trained</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">40,000+</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Civil Servants Trained</p>
               </div>
 
               {/* Item 2 */}
               <div className="text-left md:px-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E3A8A]">100%</p>
-                <p className="text-xs font-medium text-slate-600 mt-0.5">MoSPI Standardized</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">100%</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Accredited Curriculum</p>
               </div>
 
               {/* Item 3 */}
               <div className="text-left md:px-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E3A8A]">UN-NQAF</p>
-                <p className="text-xs font-medium text-slate-600 mt-0.5">Quality Frameworks</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">UN-NQAF</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Quality Frameworks</p>
               </div>
 
               {/* Item 4: Left-aligned within column matching items 1-3 */}
               <div className="text-left md:pl-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E3A8A]">Verifiable</p>
-                <p className="text-xs font-medium text-slate-600 mt-0.5">Government Credentials</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">Verifiable</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Government Credentials</p>
               </div>
             </div>
           </div>

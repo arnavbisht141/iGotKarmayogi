@@ -40,20 +40,6 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md" suppressHydrationWarning>
-      {/* Top Mission Karmayogi Marquee Announcement (Homepage) */}
-      {pathname === "/" && (
-        <div className="bg-slate-100 text-slate-700 text-[11px] py-1 border-b border-slate-200 overflow-hidden relative select-none">
-          <div className="flex w-full overflow-hidden">
-            <div className="animate-marquee flex items-center gap-16 font-medium tracking-wide">
-              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
-              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
-              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
-              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Top Ministry Ribbon */}
       <div className="bg-[#1E3A8A] text-white text-[11px] px-4 py-1.5 flex items-center justify-between border-b border-blue-900">
         <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
@@ -88,9 +74,6 @@ export function Navbar() {
               <span className="text-lg font-bold text-[#0F172A] tracking-tight">
                 {t("nav.brand")}
               </span>
-              <span className="text-[10px] uppercase font-bold bg-amber-50 text-amber-900 px-1.5 py-0.2 rounded border border-amber-300">
-                MoSPI
-              </span>
             </div>
             <p className="text-[10px] text-slate-500 font-medium leading-none">
               {t("nav.subBrand")}
@@ -100,22 +83,22 @@ export function Navbar() {
 
         {/* Desktop Navigation & Actions */}
         <div className="hidden md:flex items-center gap-1.5">
-          {/* Subdued Placeholders */}
+          {/* Institutional Navigation Links - Identical font & design to Discover */}
           <a
-            href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
+            href="#about"
+            className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
           >
             About
           </a>
           <a
-            href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
+            href="#resources"
+            className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
           >
             Resources
           </a>
           <a
-            href="#"
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
+            href="#help"
+            className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors"
           >
             Help
           </a>
@@ -230,20 +213,20 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2 ml-1">
+            <div className="flex items-center gap-2.5 ml-2">
               <a href="/login">
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-100 font-medium px-3.5"
+                  size="md"
+                  className="text-slate-800 hover:text-[#1E3A8A] hover:bg-slate-100 font-semibold px-4 h-10 text-sm rounded-lg cursor-pointer"
                 >
                   {t("nav.login")}
                 </Button>
               </a>
               <a href="/register">
                 <Button
-                  size="sm"
-                  className="bg-[#1E3A8A] hover:bg-[#1D3557] text-white font-medium shadow-xs rounded-lg px-4 border border-[#1E3A8A] transition-colors"
+                  size="md"
+                  className="bg-[#1E3A8A] hover:bg-[#1D3557] text-white font-semibold shadow-sm rounded-lg px-5 h-10 text-sm border border-[#1E3A8A] transition-all cursor-pointer"
                 >
                   {t("nav.register")}
                 </Button>
@@ -256,7 +239,7 @@ export function Navbar() {
         <div className="flex md:hidden items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -283,22 +266,22 @@ export function Navbar() {
             {t("nav.discover")}
           </a>
           <a
-            href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50"
+            href="#about"
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             About
           </a>
           <a
-            href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50"
+            href="#resources"
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             Resources
           </a>
           <a
-            href="#"
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50"
+            href="#help"
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             Help
