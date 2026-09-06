@@ -1,0 +1,51 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: karmayogi-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-karmayogi-secret-jwt-key-2026-phase-0}
+      - DATABASE_URL=sqlite:////app/data/karmayogi.db
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - backend-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - karmayogi-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+    container_name: karmayogi-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - karmayogi-net
+
+volumes:
+  backend-data:
+    driver: local
+
+networks:
+  karmayogi-net:
+    driver: bridge

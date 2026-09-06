@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python virtual environment & cache
+venv/
+.venv/
+*/venv/
+*/.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+backend/karmayogi.db
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
