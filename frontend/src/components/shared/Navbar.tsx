@@ -44,17 +44,42 @@ export function Navbar() {
 
     const updateActiveSection = () => {
       const header = document.querySelector("header");
-      const headerHeight = header ? header.getBoundingClientRect().height : 120;
-      const scrollPos = window.scrollY + headerHeight + 60;
+      const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
 
-      for (let i = sectionIds.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sectionIds[i]);
-        if (el && scrollPos >= el.offsetTop) {
-          setActiveSection(sectionIds[i]);
-          return;
+      // Bottom of the page: Help is active
+      if (scrollY + windowHeight >= docHeight - 60) {
+        setActiveSection("help");
+        return;
+      }
+
+      // Top of the page: Hero is active
+      if (scrollY < 80) {
+        setActiveSection("hero");
+        return;
+      }
+
+      // Find section closest to viewport center
+      const viewportCenter = scrollY + headerHeight + (windowHeight - headerHeight) / 2;
+      let closestId = "hero";
+      let minDistance = Infinity;
+
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const elCenter = scrollY + rect.top + rect.height / 2;
+          const distance = Math.abs(viewportCenter - elCenter);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestId = id;
+          }
         }
       }
-      setActiveSection("hero");
+
+      setActiveSection(closestId);
     };
 
     window.addEventListener("scroll", updateActiveSection, { passive: true });
@@ -69,17 +94,17 @@ export function Navbar() {
       e.preventDefault();
       if (targetId === "hero") {
         window.scrollTo({ top: 0, behavior: "smooth" });
-        window.history.pushState(null, "", "/");
+        window.history.replaceState(null, "", "/");
         setActiveSection("hero");
         return;
       }
       const el = document.getElementById(targetId);
       if (el) {
         const header = document.querySelector("header");
-        const headerHeight = header ? header.getBoundingClientRect().height : 120;
-        const targetTop = el.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
+        const targetTop = Math.round(el.getBoundingClientRect().top + window.scrollY - headerHeight);
         window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
-        window.history.pushState(null, "", `/#${targetId}`);
+        window.history.replaceState(null, "", `/#${targetId}`);
         setActiveSection(targetId);
       }
     }

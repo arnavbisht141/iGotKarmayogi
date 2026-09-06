@@ -69,12 +69,13 @@ export default function EntryLandingPage() {
       const id = window.location.hash.replace("#", "");
       const el = document.getElementById(id);
       if (el) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           const header = document.querySelector("header");
-          const headerHeight = header ? header.getBoundingClientRect().height : 120;
-          const targetTop = el.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+          const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
+          const targetTop = Math.round(el.getBoundingClientRect().top + window.scrollY - headerHeight);
           window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
-        }, 150);
+        }, 120);
+        return () => clearTimeout(timer);
       }
     }
   }, []);
@@ -398,10 +399,10 @@ export default function EntryLandingPage() {
       {/* 3. How It Works Section: Sized to full viewport height minus navbar */}
       <section
         id="how-it-works"
-        className="scroll-mt-[120px] min-h-[calc(100vh-120px)] flex flex-col justify-center bg-[#FAF8F8] border-b border-[#C8A8A9]/30 py-8 sm:py-12"
+        className="scroll-mt-[120px] min-h-[calc(100vh-120px)] flex flex-col justify-center bg-[#FAF8F8] border-b border-[#C8A8A9]/30 py-6 sm:py-8 lg:py-10"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="text-center max-w-3xl mx-auto mb-8">
+          <div className="text-center max-w-3xl mx-auto mb-5 sm:mb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#965C66]/10 text-[#965C66] text-xs font-semibold mb-2 border border-[#965C66]/20">
               <Compass className="h-3.5 w-3.5" />
               Structured Progression
@@ -415,14 +416,14 @@ export default function EntryLandingPage() {
           </div>
 
           {/* Single Horizontal Progression Container */}
-          <div className="bg-white rounded-2xl border border-[#C8A8A9]/40 p-5 sm:p-7 shadow-xs">
+          <div className="bg-white rounded-2xl border border-[#C8A8A9]/40 p-4 sm:p-5 lg:p-6 shadow-xs">
             <div className="relative">
               {/* Connected horizontal track line on desktop */}
               <div className="hidden md:block absolute top-4 left-6 right-6 h-0.5 bg-gradient-to-r from-[#965C66] via-[#BC9798] to-[#C8A8A9] z-0" />
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-5 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 relative z-10">
                 {/* Step 1 */}
-                <div className="flex md:flex-col items-start gap-3 md:gap-2.5">
+                <div className="flex md:flex-col items-start gap-3 md:gap-2">
                   <div className="h-8 w-8 rounded-full bg-[#965C66] text-white font-bold text-xs flex items-center justify-center shrink-0 ring-4 ring-white shadow-xs">
                     1
                   </div>
@@ -430,14 +431,14 @@ export default function EntryLandingPage() {
                     <h4 className="font-semibold text-[#241E20] text-sm flex items-center gap-1.5">
                       <UserCheck className="h-4 w-4 text-[#965C66] shrink-0" /> Onboard Role
                     </h4>
-                    <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                      Authenticate with official government email and specify your ministry, department, and assigned cadre roles.
+                    <p className="text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                      Authenticate with official government email and specify your ministry and cadre roles.
                     </p>
                   </div>
                 </div>
 
                 {/* Step 2 */}
-                <div className="flex md:flex-col items-start gap-3 md:gap-2.5">
+                <div className="flex md:flex-col items-start gap-3 md:gap-2">
                   <div className="h-8 w-8 rounded-full bg-[#965C66] text-white font-bold text-xs flex items-center justify-center shrink-0 ring-4 ring-white shadow-xs">
                     2
                   </div>
@@ -445,14 +446,14 @@ export default function EntryLandingPage() {
                     <h4 className="font-semibold text-[#241E20] text-sm flex items-center gap-1.5">
                       <GraduationCap className="h-4 w-4 text-[#965C66] shrink-0" /> Discover &amp; Study
                     </h4>
-                    <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                      Study video modules, practical CAPI survey simulation exercises, and interactive field methodology guides.
+                    <p className="text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                      Study video modules, practical CAPI survey simulations, and field methodology guides.
                     </p>
                   </div>
                 </div>
 
                 {/* Step 3 */}
-                <div className="flex md:flex-col items-start gap-3 md:gap-2.5">
+                <div className="flex md:flex-col items-start gap-3 md:gap-2">
                   <div className="h-8 w-8 rounded-full bg-[#965C66] text-white font-bold text-xs flex items-center justify-center shrink-0 ring-4 ring-white shadow-xs">
                     3
                   </div>
@@ -460,14 +461,14 @@ export default function EntryLandingPage() {
                     <h4 className="font-semibold text-[#241E20] text-sm flex items-center gap-1.5">
                       <ClipboardCheck className="h-4 w-4 text-[#965C66] shrink-0" /> Pass Assessment
                     </h4>
-                    <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                      Complete rigorous MCQ examinations with immediate automated scoring, explanations, and question-level breakdowns.
+                    <p className="text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                      Complete 70% threshold MCQ examinations with automated scoring and explanations.
                     </p>
                   </div>
                 </div>
 
                 {/* Step 4 */}
-                <div className="flex md:flex-col items-start gap-3 md:gap-2.5">
+                <div className="flex md:flex-col items-start gap-3 md:gap-2">
                   <div className="h-8 w-8 rounded-full bg-[#965C66] text-white font-bold text-xs flex items-center justify-center shrink-0 ring-4 ring-white shadow-xs">
                     4
                   </div>
@@ -475,8 +476,8 @@ export default function EntryLandingPage() {
                     <h4 className="font-semibold text-[#241E20] text-sm flex items-center gap-1.5">
                       <Award className="h-4 w-4 text-[#965C66] shrink-0" /> Earn Certificate
                     </h4>
-                    <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                      Receive cryptographically verifiable digital credentials linked to your employee code and central personnel records.
+                    <p className="text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                      Receive cryptographically verifiable digital credentials linked to your personnel records.
                     </p>
                   </div>
                 </div>
@@ -485,38 +486,38 @@ export default function EntryLandingPage() {
           </div>
 
           {/* How Karmayogi Helps Officials */}
-          <div className="mt-7 pt-6 border-t border-[#C8A8A9]/30">
-            <h3 className="text-base sm:text-lg font-bold text-[#241E20] text-center mb-4">
+          <div className="mt-5 pt-4 border-t border-[#C8A8A9]/30">
+            <h3 className="text-sm sm:text-base font-bold text-[#241E20] text-center mb-3">
               How iGOT Karmayogi Helps Public Servants
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl p-4 border border-[#C8A8A9]/40 shadow-xs hover:border-[#965C66]/40 transition-colors">
-                <div className="h-8 w-8 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2.5">
-                  <TrendingUp className="h-4 w-4" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+              <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-[#C8A8A9]/40 shadow-xs hover:border-[#965C66]/40 transition-colors">
+                <div className="h-7 w-7 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2">
+                  <TrendingUp className="h-3.5 w-3.5" />
                 </div>
-                <h4 className="font-semibold text-[#241E20] text-sm">Career Progression &amp; APAR</h4>
-                <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                  Demonstrated competencies and completed certified courses are directly recognized during annual appraisal cycles and deputation postings.
+                <h4 className="font-semibold text-[#241E20] text-xs sm:text-sm">Career Progression &amp; APAR</h4>
+                <p className="text-[11px] sm:text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                  Demonstrated competencies and completed courses are recognized during annual appraisal cycles and postings.
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl p-4 border border-[#C8A8A9]/40 shadow-xs hover:border-[#965C66]/40 transition-colors">
-                <div className="h-8 w-8 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2.5">
-                  <CheckCircle2 className="h-4 w-4" />
+              <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-[#C8A8A9]/40 shadow-xs hover:border-[#965C66]/40 transition-colors">
+                <div className="h-7 w-7 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
                 </div>
-                <h4 className="font-semibold text-[#241E20] text-sm">Standardized National Training</h4>
-                <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                  Field staff and headquarters analysts access unified, vetted guidelines eliminating methodological discrepancies across Indian states.
+                <h4 className="font-semibold text-[#241E20] text-xs sm:text-sm">Standardized National Training</h4>
+                <p className="text-[11px] sm:text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                  Field staff and analysts access unified guidelines eliminating methodological discrepancies across states.
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl p-4 border border-[#C8A8A9]/40 shadow-xs hover:border-[#965C66]/40 transition-colors">
-                <div className="h-8 w-8 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2.5">
-                  <Sparkles className="h-4 w-4" />
+              <div className="bg-white rounded-xl p-3 sm:p-3.5 border border-[#C8A8A9]/40 shadow-xs hover:border-[#965C66]/40 transition-colors">
+                <div className="h-7 w-7 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2">
+                  <Sparkles className="h-3.5 w-3.5" />
                 </div>
-                <h4 className="font-semibold text-[#241E20] text-sm">Autonomous On-Demand Learning</h4>
-                <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
-                  Learn at your own pace from mobile or desktop with automated progress persistence, downloadable offline briefs, and AI assistance.
+                <h4 className="font-semibold text-[#241E20] text-xs sm:text-sm">Autonomous On-Demand Learning</h4>
+                <p className="text-[11px] sm:text-xs text-[#5A5052] mt-0.5 leading-relaxed">
+                  Learn at your own pace from any device with progress persistence, offline briefs, and built-in AI assistance.
                 </p>
               </div>
             </div>
@@ -666,13 +667,13 @@ export default function EntryLandingPage() {
         </div>
       </section>
 
-      {/* 5. Help & Support Section: Sized to full viewport height minus navbar with integrated CTA */}
+      {/* 5. Help & Support Section: Sized to full viewport height minus navbar with integrated CTA and Institutional Ribbon */}
       <section
         id="help"
-        className="scroll-mt-[120px] min-h-[calc(100vh-120px)] flex flex-col justify-between bg-[#FAF8F8] border-b border-[#C8A8A9]/30 pt-8 sm:pt-10 pb-0"
+        className="scroll-mt-[120px] min-h-[calc(100vh-120px)] flex flex-col justify-between bg-[#FAF8F8] pt-6 sm:pt-8 pb-0"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex flex-col justify-center py-4">
-          <div className="text-center max-w-3xl mx-auto mb-7">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex flex-col justify-center py-2 sm:py-3">
+          <div className="text-center max-w-3xl mx-auto mb-5 sm:mb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#965C66]/10 text-[#965C66] text-xs font-semibold mb-2 border border-[#965C66]/20">
               <HelpCircle className="h-3.5 w-3.5" />
               Assistance &amp; Support
@@ -680,24 +681,24 @@ export default function EntryLandingPage() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#241E20] tracking-tight">
               Help &amp; Official Training Support
             </h2>
-            <p className="mt-1.5 text-[#5A5052] text-xs sm:text-sm">
+            <p className="mt-1 text-[#5A5052] text-xs sm:text-sm">
               Dedicated institutional support channels for central civil servants, state statisticians, and ministry nodal officers.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
             {/* Help Card 1: AI Copilot */}
-            <div className="bg-white rounded-2xl p-5 border border-[#C8A8A9]/40 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#C8A8A9]/40 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="h-9 w-9 rounded-xl bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-3">
-                  <Sparkles className="h-5 w-5" />
+                <div className="h-8 w-8 rounded-xl bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2.5">
+                  <Sparkles className="h-4 w-4" />
                 </div>
                 <h4 className="font-bold text-[#241E20] text-sm sm:text-base">24/7 Civil Service AI Copilot</h4>
-                <p className="text-xs text-[#5A5052] mt-1.5 leading-relaxed">
+                <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
                   Have an urgent question on survey sampling or course rules? The AI copilot provides instant, cited answers from official training manuals.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#C8A8A9]/30">
+              <div className="mt-3.5 pt-2.5 border-t border-[#C8A8A9]/30">
                 <a href="/login" className="inline-flex items-center text-xs font-semibold text-[#965C66] hover:text-[#824E57]">
                   <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> Launch AI Assistant <ArrowRight className="ml-1 h-3 w-3" />
                 </a>
@@ -705,16 +706,16 @@ export default function EntryLandingPage() {
             </div>
 
             {/* Help Card 2: Nodal Officers & Support Desk */}
-            <div className="bg-white rounded-2xl p-5 border border-[#C8A8A9]/40 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#C8A8A9]/40 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="h-9 w-9 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-3">
-                  <PhoneCall className="h-5 w-5" />
+                <div className="h-8 w-8 rounded-xl bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2.5">
+                  <PhoneCall className="h-4 w-4" />
                 </div>
                 <h4 className="font-bold text-[#241E20] text-sm sm:text-base">Ministry Training Desk</h4>
-                <p className="text-xs text-[#5A5052] mt-1.5 leading-relaxed">
+                <p className="text-xs text-[#5A5052] mt-1 leading-relaxed">
                   For cadre verification, department approvals, or official nomination queries, reach out to the Central Training Division.
                 </p>
-                <div className="mt-3 space-y-1 text-xs text-[#5A5052]">
+                <div className="mt-2.5 space-y-1 text-xs text-[#5A5052]">
                   <p className="flex items-center gap-2">
                     <Mail className="h-3.5 w-3.5 text-[#965C66]" /> support-karmayogi@gov.in
                   </p>
@@ -723,22 +724,22 @@ export default function EntryLandingPage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#C8A8A9]/30">
+              <div className="mt-3.5 pt-2.5 border-t border-[#C8A8A9]/30">
                 <span className="text-[11px] text-[#5A5052]">Mon – Fri, 09:30 – 18:00 IST</span>
               </div>
             </div>
 
             {/* Help Card 3: Frequently Asked Questions */}
-            <div className="bg-white rounded-2xl p-5 border border-[#C8A8A9]/40 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#C8A8A9]/40 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="h-9 w-9 rounded-lg bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-3">
-                  <HelpCircle className="h-5 w-5" />
+                <div className="h-8 w-8 rounded-xl bg-[#965C66]/10 text-[#965C66] flex items-center justify-center mb-2.5">
+                  <HelpCircle className="h-4 w-4" />
                 </div>
                 <h4 className="font-bold text-[#241E20] text-sm sm:text-base">Key Cadre Questions</h4>
-                <div className="mt-2.5 space-y-2 text-xs text-[#5A5052]">
+                <div className="mt-2 space-y-1.5 text-xs text-[#5A5052]">
                   <div className="p-2 rounded-lg bg-[#FAF8F8] border border-[#C8A8A9]/30">
                     <p className="font-medium text-[#241E20]">How do I verify certificates?</p>
-                    <p className="text-[11px] text-[#5A5052] mt-0.5">Every certificate includes a unique verification hash verifiable at /certificates.</p>
+                    <p className="text-[11px] text-[#5A5052] mt-0.5">Every certificate includes a verification hash verifiable at /certificates.</p>
                   </div>
                   <div className="p-2 rounded-lg bg-[#FAF8F8] border border-[#C8A8A9]/30">
                     <p className="font-medium text-[#241E20]">What is the pass mark for modules?</p>
@@ -746,7 +747,7 @@ export default function EntryLandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#C8A8A9]/30">
+              <div className="mt-3.5 pt-2.5 border-t border-[#C8A8A9]/30">
                 <a href="/login" className="inline-flex items-center text-xs font-semibold text-[#965C66] hover:text-[#824E57]">
                   View Knowledge Base <ArrowRight className="ml-1 h-3 w-3" />
                 </a>
@@ -755,33 +756,49 @@ export default function EntryLandingPage() {
           </div>
         </div>
 
-        {/* Integrated Call to Action Bar: Positioned at bottom of the Help screen */}
-        <div className="bg-[#241E20] text-white py-6 sm:py-8 border-t border-[#965C66]/30 w-full mt-auto">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-            <div>
-              <h3 className="text-lg sm:text-xl font-bold tracking-tight">Ready to advance your official competencies?</h3>
-              <p className="text-xs text-[#C8A8A9] mt-0.5 max-w-xl">
-                Sign in with your official government credentials or register with your nodal department officer today.
-              </p>
+        {/* Integrated Call to Action & Institutional Closing Bar */}
+        <div className="bg-[#241E20] text-white py-4 sm:py-5 border-t border-[#965C66]/30 w-full mt-auto">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div>
+                <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-tight">Ready to advance your official competencies?</h3>
+                <p className="text-xs text-[#C8A8A9] mt-0.5 max-w-xl">
+                  Sign in with your official government credentials or register with your nodal department officer today.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+                <a href="/login">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-[#C8A8A9] border-[#C8A8A9]/60 hover:bg-[#965C66]/20 hover:text-white px-5 py-2 text-xs cursor-pointer"
+                  >
+                    Official Sign In
+                  </Button>
+                </a>
+                <a href="/register">
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-[#965C66] hover:bg-[#824E57] text-white border border-[#C8A8A9]/40 px-5 py-2 text-xs font-medium shadow-xs cursor-pointer"
+                  >
+                    Register New Official
+                  </Button>
+                </a>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
-              <a href="/login">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full text-[#C8A8A9] border-[#C8A8A9]/60 hover:bg-[#965C66]/20 hover:text-white px-5 py-2 text-xs cursor-pointer"
-                >
-                  Official Sign In
-                </Button>
-              </a>
-              <a href="/register">
-                <Button
-                  size="sm"
-                  className="rounded-full bg-[#965C66] hover:bg-[#824E57] text-white border border-[#C8A8A9]/40 px-5 py-2 text-xs font-medium shadow-xs cursor-pointer"
-                >
-                  Register New Official
-                </Button>
-              </a>
+
+            {/* Institutional Legal & Copyright Strip */}
+            <div className="mt-3.5 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#C8A8A9]/80 text-center sm:text-left">
+              <p>© 2026 iGOT Karmayogi Bharat • Capacity Building Commission • Ministry of Statistics and Programme Implementation</p>
+              <div className="flex items-center justify-center gap-4 text-[#C8A8A9]/80">
+                <a href="/discover" className="hover:text-white transition-colors">Privacy Policy</a>
+                <span>•</span>
+                <a href="/discover" className="hover:text-white transition-colors">Terms of Service</a>
+                <span>•</span>
+                <a href="/discover" className="hover:text-white transition-colors">Data Governance</a>
+                <span>•</span>
+                <a href="/#help" className="hover:text-white transition-colors">Helpdesk</a>
+              </div>
             </div>
           </div>
         </div>
