@@ -24,7 +24,7 @@ const translations: Translations = {
   "nav.logout": { en: "Sign Out", hi: "लॉग आउट" },
   "nav.login": { en: "Sign In", hi: "लॉग इन" },
   "nav.register": { en: "Register", hi: "पंजीकरण" },
-  "nav.askAi": { en: "Karmayogi AI", hi: "कर्मयोगी एआई" },
+  "nav.askAi": { en: "Support Desk", hi: "सहायता केंद्र" },
 
   // Home Dashboard
   "home.welcome": { en: "Welcome back", hi: "पुनः स्वागत है" },

@@ -9,9 +9,9 @@ import { AiAssistantWidget } from "@/components/shared/AiAssistantWidget";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "iGOT Karmayogi | Skill Intelligence Platform (MoSPI)",
+  title: "iGOT Karmayogi Bharat | National Learning Platform for Civil Services (MoSPI)",
   description:
-    "National digital learning platform for Indian civil servants and statisticians, powered by Mission Karmayogi.",
+    "Integrated Government Online Training platform for Indian civil servants and statisticians, powered by Mission Karmayogi.",
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} min-h-screen bg-[#EEE8E9] text-[#241E20] antialiased flex flex-col`}
+        className={`${inter.className} min-h-screen bg-[#F8FAFC] text-[#0F172A] antialiased flex flex-col`}
         suppressHydrationWarning
       >
         <I18nProvider>
