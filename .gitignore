@@ -9,6 +9,10 @@ venv/
 .venv/
 */venv/
 */.venv/
+**/venv/
+**/.venv/
+pyvenv.cfg
+**/pyvenv.cfg
 __pycache__/
 *.py[cod]
 *$py.class
