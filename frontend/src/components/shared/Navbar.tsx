@@ -35,6 +35,20 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      {/* Top Mission Karmayogi Marquee Announcement (Homepage) */}
+      {pathname === "/" && (
+        <div className="bg-[#241E20] text-[#C8A8A9] text-[11px] py-1 border-b border-[#965C66]/25 overflow-hidden relative select-none">
+          <div className="flex w-full overflow-hidden">
+            <div className="animate-marquee flex items-center gap-16 font-medium tracking-wide">
+              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
+              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
+              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
+              <span>Mission Karmayogi • India&apos;s National Public Service Learning Infrastructure</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Ministry Ribbon */}
       <div className="bg-slate-900 text-slate-300 text-[11px] px-4 py-1 flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
