@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -27,11 +27,23 @@ export function Navbar() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
 
+  const isProgrammaticScrollRef = useRef(false);
+  const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const isActive = (path: string) => pathname === path || pathname?.startsWith(`${path}/`);
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "hi" : "en");
   };
+
+  // Cleanup programmatic scroll timer
+  useEffect(() => {
+    return () => {
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
+  }, []);
 
   // Track active section via scroll position on homepage
   useEffect(() => {
@@ -43,6 +55,9 @@ export function Navbar() {
     const sectionIds = ["hero", "about", "how-it-works", "resources", "help"];
 
     const updateActiveSection = () => {
+      // If a programmatic scroll is currently animating from a user click, don't flicker tabs
+      if (isProgrammaticScrollRef.current) return;
+
       const header = document.querySelector("header");
       const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
       const scrollY = window.scrollY;
@@ -92,10 +107,21 @@ export function Navbar() {
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     if (pathname === "/") {
       e.preventDefault();
+      e.stopPropagation();
+
+      // Lock active state immediately to avoid tab blinking during the glide
+      isProgrammaticScrollRef.current = true;
+      setActiveSection(targetId);
+
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+      scrollTimerRef.current = setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+      }, 750);
+
       if (targetId === "hero") {
         window.scrollTo({ top: 0, behavior: "smooth" });
-        window.history.replaceState(null, "", "/");
-        setActiveSection("hero");
         return;
       }
       const el = document.getElementById(targetId);
@@ -104,8 +130,6 @@ export function Navbar() {
         const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
         const targetTop = Math.round(el.getBoundingClientRect().top + window.scrollY - headerHeight);
         window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
-        window.history.replaceState(null, "", `/#${targetId}`);
-        setActiveSection(targetId);
       }
     }
   };
@@ -158,12 +182,14 @@ export function Navbar() {
         {/* Brand */}
         <Link
           href={user ? "/home" : "/"}
+          scroll={false}
+          prefetch={false}
           onClick={(e) => {
             if (!user && pathname === "/") {
               handleAnchorClick(e, "hero");
             }
           }}
-          className="flex items-center gap-3 group"
+          className="flex items-center gap-3 group cursor-pointer"
         >
           <div className="h-10 w-10 rounded-lg bg-[#241E20] flex items-center justify-center text-[#C8A8A9] shadow-xs border border-[#965C66]/30">
             <Award className="h-6 w-6" />
@@ -187,44 +213,52 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-1.5">
           <Link
             href="/#about"
+            scroll={false}
+            prefetch={false}
             onClick={(e) => handleAnchorClick(e, "about")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "about"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 border-transparent"
             }`}
           >
             {t("nav.about")}
           </Link>
           <Link
             href="/#how-it-works"
+            scroll={false}
+            prefetch={false}
             onClick={(e) => handleAnchorClick(e, "how-it-works")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "how-it-works"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 border-transparent"
             }`}
           >
             {t("nav.howItWorks")}
           </Link>
           <Link
             href="/#resources"
+            scroll={false}
+            prefetch={false}
             onClick={(e) => handleAnchorClick(e, "resources")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "resources"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 border-transparent"
             }`}
           >
             {t("nav.resources")}
           </Link>
           <Link
             href="/#help"
+            scroll={false}
+            prefetch={false}
             onClick={(e) => handleAnchorClick(e, "help")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "help"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold border border-[#965C66]/20"
-                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:text-[#965C66] hover:bg-[#965C66]/5 border-transparent"
             }`}
           >
             {t("nav.help")}
@@ -395,10 +429,12 @@ export function Navbar() {
           </Link>
           <Link
             href="/#about"
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+            scroll={false}
+            prefetch={false}
+            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "about"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
-                : "text-[#5A5052] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:bg-[#965C66]/5 border-transparent"
             }`}
             onClick={(e) => handleMobileAnchorClick(e, "about")}
           >
@@ -406,10 +442,12 @@ export function Navbar() {
           </Link>
           <Link
             href="/#how-it-works"
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+            scroll={false}
+            prefetch={false}
+            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "how-it-works"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
-                : "text-[#5A5052] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:bg-[#965C66]/5 border-transparent"
             }`}
             onClick={(e) => handleMobileAnchorClick(e, "how-it-works")}
           >
@@ -417,10 +455,12 @@ export function Navbar() {
           </Link>
           <Link
             href="/#resources"
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+            scroll={false}
+            prefetch={false}
+            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "resources"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
-                : "text-[#5A5052] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:bg-[#965C66]/5 border-transparent"
             }`}
             onClick={(e) => handleMobileAnchorClick(e, "resources")}
           >
@@ -428,10 +468,12 @@ export function Navbar() {
           </Link>
           <Link
             href="/#help"
-            className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+            scroll={false}
+            prefetch={false}
+            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
               activeSection === "help"
-                ? "bg-[#965C66]/10 text-[#965C66] font-semibold"
-                : "text-[#5A5052] hover:bg-[#965C66]/5"
+                ? "bg-[#965C66]/10 text-[#965C66] border-[#965C66]/20"
+                : "text-[#5A5052] hover:bg-[#965C66]/5 border-transparent"
             }`}
             onClick={(e) => handleMobileAnchorClick(e, "help")}
           >
