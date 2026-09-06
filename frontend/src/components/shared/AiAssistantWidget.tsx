@@ -22,11 +22,17 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content: "Namaste! I am the Karmayogi AI Learning Assistant. Ask me about statistical methods, survey protocols, price index formulas, or your current learning curriculum.",
-      source: "langgraph-karmayogi-engine",
+      source: "karmayogi-engine",
     },
   ]);
 
@@ -66,46 +72,41 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
     }
   };
 
+  if (!mounted) return null;
+
   return (
-    <div className="fixed bottom-6 right-6 z-40">
+    <div className="fixed bottom-6 right-6 z-40" suppressHydrationWarning>
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="group flex items-center gap-2.5 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-lg border border-slate-700 transition-all hover:scale-105 cursor-pointer"
+          className="relative h-14 w-14 rounded-full bg-[#965C66] hover:bg-[#824E57] text-white shadow-lg border border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer select-none group"
           title="Open Karmayogi AI Assistant"
+          aria-label="Open Karmayogi AI Assistant"
         >
-          <div className="relative">
-            <Bot className="h-5 w-5 text-amber-400" />
-            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          </div>
-          <span className="text-sm font-semibold tracking-wide">
-            {t("nav.askAi")}
-          </span>
-          <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30">
-            LangGraph
-          </span>
+          <Bot className="h-6 w-6 text-white transition-transform group-hover:scale-110" />
+          <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white" />
         </button>
       ) : (
-        <div className="w-96 rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all">
+        <div className="w-96 rounded-2xl bg-white border border-[#C8A8A9]/50 shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-slate-900 text-white">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center">
-                <Bot className="h-4 w-4 text-amber-400" />
+          <div className="flex items-center justify-between px-4 py-3 bg-[#965C66] text-white">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+                <Bot className="h-4 w-4 text-white" />
               </div>
               <div>
                 <h3 className="text-sm font-bold flex items-center gap-1.5">
-                  Karmayogi Copilot
-                  <span className="text-[9px] font-normal uppercase bg-slate-800 text-amber-300 px-1.5 py-0.2 rounded border border-slate-700">
-                    Phase 0 Stub
+                  Karmayogi AI
+                  <span className="text-[9px] font-medium uppercase bg-white/20 text-white px-1.5 py-0.2 rounded border border-white/30">
+                    Active
                   </span>
                 </h3>
-                <p className="text-[10px] text-slate-400">Powered by LangGraph & LangChain</p>
+                <p className="text-[10px] text-white/80">Civil Service Intelligence Assistant</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800"
+              className="p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
             >
               <Minimize2 className="h-4 w-4" />
             </button>
@@ -113,9 +114,9 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
 
           {/* Context Tag if provided */}
           {context && (
-            <div className="bg-slate-50 border-b border-slate-200 px-3 py-1.5 text-[11px] text-slate-600 flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-              <span className="font-semibold text-slate-700">Topic:</span>
+            <div className="bg-[#EEE8E9] border-b border-[#C8A8A9]/40 px-3 py-1.5 text-[11px] text-[#44383A] flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-[#965C66]" />
+              <span className="font-semibold text-[#241E20]">Topic:</span>
               <span className="truncate">{context}</span>
             </div>
           )}
@@ -132,8 +133,8 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-2xs leading-relaxed ${
                     m.role === "user"
-                      ? "bg-slate-900 text-white rounded-br-xs"
-                      : "bg-white text-slate-800 border border-slate-200 rounded-bl-xs"
+                      ? "bg-[#965C66] text-white rounded-br-xs"
+                      : "bg-white text-[#241E20] border border-[#C8A8A9]/40 rounded-bl-xs"
                   }`}
                 >
                   <p className="text-xs">{m.content}</p>
@@ -147,48 +148,48 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
               </div>
             ))}
             {loading && (
-              <div className="flex items-center gap-2 text-slate-400 text-xs">
-                <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
-                <span>LangGraph agent processing query...</span>
+              <div className="flex items-center gap-2 text-[#5A5052] text-xs">
+                <Loader2 className="h-4 w-4 animate-spin text-[#965C66]" />
+                <span>AI assistant processing query...</span>
               </div>
             )}
           </div>
 
           {/* Quick Prompts */}
-          <div className="px-3 py-1.5 bg-slate-100/70 border-t border-slate-200 flex gap-1.5 overflow-x-auto text-[11px] text-slate-600">
+          <div className="px-3 py-1.5 bg-[#FAF8F8] border-t border-[#C8A8A9]/30 flex gap-1.5 overflow-x-auto text-[11px] text-[#5A5052]">
             <button
               onClick={() => setQuery("What is CPI formula in MoSPI?")}
-              className="whitespace-nowrap px-2 py-0.5 rounded bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer"
+              className="whitespace-nowrap px-2 py-0.5 rounded bg-white border border-[#C8A8A9]/50 hover:bg-[#965C66]/10 hover:text-[#965C66] cursor-pointer transition-colors"
             >
               CPI formula
             </button>
             <button
               onClick={() => setQuery("Explain NSS rural FSUs")}
-              className="whitespace-nowrap px-2 py-0.5 rounded bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer"
+              className="whitespace-nowrap px-2 py-0.5 rounded bg-white border border-[#C8A8A9]/50 hover:bg-[#965C66]/10 hover:text-[#965C66] cursor-pointer transition-colors"
             >
               NSS FSUs
             </button>
             <button
               onClick={() => setQuery("What is TSA in PFMS?")}
-              className="whitespace-nowrap px-2 py-0.5 rounded bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer"
+              className="whitespace-nowrap px-2 py-0.5 rounded bg-white border border-[#C8A8A9]/50 hover:bg-[#965C66]/10 hover:text-[#965C66] cursor-pointer transition-colors"
             >
               PFMS TSA
             </button>
           </div>
 
           {/* Input Box */}
-          <form onSubmit={handleSend} className="p-3 bg-white border-t border-slate-200 flex gap-2">
+          <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#C8A8A9]/40 flex gap-2">
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ask a technical or training question..."
-              className="h-9 text-xs"
+              className="h-9 text-xs border-[#C8A8A9]/60 focus-visible:ring-[#965C66] focus-visible:border-[#965C66]"
               disabled={loading}
             />
             <Button
               type="submit"
               size="sm"
-              className="h-9 px-3 bg-slate-900 hover:bg-slate-800"
+              className="h-9 px-3 bg-[#965C66] hover:bg-[#824E57] text-white transition-colors"
               disabled={loading || !query.trim()}
             >
               <Send className="h-3.5 w-3.5" />
@@ -199,3 +200,4 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
     </div>
   );
 }
+
