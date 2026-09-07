@@ -150,13 +150,14 @@ export function Navbar() {
             <span className="text-white/40">|</span>
             <span className="text-white/90">Ministry of Statistics &amp; Programme Implementation (MoSPI)</span>
           </div>
-          <div className="ml-auto flex items-center gap-3 text-[11px] text-white/80">
+          <div className="ml-auto flex items-center gap-4 text-[11px]">
+            <span className="hidden md:inline text-white/80">Mission Karmayogi Digital Learning Portal</span>
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer px-1.5 py-0.5 rounded"
+              className="flex items-center gap-1.5 text-white hover:text-white font-medium bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded cursor-pointer transition-colors border border-white/20"
             >
-              <Languages className="h-3 w-3" />
-              <span className="font-semibold uppercase">{language === "en" ? "हिन्दी" : "English"}</span>
+              <Languages className="h-3 w-3 text-white/90" />
+              <span>{language === "en" ? "हिन्दी (HI)" : "English (EN)"}</span>
             </button>
           </div>
         </div>
@@ -180,13 +181,13 @@ export function Navbar() {
             <Award className="h-6 w-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base tracking-tight text-[#0F172A] group-hover:text-[#1E3A8A] transition-colors">
-                iGOT Karmayogi
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-bold text-[#0F172A] tracking-tight group-hover:text-[#1E3A8A] transition-colors">
+                {t("nav.brand")}
               </span>
             </div>
-            <p className="text-[10px] text-slate-500 font-medium tracking-wide">
-              Civil Services Competency Portal
+            <p className="text-[10px] text-slate-500 font-medium leading-none">
+              {t("nav.subBrand")}
             </p>
           </div>
         </Link>
