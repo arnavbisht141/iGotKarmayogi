@@ -1,0 +1,74 @@
+# Arnav Bisht — Contribution & Activity Log
+
+> **Name:** Arnav Bisht  
+> **GitHub Handle:** [@arnavbisht141](https://github.com/arnavbisht141)  
+> **Role:** Full-Stack Architect & DevOps Lead  
+> **Primary Subsystems:** System Architecture, Dockerization, Domain Boundaries, Backend Security (PBKDF2), Auth & RBAC, LMS Player, Assessment Engine  
+
+---
+
+## 1. Summary of Responsibilities
+Lead full-stack engineer and repository architect for the Smart India Hackathon (SIH '26) iGOT Karmayogi (MoSPI) platform. Responsible for translating the validated Miro user flow into a production-ready, containerized multi-service platform. Designed database schemas, implemented core FastAPI endpoints and Next.js frontend pages, engineered containerization lifecycles, and refactored the backend into modular-monolith domain boundaries.
+
+---
+
+## 2. Visible Deliverables (Code & Repository Artifacts)
+
+### 2.1 Multi-Stage Dockerization & DevOps (`79cc29f`)
+- Built Next.js 16 4-stage unprivileged standalone container (~150MB).
+- Built Python 3.12 FastAPI backend container with automated health check probe (`/api/health`).
+- Configured dual Docker Compose setups:
+  - `docker-compose.yml`: Production standalone with volume-persisted SQLite database.
+  - `docker-compose.dev.yml`: Live-reload development setup with host volume binds and protected node_modules/venv volumes.
+
+### 2.2 Backend Domain Reorganization (`630e065`, `d2513d7`)
+- Modularized backend into `backend/app/modules/` (`auth`, `onboarding`, `profile`, `discover`, `courses`, `learning`, `assessments`, `dashboard`, `admin`).
+- Maintained clean separation of LMS data ownership from future AI services.
+- Authored Architecture Decision Records:
+  - `docs/adr/0001-modular-monolith-and-ai-boundary.md`
+  - `docs/adr/0002-backend-owns-lms-data.md`
+
+### 2.3 Backend Security & NIST PBKDF2 Migration
+- Removed fragile `passlib[bcrypt]` dependency due to Python 3.12 runtime errors.
+- Built native PBKDF2-HMAC-SHA256 password hashing utility in `backend/app/core/security.py`.
+- Configured JWT session generation, expiry, and role verification.
+
+### 2.4 Header & Landing Page Aesthetic Parity (`f3116b2`, `e679256`)
+- Removed scrolling marquee banner and MoSPI badge clutter.
+- Standardized navigation typography across `About`, `Resources`, and `Help` to match `Discover`.
+- Enlarged authentication buttons and aligned hero typography with official iGOT Karmayogi navy standards (`#1E3A8A`).
+
+---
+
+## 3. "Invisible" & Offline Contributions
+
+### 3.1 Miro Flow Realization & Requirements Mapping
+- Deconstructed the SIH '26 Miro board user flow into discrete, measurable frontend routes and backend domain modules.
+- Established the 10-widget learner home dashboard inventory and 5-step onboarding wizard.
+
+### 3.2 MoSPI Domain Dataset & Curriculum Research
+- Researched Ministry of Statistics & Programme Implementation (MoSPI) datasets, National Sample Survey (NSS) sampling stages, Consumer Price Index (CPI) Laspeyres formulas, and UN-NQAF statistical quality rubrics to build realistic seed data in `backend/app/core/seed_data.py`.
+
+### 3.3 Evaluation Strategy & Demo Scripting
+- Designed the 3 pre-seeded test personas (`admin@karmayogi.gov.in`, `rajesh.kumar@mospi.gov.in`, `priya.sharma@mospi.gov.in`) with 1-click login buttons on `/login` to ensure seamless live demonstrations for hackathon evaluators.
+
+---
+
+## 4. Chronological Activity Log
+
+| Date | Activity | Category | Notes / Deliverables |
+|---|---|---|---|
+| `2026-09-08` | Revamped docs hierarchy into modular changelog, features, and team logs | `Docs` / `Arch` | Established clean agent-ready documentation structure |
+| `2026-09-07` | Domain boundaries backend refactor | `Code` / `Arch` | Reorganized `backend/app/modules/` and authored ADRs |
+| `2026-09-06` | Header & landing page aesthetic parity pass | `Code` / `UI` | PR #4 merged, unified nav typography, enlarged CTAs |
+| `2026-09-06` | Navy & slate aesthetic alignment | `Code` / `UI` | Replaced flashy AI styles with official iGOT standards |
+| `2026-09-06` | Authored master project context and progress documentation | `Docs` | Comprehensive Phase 0 system reference |
+| `2026-09-06` | Multi-stage Dockerization and compose environments | `DevOps` | Production standalone and live-dev Docker configurations |
+| `2026-09-06` | Initial repository scaffolding and LMS user flow implementation | `Code` | 17 models, FastAPI backend, Next.js frontend, LangGraph |
+
+---
+
+## 5. Notes & Context for Future AI Coding Agents
+- **Next.js Standalone Runner:** Always test client components with `useSearchParams()` inside `<Suspense>` boundaries.
+- **Database Migrations / Seeds:** Whenever adding model fields, always update `backend/app/core/seed_data.py` so demo personas remain fully hydrated on container reset.
+- **Security:** Do not re-install `passlib`. Use `backend/app/core/security.py`.

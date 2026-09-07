@@ -1,28 +1,47 @@
-# Project documentation
+# 🏛️ iGOT Karmayogi (MoSPI) — Project Documentation
 
-This directory records the repository structure and the boundaries agreed for
-future development. Documentation distinguishes current implementation from
-planned work.
+Welcome to the centralized documentation hub for the **iGOT Karmayogi (MoSPI)** platform, built for the **Smart India Hackathon (SIH '26)**.
 
-## Architecture
+This directory provides structured, decentralized knowledge bases for software engineers, evaluators, and AI coding agents.
 
-- [`architecture.md`](architecture.md) describes the current runtime and the
-  planned independent AI-service boundary.
-- [`domain-boundaries.md`](domain-boundaries.md) maps the existing LMS backend
-  code to modular-monolith domains.
-- [`development.md`](development.md) documents current development commands and
-  explicitly identifies work that has not been implemented.
-- [`adr/0001-modular-monolith-and-ai-boundary.md`](adr/0001-modular-monolith-and-ai-boundary.md)
-  records the modular-monolith decision and future AI extraction.
-- [`adr/0002-backend-owns-lms-data.md`](adr/0002-backend-owns-lms-data.md)
-  records the future data-ownership boundary.
+---
 
-## Existing product and UI records
+## 🧭 Documentation Navigation
 
-- [`PROJECT_CONTEXT_AND_PROGRESS.md`](PROJECT_CONTEXT_AND_PROGRESS.md)
-- [`HOMEPAGE_UI_REFINEMENTS.md`](HOMEPAGE_UI_REFINEMENTS.md)
-- [`UI_UX_CHANGES.md`](UI_UX_CHANGES.md)
+### 1. 📜 [Master Changelog](changelog.md)
+The single source of truth for all repository changes made across team members and AI coding agents. Structured chronologically with module attribution (`[frontend]`, `[backend]`, `[devops]`, `[docs]`, `[architecture]`).
 
-Update the closest document whenever a structural boundary changes. Add a new
-ADR for an architectural decision instead of silently rewriting an accepted
-decision.
+---
+
+### 2. 🧩 [Feature Specifications (`docs/features/`)](features/README.md)
+In-depth functional and technical specifications for each subsystem:
+- [🤖 AI Copilot](features/ai-copilot.md) — LangGraph state machine, provider routing (Gemini/OpenAI), deterministic MoSPI fallback engine, and circular launcher widget.
+- [📚 Course Management](features/course-management.md) — Discovery catalog, syllabus hierarchy, Coursera-style split-screen player, and in-lesson practice concept checks.
+- [📝 Assessment & Certification](features/assessment-certification.md) — Timed exams, 70% passing threshold, automatic explanatory grading, celebratory confetti, and verifiable print/PDF certificates.
+- [🔐 Auth, RBAC & Onboarding](features/auth-rbac.md) — NIST PBKDF2-HMAC security, JWT sessions, pre-seeded evaluation personas, and the 5-step onboarding wizard.
+- [📊 Analytics & Dashboards](features/analytics-dashboard.md) — 10-widget learner home dashboard, admin supervisory console, officer roster, and question difficulty analytics.
+- [🎨 UI/UX Design System](features/ui-design-system.md) — Muted Rose design standard, official navy/slate tokens, single-viewport scroll gliding, and zero-shift tab navigation.
+
+---
+
+### 3. 👥 [Teammate Contribution Logs (`docs/team/`)](team/README.md)
+Persistent records tracking both visible repository commits and "invisible" non-code contributions (research, Miro user flows, prompt engineering, system design, and pitch preparation):
+- [Arnav Bisht](team/arnav-bisht.md) — Full-Stack Architecture, DevOps/Docker, Domain Boundaries, Backend Security (PBKDF2), Auth & RBAC.
+- [Diwakar Ujjwal](team/diwakar-ujjwal.md) — Frontend UX Architecture, Viewport Scroll Physics, Zero-Shift Tabs, Dynamic Navigation & Footer.
+- [Aarna](team/aarna605.md) — UI/UX Design System, Muted Rose Palette Tokens, Aspect-Ratio Media Integrity, AI Assistant Widget.
+- [Ravish Kansal](team/ravish-kansal.md) — Frontend UI Implementation, Landing Page Layout Assembly, Responsive Testing & QA.
+
+---
+
+### 4. 🏛️ Architecture & Standards
+- [architecture.md](architecture.md) — System architecture diagram, responsibilities table, 17 database models schema, and mandatory operational guidelines for AI agents.
+- [domain-boundaries.md](domain-boundaries.md) — Modular monolith domain boundaries (`backend/app/modules/`) and LMS data ownership principles.
+- [development.md](development.md) — Quick start runbook, Docker development/production commands, local environment setup, and verification tests.
+- [adr/](adr/) — Architectural Decision Records:
+  - [`0001-modular-monolith-and-ai-boundary.md`](adr/0001-modular-monolith-and-ai-boundary.md)
+  - [`0002-backend-owns-lms-data.md`](adr/0002-backend-owns-lms-data.md)
+
+---
+
+## 📌 Rules for AI Coding Agents
+AI coding agents working in this repository must consult [architecture.md](architecture.md) and the relevant [features/](features/) document before introducing architectural modifications, schema changes, or UI adjustments.
