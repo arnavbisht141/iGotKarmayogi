@@ -98,39 +98,33 @@ export default function EntryLandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col bg-[#EEE8E9] w-full">
+    <div className="flex flex-col bg-[#F8FAFC] w-full">
       {/* 1. Hero & Statistics Section: Sized to full viewport height minus navbar */}
       <section
         id="hero"
-        className="scroll-mt-[120px] min-h-[calc(100vh-120px)] flex flex-col justify-center bg-[#EEE8E9] text-[#241E20] py-6 sm:py-8 lg:py-10"
+        className="scroll-mt-[120px] min-h-[calc(100vh-120px)] flex flex-col justify-center bg-gradient-to-b from-white via-[#F8FAFC] to-[#F1F5F9] text-[#0F172A] py-8 sm:py-10 lg:py-12 border-b border-slate-200"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           {/* Two-Column Hero Grid: Left Content (7 cols) and Right Carousel (5 cols), Top-Aligned */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center">
-            {/* Left Column: Top-Aligned with Badge at Top */}
+            {/* Left Column: Top-Aligned */}
             <div className="lg:col-span-7 xl:col-span-7 flex flex-col justify-start text-left">
-              {/* Institutional Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#965C66]/10 text-[#965C66] text-xs font-semibold mb-3 w-fit border border-[#965C66]/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#965C66]" />
-                Mission Karmayogi Bharat • MoSPI
-              </div>
-
-              {/* Concise Title fitting on ONE LINE on desktop */}
-              <h1 className="text-2xl sm:text-3xl lg:text-[28px] xl:text-[32px] font-bold tracking-tight text-[#241E20] leading-tight lg:whitespace-nowrap">
+              {/* Official Portal Title */}
+              <h1 className="text-3xl sm:text-4xl lg:text-[36px] font-extrabold tracking-tight text-slate-900 leading-tight">
                 National Learning Platform for Civil Services
               </h1>
 
-              {/* Short, clear subtitle directly underneath */}
-              <p className="mt-3 text-sm sm:text-base text-[#5A5052] font-normal leading-relaxed max-w-xl">
+              {/* Clear subtitle directly underneath */}
+              <p className="mt-4 text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
                 Standardized competency frameworks, accredited modules, and verified certifications for India&apos;s public administrators.
               </p>
 
-              {/* Pill-shaped action buttons in consistent Muted Rose styling */}
-              <div className="mt-6 sm:mt-7 flex flex-wrap items-center gap-3.5">
+              {/* Action buttons in official Karmayogi styling */}
+              <div className="mt-8 flex flex-wrap items-center gap-4">
                 <a href="/login">
                   <Button
                     size="lg"
-                    className="rounded-full bg-[#965C66] hover:bg-[#824E57] text-white font-medium text-sm px-6 py-2.5 shadow-xs transition-all flex items-center gap-2 border border-[#965C66] cursor-pointer"
+                    className="h-11 px-7 rounded-lg bg-[#1E3A8A] hover:bg-[#1D3557] text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2 border border-[#1E3A8A] cursor-pointer"
                   >
                     Official Sign In <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -139,20 +133,20 @@ export default function EntryLandingPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="rounded-full border-[#965C66]/40 text-[#965C66] hover:bg-[#965C66]/10 hover:border-[#965C66] hover:text-[#824E57] font-medium text-sm px-6 py-2.5 transition-all flex items-center gap-2 bg-transparent cursor-pointer"
+                    className="h-11 px-7 rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 hover:text-[#1E3A8A] font-semibold text-sm transition-all flex items-center gap-2 bg-white cursor-pointer"
                   >
-                    <Compass className="h-4 w-4 text-[#965C66]" /> Explore Courses
+                    <Compass className="h-4 w-4 text-[#1E3A8A]" /> Explore Courses
                   </Button>
                 </a>
               </div>
             </div>
 
-            {/* Right Column: Hero Image Carousel (~35-40% width), Top-Aligned with Badge, Right-Edge Aligned */}
+            {/* Right Column: Hero Image Carousel (~35-40% width) */}
             <div className="lg:col-span-5 xl:col-span-5 w-full flex flex-col items-end">
               <div className="w-full">
-                {/* Clean White Frame: Top edge aligned with Badge, object-contain to NEVER crop any image */}
+                {/* Clean White Frame */}
                 <div
-                  className="relative w-full h-[195px] sm:h-[215px] bg-white rounded-xl border border-[#C8A8A9]/50 shadow-xs p-2 sm:p-2.5 overflow-hidden group"
+                  className="relative w-full h-[200px] sm:h-[225px] bg-white rounded-xl border border-slate-200 shadow-sm p-2 sm:p-2.5 overflow-hidden group"
                   onMouseEnter={() => setIsPaused(true)}
                   onMouseLeave={() => setIsPaused(false)}
                 >
@@ -177,7 +171,7 @@ export default function EntryLandingPage() {
                     type="button"
                     onClick={handlePrev}
                     aria-label="Previous slide"
-                    className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 h-6 w-6 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center shadow-xs border border-[#C8A8A9]/40 transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 h-6 w-6 rounded-full bg-white/95 hover:bg-white text-slate-600 hover:text-[#1E3A8A] flex items-center justify-center shadow-xs border border-slate-200 transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </button>
@@ -185,24 +179,24 @@ export default function EntryLandingPage() {
                     type="button"
                     onClick={handleNext}
                     aria-label="Next slide"
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 h-6 w-6 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center shadow-xs border border-[#C8A8A9]/40 transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 h-6 w-6 rounded-full bg-white/95 hover:bg-white text-slate-600 hover:text-[#1E3A8A] flex items-center justify-center shadow-xs border border-slate-200 transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
                   >
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
-                {/* Small, subtle pagination indicators & controls underneath */}
-                <div className="mt-2 flex items-center justify-center gap-1.5">
+                {/* Small pagination indicators & controls */}
+                <div className="mt-2.5 flex items-center justify-center gap-1.5">
                   <button
                     type="button"
                     onClick={handlePrev}
                     aria-label="Previous slide"
-                    className="h-5 w-5 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center border border-[#C8A8A9]/40 shadow-2xs transition-colors cursor-pointer"
+                    className="h-5 w-5 rounded-full bg-white hover:bg-slate-100 text-slate-600 hover:text-[#1E3A8A] flex items-center justify-center border border-slate-200 shadow-2xs transition-colors cursor-pointer"
                   >
                     <ChevronLeft className="h-3 w-3" />
                   </button>
 
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/90 rounded-full border border-[#C8A8A9]/40 shadow-2xs">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-full border border-slate-200 shadow-2xs">
                     {HERO_SLIDES.map((_, idx) => (
                       <button
                         key={idx}
@@ -211,8 +205,8 @@ export default function EntryLandingPage() {
                         aria-label={`Slide ${idx + 1}`}
                         className={`transition-all duration-300 rounded-full cursor-pointer ${
                           idx === currentSlide
-                            ? "w-3.5 h-1 bg-[#965C66]"
-                            : "w-1 h-1 bg-[#C8A8A9]/70 hover:bg-[#965C66]/60"
+                            ? "w-4 h-1.5 bg-[#1E3A8A]"
+                            : "w-1.5 h-1.5 bg-slate-300 hover:bg-slate-400"
                         }`}
                       />
                     ))}
@@ -222,7 +216,7 @@ export default function EntryLandingPage() {
                     type="button"
                     onClick={handleNext}
                     aria-label="Next slide"
-                    className="h-5 w-5 rounded-full bg-white/90 hover:bg-white text-[#5A5052] hover:text-[#965C66] flex items-center justify-center border border-[#C8A8A9]/40 shadow-2xs transition-colors cursor-pointer"
+                    className="h-5 w-5 rounded-full bg-white hover:bg-slate-100 text-slate-600 hover:text-[#1E3A8A] flex items-center justify-center border border-slate-200 shadow-2xs transition-colors cursor-pointer"
                   >
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
@@ -231,31 +225,31 @@ export default function EntryLandingPage() {
             </div>
           </div>
 
-          {/* Statistics Bar: Visually aligned with hero content */}
-          <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-[#C8A8A9]/35">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x md:divide-[#C8A8A9]/35">
-              {/* Item 1 */}
+          {/* Statistics Bar: In the EXACT same container, visually aligned with hero content left and right edges */}
+          <div className="mt-12 sm:mt-14 pt-7 sm:pt-8 border-t border-slate-200">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-slate-200">
+              {/* Item 1: Aligns directly with the left edge of the hero content */}
               <div className="text-left md:pr-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">40,000+</p>
-                <p className="text-xs font-medium text-[#5A5052] mt-0.5">Civil Servants Trained</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">40,000+</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Civil Servants Trained</p>
               </div>
 
               {/* Item 2 */}
               <div className="text-left md:px-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">100%</p>
-                <p className="text-xs font-medium text-[#5A5052] mt-0.5">MoSPI Standardized</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">100%</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Accredited Curriculum</p>
               </div>
 
               {/* Item 3 */}
               <div className="text-left md:px-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">UN-NQAF</p>
-                <p className="text-xs font-medium text-[#5A5052] mt-0.5">Quality Frameworks</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">UN-NQAF</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Quality Frameworks</p>
               </div>
 
-              {/* Item 4 */}
+              {/* Item 4: Left-aligned within column matching items 1-3 */}
               <div className="text-left md:pl-6">
-                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#965C66]">Verifiable</p>
-                <p className="text-xs font-medium text-[#5A5052] mt-0.5">Government Credentials</p>
+                <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E3A8A]">Verifiable</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">Government Credentials</p>
               </div>
             </div>
           </div>
