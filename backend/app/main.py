@@ -5,15 +5,15 @@ from app.core.database import engine, Base, SessionLocal
 from app.core.seed_data import seed_database
 
 # Import routers
-from app.auth.router import router as auth_router
-from app.onboarding.router import router as onboarding_router
-from app.dashboard.router import router as dashboard_router
-from app.discover.router import router as discover_router
-from app.courses.router import router as courses_router
-from app.learning.router import router as learning_router
-from app.assessments.router import router as assessments_router
-from app.profile.router import router as profile_router
-from app.admin.router import router as admin_router
+from app.modules.auth.router import router as auth_router
+from app.modules.onboarding.router import router as onboarding_router
+from app.modules.dashboard.router import router as dashboard_router
+from app.modules.discover.router import router as discover_router
+from app.modules.courses.router import router as courses_router
+from app.modules.learning.router import router as learning_router
+from app.modules.assessments.router import router as assessments_router
+from app.modules.profile.router import router as profile_router
+from app.modules.admin.router import router as admin_router
 from app.agents.router import router as agents_router
 
 # Create DB tables

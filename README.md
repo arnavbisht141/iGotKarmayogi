@@ -215,3 +215,16 @@ A template `.env.example` is included at the repository root:
 | `GOOGLE_API_KEY` | Google Gemini API key for LangGraph Copilot | *Optional (built-in fallback engine active)* |
 | `OPENAI_API_KEY` | OpenAI API key for LangGraph Copilot | *Optional (built-in fallback engine active)* |
 | `NEXT_PUBLIC_API_URL` | Public endpoint for backend API | `http://localhost:8000/api` |
+
+---
+
+## Repository organization
+
+The existing implementation is organized as a modular-monolith backend and a
+feature-oriented frontend. No business logic was changed as part of this move.
+
+- [`backend/README.md`](backend/README.md) documents backend ownership and modules.
+- [`frontend/README.md`](frontend/README.md) documents frontend feature boundaries.
+- [`ai-service/README.md`](ai-service/README.md) reserves the future independent AI boundary; it contains no implementation yet.
+- [`docs/README.md`](docs/README.md) indexes architecture records and existing project documentation.
+- [`.github/CODEOWNERS`](.github/CODEOWNERS) contains placeholders for team ownership.
