@@ -5,7 +5,7 @@ import { AuthProvider } from "@/lib/auth/AuthContext";
 import { I18nProvider } from "@/lib/i18n";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
-import { AiAssistantWidget } from "@/components/shared/AiAssistantWidget";
+import { AiAssistantWidget } from "@/features/assistant/components/AiAssistantWidget";
 
 const inter = Inter({ subsets: ["latin"] });
 
