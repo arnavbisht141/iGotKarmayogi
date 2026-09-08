@@ -105,7 +105,7 @@ export function Navbar() {
 
   // Precision smooth scroll handler for anchor links
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    if (pathname === "/") {
+    if (!user && pathname === "/") {
       e.preventDefault();
       e.stopPropagation();
 
@@ -174,12 +174,12 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-1.5">
           {/* Institutional Section Navigation Links */}
           <Link
-            href="/#about"
+            href={!user && pathname === "/" ? "/#about" : "/about"}
             scroll={false}
             prefetch={false}
             onClick={(e) => handleAnchorClick(e, "about")}
             className={`px-3.5 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "about"
+              isActive("/about") || (pathname === "/" && activeSection === "about")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 border-transparent"
             }`}
@@ -187,12 +187,12 @@ export function Navbar() {
             {t("nav.about")}
           </Link>
           <Link
-            href="/#how-it-works"
+            href={!user && pathname === "/" ? "/#how-it-works" : "/how-it-works"}
             scroll={false}
             prefetch={false}
             onClick={(e) => handleAnchorClick(e, "how-it-works")}
             className={`px-3.5 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "how-it-works"
+              isActive("/how-it-works") || (pathname === "/" && activeSection === "how-it-works")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 border-transparent"
             }`}
@@ -200,12 +200,12 @@ export function Navbar() {
             {t("nav.howItWorks")}
           </Link>
           <Link
-            href="/#resources"
+            href={!user && pathname === "/" ? "/#resources" : "/resources"}
             scroll={false}
             prefetch={false}
             onClick={(e) => handleAnchorClick(e, "resources")}
             className={`px-3.5 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "resources"
+              isActive("/resources") || (pathname === "/" && activeSection === "resources")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 border-transparent"
             }`}
@@ -213,12 +213,12 @@ export function Navbar() {
             {t("nav.resources")}
           </Link>
           <Link
-            href="/#help"
+            href={!user && pathname === "/" ? "/#help" : "/help"}
             scroll={false}
             prefetch={false}
             onClick={(e) => handleAnchorClick(e, "help")}
             className={`px-3.5 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "help"
+              isActive("/help") || (pathname === "/" && activeSection === "help")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 border-transparent"
             }`}
@@ -400,11 +400,9 @@ export function Navbar() {
             {t("nav.discover")}
           </Link>
           <Link
-            href="/#about"
-            scroll={false}
-            prefetch={false}
+            href={!user && pathname === "/" ? "/#about" : "/about"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "about"
+              isActive("/about") || (pathname === "/" && activeSection === "about")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -413,11 +411,9 @@ export function Navbar() {
             {t("nav.about")}
           </Link>
           <Link
-            href="/#how-it-works"
-            scroll={false}
-            prefetch={false}
+            href={!user && pathname === "/" ? "/#how-it-works" : "/how-it-works"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "how-it-works"
+              isActive("/how-it-works") || (pathname === "/" && activeSection === "how-it-works")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -426,11 +422,9 @@ export function Navbar() {
             {t("nav.howItWorks")}
           </Link>
           <Link
-            href="/#resources"
-            scroll={false}
-            prefetch={false}
+            href={!user && pathname === "/" ? "/#resources" : "/resources"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "resources"
+              isActive("/resources") || (pathname === "/" && activeSection === "resources")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -439,11 +433,9 @@ export function Navbar() {
             {t("nav.resources")}
           </Link>
           <Link
-            href="/#help"
-            scroll={false}
-            prefetch={false}
+            href={!user && pathname === "/" ? "/#help" : "/help"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              activeSection === "help"
+              isActive("/help") || (pathname === "/" && activeSection === "help")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}

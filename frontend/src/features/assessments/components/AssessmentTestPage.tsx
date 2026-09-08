@@ -172,7 +172,7 @@ export default function AssessmentTestPage() {
               {results.passed && (
                 <Button
                   onClick={() => setShowCertModal(true)}
-                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs"
+                  className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold shadow-xs cursor-pointer"
                 >
                   <Award className="h-4 w-4 mr-1.5 text-amber-400" />
                   {t("assess.viewCertificate")}
@@ -214,8 +214,16 @@ export default function AssessmentTestPage() {
                     <p className="font-bold text-slate-900">
                       Q{idx + 1}: {item.question_text}
                     </p>
-                    <Badge variant={item.is_correct ? "success" : "default"}>
-                      {item.is_correct ? "Correct ✓" : "Incorrect ✗"}
+                    <Badge variant={item.is_correct ? "success" : "default"} className="inline-flex items-center gap-1">
+                      {item.is_correct ? (
+                        <>
+                          <CheckCircle2 className="h-3 w-3" /> Correct
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-3 w-3" /> Incorrect
+                        </>
+                      )}
                     </Badge>
                   </div>
 
@@ -314,7 +322,7 @@ export default function AssessmentTestPage() {
             <Button
               size="sm"
               onClick={() => setTestStarted(true)}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-6 shadow-xs"
+              className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-6 shadow-xs cursor-pointer"
             >
               {t("assess.startAssessment")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
@@ -368,7 +376,7 @@ export default function AssessmentTestPage() {
                 onClick={() => handleSelectOption(question.id, optIdx)}
                 className={`w-full p-3.5 rounded-xl border text-left text-xs font-medium transition-all cursor-pointer flex items-center gap-3 ${
                   isSelected
-                    ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                    ? "bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-xs"
                     : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                 }`}
               >
@@ -402,7 +410,7 @@ export default function AssessmentTestPage() {
               <Button
                 size="sm"
                 onClick={() => setCurrentQuestionIdx((p) => p + 1)}
-                className="bg-slate-900 text-white text-xs px-5"
+                className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs px-5 cursor-pointer"
               >
                 Next Question <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
@@ -432,7 +440,7 @@ export default function AssessmentTestPage() {
               onClick={() => setCurrentQuestionIdx(idx)}
               className={`h-7 w-7 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                 isCurrent
-                  ? "bg-slate-900 text-amber-400 ring-2 ring-slate-400"
+                  ? "bg-[#1E3A8A] text-white ring-2 ring-blue-300"
                   : isAnswered
                   ? "bg-emerald-100 text-emerald-800"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
