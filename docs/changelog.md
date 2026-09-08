@@ -25,7 +25,29 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
-### [2026-09-08] - Streamlined Government Portal & Sober Yellow Refinements
+### [2026-09-08] - Discover Page Overhaul, Background Fix & Full Hindi Localization
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
+- **Branch**: `discover`
+- **Description**:
+  - Solved the background color and container problem on `/discover`: replaced the nested, floating widget box layout with a seamless full-width institutional white header banner (`bg-white border-b border-slate-200`) and a unified `#F8FAFC` slate catalog canvas.
+  - Eliminated all artificial "AI telltale" indicators: removed unicode emojis (`🔥`, `✨`, `★`) from category tabs, trending pills, and course cards, and replaced rectangular colored pill boxes above headings with clean, letter-spaced ministry eyebrow text and Lucide `Building2` iconography.
+  - Implemented 100% full bilingual (Hindi/English) compatibility: expanded `frontend/src/lib/i18n/index.tsx` dictionary with translations for search inputs, search/clear buttons, trending topics (*National Sample Survey*, *CPI*, *PFMS*, etc.), discipline categories, filter options, sort order, and dynamic course card title/overview metadata.
+  - Elevated course card presentation: integrated official MoSPI/ISTM badges, Lucide `Clock` duration counters, Lucide `Star` ratings with enrolled counts, structured metadata lists, and official Navy `#1E3A8A` primary buttons.
+  - Added an institutional accreditation trust ribbon affirming MoSPI accreditation, CBC competency guidelines, and verifiable cryptographic credentials.
+  - Harmonized `CourseDetailPage.tsx` with clean layout, Lucide `Star` rating icons, and bilingual string lookup.
+  - Updated documentation across `docs/features/course-management.md`, `docs/features/ui-design-system.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
+- **Affected Files**:
+  - `frontend/src/features/catalog/components/DiscoverPage.tsx`
+  - `frontend/src/features/catalog/components/CourseDetailPage.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `docs/features/course-management.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+
+---
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[docs]`
 - **Branch**: `homepage`
