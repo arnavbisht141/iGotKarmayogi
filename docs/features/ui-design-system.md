@@ -1,4 +1,4 @@
-# 🎨 UI/UX Design System: Navy Blue & Yellow/Gold Institutional Standard
+# UI/UX Design System: Navy Blue & Yellow/Gold Institutional Standard
 
 > **Status:** `Implemented` (Phase 0 / Design System v2.0)  
 > **Primary Files:**  

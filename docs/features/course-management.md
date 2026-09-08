@@ -1,4 +1,4 @@
-# 📚 Course Management & Learning Player
+# Course Management & Learning Player
 
 > **Status:** `Implemented` (Phase 0)  
 > **Primary Modules:**  
