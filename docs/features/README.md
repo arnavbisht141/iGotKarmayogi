@@ -15,7 +15,8 @@ Each document provides deep technical context designed for **human developers** 
 | [📝 Assessment & Certification](assessment-certification.md) | **Implemented** (Phase 0) | `/assess/[assessmentId]`, `CertificateModal.tsx` | `Assessment`, `Question`, `AssessmentAttempt`, Certificates |
 | [🔐 Auth, RBAC & Onboarding](auth-rbac.md) | **Implemented** (Phase 0) | `/login`, `/register`, `/onboarding`, `backend/app/modules/auth` | `User`, `UserProfile`, `Department`, PBKDF2-HMAC, Test Personas |
 | [📊 Analytics & Dashboards](analytics-dashboard.md) | **Implemented** (Phase 0) | `/home`, `/admin`, `/my-learning`, `backend/app/modules/dashboard` | `LearningHistory`, `SearchHistory`, `UserSkill`, `Skill` |
-| [🎨 UI/UX Design System](ui-design-system.md) | **Implemented** (Phase 0) | Landing page (`/`), `Navbar.tsx`, `Footer.tsx`, `globals.css` | Muted Rose standard, Navy/Slate accents, Viewport-snap scroll |
+| [🎨 UI/UX Design System](ui-design-system.md) | **Implemented** (Phase 0) | Global tokens, `Navbar.tsx`, `Footer.tsx`, `globals.css` | Navy Blue & Gold standard, Slate neutral, Viewport-snap scroll |
+| [🏛️ Homepage & Public Portal](homepage-portal.md) | **Implemented** (Phase 0) | Landing page (`/`), `EntryLandingPage.tsx` | 5-section layout, Navy/Gold palette, connected timeline, stats |
 
 ---
 

@@ -38,6 +38,15 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 - Standardized navigation typography across `About`, `Resources`, and `Help` to match `Discover`.
 - Enlarged authentication buttons and aligned hero typography with official iGOT Karmayogi navy standards (`#1E3A8A`).
 
+### 2.5 Homepage Aesthetic Unification & Streamlined Government Portal (branch: `homepage`)
+- Completely unified the portal landing page (`EntryLandingPage.tsx`) under the official **Navy Blue (`#1E3A8A`) & Sober Yellow (`#EAB308`) Institutional Standard**, systematically replacing fragmented legacy rose/charcoal hues.
+- Streamlined the header by removing the redundant top ministry ribbon and cleanly integrating the bilingual (Hindi/English) language switcher directly into the desktop navbar and mobile menu.
+- Eliminated artificial "AI telltale" elements: removed multi-colored eyebrow pill boxes above section titles, discarded fake progress meters, rainbow gradient lines, and synthetic query chips.
+- Transitioned to sober warm yellow accents (`#EAB308` / `#CA8A04`) on milestone step indicators, certificate badges, and registration CTAs.
+- Preserved single-viewport layout physics with updated header metrics (`scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)]`) and zero-shift programmatic glide scrolling.
+- Engineered full bilingual internationalization (Hindi/English) across all homepage sections (`hero`, `about`, `howItWorks`, `resources`, `help`, `footer`) via `useI18n()` and persistent client state.
+- Authored the feature specification `docs/features/homepage-portal.md` and updated `ui-design-system.md`.
+
 ---
 
 ## 3. "Invisible" & Offline Contributions
@@ -58,6 +67,7 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
+| `2026-09-08` | Homepage overhaul & Navy/Gold design unification | `Code` / `UI` / `Docs` | Unified `EntryLandingPage.tsx`, added graphical timeline, rich icons, authored `homepage-portal.md` |
 | `2026-09-08` | Revamped docs hierarchy into modular changelog, features, and team logs | `Docs` / `Arch` | Established clean agent-ready documentation structure |
 | `2026-09-07` | Domain boundaries backend refactor | `Code` / `Arch` | Reorganized `backend/app/modules/` and authored ADRs |
 | `2026-09-06` | Header & landing page aesthetic parity pass | `Code` / `UI` | PR #4 merged, unified nav typography, enlarged CTAs |
