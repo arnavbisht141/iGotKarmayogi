@@ -61,6 +61,12 @@ Clicking any navigation item glides directly to and frames that section cleanly 
   - Omitted on the landing page (`pathname === "/"`) so that `#help`'s integrated dark CTA and legal ribbon sits flush at the bottom.
   - Automatically rendered on all inner views (`/discover`, `/login`, `/register`, `/home`, etc.).
 
+### 3.5 Catalogue Workspace Architecture (`DiscoverPage.tsx` & `CourseDetailPage.tsx`)
+- **Full-Width Institutional Header (`bg-white border-b border-slate-200`):** Replaced isolated floating widget cards with full-bleed institutional banners featuring clean letter-spaced ministry eyebrow text and Lucide `Building2` iconography.
+- **Slate Workspace Canvas (`bg-[#F8FAFC]`):** The catalog grid and filter ribbon live directly on the clean `#F8FAFC` slate canvas with crisp white course cards (`bg-white border border-slate-200 shadow-2xs`).
+- **Unified Action Buttons:** All primary course exploration and enrollment CTAs standardize on Official Navy Primary (`bg-[#1E3A8A] hover:bg-[#172554] text-white`).
+- **Complete Bilingual i18n Integration:** Every text element, filter option, search input, topic badge, and course title dynamically responds to the Navbar's `useI18n()` language toggle.
+
 ---
 
 ## 4. Graphical & Iconography Guidelines
@@ -70,3 +76,5 @@ Clicking any navigation item glides directly to and frames that section cleanly 
    - Accent: `bg-amber-50 text-amber-700 border border-amber-200`
 2. **Progressive Flow Lines:** Connected workflows utilize smooth gradients (`from-[#1E3A8A] via-blue-400 to-[#F59E0B]`) with numbered step pins.
 3. **Aspect Ratio Preservation:** Official institutional media (`/karmayogi.jpg`, `/government-meeting.jpg`, `/ai-daksh.jpg`) MUST retain natural aspect ratios using `object-contain` within framed containers.
+4. **Strict Elimination of Emojis & AI Telltales:** All decorative unicode emojis (`🔥`, `✨`, `★`) and artificial rectangular colored pill boxes above headings are strictly disallowed. Use semantic Lucide SVG icons (e.g. `Star` with sober yellow fill, `Building2`, `Clock`, `TrendingUp`) and official typography to maintain constitutional and civil service gravitas.
+

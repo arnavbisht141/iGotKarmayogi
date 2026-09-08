@@ -35,16 +35,18 @@ Civil service training requires accredited, structured syllabi covering national
 
 ## 3. Detailed Component Breakdown
 
-### 3.1 Course Discovery Catalog (`frontend/src/app/discover/page.tsx`)
-- **Search & Filter:** Instant search input with keyword query matching and trending tags (*NSS Survey*, *CPI Inflation*, *PFMS*, *Sampling*).
-- **Categorization:** Tabs for *All*, *Popular*, *New*, *Foundational*, and *Advanced*.
-- **Provider Segmentation:** Delineates internal MoSPI courses from external partner offerings (e.g. ISTM, DoPT).
+### 3.1 Course Discovery Catalog (`frontend/src/app/discover/page.tsx` & `frontend/src/features/catalog/components/DiscoverPage.tsx`)
+- **Institutional Visual Hierarchy:** Full-width white header (`bg-white border-b border-slate-200`) with uppercase ministry eyebrow (`Building2` icon) and slate workspace canvas (`bg-[#F8FAFC]`), harmonizing seamlessly with the national homepage design system.
+- **Emoji-Free Government Typography:** All decorative emojis (`🔥`, `✨`, text stars `★`) and artificial rectangular colored pill boxes have been completely eliminated in favor of clean Lucide SVG icons and government-standard typography.
+- **Comprehensive Bilingual (Hindi/English) Support:** Integrated with `useI18n()` providing instant toggle between English and Hindi across the entire catalog—including search inputs, trending keywords (*National Sample Survey* / *राष्ट्रीय नमूना सर्वेक्षण*, *Consumer Price Index* / *उपभोक्ता मूल्य सूचकांक*), discipline categories (*Data Science* / *डेटा विज्ञान*), filter options, course titles, syllabus overviews, accredited organizations, and action buttons.
+- **Instant Search & Interactive Filtering:** Debounced search bar with clear button, provider source toggle (*MoSPI Internal* vs. *External Accredited*), difficulty level dropdown (*Beginner*, *Intermediate*, *Advanced*), dynamic sorting (*Most Enrolled*, *Highest Rated*, *Newly Published*, *Shortest Duration*), and one-click filter reset.
+- **Accreditation Trust Ribbon:** Institutional accreditation footer affirming MoSPI accreditation, CBC competency guidelines, and verifiable cryptographic credentials.
 - **Turbopack / Standalone Guard:** Query parameter reading is wrapped inside a React `<Suspense>` boundary to maintain Next.js standalone container compatibility.
 
-### 3.2 Course Overview & Syllabus (`frontend/src/app/courses/[courseId]/page.tsx`)
-- **Metadata Card:** Estimated duration, lesson count, difficulty level, accrediting body (MoSPI/ISTM), and acquired competency badges.
-- **Collapsible Syllabus Tree:** Accordion breakdown of modules and contained atomic lessons.
-- **Dynamic Action Button:** Context-aware CTA toggling between *Start Course*, *Resume Learning*, and *Completed* based on enrollment state.
+### 3.2 Course Overview & Syllabus (`frontend/src/app/courses/[courseId]/page.tsx` & `frontend/src/features/catalog/components/CourseDetailPage.tsx`)
+- **Metadata Card:** Estimated duration, lesson count, difficulty level, accrediting body (MoSPI/ISTM), and acquired competency badges using unified Navy `#1E3A8A` / Sober Yellow `#EAB308` palette.
+- **Collapsible Syllabus Tree:** Accordion breakdown of modules and contained atomic lessons with lesson duration and practice indicator badges.
+- **Dynamic Action Button:** Context-aware CTA toggling between *Start Course*, *Resume Learning*, and *Completed* based on enrollment state, with full Hindi localization.
 
 ### 3.3 Coursera-Style Split-Screen Learning Player (`frontend/src/app/learn/[courseId]/page.tsx`)
 - **Curriculum Sidebar (Left):**
