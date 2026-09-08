@@ -1,7 +1,7 @@
 # Ravish Kansal — Contribution & Activity Log
 
 > **Name:** Ravish Kansal  
-> **GitHub Handle:** [@RavishKansal](https://github.com/RavishKansal)  
+> **GitHub Handle:** [@ravishkansal22](https://github.com/ravishkansal22)  
 > **Role:** Frontend Engineer & Quality Assurance  
 > **Primary Subsystems:** Landing Page Component Assembly, Section Integration, Responsive Layouts, Cross-Browser QA  
 
