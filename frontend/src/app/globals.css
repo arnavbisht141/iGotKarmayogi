@@ -1,43 +1,75 @@
 @import "tailwindcss";
 
 :root {
+  /* ── Core Brand ─────────────────────────────── */
   --background: #F8FAFC;
   --foreground: #0F172A;
-  --color-primary: #1E3A8A;
-  --color-primary-hover: #1D3557;
-  --color-navy-primary: #1E3A8A;
-  --color-navy-hover: #172554;
-  --color-navy-deep: #0F2C59;
-  --color-navy-darkest: #0B1930;
-  --color-gold-primary: #EAB308;
-  --color-gold-hover: #CA8A04;
-  --color-gold-light: #FEF9C3;
-  --color-gold-border: #FDE047;
+
+  /* ── Navy Scale ─────────────────────────────── */
+  --color-primary:        #1E3A8A;
+  --color-primary-hover:  #1E3570;
+  --color-navy-primary:   #1E3A8A;
+  --color-navy-hover:     #172554;
+  --color-navy-700:       #1E3570;
+  --color-navy-deep:      #0F2C59;
+  --color-navy-900:       #0C1B3D;
+  --color-navy-darkest:   #070E20;
+
+  /* ── Gold / Yellow ───────────────────────────── */
+  --color-gold-primary:   #EAB308;
+  --color-gold-hover:     #CA8A04;
+  --color-gold-light:     #FEF9C3;
+  --color-gold-border:    #FDE047;
+  --color-ochre-500:      #B45309;
+  --color-ochre-50:       #FFFBEB;
+
+  /* ── Teal Accents ────────────────────────────── */
+  --color-teal-600:       #0D9488;
+  --color-teal-500:       #14B8A6;
+  --color-teal-50:        #F0FDFA;
+
+  /* ── Sage / Emerald ──────────────────────────── */
+  --color-sage-600:       #059669;
+  --color-sage-50:        #ECFDF5;
+
+  /* ── Slate Scale ─────────────────────────────── */
+  --color-slate-950:      #020617;
+  --color-slate-text:     #334155;
+  --color-slate-muted:    #64748B;
+  --color-slate-border:   #E2E8F0;
+
+  /* ── Legacy compat ───────────────────────────── */
   --color-accent-saffron: #EA580C;
-  --color-slate-border: #E2E8F0;
-  --color-slate-text: #334155;
-  --color-slate-muted: #64748B;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--color-primary);
-  --color-primary-hover: var(--color-primary-hover);
-  --color-navy-primary: var(--color-navy-primary);
-  --color-navy-hover: var(--color-navy-hover);
-  --color-navy-deep: var(--color-navy-deep);
-  --color-navy-darkest: var(--color-navy-darkest);
-  --color-gold-primary: var(--color-gold-primary);
-  --color-gold-hover: var(--color-gold-hover);
-  --color-gold-light: var(--color-gold-light);
-  --color-gold-border: var(--color-gold-border);
+  --color-background:     var(--background);
+  --color-foreground:     var(--foreground);
+  --color-primary:        var(--color-primary);
+  --color-primary-hover:  var(--color-primary-hover);
+  --color-navy-primary:   var(--color-navy-primary);
+  --color-navy-hover:     var(--color-navy-hover);
+  --color-navy-700:       var(--color-navy-700);
+  --color-navy-deep:      var(--color-navy-deep);
+  --color-navy-900:       var(--color-navy-900);
+  --color-navy-darkest:   var(--color-navy-darkest);
+  --color-gold-primary:   var(--color-gold-primary);
+  --color-gold-hover:     var(--color-gold-hover);
+  --color-gold-light:     var(--color-gold-light);
+  --color-gold-border:    var(--color-gold-border);
+  --color-ochre-500:      var(--color-ochre-500);
+  --color-ochre-50:       var(--color-ochre-50);
+  --color-teal-600:       var(--color-teal-600);
+  --color-teal-500:       var(--color-teal-500);
+  --color-teal-50:        var(--color-teal-50);
+  --color-sage-600:       var(--color-sage-600);
+  --color-sage-50:        var(--color-sage-50);
+  --color-slate-text:     var(--color-slate-text);
+  --color-slate-muted:    var(--color-slate-muted);
+  --color-slate-border:   var(--color-slate-border);
   --color-accent-saffron: var(--color-accent-saffron);
-  --color-slate-border: var(--color-slate-border);
-  --color-slate-text: var(--color-slate-text);
-  --color-slate-muted: var(--color-slate-muted);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:            var(--font-geist-sans);
+  --font-mono:            var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,8 +79,12 @@
   }
 }
 
-/* Anchor smooth scrolling is handled programmatically in Navbar to preserve native trackpad inertia and prevent double offsets */
+/* ───────────────────────────────────────────────────────────
+   BASE
+   ─────────────────────────────────────────────────────────── */
 
+/* Anchor smooth scrolling is handled programmatically in Navbar
+   to preserve native trackpad inertia and prevent double offsets */
 
 body {
   background: var(--background);
@@ -56,14 +92,177 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
+/* ───────────────────────────────────────────────────────────
+   KEYFRAME ANIMATIONS
+   ─────────────────────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
   }
-  100% {
-    transform: translateX(-50%);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.5), 0 0 0 0 rgba(13, 148, 136, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(30, 58, 138, 0), 0 0 0 18px rgba(13, 148, 136, 0);
+  }
+}
+
+@keyframes floatDot {
+  0%, 100% { transform: translateY(0);   opacity: 1;   }
+  50%       { transform: translateY(-5px); opacity: 0.5; }
+}
+
+@keyframes slideLine {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes cardHover {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-3px) scale(1.002); }
+}
+
+/* ───────────────────────────────────────────────────────────
+   ANIMATION UTILITY CLASSES
+   ─────────────────────────────────────────────────────────── */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.animate-fade-in-up-delay-1 {
+  animation: fadeInUp 0.5s 0.1s ease-out both;
+}
+
+.animate-fade-in-up-delay-2 {
+  animation: fadeInUp 0.5s 0.2s ease-out both;
+}
+
+.animate-fade-in-up-delay-3 {
+  animation: fadeInUp 0.5s 0.3s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.animate-float-dot {
+  animation: floatDot 1.4s ease-in-out infinite;
+}
+
+.animate-float-dot-2 {
+  animation: floatDot 1.4s 0.2s ease-in-out infinite;
+}
+
+.animate-float-dot-3 {
+  animation: floatDot 1.4s 0.4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* ───────────────────────────────────────────────────────────
+   GRADIENT UTILITIES
+   ─────────────────────────────────────────────────────────── */
+
+.hero-gradient {
+  background: linear-gradient(135deg, #070E20 0%, #0C1B3D 40%, #1E3A8A 80%, #0D9488 100%);
+}
+
+.navy-teal-gradient {
+  background: linear-gradient(135deg, #1E3A8A 0%, #0D9488 100%);
+}
+
+.card-hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -8px rgba(30, 58, 138, 0.2);
+}
+
+/* ───────────────────────────────────────────────────────────
+   MESH GRID SVG PATTERN (CSS-only, no external file)
+   ─────────────────────────────────────────────────────────── */
+
+.hero-mesh {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ───────────────────────────────────────────────────────────
+   GLASS MORPHISM
+   ─────────────────────────────────────────────────────────── */
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* ───────────────────────────────────────────────────────────
+   PROGRESS BAR GRADIENT
+   ─────────────────────────────────────────────────────────── */
+
+.progress-gradient [data-slot="indicator"],
+.progress-navy-teal [role="progressbar"] > div {
+  background: linear-gradient(90deg, #1E3A8A 0%, #0D9488 100%) !important;
+}
+
+/* ───────────────────────────────────────────────────────────
+   SCROLLBAR HIDE
+   ─────────────────────────────────────────────────────────── */
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ───────────────────────────────────────────────────────────
+   MARQUEE (legacy)
+   ─────────────────────────────────────────────────────────── */
 
 .animate-marquee {
   display: inline-flex;
@@ -77,8 +276,19 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
+  .animate-marquee,
+  .animate-fade-in-up,
+  .animate-fade-in-up-delay-1,
+  .animate-fade-in-up-delay-2,
+  .animate-fade-in-up-delay-3,
+  .animate-pulse-glow,
+  .animate-float-dot,
+  .animate-float-dot-2,
+  .animate-float-dot-3,
+  .animate-shimmer,
+  .card-hover-lift {
     animation: none;
     transform: none;
+    transition: none;
   }
 }
