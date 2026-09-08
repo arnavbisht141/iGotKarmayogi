@@ -47,6 +47,16 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 - Engineered full bilingual internationalization (Hindi/English) across all homepage sections (`hero`, `about`, `howItWorks`, `resources`, `help`, `footer`) via `useI18n()` and persistent client state.
 - Authored the feature specification `docs/features/homepage-portal.md` and updated `ui-design-system.md`.
 
+### 2.6 Discover Page & Course Catalogue Overhaul (branch: `discover`)
+- Resolved background container fragmentation on `/discover`: replaced nested floating widget box with full-width institutional white header (`bg-white border-b border-slate-200`) and continuous `#F8FAFC` slate catalogue canvas.
+- Stripped all decorative unicode emojis (`🔥`, `✨`, `★`) and artificial rectangular colored eyebrow pills across all categories, filters, trending topics, and course cards.
+- Engineered 100% full bilingual (Hindi/English) translation parity across search inputs, buttons, trending tags, discipline tabs, filter options, sort order, and dynamic course card title/overview metadata via `useI18n()`.
+- Standardized interactive buttons and badges onto the official Navy `#1E3A8A` / Sober Yellow `#EAB308` design system.
+- Added institutional accreditation trust ribbon affirming MoSPI accreditation, CBC competency guidelines, and verifiable cryptographic credentials.
+- Harmonized `CourseDetailPage.tsx` with clean layout, Lucide `Star` rating icons, and bilingual string lookup.
+- Updated documentation in `docs/features/course-management.md`, `docs/features/ui-design-system.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
+
+
 ---
 
 ## 3. "Invisible" & Offline Contributions
@@ -67,6 +77,7 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
+| `2026-09-08` | Discover page overhaul, background fix & bilingual localization | `Code` / `UI` / `Docs` | Fixed background color layout, removed emojis/boxes, added 100% Hindi compatibility on `/discover` |
 | `2026-09-08` | Homepage overhaul & Navy/Gold design unification | `Code` / `UI` / `Docs` | Unified `EntryLandingPage.tsx`, added graphical timeline, rich icons, authored `homepage-portal.md` |
 | `2026-09-08` | Revamped docs hierarchy into modular changelog, features, and team logs | `Docs` / `Arch` | Established clean agent-ready documentation structure |
 | `2026-09-07` | Domain boundaries backend refactor | `Code` / `Arch` | Reorganized `backend/app/modules/` and authored ADRs |
