@@ -1,4 +1,4 @@
-# 🏛️ System Architecture & Engineering Standards
+# System Architecture & Engineering Standards
 
 > **Document Type:** System Architecture & Agent Knowledge Base  
 > **Phase:** Phase 0 Implementation (Smart India Hackathon SIH '26)  
@@ -93,10 +93,12 @@ All models are centralized in `backend/app/models/models.py`:
 
 When continuing work on this codebase, all AI agents **MUST adhere to the following rules**:
 
-### Rule 1: Respect the Muted Rose Design System
-- Do NOT introduce generic bright blues (`bg-blue-600`), neon emeralds, or purples.
-- Use `#965C66` for primary CTAs and active states, `#C8A8A9` for borders, `#EEE8E9` for backgrounds, and `#241E20` for text.
+### Rule 1: Respect the Navy Blue & Sober Yellow Institutional Design System
+- Follow the official Government of India palette: Official Navy Primary (`#1E3A8A` / `#172554`), Sober Yellow (`#EAB308` / `#CA8A04`), clean neutral background (`#F8FAFC`), and crisp slate typography (`#0F172A` / `#334155` / `#64748B`). Never use legacy muted rose (`#965C66` / `#EEE8E9`).
+- Strict prohibition of decorative emojis (`🔥`, `✨`, `★`) and artificial rectangular colored pill boxes above headings. Use clean Lucide SVG icons and official typography.
+- Ensure 100% full bilingual (Hindi/English) compatibility across all user-facing pages using `useI18n()` and `frontend/src/lib/i18n/index.tsx`.
 - Preserve aspect ratios on all institutional graphics (`object-contain`).
+
 
 ### Rule 2: Keep the Next.js Standalone Build Functional
 - Ensure any client component using `useSearchParams()` is wrapped inside a `<Suspense>` boundary (required by Next.js Turbopack).
