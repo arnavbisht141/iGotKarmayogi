@@ -59,7 +59,7 @@ export function Navbar() {
       if (isProgrammaticScrollRef.current) return;
 
       const header = document.querySelector("header");
-      const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
+      const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 68;
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
@@ -127,7 +127,7 @@ export function Navbar() {
       const el = document.getElementById(targetId);
       if (el) {
         const header = document.querySelector("header");
-        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 120;
+        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 68;
         const targetTop = Math.round(el.getBoundingClientRect().top + window.scrollY - headerHeight);
         window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
       }
@@ -141,28 +141,6 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md" suppressHydrationWarning>
-      {/* Top Ministry Ribbon */}
-      <div className="bg-[#1E3A8A] text-white text-[11px] px-4 py-1.5 flex items-center justify-between border-b border-blue-900">
-        <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-1.5 font-medium">
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-400" />
-            <span className="text-white font-semibold">Government of India</span>
-            <span className="text-white/40">|</span>
-            <span className="text-white/90">Ministry of Statistics &amp; Programme Implementation (MoSPI)</span>
-          </div>
-          <div className="ml-auto flex items-center gap-4 text-[11px]">
-            <span className="hidden md:inline text-white/80">Mission Karmayogi Digital Learning Portal</span>
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center gap-1.5 text-white hover:text-white font-medium bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded cursor-pointer transition-colors border border-white/20"
-            >
-              <Languages className="h-3 w-3 text-white/90" />
-              <span>{language === "en" ? "हिन्दी (HI)" : "English (EN)"}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
@@ -177,17 +155,17 @@ export function Navbar() {
           }}
           className="flex items-center gap-3 group cursor-pointer"
         >
-          <div className="h-10 w-10 rounded-lg bg-[#1E3A8A] flex items-center justify-center text-white shadow-xs border border-blue-900">
-            <Award className="h-6 w-6" />
+          <div className="h-9 w-9 rounded-lg bg-[#1E3A8A] flex items-center justify-center text-white shadow-xs">
+            <Award className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-lg font-bold text-[#0F172A] tracking-tight group-hover:text-[#1E3A8A] transition-colors">
+              <span className="text-base sm:text-lg font-bold text-[#0F172A] tracking-tight group-hover:text-[#1E3A8A] transition-colors">
                 {t("nav.brand")}
               </span>
             </div>
             <p className="text-[10px] text-slate-500 font-medium leading-none">
-              {t("nav.subBrand")}
+              MoSPI • Government of India
             </p>
           </div>
         </Link>
@@ -298,6 +276,17 @@ export function Navbar() {
             <Compass className="h-4 w-4 text-[#1E3A8A]" />
             {t("nav.discover")}
           </Link>
+
+          {/* Language Switcher */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:text-[#1E3A8A] hover:bg-slate-50 transition-colors cursor-pointer"
+            title={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}
+          >
+            <Languages className="h-3.5 w-3.5 text-slate-500" />
+            <span>{language === "en" ? "हिन्दी" : "English"}</span>
+          </button>
 
           {/* Auth Actions: Sign In immediately left of Register */}
           {user ? (
@@ -480,7 +469,28 @@ export function Navbar() {
               {t("nav.admin")}
             </Link>
           )}
-          <div className="pt-4 border-t border-slate-100">
+
+          {/* Mobile Language Switcher */}
+          <div className="pt-2 pb-1">
+            <button
+              type="button"
+              onClick={() => {
+                toggleLanguage();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <Languages className="h-4 w-4 text-slate-500" />
+                <span>{language === "en" ? "भाषा: हिन्दी" : "Language: English"}</span>
+              </span>
+              <span className="text-xs text-[#1E3A8A] font-bold">
+                {language === "en" ? "बदलें" : "Switch"}
+              </span>
+            </button>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100">
             {user ? (
               <div className="space-y-1">
                 <Link
