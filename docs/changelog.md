@@ -25,6 +25,65 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-09] - Dedicated Institutional Pages & Context-Aware Navbar Routing
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[i18n]` `[routing]` `[docs]`
+- **Branch**: `postlogin`
+- **Description**:
+  - Created 4 dedicated institutional pages (`/about`, `/how-it-works`, `/resources`, `/help`) as standalone routes with full-page components under `frontend/src/features/institutional/components/`.
+  - **About Page (`/about`):** Institutional framework overview featuring 3 competency pillars (Statistical Methodology, Standardized Evaluation, Cadre AI Assistant), a paradigm shift comparison (Rule-Based vs. Role-Based learning), 6 institutional stakeholder cards (MoSPI, CBC, NSSTA, NSSO, CSO, ISTM), and a verifiable credentials banner.
+  - **How It Works Page (`/how-it-works`):** Detailed 4-stage capacity building breakdown (Authenticate & Onboard, Study Accredited Curriculum, Standardized Assessment, Earn Verified Credential) with full explanations, key standard operations, process guarantee stats, and learning process FAQ section.
+  - **Resources Page (`/resources`):** Searchable and filterable official statistical library with 6 cadre document cards (NSSO Field Manual, CPI Technical Manual, UN-NQAF Rubrics, CAPI Operations Manual, NAS Handbook, PFMS Guide), download modal with authentication badges, and category/search filtering.
+  - **Help Page (`/help`):** 3-channel support grid (24/7 AI Assistant, Central Training Division Desk, Nodal Cadre Coordinators), collapsible FAQ accordion with 5 common queries, and full support ticket submission form with simulated tracking IDs.
+  - **Context-Aware Navbar Routing:** Updated `Navbar.tsx` to differentiate between unauthenticated landing page users (smooth-scroll anchor links to `/#about`, `/#how-it-works`, etc.) and authenticated/inner-page users (dedicated page routes to `/about`, `/how-it-works`, etc.).
+  - All 4 pages follow the institutional design standard: white header banner (`bg-white border-b border-slate-200`), continuous `#F8FAFC` slate canvas, Official Navy `#1E3A8A` branding, and Lucide SVG iconography.
+  - Each page includes bilingual (Hindi/English) support via `useI18n()` for all translated keys.
+- **Affected Files**:
+  - `frontend/src/features/institutional/components/AboutPage.tsx` [NEW]
+  - `frontend/src/features/institutional/components/HowItWorksPage.tsx` [NEW]
+  - `frontend/src/features/institutional/components/ResourcesPage.tsx` [NEW]
+  - `frontend/src/features/institutional/components/HelpPage.tsx` [NEW]
+  - `frontend/src/app/about/page.tsx` [NEW]
+  - `frontend/src/app/how-it-works/page.tsx` [NEW]
+  - `frontend/src/app/resources/page.tsx` [NEW]
+  - `frontend/src/app/help/page.tsx` [NEW]
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `docs/changelog.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/features/homepage-portal.md`
+
+---
+
+### [2026-09-09] - Post-Login Homepage & Repository-Wide Non-AI Institutional Redesign
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
+- **Branch**: `postlogin`
+- **Description**:
+  - Extended the non-AI, white background institutional standard from Discover across the post-login homepage (`/home`), my learning (`/my-learning`), officer profile (`/profile`), and administration console (`/admin`).
+  - Replaced isolated floating widget cards and dark gradients with seamless full-width white institutional headers (`bg-white border-b border-slate-200 py-8 sm:py-10`) and a continuous `#F8FAFC` slate canvas.
+  - Stripped all remaining decorative unicode emojis (`🔥`, `✨`, `★`, `🎉`) and text checkmarks (`Completed ✓`) across all pages (`CourseLearningPlayerPage.tsx`, `AssessmentTestPage.tsx`, `OnboardingWizardPage.tsx`, `AdminDashboardPage.tsx`), replacing them with semantic Lucide SVG icons (`CheckCircle2`, `XCircle`, `Check`).
+  - Eliminated artificial colored/saffron eyebrow pill boxes above headings; standardized on letter-spaced ministry headers with Lucide `Building2` iconography.
+  - Standardized interactive buttons across the application on Official Navy Primary (`#1E3A8A` / hover `#172554`).
+  - Implemented 100% full bilingual (Hindi/English) translation parity across `home.*`, `learning.*`, `profile.*`, and `admin.*` keys in `frontend/src/lib/i18n/index.tsx`.
+  - Updated documentation across `docs/features/ui-design-system.md`, `docs/features/analytics-dashboard.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
+- **Affected Files**:
+  - `frontend/src/features/dashboard/components/HomePage.tsx`
+  - `frontend/src/features/progress/components/MyLearningPage.tsx`
+  - `frontend/src/features/profile/components/ProfilePage.tsx`
+  - `frontend/src/features/administration/components/AdminDashboardPage.tsx`
+  - `frontend/src/features/learning/components/CourseLearningPlayerPage.tsx`
+  - `frontend/src/features/assessments/components/AssessmentTestPage.tsx`
+  - `frontend/src/features/onboarding/components/OnboardingWizardPage.tsx`
+  - `frontend/src/features/auth/components/ForgotPasswordPage.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `docs/features/ui-design-system.md`
+  - `docs/features/analytics-dashboard.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+
+---
+
 ### [2026-09-08] - Discover Page Overhaul, Background Fix & Full Hindi Localization
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
@@ -48,6 +107,7 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ---
 
+### [2026-09-08] - Homepage Streamlining, Sober Yellow Accents & Hindi Toggle Migration
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[docs]`
 - **Branch**: `homepage`

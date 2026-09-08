@@ -56,6 +56,23 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 - Harmonized `CourseDetailPage.tsx` with clean layout, Lucide `Star` rating icons, and bilingual string lookup.
 - Updated documentation in `docs/features/course-management.md`, `docs/features/ui-design-system.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
 
+### 2.7 Post-Login Dashboard & Repository-Wide Non-AI Institutional Standardization (branch: `postlogin`)
+- Overhauled the post-login homepage (`/home`), my learning (`/my-learning`), officer profile (`/profile`), and admin dashboard (`/admin`) to adhere to the clean institutional standard established in Discover.
+- Replaced floating card boxes and dark gradients with seamless full-width white institutional headers (`bg-white border-b border-slate-200`) and a continuous `#F8FAFC` workspace canvas.
+- Stripped all remaining decorative unicode emojis (`🔥`, `✨`, `★`, `🎉`) and text checkmarks (`Completed ✓`) across the entire repository, replacing them with semantic Lucide SVG icons (`CheckCircle2`, `Building2`, `Clock`, `ShieldCheck`).
+- Eliminated artificial rectangular saffron/colored eyebrow pills above section titles in favor of crisp, letter-spaced central ministry subheadings.
+- Standardized interactive action buttons and focus rings onto Official Navy Primary (`#1E3A8A` / `#172554`).
+- Expanded `frontend/src/lib/i18n/index.tsx` to provide 100% bilingual (Hindi/English) translation parity across the post-login dashboard, learning transcript, profile editor, and admin console.
+- Synchronized documentation across `docs/features/ui-design-system.md`, `docs/features/analytics-dashboard.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
+
+### 2.8 Dedicated Institutional Pages & Context-Aware Navigation (branch: `postlogin`)
+- Built 4 standalone institutional pages (`/about`, `/how-it-works`, `/resources`, `/help`) under `frontend/src/features/institutional/components/`, each following the established institutional design standard (white header banner, `#F8FAFC` slate canvas, Official Navy `#1E3A8A` branding).
+- **About Page:** 3 competency pillar cards, rule-based vs. role-based paradigm comparison, 6 institutional stakeholder cards (MoSPI, CBC, NSSTA, NSSO, CSO, ISTM), and verifiable credentials banner.
+- **How It Works Page:** Detailed 4-stage capacity building path with full explanations, key standard operations, process guarantees (self-paced, 70% threshold, cryptographic verification), and learning FAQ.
+- **Resources Page:** Searchable/filterable official statistical library with 6 cadre document cards, category chips, download modal with authentication badges, and related course links.
+- **Help Page:** 3-channel support grid (AI Assistant, Training Desk, Nodal Coordinators), collapsible FAQ accordion, and full support ticket submission form with simulated tracking IDs.
+- Implemented context-aware navigation in `Navbar.tsx`: unauthenticated users on `/` get smooth-scroll anchor links, all other users get dedicated page routes.
+- All pages include bilingual (Hindi/English) support via `useI18n()`.
 
 ---
 
@@ -77,6 +94,8 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
+| `2026-09-09` | Institutional pages & context-aware navbar routing | `Code` / `UI` / `Routing` | Created `/about`, `/how-it-works`, `/resources`, `/help` standalone pages; smart anchor/page routing in Navbar |
+| `2026-09-09` | Post-login dashboard & repository-wide non-AI redesign | `Code` / `UI` / `Docs` | Seamless white headers, removed emojis/boxes, Navy branding, 100% bilingual Hindi on `/home`, `/my-learning`, `/profile`, `/admin` |
 | `2026-09-08` | Discover page overhaul, background fix & bilingual localization | `Code` / `UI` / `Docs` | Fixed background color layout, removed emojis/boxes, added 100% Hindi compatibility on `/discover` |
 | `2026-09-08` | Homepage overhaul & Navy/Gold design unification | `Code` / `UI` / `Docs` | Unified `EntryLandingPage.tsx`, added graphical timeline, rich icons, authored `homepage-portal.md` |
 | `2026-09-08` | Revamped docs hierarchy into modular changelog, features, and team logs | `Docs` / `Arch` | Established clean agent-ready documentation structure |

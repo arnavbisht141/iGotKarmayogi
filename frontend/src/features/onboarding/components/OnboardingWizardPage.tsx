@@ -13,6 +13,7 @@ import {
   Layers,
   Sparkles,
   ShieldCheck,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,7 +93,7 @@ export default function OnboardingWizardPage() {
       <div className="max-w-2xl w-full space-y-8">
         {/* Wizard Header */}
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-slate-900 text-amber-400 items-center justify-center mb-3 shadow-sm">
+          <div className="inline-flex h-12 w-12 rounded-xl bg-[#1E3A8A] text-white items-center justify-center mb-3 shadow-sm">
             <Award className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
@@ -117,7 +118,7 @@ export default function OnboardingWizardPage() {
                       isCompleted
                         ? "bg-emerald-600 text-white"
                         : isCurrent
-                        ? "bg-slate-900 text-amber-400 ring-4 ring-slate-200"
+                        ? "bg-[#1E3A8A] text-white ring-4 ring-blue-100"
                         : "bg-slate-200 text-slate-500"
                     }`}
                   >
@@ -179,7 +180,7 @@ export default function OnboardingWizardPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end pt-4 border-t border-slate-100">
-                <Button onClick={() => setStep(2)} className="bg-slate-900 text-xs px-6">
+                <Button onClick={() => setStep(2)} className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs px-6 cursor-pointer">
                   Begin Step 2: Personal Info <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </CardFooter>
@@ -225,7 +226,7 @@ export default function OnboardingWizardPage() {
                 <Button variant="outline" size="sm" onClick={() => setStep(1)} className="text-xs">
                   <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Previous
                 </Button>
-                <Button size="sm" onClick={() => setStep(3)} className="bg-slate-900 text-xs px-5">
+                <Button size="sm" onClick={() => setStep(3)} className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs px-5 cursor-pointer">
                   Next: Education & Workex <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </CardFooter>
@@ -284,7 +285,7 @@ export default function OnboardingWizardPage() {
                 <Button variant="outline" size="sm" onClick={() => setStep(2)} className="text-xs">
                   <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Previous
                 </Button>
-                <Button size="sm" onClick={() => setStep(4)} className="bg-slate-900 text-xs px-5">
+                <Button size="sm" onClick={() => setStep(4)} className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs px-5 cursor-pointer">
                   Next: Designation & Cadre <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </CardFooter>
@@ -356,7 +357,7 @@ export default function OnboardingWizardPage() {
                 <Button variant="outline" size="sm" onClick={() => setStep(3)} className="text-xs">
                   <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Previous
                 </Button>
-                <Button size="sm" onClick={() => setStep(5)} className="bg-slate-900 text-xs px-5">
+                <Button size="sm" onClick={() => setStep(5)} className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs px-5 cursor-pointer">
                   Next: Interests & Assignments <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </CardFooter>
@@ -411,13 +412,14 @@ export default function OnboardingWizardPage() {
                           key={interest}
                           type="button"
                           onClick={() => toggleInterest(interest)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer inline-flex items-center gap-1 ${
                             selected
-                              ? "bg-slate-900 text-white border-slate-900"
+                              ? "bg-[#1E3A8A] text-white border-[#1E3A8A]"
                               : "bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100"
                           }`}
                         >
-                          {interest} {selected && "✓"}
+                          <span>{interest}</span>
+                          {selected && <Check className="h-3 w-3" />}
                         </button>
                       );
                     })}
