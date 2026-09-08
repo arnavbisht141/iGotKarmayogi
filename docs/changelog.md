@@ -25,6 +25,55 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-08] - Streamlined Government Portal & Sober Yellow Refinements
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[docs]`
+- **Branch**: `homepage`
+- **Description**:
+  - Removed top ministry ribbon from `Navbar.tsx`; integrated language toggle button (`हिन्दी / English`) directly into main navbar action bar and mobile drawer.
+  - Eliminated artificial "AI telltale" elements: stripped out multi-colored eyebrow pill boxes above section titles, removed fake progress meters, rainbow gradient lines, and synthetic query chips.
+  - Transitioned from saturated amber-gold to sober warm yellow accents (`#EAB308` / `#CA8A04` / `#FEF9C3`), keeping it restrained, dignified, and authentic to Indian public-service standards.
+  - Streamlined page architecture to a bare-bones, highly focused portal: clean hero with framed carousel, clean 4-metric statistics strip, grounded institutional overview card, direct 4-step milestone cards, uniform document cards, and solid deep navy closing banner.
+  - Recalibrated section scroll offsets and viewports to `scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)]`.
+  - Implemented full bilingual internationalization (Hindi/English) across all homepage sections (`hero`, `about`, `howItWorks`, `resources`, `help`, `footer`, and carousel slides) via `useI18n()`.
+  - Updated `docs/features/homepage-portal.md`, `docs/features/ui-design-system.md`, and `docs/team/arnav-bisht.md`.
+- **Affected Files**:
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `frontend/src/features/landing/components/EntryLandingPage.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `frontend/src/app/globals.css`
+  - `docs/features/homepage-portal.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+
+---
+
+### [2026-09-08] - Homepage Aesthetic Unification & Navy/Gold Design System
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[docs]`
+- **Branch**: `homepage`
+- **Description**:
+  - Completely unified the portal landing page (`EntryLandingPage.tsx`) under the official **Navy Blue (`#1E3A8A`) & Gold/Yellow (`#F59E0B`) Institutional Standard**, systematically replacing fragmented legacy rose/charcoal hues.
+  - Introduced rich graphical elements: connected horizontal progression line with navy-to-gold gradient, competency progress meters, dual-tone icon containers, and ambient backdrop lighting.
+  - Integrated comprehensive `lucide-react` iconography across metrics, milestones, resource cards, and interactive support channels.
+  - Enhanced text readability with relaxed line-heights, high contrast WCAG AAA ratios, interactive AI Copilot sample prompt chips, and scannable cadre FAQ cards.
+  - Preserved single-viewport layout physics (`scroll-mt-[120px] min-h-[calc(100vh-120px)]`) and zero-shift programmatic glide scrolling.
+  - Added new feature specification `docs/features/homepage-portal.md`, updated `docs/features/ui-design-system.md`, and logged contributor activity in `docs/team/arnav-bisht.md`.
+- **Affected Files**:
+  - `frontend/src/features/landing/components/EntryLandingPage.tsx`
+  - `frontend/src/app/globals.css`
+  - `docs/features/homepage-portal.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/features/README.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+- **Agent Context / Rules**:
+  - Maintain the Navy Blue & Gold color tokens (`--color-navy-primary`, `--color-gold-primary`) and avoid reintroducing legacy rose tones (`#965C66`).
+  - Keep single-viewport section heights (`min-h-[calc(100vh-120px)]`) and ID anchors intact for smooth navbar gliding.
+
+---
+
 ### [2026-09-08] - Documentation Hierarchy Revamp & Knowledge Decentralization
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[docs]`
