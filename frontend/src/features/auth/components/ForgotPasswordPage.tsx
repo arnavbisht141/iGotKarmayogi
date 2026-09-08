@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-slate-900 text-amber-400 items-center justify-center mb-3 shadow-sm">
+          <div className="inline-flex h-12 w-12 rounded-xl bg-[#1E3A8A] text-white items-center justify-center mb-3 shadow-sm">
             <Award className="h-7 w-7" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Reset Password</h2>
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
                     />
                   </div>
                 </div>
-                <Button type="submit" disabled={loading} className="w-full bg-slate-900 text-xs">
+                <Button type="submit" disabled={loading} className="w-full bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs cursor-pointer">
                   {loading ? "Sending..." : "Send Password Reset Link"}
                 </Button>
               </form>

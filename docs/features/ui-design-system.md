@@ -67,6 +67,31 @@ Clicking any navigation item glides directly to and frames that section cleanly 
 - **Unified Action Buttons:** All primary course exploration and enrollment CTAs standardize on Official Navy Primary (`bg-[#1E3A8A] hover:bg-[#172554] text-white`).
 - **Complete Bilingual i18n Integration:** Every text element, filter option, search input, topic badge, and course title dynamically responds to the Navbar's `useI18n()` language toggle.
 
+### 3.6 Post-Login Dashboard & All Pages Standardization (`/home`, `/my-learning`, `/profile`, `/admin`)
+- **Seamless White Institutional Headers:** Replaced nested floating widget cards with full-width white institutional banners across the entire post-login application.
+- **Continuous Slate Canvas (`#F8FAFC`):** Workspaces sit on a continuous `#F8FAFC` neutral canvas, eliminating fragmented multi-colored boxes and dark hero gradients.
+- **Strict Elimination of Artificial "AI Telltales":** Removed decorative unicode emojis (`🔥`, `✨`, `★`, `🎉`), text checkmarks (`Completed ✓`), and colored rectangular pill badges above headings. Status indicators use semantic Lucide SVG icons (`CheckCircle2`, `XCircle`, `ShieldCheck`).
+- **Primary Navy Brand Standardization:** Standardized interactive buttons and action controls across all pages and modals onto Official Navy Primary (`bg-[#1E3A8A] hover:bg-[#172554]`).
+- **100% Bilingual Hindi/English Support:** Full dictionary coverage in `frontend/src/lib/i18n/index.tsx` for post-login dashboard, learning transcript, official profile, and administrative console.
+
+### 3.7 Standalone Institutional Pages (`/about`, `/how-it-works`, `/resources`, `/help`)
+- **Feature Components:** `frontend/src/features/institutional/components/` contains `AboutPage.tsx`, `HowItWorksPage.tsx`, `ResourcesPage.tsx`, and `HelpPage.tsx`.
+- **Route Files:** `frontend/src/app/{about,how-it-works,resources,help}/page.tsx` each import and render their respective institutional component.
+- **Consistent Layout Pattern:** Every page follows the same structure:
+  1. **White Institutional Header Banner** (`bg-white border-b border-slate-200 py-8 sm:py-12`): Ministry eyebrow text with `Building2` icon, `h1` title via `useI18n()`, subtitle, and action buttons (Explore Catalogue + Dashboard if authenticated).
+  2. **Continuous Slate Canvas** (`bg-[#F8FAFC]`): Main content area with `max-w-6xl mx-auto` grid sections.
+- **Content Architecture:**
+  - **About:** 3 competency pillar cards, rule-based vs. role-based paradigm comparison, 6 stakeholder governance cards (MoSPI, CBC, NSSTA, NSSO, CSO, ISTM), verifiable credentials dark banner.
+  - **How It Works:** 4-stage capacity building cards with full explanations and key standard operations, 3-column process guarantee strip, 2-column FAQ grid, dark closing CTA banner.
+  - **Resources:** Search + category filter bar, 6 official document cards with metadata tables and download modals, empty-state handling.
+  - **Help:** 3-channel support grid (AI Assistant, Training Desk, Nodal Coordinators), collapsible FAQ accordion, support ticket form with tracking ID simulation.
+
+### 3.8 Context-Aware Navbar Navigation Routing (`Navbar.tsx`)
+- **Unauthenticated users on `/` (landing page):** Navbar links render as anchor links (`/#about`, `/#how-it-works`, etc.) with programmatic smooth-scroll via `handleAnchorClick()` and scroll-spy active state tracking.
+- **Authenticated users or any non-landing page:** Navbar links render as page routes (`/about`, `/how-it-works`, etc.) navigating to the dedicated standalone institutional pages.
+- **Routing Logic:** `href={!user && pathname === "/" ? "/#about" : "/about"}` pattern used across all 4 institutional links in both desktop and mobile menus.
+- **Active State Highlighting:** Uses `isActive("/about")` for page routes and `pathname === "/" && activeSection === "about"` for anchor scroll-spy, ensuring correct visual feedback in both modes.
+
 ---
 
 ## 4. Graphical & Iconography Guidelines
@@ -76,5 +101,5 @@ Clicking any navigation item glides directly to and frames that section cleanly 
    - Accent: `bg-amber-50 text-amber-700 border border-amber-200`
 2. **Progressive Flow Lines:** Connected workflows utilize smooth gradients (`from-[#1E3A8A] via-blue-400 to-[#F59E0B]`) with numbered step pins.
 3. **Aspect Ratio Preservation:** Official institutional media (`/karmayogi.jpg`, `/government-meeting.jpg`, `/ai-daksh.jpg`) MUST retain natural aspect ratios using `object-contain` within framed containers.
-4. **Strict Elimination of Emojis & AI Telltales:** All decorative unicode emojis (`🔥`, `✨`, `★`) and artificial rectangular colored pill boxes above headings are strictly disallowed. Use semantic Lucide SVG icons (e.g. `Star` with sober yellow fill, `Building2`, `Clock`, `TrendingUp`) and official typography to maintain constitutional and civil service gravitas.
+4. **Strict Elimination of Emojis & AI Telltales:** All decorative unicode emojis (`🔥`, `✨`, `★`, `🎉`) and artificial rectangular colored pill boxes above headings are strictly disallowed. Use semantic Lucide SVG icons (e.g. `CheckCircle2`, `Building2`, `Clock`, `TrendingUp`) and official typography to maintain constitutional and civil service gravitas.
 

@@ -58,11 +58,28 @@ The streamlined portal is organized into five single-viewport sections:
 
 ## 3. Subsystem Specifications
 
-### 3.1 Single-Tier Header & Language Integration (`Navbar.tsx`)
+### 3.1 Single-Tier Header & Context-Aware Navigation (`Navbar.tsx`)
 - The top ministry ribbon has been removed to conserve vertical viewport height.
 - Government attribution is integrated cleanly into the brand title: *"iGOT Karmayogi Bharat • MoSPI • Government of India"*.
 - The language toggle button (`हिन्दी / English`) sits directly in the main action cluster alongside Discover and Sign In.
 - Fallback header height calibrated to 68px.
+- **Context-Aware Institutional Links:**
+  - When an **unauthenticated user is on the landing page (`/`)**, the About, How It Works, Resources, and Help links render as anchor links (`/#about`, `/#how-it-works`, etc.) with programmatic smooth-scroll gliding to the corresponding section.
+  - When the user is **authenticated or on any other page**, these links navigate to dedicated standalone pages (`/about`, `/how-it-works`, `/resources`, `/help`) with full institutional content.
+  - Routing logic: `href={!user && pathname === "/" ? "/#about" : "/about"}`.
+  - Active state highlighting uses `isActive("/about")` for page routes and scroll-spy `activeSection === "about"` for anchor mode.
+
+### 3.1.1 Standalone Institutional Pages
+When accessed as dedicated routes, each page provides expanded institutional content beyond the landing page summaries:
+
+| Route | Component | Content |
+|---|---|---|
+| `/about` | `AboutPage.tsx` | 3 competency pillars, rule-to-role paradigm comparison, 6 stakeholder governance cards, verifiable credentials banner |
+| `/how-it-works` | `HowItWorksPage.tsx` | 4-stage capacity building breakdown, process guarantee strip, learning FAQ, closing CTA |
+| `/resources` | `ResourcesPage.tsx` | Searchable/filterable document library with 6 official manuals, download modals, category chips |
+| `/help` | `HelpPage.tsx` | 3-channel support grid, collapsible FAQ accordion, support ticket submission form |
+
+All pages are located in `frontend/src/features/institutional/components/` and follow the institutional design standard (white header banner, `#F8FAFC` slate canvas, Official Navy branding).
 
 ### 3.2 Hero & Key Statistics (`#hero`)
 - Unadorned headline: *"National Learning Platform for Civil Services"*.

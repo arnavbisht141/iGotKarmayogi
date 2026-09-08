@@ -183,7 +183,7 @@ function LearningPlayerContent() {
                       onClick={() => handleSelectLesson(l.id)}
                       className={`w-full flex items-center justify-between p-2 rounded-lg text-left text-xs transition-colors cursor-pointer ${
                         isCurrent
-                          ? "bg-slate-900 text-white font-semibold shadow-xs"
+                          ? "bg-[#1E3A8A] text-white font-semibold shadow-xs"
                           : l.completed
                           ? "text-slate-700 hover:bg-slate-100 bg-slate-50/80"
                           : "text-slate-600 hover:bg-slate-100"
@@ -255,8 +255,8 @@ function LearningPlayerContent() {
               {currentLesson.content_type} • {currentLesson.duration_minutes} Minutes
             </Badge>
             {currentLesson.completed && (
-              <Badge variant="success" className="text-xs">
-                Completed ✓
+              <Badge variant="success" className="text-xs inline-flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Completed
               </Badge>
             )}
           </div>
@@ -317,7 +317,7 @@ function LearningPlayerContent() {
                         }}
                         className={`w-full p-3 rounded-xl border text-left text-xs font-medium transition-all cursor-pointer flex items-center gap-3 ${
                           isSelected
-                            ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                            ? "bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-xs"
                             : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
@@ -394,7 +394,7 @@ function LearningPlayerContent() {
             <Button
               size="sm"
               onClick={handleCompleteAndNext}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5"
+              className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-5 cursor-pointer"
             >
               {currentLesson.is_last_lesson
                 ? t("learn.takeAssessment")
