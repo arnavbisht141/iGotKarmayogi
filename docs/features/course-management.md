@@ -41,7 +41,7 @@ Civil service training requires accredited, structured syllabi covering national
 - **Comprehensive Bilingual (Hindi/English) Support:** Integrated with `useI18n()` providing instant toggle between English and Hindi across the entire catalog—including search inputs, trending keywords (*National Sample Survey* / *राष्ट्रीय नमूना सर्वेक्षण*, *Consumer Price Index* / *उपभोक्ता मूल्य सूचकांक*), discipline categories (*Data Science* / *डेटा विज्ञान*), filter options, course titles, syllabus overviews, accredited organizations, and action buttons.
 - **Instant Search & Interactive Filtering:** Debounced search bar with clear button, provider source toggle (*MoSPI Internal* vs. *External Accredited*), difficulty level dropdown (*Beginner*, *Intermediate*, *Advanced*), dynamic sorting (*Most Enrolled*, *Highest Rated*, *Newly Published*, *Shortest Duration*), and one-click filter reset.
 - **Accreditation Trust Ribbon:** Institutional accreditation footer affirming MoSPI accreditation, CBC competency guidelines, and verifiable cryptographic credentials.
-- **Turbopack / Standalone Guard:** Query parameter reading is wrapped inside a React `<Suspense>` boundary to maintain Next.js standalone container compatibility.
+- **Turbopack / Build Guard:** Query parameter reading is wrapped inside a React `<Suspense>` boundary to maintain Next.js client component compatibility.
 
 ### 3.2 Course Overview & Syllabus (`frontend/src/app/courses/[courseId]/page.tsx` & `frontend/src/features/catalog/components/CourseDetailPage.tsx`)
 - **Metadata Card:** Estimated duration, lesson count, difficulty level, accrediting body (MoSPI/ISTM), and acquired competency badges using unified Navy `#1E3A8A` / Sober Yellow `#EAB308` palette.
@@ -92,7 +92,7 @@ Civil service training requires accredited, structured syllabi covering national
 
 > [!IMPORTANT]
 > **Suspense Boundary Requirement:**
-> Any Next.js page or component in `frontend/src/app/discover/` or `frontend/src/app/courses/` that consumes `useSearchParams()` MUST be wrapped inside a `<Suspense>` boundary. Failing to do so breaks the Next.js standalone container build.
+> Any Next.js page or component in `frontend/src/app/discover/` or `frontend/src/app/courses/` that consumes `useSearchParams()` MUST be wrapped inside a `<Suspense>` boundary. Failing to do so breaks the Next.js production build.
 
 > [!NOTE]
 > **Data Integrity:**

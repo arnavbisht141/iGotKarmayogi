@@ -2,20 +2,26 @@
 
 > **Phase 0 Implementation** — Official Statistical System (MoSPI) & Civil Services Capacity Building
 
-A modern, accredited digital learning platform built with **Next.js (App Router, shadcn/ui, TypeScript, Tailwind CSS)** on the frontend, **FastAPI (Python 3.12)** on the backend, and **LangGraph + LangChain** for the AI Assistant agent.
+A modern, accredited digital learning platform built with **Next.js (App Router, shadcn/ui, TypeScript, Tailwind CSS)** on the frontend, **FastAPI (Python 3.12, SQLAlchemy 2.0)** on the backend, **Supabase** for cloud database & CLI migration management, and **LangGraph + LangChain** for the AI Assistant agent.
 
 ---
 
 ## 📋 Table of Contents
 1. [Architecture Overview](#-architecture-overview)
-2. [Quick Start with Docker (Recommended)](#-quick-start-with-docker-recommended)
-   - [Production Container Mode](#1-production-mode-optimized-build)
-   - [Development Mode with Live Hot-Reload](#2-development-mode-with-live-hot-reload)
-3. [Building, Rebuilding & Managing Containers](#-container-lifecycle--management)
-4. [Running Locally Without Docker](#-running-locally-without-docker)
-5. [Pre-Seeded Demonstration Accounts](#-pre-seeded-demonstration-accounts)
-6. [Miro User Flow Realization](#-miro-user-flow-realization)
-7. [Environment Variables](#-environment-variables)
+2. [Prerequisites](#-prerequisites)
+3. [Quick Start (Local Running Instructions)](#-quick-start-local-running-instructions)
+   - [1. Backend Setup (FastAPI)](#1-backend-setup-fastapi)
+   - [2. Frontend Setup (Next.js)](#2-frontend-setup-nextjs)
+4. [Supabase Backend & CLI Workflow](#-supabase-backend--cli-workflow)
+   - [1. Link Remote Supabase Project](#1-link-your-supabase-project)
+   - [2. Push Migrations & Seed Data](#2-push-migrations--seed-to-supabase)
+   - [3. Configure FastAPI with Supabase](#3-configure-fastapi-with-supabase)
+5. [Service Endpoints & Verification](#-service-endpoints--verification)
+6. [Database Initialization & Reset](#-database-initialization--reset)
+7. [Pre-Seeded Demonstration Accounts](#-pre-seeded-demonstration-accounts)
+8. [Miro User Flow Realization](#-miro-user-flow-realization)
+9. [Environment Variables](#-environment-variables)
+10. [Repository Organization](#repository-organization)
 
 ---
 
@@ -24,143 +30,201 @@ A modern, accredited digital learning platform built with **Next.js (App Router,
 ```
 iGot_Karmayogi/
 ├── frontend/                     # Next.js 16 (App Router, TypeScript, Tailwind CSS, shadcn/ui)
-│   ├── Dockerfile                # Multi-stage production container (Node 20 Alpine, standalone)
-│   ├── Dockerfile.dev            # Development container with hot module replacement (HMR)
-│   ├── .dockerignore
-│   └── src/                      # App router, components, lib (auth, api, i18n)
+│   ├── package.json              # Frontend dependencies (@supabase/supabase-js, Lucide, Tailwind)
+│   ├── next.config.ts            # Next.js configuration
+│   └── src/                      # App router, components, lib (auth, api, supabase, i18n)
 │
 ├── backend/                      # FastAPI (Python 3.12, SQLAlchemy 2.0, Pydantic v2)
-│   ├── Dockerfile                # Python 3.12 slim container with healthcheck
-│   ├── .dockerignore
-│   ├── requirements.txt
+│   ├── requirements.txt          # Python dependencies (fastapi, psycopg2, supabase, langchain)
+│   ├── run.py                    # Uvicorn entry point (port 8000, reload enabled)
 │   └── app/                      # Modular domain routers (auth, onboarding, dashboard, discover,
 │                                 # courses, learning, assessments, profile, admin, agents)
 │
-├── docker-compose.yml            # Production container orchestration with health checks & data persistence
-├── docker-compose.dev.yml        # Development orchestration with volume mounts for instant live-reload
+├── supabase/                     # Supabase CLI configuration and database scripts
+│   ├── config.toml               # Supabase project configuration
+│   ├── migrations/               # PostgreSQL DDL migrations (20260910000000_initial_schema.sql)
+│   └── seed.sql                  # Production demonstration seed SQL script
+│
 ├── .env.example                  # Environment configuration template
+├── package.json                  # Root convenience scripts for Supabase CLI
 └── README.md
 ```
 
-- **Frontend Container:** Multi-stage build producing an optimized ~150MB standalone runner with non-root security.
-- **Backend Container:** Python 3.12 slim container with automated SQLite data volume persistence and automated health checks.
+- **Frontend:** Next.js 16 App Router application with React 19, Tailwind CSS, Lucide icons, and `@supabase/supabase-js`.
+- **Backend:** FastAPI modular monolith running on Python 3.12 with dual database compatibility (native **Supabase PostgreSQL** via psycopg2 or offline local SQLite fallback).
+- **Supabase CLI:** Standardized PostgreSQL migrations, schema versioning, and pre-seeded demonstration data.
 - **AI Copilot (LangGraph):** Compiled `StateGraph` workflow with LangChain model wrapper, supporting Google Gemini, OpenAI, or the built-in official statistical knowledge engine.
 
 ---
 
-## 🐳 Quick Start with Docker (Recommended)
+## 📦 Prerequisites
 
-Make sure **Docker Desktop** is installed and running on your machine.
+Ensure you have the following installed on your host machine:
 
-### 1. Production Mode (Optimized Build)
+- **Node.js**: v18.0.0 or higher (Node.js 20+ LTS recommended) & `npm`
+- **Python**: v3.12 (or Python 3.10+) & `pip`
+- **Git**
 
-To build and start both the frontend and backend in isolated production containers:
+---
+
+## 🚀 Quick Start (Local Running Instructions)
+
+Follow these steps to run both backend and frontend locally in two terminal sessions.
+
+### Optional: Configure Environment Variables
 
 ```bash
-# Clone the repository and navigate to root
-cd iGot_Karmayogi
-
-# Copy environment template (optional, defaults work out-of-the-box)
+# In repository root
 cp .env.example .env
-
-# Build and start all containers in detached mode
-docker compose up --build -d
 ```
-
-- **Frontend:** [http://localhost:3000](http://localhost:3000)
-- **Backend API & Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Health Endpoint:** [http://localhost:8000/api/health](http://localhost:8000/api/health)
+*(Default settings work out-of-the-box using the local pre-seeded SQLite database without modifying `.env`)*
 
 ---
 
-### 2. Development Mode with Live Hot-Reload
+### 1. Backend Setup (FastAPI)
 
-When actively developing features or styling UI, use `docker-compose.dev.yml`. This mounts your local folders (`./frontend` and `./backend`) into the containers, so **any code change on your host machine immediately hot-reloads inside the container without rebuilding**:
+Open a terminal and navigate to the `backend` folder:
 
-```bash
-# Start in development mode with live volume mounting
-docker compose -f docker-compose.dev.yml up --build
-```
-
-- Edits to React components in `frontend/src` hot-reload instantly in the browser.
-- Edits to Python endpoints in `backend/app` reload Uvicorn automatically.
-
----
-
-## 🔄 Container Lifecycle & Management
-
-### View Running Containers & Health
-```bash
-docker compose ps
-```
-
-### Inspect Live Logs
-```bash
-# Follow logs for all services
-docker compose logs -f
-
-# Follow logs for backend only
-docker compose logs -f backend
-
-# Follow logs for frontend only
-docker compose logs -f frontend
-```
-
-### How to Rebuild Containers
-
-Whenever you modify dependencies (`requirements.txt` or `package.json`) or create major architectural changes:
-
-```bash
-# 1. Rebuild with cache
-docker compose build
-
-# 2. Rebuild cleanly from scratch (bypassing cached layers)
-docker compose build --no-cache
-
-# 3. Restart the updated containers
-docker compose up -d
-```
-
-### Restart a Single Service
-```bash
-# Restart only the backend service
-docker compose restart backend
-
-# Restart only the frontend service
-docker compose restart frontend
-```
-
-### Stopping and Cleaning Up Containers
-```bash
-# Stop containers without removing persisted data
-docker compose down
-
-# Stop containers AND delete the SQLite database volume (resets to fresh seed data)
-docker compose down -v
-```
-
----
-
-## 💻 Running Locally Without Docker
-
-If you prefer running natively without containers:
-
-### 1. Backend (FastAPI)
+#### On Windows (PowerShell):
 ```powershell
 cd backend
-.\venv\Scripts\activate          # Or source venv/bin/activate on Linux/Mac
+
+# Create virtual environment (specify Python 3.12)
+py -3.12 -m venv venv
+# Or if python maps directly to 3.12: python -m venv venv
+
+# Activate virtual environment
+.\venv\Scripts\Activate.ps1
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Start backend server
 python run.py
 ```
-*Backend runs on `http://localhost:8000`.*
+> *Note: Use `py -3.12 -m venv venv` on Windows if you have Python 3.14 or another version set as your global default. If PowerShell restricts script execution, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first, or activate via CMD `venv\Scripts\activate.bat`.*
 
-### 2. Frontend (Next.js)
-```powershell
+#### On macOS / Linux (Bash / Zsh):
+```bash
+cd backend
+
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start backend server
+python run.py
+```
+
+Alternatively, start with Uvicorn directly:
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+---
+
+### 2. Frontend Setup (Next.js)
+
+Open a **second terminal** and navigate to the `frontend` folder:
+
+```bash
 cd frontend
+
+# Install Node dependencies
 npm install
+
+# Start development server with hot-reload
 npm run dev
 ```
-*Frontend runs on `http://localhost:3000`.*
+
+The Next.js application will start and listen on [http://localhost:3000](http://localhost:3000).
+
+---
+
+## ⚡ Supabase Backend & CLI Workflow
+
+The repository includes a complete **Supabase CLI** setup for managing schema migrations and database instances.
+
+### 1. Link Your Supabase Project
+From the repository root:
+
+```bash
+# Authenticate Supabase CLI
+npx supabase login
+
+# Link repository to your remote Supabase project
+npx supabase link --project-ref <your-project-id>
+```
+
+### 2. Push Migrations & Seed to Supabase
+Once linked, push the official 17-model schema and pre-seeded demonstration data directly to your remote Supabase PostgreSQL database:
+
+```bash
+# Apply migrations (supabase/migrations/20260910000000_initial_schema.sql)
+npx supabase db push
+
+# (Optional) Reset and seed remote database:
+# npx supabase db reset
+```
+
+You can also use the convenience npm scripts from the root directory:
+```bash
+npm run supabase:link
+npm run supabase:db:push
+npm run supabase:db:pull
+npm run supabase:status
+```
+
+### 3. Configure FastAPI with Supabase
+In your `.env` file, point `DATABASE_URL` to your Supabase PostgreSQL connection URI:
+
+```env
+DATABASE_URL=postgresql+psycopg2://postgres.<project-ref>:<db-password>@aws-0-<region>.pooler.supabase.com:6543/postgres
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+
+# Frontend client variables:
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+```
+
+FastAPI automatically configures connection pooling (`pool_pre_ping=True`, `pool_size=10`) and normalizes URLs for psycopg2.
+
+---
+
+## 🌐 Service Endpoints & Verification
+
+Once both servers are running, access the services:
+
+| Service | URL | Description |
+|---|---|---|
+| **Frontend Web App** | [http://localhost:3000](http://localhost:3000) | Full Karmayogi learning experience UI |
+| **Backend API** | [http://localhost:8000/api](http://localhost:8000/api) | FastAPI API root endpoint |
+| **Interactive API Docs (Swagger UI)** | [http://localhost:8000/docs](http://localhost:8000/docs) | Test and inspect all REST endpoints interactively |
+| **ReDoc Specification** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | Alternative API documentation view |
+| **Health Check Probe** | [http://localhost:8000/api/health](http://localhost:8000/api/health) | System and database status probe |
+
+---
+
+## 🗄️ Database Initialization & Reset
+
+The platform supports both local SQLite and remote Supabase PostgreSQL via SQLAlchemy 2.0:
+
+- **Local SQLite Auto-Initialization:** If `DATABASE_URL` is set to SQLite (default), `backend/app/core/seed_data.py` automatically initializes tables and hydrates demo courses, lessons, assessments, and test users if the database is not yet populated.
+- **To Reset Local SQLite:**
+  1. Stop the backend server (`Ctrl + C`).
+  2. Delete the SQLite file:
+     - **Windows PowerShell:** `Remove-Item backend\karmayogi.db`
+     - **macOS / Linux:** `rm backend/karmayogi.db`
+  3. Start the backend again with `python run.py`.
+- **To Reset Supabase PostgreSQL:**
+  Run `npx supabase db reset` or re-execute `supabase/seed.sql` in the Supabase SQL Editor.
 
 ---
 
@@ -211,18 +275,23 @@ A template `.env.example` is included at the repository root:
 | Variable | Description | Default |
 |---|---|---|
 | `SECRET_KEY` | Secret key for signing JWT tokens | `karmayogi-secret-jwt-key-2026-phase-0` |
-| `DATABASE_URL` | SQLAlchemy database connection URI | `sqlite:////app/data/karmayogi.db` |
+| `DATABASE_URL` | SQLAlchemy database URI (SQLite or Supabase PostgreSQL) | `sqlite:///./karmayogi.db` |
+| `SUPABASE_URL` | Remote Supabase project URL | *Optional* |
+| `SUPABASE_ANON_KEY` | Supabase anon public API key | *Optional* |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key for administrative workflows | *Optional* |
+| `NEXT_PUBLIC_SUPABASE_URL` | Frontend public Supabase URL | *Optional* |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Frontend public Supabase anon key | *Optional* |
 | `GOOGLE_API_KEY` | Google Gemini API key for LangGraph Copilot | *Optional (built-in fallback engine active)* |
 | `OPENAI_API_KEY` | OpenAI API key for LangGraph Copilot | *Optional (built-in fallback engine active)* |
 | `NEXT_PUBLIC_API_URL` | Public endpoint for backend API | `http://localhost:8000/api` |
 
 ---
 
-## Repository organization
+## Repository Organization
 
-The existing implementation is organized as a modular-monolith backend and a
-feature-oriented frontend. No business logic was changed as part of this move.
+The implementation is organized as a modular-monolith backend, a feature-oriented frontend, and Supabase migrations:
 
+- [`supabase/`](supabase/) contains Supabase configuration, PostgreSQL migrations, and seed scripts.
 - [`backend/README.md`](backend/README.md) documents backend ownership and modules.
 - [`frontend/README.md`](frontend/README.md) documents frontend feature boundaries.
 - [`ai-service/README.md`](ai-service/README.md) reserves the future independent AI boundary; it contains no implementation yet.

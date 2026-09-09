@@ -1,41 +1,83 @@
-# UI/UX Design System: Navy Blue & Yellow/Gold Institutional Standard
+# UI/UX Design System: Navy Blue & Extended Institutional Palette
 
-> **Status:** `Implemented` (Phase 0 / Design System v2.0)  
+> **Status:** `Implemented` (Design Branch / Design System v3.0)  
 > **Primary Files:**  
 > - Styles: `frontend/src/app/globals.css`  
-> - Components: `Navbar.tsx`, `Footer.tsx`, `AiAssistantWidget.tsx`, `EntryLandingPage.tsx`  
+> - Components: `Navbar.tsx`, `Footer.tsx`, `AiAssistantWidget.tsx`, `EntryLandingPage.tsx`, `HomePage.tsx`, `DiscoverPage.tsx`
 
 ---
 
 ## 1. Executive Summary & Design Philosophy
 
-The **iGOT Karmayogi (MoSPI)** platform adheres to an authoritative institutional design standard tailored for the National Programme for Civil Services Capacity Building (NPCSCB):
-- **Constitutional & Administrative Dignity:** Grounded in official Government of India **Navy Blue (`#1E3A8A`)** and **Gold / Yellow (`#F59E0B`)**, embodying public-service prestige, meritocracy, and official accreditation.
-- **No Gimmicky Cybernetics:** Avoid fluorescent cyan/purple neon washes or floating cybernetic bots. All graphical accents (meters, badges, icon containers) are purposeful and refined.
-- **High Readability & Scannability:** Generous line heights (`leading-relaxed`), visual chunking with cards and tags, WCAG AAA compliant text contrasts (`#0F172A` headlines, `#334155` body on light surfaces; `#FFFFFF` on navy surfaces).
-- **Zero-Shift Single-Viewport Gliding:** Programmatic smooth scrolling with trackpad inertia preservation and fixed 1px zero-blink navigation borders.
-- **Asset Integrity:** Never crop or distort official photographs or infographics. Use `object-contain` within framed, elevated cards.
+The **iGOT Karmayogi (MoSPI)** platform adheres to an authoritative institutional design standard — **"The credibility of granite, the energy of tomorrow."** Think how a premier institution like ISRO or RBI would present itself digitally: grounded, trustworthy, yet modern and exciting.
+
+**v3.0 Design Principles:**
+- **Institutional Drama:** The primary pages (landing, home, discover) open with dark navy-to-teal gradient hero sections with CSS mesh-grid overlays and radial glow orbs — establishing authority immediately.
+- **Color Variety Without Chaos:** A 5-color extended palette (navy, teal, ochre, amber, sage) gives each section/feature a distinct visual identity without descending into pastels or neon.
+- **Defeated Rectangle Monotony:** Cards use left-border accents, top-stripe accents, and colored icon containers. Never all the same border-slate-200 box pattern.
+- **Motion as Signal:** 8 CSS-only `@keyframe` animations (no JS libraries). `pulseGlow` on the AI button signals it's alive. `floatDot` creates a typing indicator. `fadeInUp` staggers page entrance. All disabled by `prefers-reduced-motion`.
+- **Glassmorphism Restraint:** Used only on dark gradient backgrounds (`glass-light`, `glass-card` utilities) — not on white-background sections where it would look out of place.
+- **Zero AI Telltales:** No emojis in content, no colored pill boxes above headings, no generic pastel cards.
 
 ---
 
 ## 2. Design System Color Tokens
 
-| Token Name | CSS Variable / Utility | Hex Code | Purpose & Application |
+### 2.1 Navy Primary Scale
+| Token | CSS Variable | Hex | Use |
 |---|---|---|---|
-| **Official Navy Primary** | `--color-navy-primary` | `#1E3A8A` | Primary brand actions, navbar ribbon, official sign-in buttons, key badges. |
-| **Navy Hover / Active** | `--color-navy-hover` | `#172554` | Hover and active states for primary interactive elements. |
-| **Deep Navy Canvas** | `--color-navy-deep` | `#0F2C59` | Dark visual surfaces (About card, closing CTA banner). |
-| **Darkest Navy** | `--color-navy-darkest` | `#0B1930` | Root background gradient anchor for institutional cards and ribbons. |
-| **Sober Yellow Primary** | `--color-gold-primary` | `#EAB308` | Milestone numbers, subtle button accents, verified highlights. |
-| **Sober Yellow Hover** | `--color-gold-hover` | `#CA8A04` | Interactive hover transitions for yellow action buttons. |
-| **Light Yellow Fill** | `--color-gold-light` | `#FEF9C3` | Background tint for subtle yellow callouts. |
-| **Yellow Border Accent** | `--color-gold-border` | `#FDE047` | Delicate borders for active indicators and milestone badges. |
-| **Slate Heading** | `--foreground` | `#0F172A` | Crisp, high-contrast headings and primary labels. |
-| **Slate Body Text** | `--color-slate-text` | `#334155` | Reader-friendly paragraphs, descriptions, and feature bullet text. |
-| **Slate Muted** | `--color-slate-muted` | `#64748B` | Subtitles, helper text, and secondary timestamps. |
-| **Clean Background** | `--background` | `#F8FAFC` | Light off-white neutral canvas for readability across all device screens. |
+| Navy Primary | `--color-navy-primary` | `#1E3A8A` | Brand actions, key buttons, borders |
+| Navy Hover | `--color-navy-hover` | `#172554` | Hover states |
+| Navy 700 | `--color-navy-700` | `#1E3570` | Mid-depth navies |
+| Navy Deep | `--color-navy-deep` | `#0F2C59` | Gradient anchors |
+| Navy 900 | `--color-navy-900` | `#0C1B3D` | Hero gradient via |
+| Navy Darkest | `--color-navy-darkest` | `#070E20` | Hero gradient start |
+
+### 2.2 Accent Scale (v3.0 additions)
+| Token | CSS Variable | Hex | Use |
+|---|---|---|---|
+| Teal 600 | `--color-teal-600` | `#0D9488` | Progress bars, teal accents, AI widget, typing indicator |
+| Teal 500 | `--color-teal-500` | `#14B8A6` | Lighter teal highlights |
+| Teal 50 | `--color-teal-50` | `#F0FDFA` | Teal section backgrounds |
+| Ochre 500 | `--color-ochre-500` | `#B45309` | Resource cards, FAQ, warm accents |
+| Ochre 50 | `--color-ochre-50` | `#FFFBEB` | Ochre section fills |
+| Sage 600 | `--color-sage-600` | `#059669` | Success, streak, beginner-level indicators |
+| Sage 50 | `--color-sage-50` | `#ECFDF5` | Sage fills |
+
+### 2.3 Gradient Utilities (v3.0)
+| Class | CSS | Use |
+|---|---|---|
+| `.hero-gradient` | `linear-gradient(135deg, #070E20, #0C1B3D, #1E3A8A, #0D9488)` | Page hero backgrounds (landing, home, discover) |
+| `.navy-teal-gradient` | `linear-gradient(135deg, #1E3A8A, #0D9488)` | Buttons, brand icon, avatar ring, chat header |
+| `.hero-mesh` | CSS background-image grid | Pattern overlay on dark gradient sections |
+
+### 2.4 Gold / Yellow
+| Token | Hex | Use |
+|---|---|---|
+| Gold Primary | `#EAB308` | CTA register button, milestone numbers |
+| Gold Hover | `#CA8A04` | Gold hover states |
+| Gold Light | `#FEF9C3` | Background tints |
 
 ---
+
+## 3. Animation System (v3.0)
+
+All animations are defined as CSS `@keyframe` rules in `globals.css` with corresponding utility classes:
+
+| Class | Keyframe | Duration | Use |
+|---|---|---|---|
+| `.animate-fade-in-up` | `fadeInUp` | `0.5s` | Page section entrance |
+| `.animate-fade-in-up-delay-{1,2,3}` | `fadeInUp` | `0.5s + delay` | Staggered hero content |
+| `.animate-pulse-glow` | `pulseGlow` | `2.5s infinite` | AI assistant floating button |
+| `.animate-float-dot{,-2,-3}` | `floatDot` | `1.4s infinite + delay` | Chat typing indicator |
+| `.animate-shimmer` | `shimmer` | `2.5s infinite` | Subtle gradient movement |
+| `.animate-marquee` | `marquee` | `35s linear infinite` | Horizontal scrolling content |
+| `.card-hover-lift` | CSS transition | `0.2s ease` | All cards — translateY(-3px) on hover |
+
+> **Accessibility:** `@media (prefers-reduced-motion: reduce)` disables all animations globally.
+
+---
+
 
 ## 3. Structural & Interaction Patterns
 

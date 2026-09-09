@@ -25,6 +25,36 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-09] - Comprehensive Visual Design Overhaul (design branch)
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[css]` `[design]`
+- **Branch**: `design`
+- **Description**:
+  - **Design Foundation (`globals.css`):** Expanded the design token system with an extended palette — navy scale (`#070E20` → `#1E3A8A`), teal accents (`#0D9488`, `#14B8A6`), ochre (`#B45309`), sage (`#059669`). Added 8 CSS keyframe animations (`fadeInUp`, `pulseGlow`, `shimmer`, `floatDot`, `slideLine`, `cardHover`) and utility classes (`.hero-gradient`, `.navy-teal-gradient`, `.glass-light`, `.glass-card`, `.card-hover-lift`, `.hero-mesh`, `.animate-pulse-glow`, `.animate-float-dot*`).
+  - **Landing Page (`EntryLandingPage.tsx`):** Transformed hero section to a dramatic `hero-gradient` (dark navy-to-teal) with CSS mesh-grid pattern overlay and two radial glow orbs. Stats bar moved into the hero as frosted glass cards. Carousel now uses full `object-cover` with gradient overlay and teal dot controls. About section: unique icon backgrounds per pillar (navy/teal/ochre) with left-border accent cards. How It Works: horizontal timeline with gradient connecting line and colored step circles (navy/teal/amber/ochre) — stacked mobile version. Resources: top-stripe colored cards per document category. Help: 3 gradient-accent support cards with distinct top stripes (navy/teal/ochre). Closing CTA banner reuses hero-gradient with mesh overlay.
+  - **Home Page Dashboard (`HomePage.tsx`):** Welcome header becomes a full hero-gradient section with CSS mesh, two glow orbs, gradient avatar ring with online pulse, and glassmorphic secondary button. Teal left-border on "Continue Learning" card; gradient horizontal progress bars replacing flat navy; amber-gradient streak card when streak ≥ 3; difficulty-colored left-border course cards (green=beginner, blue=intermediate, amber=advanced). All card section icons upgraded to colored rounded-xl icon containers (navy/teal/amber/sage). Stats grid uses color-coded cells (slate/teal/blue).
+  - **Discover Page (`DiscoverPage.tsx`):** Header becomes hero-gradient with glassmorphic search input (glass-light class), gradient send button, and glass trending topic pills. Category tabs use navy-teal-gradient for active state. Course cards get category-colored accent top stripe, colored difficulty dots, gradient "View Course" button, and card-hover-lift animation. Empty state and loading spinner upgraded.
+  - **AI Assistant Widget (`AiAssistantWidget.tsx`):** Floating button uses navy-teal-gradient with `animate-pulse-glow`, ping online indicator, and hover tooltip. Chat panel: gradient header with mesh overlay, assistant messages with teal left-border, user messages with gradient bubble, animated typing indicator (3 bouncing dots using `animate-float-dot*`), gradient send button, auto-scroll to latest message.
+  - **Navbar (`Navbar.tsx`):** Brand icon upgraded to rounded-xl navy-teal-gradient. Active nav link indicators changed from bg-blue-50 rectangle to bottom-bar gradient underline (`linear-gradient(navy→teal)`). Profile avatar upgraded to gradient ring with dark center. Profile dropdown upgraded to `rounded-2xl` with enhanced shadow. Register button upgraded to navy-teal gradient. Language switcher gets teal icon and rounded-full style.
+- **Design Principles Enforced:**
+  - No emojis, no colored pill boxes above headings
+  - All animations use CSS-only keyframes (no JS animation libraries)
+  - `prefers-reduced-motion` media query kills all animations for accessibility
+  - Hindi/English i18n completely preserved — no translation keys changed
+  - All routing logic untouched
+- **Affected Files**:
+  - `frontend/src/app/globals.css`
+  - `frontend/src/features/landing/components/EntryLandingPage.tsx`
+  - `frontend/src/features/dashboard/components/HomePage.tsx`
+  - `frontend/src/features/catalog/components/DiscoverPage.tsx`
+  - `frontend/src/features/assistant/components/AiAssistantWidget.tsx`
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `docs/changelog.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/features/ui-design-system.md`
+
+---
+
 ### [2026-09-09] - Dedicated Institutional Pages & Context-Aware Navbar Routing
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[i18n]` `[routing]` `[docs]`

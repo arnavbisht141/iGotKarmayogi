@@ -17,18 +17,18 @@
                                   HTTP (Port 3000)     │
                                                        ▼
                       ┌─────────────────────────────────────────────────────────────────┐
-                      │                   FRONTEND CONTAINER (Next.js 16)               │
+                      │                   FRONTEND SERVICE (Next.js 16)                 │
                       │ ─────────────────────────────────────────────────────────────── │
                       │ • Next.js 16 (App Router)        • TypeScript & ESLint          │
                       │ • Tailwind CSS v4                • Lucide React Icons           │
                       │ • shadcn/ui Component Primitives • Canvas Confetti Milestones   │
-                      │ • Standalone Runner (~150MB)     • Custom i18n Context (EN/HI)  │
+                      │ • Node.js Runtime (Port 3000)    • Custom i18n Context (EN/HI)  │
                       └────────────────────────┬────────────────────────────────────────┘
                                                │
                                REST Calls via  │ NEXT_PUBLIC_API_URL (Port 8000)
                                                ▼
                       ┌─────────────────────────────────────────────────────────────────┐
-                      │                    BACKEND CONTAINER (FastAPI)                  │
+                      │                    BACKEND SERVICE (FastAPI)                    │
                       │ ─────────────────────────────────────────────────────────────── │
                       │ • FastAPI (Python 3.12)          • Pydantic v2 Validation       │
                       │ • SQLAlchemy 2.0 ORM             • Custom PBKDF2-HMAC Auth      │
@@ -38,10 +38,10 @@
            Stateful AI Invocations    │                                 │ Direct Queries
                                       ▼                                 ▼
          ┌──────────────────────────────────────────────┐    ┌──────────────────────────┐
-         │         AI AGENT (LangGraph + LangChain)     │    │  PERSISTENT SQLITE STORE │
+         │         AI AGENT (LangGraph + LangChain)     │    │  LOCAL SQLITE STORE      │
          │ ──────────────────────────────────────────── │    │ ──────────────────────── │
          │ • StateGraph Compiled Workflow               │    │ • karmayogi.db           │
-         │ • Google Gemini / OpenAI Support             │    │ • /app/data volume mount │
+         │ • Google Gemini / OpenAI Support             │    │ • Native SQLite Storage  │
          │ • Built-in MoSPI Domain Knowledge Engine     │    │ • 17 Normalized Tables   │
          └──────────────────────────────────────────────┘    └──────────────────────────┘
 ```
@@ -100,9 +100,8 @@ When continuing work on this codebase, all AI agents **MUST adhere to the follow
 - Preserve aspect ratios on all institutional graphics (`object-contain`).
 
 
-### Rule 2: Keep the Next.js Standalone Build Functional
-- Ensure any client component using `useSearchParams()` is wrapped inside a `<Suspense>` boundary (required by Next.js Turbopack).
-- Keep `output: "standalone"` in `next.config.ts`.
+### Rule 2: Keep the Next.js Production Build Clean
+- Ensure any client component using `useSearchParams()` is wrapped inside a `<Suspense>` boundary (required by Next.js client pre-rendering).
 - Do not import server-only packages into client components.
 
 ### Rule 3: Maintain Backend Security Standards
@@ -113,7 +112,7 @@ When continuing work on this codebase, all AI agents **MUST adhere to the follow
 - When expanding AI agent capabilities in `backend/app/agents/`, **always maintain fallback execution**. The system must never crash if `GOOGLE_API_KEY` or `OPENAI_API_KEY` is omitted.
 
 ### Rule 5: Preserve Seed Data Reproducibility
-- Any new model added to `models.py` must have corresponding seed data in `backend/app/core/seed_data.py` so that executing `docker compose down -v && docker compose up --build` produces a fully populated, demonstratable system.
+- Any new model added to `models.py` must have corresponding seed data in `backend/app/core/seed_data.py` so that removing `backend/karmayogi.db` and restarting the backend produces a fully populated, demonstratable system.
 
 ---
 

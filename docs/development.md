@@ -5,49 +5,86 @@
 
 ---
 
-## 1. Quick Start with Docker (Recommended)
+## 1. Quick Start Guide (Local Development)
 
-Docker Desktop is the fastest and most consistent way to run the entire system.
+The application runs natively on your machine using Python 3.12 (FastAPI) for the backend and Node.js (Next.js 16) for the frontend.
 
-### 1.1 Development Mode (Live Hot-Reloading)
-In development mode, source code is volume-mounted so any edits to frontend or backend files trigger immediate live reloads.
+### 1.1 Backend Setup (FastAPI & Python 3.12)
 
-```bash
-# 1. Initialize environment variables
-cp .env.example .env
-
-# 2. Start all services in live development mode
-docker compose -f docker-compose.dev.yml up --build
-```
-- **Frontend:** `http://localhost:3000` (Next.js 16 with Hot Module Replacement)
-- **Backend API:** `http://localhost:8000/api` (FastAPI with Uvicorn `--reload`)
-- **API Swagger Docs:** `http://localhost:8000/docs`
-
-### 1.2 Production Container Mode
-Runs the optimized multi-stage standalone frontend runner (~150MB) and production FastAPI container with persistent SQLite volume.
+Open your first terminal:
 
 ```bash
-docker compose up --build -d
+# 1. Navigate to backend directory
+cd backend
+
+# 2. Create virtual environment (specify Python 3.12)
+py -3.12 -m venv venv
+# Or on macOS/Linux: python3 -m venv venv
+
+# 3. Activate virtual environment
+# Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+# Windows CMD:
+# .\venv\Scripts\activate.bat
+# Linux / macOS:
+# source venv/bin/activate
+
+# 4. Install dependencies
+pip install -r requirements.txt
+
+# 5. Start the backend server
+python run.py
 ```
 
-### 1.3 Essential Docker Operational Commands
-```bash
-# View live backend logs
-docker compose logs -f backend
+- **Backend API:** `http://localhost:8000/api` (FastAPI with Uvicorn live reload)
+- **Interactive Swagger Docs:** `http://localhost:8000/docs`
+- **ReDoc:** `http://localhost:8000/redoc`
+- **Health Check Probe:** `http://localhost:8000/api/health`
 
-# View live frontend logs
-docker compose logs -f frontend
-
-# Rebuild without Docker cache
-docker compose build --no-cache && docker compose up -d
-
-# Stop all containers and reset database to pristine seed data
-docker compose down -v
-```
+> [!CAUTION]
+> Do NOT install `passlib[bcrypt]` due to known upstream Python 3.12 compatibility bugs. The repository uses native NIST PBKDF2 in `backend/app/core/security.py`.
 
 ---
 
-## 2. Pre-Seeded Accounts & Live Evaluation Personas
+### 1.2 Frontend Setup (Next.js 16 & React 19)
+
+Open your second terminal:
+
+```bash
+# 1. Navigate to frontend directory
+cd frontend
+
+# 2. Install dependencies
+npm install
+
+# 3. Start development server with hot-reloading
+npm run dev
+```
+
+- **Frontend Application:** `http://localhost:3000` (Next.js 16 with Turbopack / Fast Refresh)
+
+---
+
+## 2. Database Management & Resetting
+
+The database is an SQLite instance at `backend/karmayogi.db` and is automatically created and pre-seeded on initial backend launch via `backend/app/core/seed_data.py`.
+
+### Reset Database to Fresh State
+To reset all data (users, courses, enrollments, analytics) back to fresh pre-seeded demonstration defaults:
+
+```powershell
+# Windows PowerShell:
+Remove-Item backend\karmayogi.db
+
+# macOS / Linux:
+# rm backend/karmayogi.db
+```
+
+Restart the backend (`python run.py`), and a new database with seed data will automatically be created.
+
+---
+
+## 3. Pre-Seeded Accounts & Live Evaluation Personas
 
 The database is automatically populated upon initial startup by `backend/app/core/seed_data.py`. 
 You can switch between these personas on `/login` using the **1-click demo buttons**:
@@ -60,43 +97,19 @@ You can switch between these personas on `/login` using the **1-click demo butto
 
 ---
 
-## 3. Local Development (Without Docker)
-
-### 3.1 Backend Setup (FastAPI & Python 3.12)
-```bash
-cd backend
-python -m venv venv
-
-# Windows PowerShell:
-.\venv\Scripts\Activate.ps1
-# Linux / macOS:
-# source venv/bin/activate
-
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-
-> [!CAUTION]
-> Do NOT install `passlib[bcrypt]` due to known upstream Python 3.12 compatibility bugs. The repository uses native NIST PBKDF2 in `backend/app/core/security.py`.
-
-### 3.2 Frontend Setup (Next.js 16 & React 19)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
 ## 4. Verification & Testing Commands
 
 ```bash
+# Verify backend code compiles cleanly
+cd backend
+python -m compileall app
+
+# Verify backend health check endpoint (while backend is running)
+curl http://localhost:8000/api/health
+
 # Verify frontend production build
 cd frontend
 npm run build
-
-# Verify backend health check
-curl http://localhost:8000/api/health
 ```
 
 ---

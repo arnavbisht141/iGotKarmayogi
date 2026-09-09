@@ -91,4 +91,4 @@ Set is_onboarded=True ──▶ Redirect to /home Dashboard
 
 > [!IMPORTANT]
 > **Seed Data Synchronization:**
-> If adding new profile fields or auth parameters, ensure `backend/app/core/seed_data.py` is updated simultaneously so that `docker compose down -v && docker compose up --build` continues to produce a fully seeded demo environment.
+> If adding new profile fields or auth parameters, ensure `backend/app/core/seed_data.py` is updated simultaneously so that resetting `backend/karmayogi.db` and restarting the backend continues to produce a fully seeded demo environment.
