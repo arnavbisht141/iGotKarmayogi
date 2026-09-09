@@ -11,7 +11,7 @@ import {
   GraduationCap,
   Briefcase,
   Layers,
-  Sparkles,
+  Compass,
   ShieldCheck,
   Check,
 } from "lucide-react";
@@ -81,7 +81,7 @@ export default function OnboardingWizardPage() {
   };
 
   const stepsList = [
-    { num: 1, title: "Profile Setup", icon: Sparkles },
+    { num: 1, title: "Profile Setup", icon: Compass },
     { num: 2, title: "Personal Info", icon: User },
     { num: 3, title: "Education & Workex", icon: GraduationCap },
     { num: 4, title: "Designation & Role", icon: Briefcase },
@@ -412,7 +412,7 @@ export default function OnboardingWizardPage() {
                           key={interest}
                           type="button"
                           onClick={() => toggleInterest(interest)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer inline-flex items-center gap-1 ${
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
                             selected
                               ? "bg-[#1E3A8A] text-white border-[#1E3A8A]"
                               : "bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100"
@@ -432,9 +432,10 @@ export default function OnboardingWizardPage() {
                 </Button>
                 <Button
                   size="sm"
+                  variant="saffron"
                   onClick={handleSaveProfile}
                   disabled={loading}
-                  className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-6 shadow-sm"
+                  className="text-xs px-6"
                 >
                   {loading ? "Saving Profile..." : "Save Profile & Enter Dashboard"}
                 </Button>

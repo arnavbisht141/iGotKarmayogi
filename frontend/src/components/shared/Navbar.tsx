@@ -140,7 +140,23 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/98 backdrop-blur-md shadow-sm" suppressHydrationWarning>
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white shadow-xs" suppressHydrationWarning>
+      {/* Sovereign National Masthead Strip */}
+      <div className="bg-[#0B132B] text-slate-300 text-[11px] font-medium py-1 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-100">भारत सरकार</span>
+            <span className="text-slate-600">•</span>
+            <span>Government of India</span>
+            <span className="hidden sm:inline text-slate-600">•</span>
+            <span className="hidden sm:inline text-slate-300">Ministry of Statistics &amp; Programme Implementation</span>
+          </div>
+          <div className="flex items-center gap-3 text-slate-400">
+            <span className="hidden md:inline text-[10px] tracking-wider uppercase">Mission Karmayogi (NPCSCB)</span>
+          </div>
+        </div>
+      </div>
+
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
@@ -155,8 +171,8 @@ export function Navbar() {
           }}
           className="flex items-center gap-3 group cursor-pointer"
         >
-          <div className="h-9 w-9 rounded-xl navy-teal-gradient flex items-center justify-center text-white shadow-sm">
-            <Award className="h-5 w-5" />
+          <div className="h-9 w-9 rounded-lg bg-[#1E3A8A] text-white flex items-center justify-center shadow-xs border border-[#162E70]">
+            <Award className="h-5 w-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
@@ -164,8 +180,8 @@ export function Navbar() {
                 {t("nav.brand")}
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-semibold leading-none tracking-wide uppercase">
-              MoSPI • Government of India
+            <p className="text-[10px] text-slate-500 font-semibold leading-none tracking-wider uppercase">
+              MoSPI • National Learning Academy
             </p>
           </div>
         </Link>
@@ -173,7 +189,6 @@ export function Navbar() {
         {/* Desktop Navigation & Actions */}
         <div className="hidden md:flex items-center gap-1.5">
           {/* Institutional Section Navigation Links */}
-          {/* ── Institutional anchor/page links ── */}
           {["about", "how-it-works", "resources", "help"].map((section) => {
             const isActiveLink = isActive(`/${section}`) || (pathname === "/" && activeSection === section);
             const label = section === "about" ? t("nav.about")
@@ -185,88 +200,85 @@ export function Navbar() {
                 href={!user && pathname === "/" ? `/#${section}` : `/${section}`}
                 scroll={false} prefetch={false}
                 onClick={(e) => handleAnchorClick(e, section)}
-                className={`relative px-3.5 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${
+                className={`relative px-3.5 py-2 text-sm font-medium transition-colors cursor-pointer ${
                   isActiveLink ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                 }`}
               >
                 {label}
                 {/* Bottom-bar active indicator */}
-                <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                  isActiveLink ? "navy-teal-gradient opacity-100" : "opacity-0 bg-[#1E3A8A]"
-                }`} style={isActiveLink ? { background: "linear-gradient(90deg,#1E3A8A,#0D9488)" } : {}} />
+                <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-opacity ${
+                  isActiveLink ? "bg-[#1E3A8A] opacity-100" : "opacity-0"
+                }`} />
               </Link>
             );
           })}
 
-          {/* ── Authenticated user links ── */}
+          {/* Authenticated user links */}
           {user && (
             <>
               {[{ href: "/home", label: "Home" }, { href: "/my-learning", label: t("nav.myLearning") }].map(({ href, label }) => (
                 <Link key={href} href={href}
-                  className={`relative px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-3.5 py-2 text-sm font-medium transition-colors ${
                     isActive(href) ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                   }`}>
                   {label}
-                  <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                    isActive(href) ? "opacity-100" : "opacity-0"
-                  }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+                  <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-opacity ${
+                    isActive(href) ? "bg-[#1E3A8A] opacity-100" : "opacity-0"
+                  }`} />
                 </Link>
               ))}
               {isAdmin && (
                 <Link href="/admin"
-                  className={`relative px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-3.5 py-2 text-sm font-medium transition-colors ${
                     isActive("/admin") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                   }`}>
                   {t("nav.admin")}
-                  <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                    isActive("/admin") ? "opacity-100" : "opacity-0"
-                  }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+                  <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-opacity ${
+                    isActive("/admin") ? "bg-[#1E3A8A] opacity-100" : "opacity-0"
+                  }`} />
                 </Link>
               )}
             </>
           )}
 
-          {/* ── Discover ── */}
+          {/* Discover */}
           <Link href="/discover"
-            className={`relative flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
+            className={`relative flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium transition-colors ${
               isActive("/discover") || isActive("/courses") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
             }`}>
             <Compass className="h-4 w-4" />
             {t("nav.discover")}
-            <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-              isActive("/discover") || isActive("/courses") ? "opacity-100" : "opacity-0"
-            }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+            <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-opacity ${
+              isActive("/discover") || isActive("/courses") ? "bg-[#1E3A8A] opacity-100" : "opacity-0"
+            }`} />
           </Link>
 
           {/* Language Switcher */}
           <button
             type="button"
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:text-[#1E3A8A] hover:border-[#1E3A8A]/40 hover:bg-blue-50/50 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] hover:bg-slate-50 transition-colors cursor-pointer"
             title={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}
           >
-            <Languages className="h-3.5 w-3.5 text-[#0D9488]" />
+            <Languages className="h-3.5 w-3.5 text-[#1E3A8A]" />
             <span>{language === "en" ? "हिन्दी" : "English"}</span>
           </button>
 
-          {/* Auth Actions: Sign In immediately left of Register */}
+          {/* Auth Actions */}
           {user ? (
             <div className="relative ml-2">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2.5 p-1 rounded-full hover:bg-slate-50 border border-slate-200 hover:border-[#1E3A8A]/30 transition-all cursor-pointer group"
+                className="flex items-center gap-2.5 p-1 rounded-lg hover:bg-slate-50 border border-slate-200 hover:border-[#1E3A8A] transition-colors cursor-pointer group"
               >
-                {/* Gradient ring avatar */}
-                <div className="h-9 w-9 rounded-full p-[2px] navy-teal-gradient shadow-sm">
-                  <div className="h-full w-full rounded-full bg-[#0C1B3D] text-white flex items-center justify-center font-extrabold text-xs">
-                    {user.full_name?.charAt(0) || "U"}
-                  </div>
+                <div className="h-8 w-8 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-bold text-xs">
+                  {user.full_name?.charAt(0) || "U"}
                 </div>
                 <div className="text-left pr-2">
                   <p className="text-xs font-bold text-slate-900 leading-tight">
                     {user.full_name}
                   </p>
-                  <p className="text-[10px] text-slate-400 capitalize font-medium">
+                  <p className="text-[10px] text-slate-500 capitalize font-medium">
                     {user.role}
                   </p>
                 </div>
@@ -274,7 +286,7 @@ export function Navbar() {
 
               {/* Profile Dropdown */}
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white py-1 shadow-xl z-50" style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)" }}>
+                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-50">
                   <div className="px-4 py-2 border-b border-slate-100">
                     <p className="text-xs font-semibold text-[#0F172A]">{user.full_name}</p>
                     <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
@@ -310,20 +322,20 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2.5 ml-2">
+            <div className="flex items-center gap-2 ml-2">
               <Link href="/login">
                 <Button
-                  variant="ghost"
-                  size="md"
-                  className="text-slate-800 hover:text-[#1E3A8A] hover:bg-slate-100 font-semibold px-4 h-10 text-sm rounded-lg cursor-pointer"
+                  variant="outline"
+                  size="sm"
+                  className="font-semibold text-xs"
                 >
                   {t("nav.login")}
                 </Button>
               </Link>
               <Link href="/register">
                 <Button
-                  size="md"
-                  className="navy-teal-gradient text-white font-bold shadow-sm rounded-xl px-5 h-10 text-sm border-0 transition-all cursor-pointer hover:opacity-90 hover:scale-105"
+                  size="sm"
+                  className="bg-[#1E3A8A] hover:bg-[#162E70] text-white font-semibold text-xs border border-[#162E70]"
                 >
                   {t("nav.register")}
                 </Button>

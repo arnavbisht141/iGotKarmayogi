@@ -65,18 +65,18 @@ export default function RegisterPage() {
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F8FAFC]">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-[#1E3A8A] text-white border border-blue-900 items-center justify-center mb-3 shadow-xs">
-            <Award className="h-7 w-7" />
+          <div className="inline-flex h-11 w-11 rounded-lg bg-[#1E3A8A] text-white border border-[#162E70] items-center justify-center mb-3 shadow-xs">
+            <Award className="h-6 w-6" />
           </div>
-          <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight">Create Official Account</h2>
+          <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight">Official Cadre Registration</h2>
           <p className="text-xs text-slate-600 mt-1">
             Register your profile for statistical capacity building &amp; certifications
           </p>
         </div>
 
-        <Card className="border-slate-200 shadow-sm bg-white rounded-2xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-bold text-[#0F172A]">Civil Servant Registration</CardTitle>
+        <Card className="border-slate-200 shadow-xs bg-white rounded-xl">
+          <CardHeader className="pb-3 border-b border-slate-100">
+            <CardTitle className="text-base font-bold text-[#0F172A]">Civil Servant Registration</CardTitle>
             <CardDescription className="text-xs text-slate-500">
               Step 1 of 2: Create login credentials before role onboarding
             </CardDescription>

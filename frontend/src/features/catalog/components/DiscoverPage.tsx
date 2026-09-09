@@ -9,7 +9,6 @@ import {
   BookOpen,
   Building2,
   Clock,
-  Sparkles,
   ChevronRight,
   History,
   TrendingUp,
@@ -140,51 +139,42 @@ function DiscoverContent() {
     <div className="min-h-[calc(100vh-68px)] flex flex-col bg-[#F8FAFC] w-full text-slate-900">
 
       {/* ═══════════════════════════════════════════
-          Header — Dark Navy Gradient + Search
+          Header: Sovereign Navy Search Console
           ═══════════════════════════════════════════ */}
-      <section className="hero-gradient relative overflow-hidden py-10 sm:py-14">
-        {/* Mesh + glow */}
-        <div className="absolute inset-0 hero-mesh opacity-50" />
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-teal-500/15 blur-[80px] pointer-events-none" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <section className="bg-[#0B132B] text-white py-10 sm:py-12 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-4">
-            <div className="glass-light rounded-full px-3 py-1.5 flex items-center gap-2">
-              <Building2 className="h-3.5 w-3.5 text-teal-300" />
-              <span className="text-[11px] font-bold text-white/70 uppercase tracking-widest">
-                {t("discover.eyebrow")}
-              </span>
-            </div>
+          <div className="text-xs font-semibold text-amber-400 tracking-wider uppercase mb-1.5">
+            {t("discover.eyebrow")}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
             {t("discover.title")}
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-white/60 max-w-3xl leading-relaxed">
+          <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
             {t("discover.subtitle")}
           </p>
 
-          {/* Search Bar — glassmorphic */}
-          <form onSubmit={handleSearchSubmit} className="mt-7 flex flex-col sm:flex-row gap-2.5 max-w-3xl">
+          {/* Search Bar: High-contrast solid input */}
+          <form onSubmit={handleSearchSubmit} className="mt-6 flex flex-col sm:flex-row gap-2 max-w-3xl">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("discover.searchPlaceholder")}
-                className="w-full pl-11 pr-10 h-12 text-sm rounded-xl glass-light text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition-all"
+                className="w-full pl-10 pr-9 h-11 text-xs rounded-lg bg-white text-slate-900 placeholder-slate-400 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] transition-colors"
               />
               {query && (
                 <button type="button" onClick={() => setQuery("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white cursor-pointer">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
             <Button type="submit"
-              className="h-12 px-7 navy-teal-gradient text-white text-sm font-bold rounded-xl shadow-lg border-0 flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition-opacity">
+              className="h-11 px-6 bg-[#1E3A8A] hover:bg-[#162E70] text-white text-xs font-semibold rounded-lg border border-[#162E70] flex items-center justify-center gap-2 cursor-pointer active:translate-y-[1px]">
               <Search className="h-4 w-4" />
               {t("discover.searchBtn")}
             </Button>
@@ -192,26 +182,26 @@ function DiscoverContent() {
 
           {/* Trending searches */}
           <div className="mt-5 flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-white/50 flex items-center gap-1.5 font-semibold">
+            <span className="text-slate-400 flex items-center gap-1.5 font-semibold">
               <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
               {t("discover.trending")}
             </span>
             {trendingSearches.map((ts) => (
               <button key={ts}
                 onClick={() => { setQuery(ts); setCategory("all"); }}
-                className="px-3 py-1 rounded-full glass-card text-white/70 hover:text-white text-[11px] font-medium cursor-pointer transition-all hover:scale-105">
+                className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 text-[11px] font-medium cursor-pointer transition-colors active:translate-y-[1px]">
                 {getTopicLabel(ts)}
               </button>
             ))}
             {recentSearches.length > 0 && (
-              <div className="w-full flex flex-wrap items-center gap-2 mt-2 text-xs text-white/40">
+              <div className="w-full flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-400">
                 <span className="flex items-center gap-1 font-semibold">
-                  <History className="h-3.5 w-3.5 text-white/30" />
+                  <History className="h-3.5 w-3.5 text-slate-500" />
                   {t("discover.recent")}
                 </span>
                 {recentSearches.map((rs, idx) => (
                   <button key={idx} onClick={() => setQuery(rs)}
-                    className="text-teal-300 hover:underline font-semibold cursor-pointer">{rs}</button>
+                    className="text-amber-400 hover:underline font-semibold cursor-pointer">{rs}</button>
                 ))}
               </div>
             )}
@@ -235,10 +225,10 @@ function DiscoverContent() {
             ].map((tab) => (
               <button key={tab.key}
                 onClick={() => setCategory(tab.key)}
-                className={`relative px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer whitespace-nowrap border ${
+                className={`relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap border ${
                   category === tab.key
-                    ? "navy-teal-gradient text-white border-transparent shadow-sm"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                    ? "bg-[#1E3A8A] text-white border-[#162E70] shadow-xs"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}>
                 {tab.label}
               </button>
@@ -305,22 +295,19 @@ function DiscoverContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {courses.map((course) => (
                 <div key={course.id}
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col card-hover-lift shadow-sm group">
-                  {/* Category accent stripe */}
-                  <div className={`h-1 w-full ${getCategoryAccent(course.category)}`} />
-
-                  <div className="p-6 flex flex-col flex-1">
+                  className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col shadow-xs hover:border-slate-300 transition-colors group">
+                  <div className="p-5 flex flex-col flex-1">
                     {/* Top metadata */}
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                         course.source === "external"
-                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          ? "bg-amber-50 text-amber-900 border-amber-300"
                           : "bg-blue-50 text-[#1E3A8A] border-blue-200"
                       }`}>
                         {course.source === "external" ? t("discover.externalBadge") : t("discover.internalBadge")}
                       </span>
-                      <span className="flex items-center gap-1 text-xs text-slate-400 font-medium">
-                        <Clock className="h-3.5 w-3.5 text-slate-300" />
+                      <span className="flex items-center gap-1 text-xs text-slate-500 font-medium">
+                        <Clock className="h-3.5 w-3.5 text-slate-400" />
                         {course.duration_hours} {t("discover.hours")}
                       </span>
                     </div>
@@ -331,43 +318,43 @@ function DiscoverContent() {
                     </h3>
 
                     {/* Overview */}
-                    <p className="text-xs text-slate-500 line-clamp-3 mb-4 leading-relaxed flex-1">
+                    <p className="text-xs text-slate-600 line-clamp-3 mb-4 leading-relaxed flex-1">
                       {getCourseOverview(course)}
                     </p>
 
                     {/* Metadata */}
-                    <div className="space-y-1.5 text-xs text-slate-400 pt-3 border-t border-slate-100">
+                    <div className="space-y-1.5 text-xs text-slate-500 pt-3 border-t border-slate-100">
                       <div className="flex items-center justify-between">
                         <span>{t("discover.accreditedBody")}</span>
-                        <span className="font-semibold text-slate-700 text-right truncate max-w-[160px]">
+                        <span className="font-semibold text-slate-800 text-right truncate max-w-[160px]">
                           {getCourseOrg(course)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>{t("discover.targetDifficulty")}</span>
-                        <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                        <span className="flex items-center gap-1.5 font-semibold text-slate-800">
                           <span className={`h-2 w-2 rounded-full ${getDifficultyDot(course.difficulty)}`} />
                           {getDifficultyLabel(course.difficulty)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>{t("discover.modules")}</span>
-                        <span className="font-semibold text-slate-700">{course.modules_count} {t("discover.units")}</span>
+                        <span className="font-semibold text-slate-800">{course.modules_count} {t("discover.units")}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Card Footer */}
-                  <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
-                      <span className="font-bold text-slate-800">{course.rating}</span>
+                  <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                      <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                      <span className="font-bold text-slate-900 font-tabular">{course.rating}</span>
                       <span className="text-slate-300">•</span>
-                      <span>{course.enrolled_count} {t("discover.enrolled")}</span>
+                      <span className="font-tabular">{course.enrolled_count} {t("discover.enrolled")}</span>
                     </div>
                     <a href={`/courses/${course.id}`}>
                       <Button size="sm"
-                        className="navy-teal-gradient text-white text-xs font-bold rounded-xl h-8 px-4 border-0 shadow-sm cursor-pointer hover:opacity-90 transition-opacity flex items-center gap-1">
+                        className="bg-[#1E3A8A] hover:bg-[#162E70] text-white text-xs font-semibold rounded-lg h-8 px-3.5 border border-[#162E70] cursor-pointer flex items-center gap-1 active:translate-y-[1px]">
                         {t("discover.viewCourse")}
                         <ChevronRight className="h-3.5 w-3.5" />
                       </Button>

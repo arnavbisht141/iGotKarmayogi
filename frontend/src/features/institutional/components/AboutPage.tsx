@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   BarChart3,
   FileCheck2,
-  Sparkles,
   GraduationCap,
   Users,
   Target,
@@ -81,7 +80,7 @@ export default function AboutPage() {
       detail: "Standardized national examinations with a strict 70% threshold, generating cryptographically verified SHA-256 digital certificates linked to personnel records.",
     },
     {
-      icon: Sparkles,
+      icon: Compass,
       title: t("about.pillar3Title"),
       desc: t("about.pillar3Desc"),
       detail: "24/7 cited cadre assistant offering instant clarity on survey round schedules, central circulars, field concepts, and technical definitions.",
@@ -91,17 +90,14 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* 1. Institutional White Header Banner */}
-      <section className="bg-white border-b border-slate-200 py-8 sm:py-12">
+      <section className="bg-white border-b border-slate-200 py-8 sm:py-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-4 w-4 text-[#1E3A8A]" />
-                <span className="text-[11px] font-bold text-[#1E3A8A] uppercase tracking-wider">
-                  {t("about.cardOrg")} • {t("about.cardSub")}
-                </span>
+              <div className="text-xs font-semibold text-[#1E3A8A] tracking-wider uppercase mb-1.5">
+                {t("about.cardOrg")} • {t("about.cardSub")}
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 {t("about.title")}
               </h1>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -113,7 +109,7 @@ export default function AboutPage() {
               <Link href="/discover">
                 <Button
                   size="sm"
-                  className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-4 shadow-xs cursor-pointer"
+                  className="bg-[#1E3A8A] hover:bg-[#162E70] text-white text-xs font-semibold px-4 cursor-pointer active:translate-y-[1px]"
                 >
                   <Compass className="h-4 w-4 mr-1.5" /> {t("hero.explore")}
                 </Button>
@@ -136,41 +132,41 @@ export default function AboutPage() {
 
       {/* 2. Main Content Canvas */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-        {/* Core Pillars Grid */}
+        {/* Core Pillars: Structured Institutional Matrix */}
         <section>
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-              Foundational Capacity Building Pillars
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+              Foundational Capacity Building Architecture
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Three pillars ensuring data integrity, institutional excellence, and modern service delivery
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {competencyPillars.map((pillar, idx) => {
-              const Icon = pillar.icon;
-              return (
-                <Card key={idx} className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden flex flex-col justify-between">
-                  <CardHeader className="pb-3">
-                    <div className="h-10 w-10 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center mb-3">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <CardTitle className="text-base font-bold text-slate-900">
+          <div className="space-y-4">
+            {competencyPillars.map((pillar, idx) => (
+              <div key={idx} className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs transition-colors hover:border-slate-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-[#1E3A8A] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                      Pillar 0{idx + 1}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900">
                       {pillar.title}
-                    </CardTitle>
-                    <CardDescription className="text-xs text-slate-600 mt-1 leading-relaxed">
-                      {pillar.desc}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <p className="text-xs text-slate-500 border-t border-slate-100 pt-3 leading-relaxed">
-                      {pillar.detail}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                    </h3>
+                  </div>
+                  <span className="text-[11px] font-mono text-slate-500 font-medium">
+                    MoSPI Accreditation Standard
+                  </span>
+                </div>
+                <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                  {pillar.desc}
+                </p>
+                <p className="text-xs text-slate-500 border-t border-slate-100 pt-3 mt-3 leading-relaxed">
+                  {pillar.detail}
+                </p>
+              </div>
+            ))}
           </div>
         </section>
 

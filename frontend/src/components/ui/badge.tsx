@@ -2,24 +2,25 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "secondary" | "outline" | "success" | "warning" | "external" | "saffron";
+  variant?: "default" | "secondary" | "outline" | "success" | "warning" | "external" | "saffron" | "cadre";
 }
 
 export function Badge({ className, variant = "default", ...props }: BadgeProps) {
   const variants = {
-    default: "border-transparent bg-slate-900 text-white",
-    secondary: "border-transparent bg-slate-100 text-slate-800",
-    outline: "text-slate-800 border-slate-300",
-    success: "border-transparent bg-emerald-100 text-emerald-800 border border-emerald-200",
-    warning: "border-transparent bg-amber-100 text-amber-800 border border-amber-200",
-    external: "border-transparent bg-indigo-50 text-indigo-700 border border-indigo-200",
-    saffron: "border-transparent bg-amber-50 text-amber-900 border border-amber-300 font-medium",
+    default: "border-transparent bg-slate-900 text-white font-medium",
+    secondary: "border-slate-200 bg-slate-100 text-slate-800 font-medium",
+    outline: "text-slate-800 border-slate-300 bg-white font-medium",
+    success: "border-emerald-300 bg-emerald-50 text-emerald-900 font-medium",
+    warning: "border-amber-300 bg-amber-50 text-amber-900 font-medium",
+    external: "border-slate-300 bg-slate-100 text-slate-700 font-medium",
+    saffron: "border-amber-300 bg-amber-50 text-amber-900 font-medium",
+    cadre: "border-blue-200 bg-blue-50 text-[#1E3A8A] font-semibold",
   };
 
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        "inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium tracking-tight transition-colors focus:outline-none",
         variants[variant],
         className
       )}

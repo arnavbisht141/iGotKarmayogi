@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/AuthContext";
 import { I18nProvider } from "@/lib/i18n";
@@ -7,7 +7,17 @@ import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { AiAssistantWidget } from "@/features/assistant/components/AiAssistantWidget";
 
-const inter = Inter({ subsets: ["latin"] });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "iGOT Karmayogi Bharat | National Learning Platform for Civil Services (MoSPI)",
@@ -21,9 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}>
       <body
-        className={`${inter.className} min-h-screen bg-[#F8FAFC] text-[#0F172A] antialiased flex flex-col`}
+        className={`${plusJakarta.className} min-h-screen bg-[#F8FAFC] text-[#0F172A] antialiased flex flex-col font-sans`}
         suppressHydrationWarning
       >
         <I18nProvider>

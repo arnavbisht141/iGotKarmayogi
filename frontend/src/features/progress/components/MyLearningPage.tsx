@@ -7,7 +7,7 @@ import {
   PlayCircle,
   CheckCircle2,
   Calendar,
-  Sparkles,
+  Layers,
   ArrowRight,
   TrendingUp,
   Building2,
@@ -137,7 +137,7 @@ export default function MyLearningPage() {
                   : "text-slate-500 hover:text-slate-900"
               }`}
             >
-              <Sparkles className="h-4 w-4" />
+              <Layers className="h-4 w-4" />
               {t("learning.tabSkills")} ({skills.length})
             </button>
 

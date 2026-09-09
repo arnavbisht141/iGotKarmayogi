@@ -108,17 +108,14 @@ export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* 1. Institutional White Header Banner */}
-      <section className="bg-white border-b border-slate-200 py-8 sm:py-12">
+      <section className="bg-white border-b border-slate-200 py-8 sm:py-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-4 w-4 text-[#1E3A8A]" />
-                <span className="text-[11px] font-bold text-[#1E3A8A] uppercase tracking-wider">
-                  Official Learning Methodology • Capacity Building Commission
-                </span>
+              <div className="text-xs font-semibold text-[#1E3A8A] tracking-wider uppercase mb-1.5">
+                Official Learning Methodology • Capacity Building Commission
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 {t("howItWorks.title")}
               </h1>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -130,7 +127,7 @@ export default function HowItWorksPage() {
               <Link href="/discover">
                 <Button
                   size="sm"
-                  className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-4 shadow-xs cursor-pointer"
+                  className="bg-[#1E3A8A] hover:bg-[#162E70] text-white text-xs font-semibold px-4 cursor-pointer active:translate-y-[1px]"
                 >
                   <Compass className="h-4 w-4 mr-1.5" /> {t("hero.explore")}
                 </Button>

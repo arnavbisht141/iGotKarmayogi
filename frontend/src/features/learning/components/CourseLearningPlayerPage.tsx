@@ -13,7 +13,6 @@ import {
   FlaskConical,
   Award,
   AlertCircle,
-  Sparkles,
   HelpCircle,
   BookOpen,
 } from "lucide-react";
@@ -266,31 +265,30 @@ function LearningPlayerContent() {
         <div className="flex-1 max-w-4xl w-full mx-auto p-6 sm:p-8 space-y-8">
           {/* Simulated Video Player if Content Type is Video */}
           {currentLesson.content_type === "video" && (
-            <div className="rounded-2xl overflow-hidden bg-slate-950 shadow-md aspect-video relative flex items-center justify-center text-white">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+            <div className="rounded-xl overflow-hidden bg-slate-950 shadow-md aspect-video relative flex items-center justify-center text-white border border-slate-800">
               <div className="relative text-center p-6 space-y-3 z-10">
-                <div className="h-16 w-16 rounded-full bg-amber-600/90 text-white flex items-center justify-center mx-auto shadow-lg hover:scale-105 transition-transform cursor-pointer">
-                  <PlayCircle className="h-10 w-10" />
+                <div className="h-14 w-14 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center mx-auto shadow-md hover:bg-[#162E70] transition-colors cursor-pointer active:translate-y-[1px]">
+                  <PlayCircle className="h-8 w-8" />
                 </div>
                 <h4 className="text-base font-bold">{currentLesson.title}</h4>
-                <p className="text-xs text-slate-300">
-                  Interactive Video Lecture • National Statistical Systems Training Academy (NSSTA)
+                <p className="text-xs text-slate-400">
+                  Accredited Video Lecture • National Statistical Systems Training Academy (NSSTA)
                 </p>
               </div>
             </div>
           )}
 
           {/* Reading / Lab Content Area */}
-          <div className="prose prose-slate max-w-none bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs leading-relaxed text-slate-800 text-sm whitespace-pre-wrap">
+          <div className="prose prose-slate max-w-none bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-xs leading-relaxed text-slate-800 text-sm whitespace-pre-wrap">
             {currentLesson.content}
           </div>
 
           {/* IN-LESSON PRACTICE ACTIVITY */}
           {currentLesson.activity && currentLesson.activity.has_activity && (
-            <Card className="border-amber-200 bg-amber-50/40 shadow-xs">
-              <CardHeader className="pb-3 border-b border-amber-100">
+            <Card className="border-slate-200 bg-white shadow-xs rounded-xl">
+              <CardHeader className="pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-700" />
+                  <CheckCircle2 className="h-4 w-4 text-[#1E3A8A]" />
                   <CardTitle className="text-sm font-bold text-slate-900">
                     {t("learn.practice")}
                   </CardTitle>

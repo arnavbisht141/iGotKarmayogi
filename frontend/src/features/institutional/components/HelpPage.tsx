@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Building2,
   HelpCircle,
-  Sparkles,
   Phone,
   Mail,
   Clock,
@@ -93,13 +92,10 @@ export default function HelpPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-4 w-4 text-[#1E3A8A]" />
-                <span className="text-[11px] font-bold text-[#1E3A8A] uppercase tracking-wider">
-                  Central Assistance & Training Desk • Capacity Building Commission
-                </span>
+              <div className="text-xs font-semibold text-[#1E3A8A] tracking-wider uppercase mb-1.5">
+                Central Assistance &amp; Training Desk • Capacity Building Commission
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 {t("help.title")}
               </h1>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -111,7 +107,7 @@ export default function HelpPage() {
               <Link href="/discover">
                 <Button
                   size="sm"
-                  className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-4 shadow-xs cursor-pointer"
+                  className="bg-[#1E3A8A] hover:bg-[#162E70] text-white text-xs font-semibold px-4 cursor-pointer active:translate-y-[1px]"
                 >
                   <Compass className="h-4 w-4 mr-1.5" /> {t("resources.browseCatalog")}
                 </Button>
@@ -134,32 +130,35 @@ export default function HelpPage() {
 
       {/* 2. Main Content Canvas */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-        {/* Support Channels 3 Cards Grid */}
+        {/* Support Channels */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: 24/7 AI Assistant */}
-          <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden flex flex-col justify-between">
-            <CardHeader className="pb-3">
-              <div className="h-10 w-10 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center mb-3">
-                <Sparkles className="h-5 w-5" />
+          {/* Card 1: Cadre Assistant */}
+          <div className="rounded-xl border border-slate-200 bg-white p-5 flex flex-col justify-between shadow-xs">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-xs font-bold text-[#1E3A8A] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                  24/7 Service
+                </span>
+                <MessageSquare className="h-4 w-4 text-[#1E3A8A]" />
               </div>
-              <CardTitle className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900">
                 {t("help.aiTitle")}
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-600 mt-1 leading-relaxed">
+              </h3>
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                 {t("help.aiDesc")}
-              </CardDescription>
-            </CardHeader>
-            <CardFooter className="pt-2 pb-5 border-t border-slate-100 flex flex-col items-start gap-3">
-              <span className="text-[11px] text-slate-500">Available 24/7 • Direct citations</span>
+              </p>
+            </div>
+            <div className="pt-4 border-t border-slate-100 flex flex-col items-start gap-2 mt-4">
+              <span className="text-[11px] text-slate-500">Instant answers with NSSTA citations</span>
               <Button
                 size="sm"
                 onClick={handleLaunchAiAssistant}
-                className="w-full bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold cursor-pointer shadow-xs"
+                className="w-full bg-[#1E3A8A] hover:bg-[#162E70] text-white text-xs font-semibold cursor-pointer active:translate-y-[1px]"
               >
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" /> {t("help.aiLaunch")}
+                {t("help.aiLaunch")}
               </Button>
-            </CardFooter>
-          </Card>
+            </div>
+          </div>
 
           {/* Card 2: Central Training Division Desk */}
           <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden flex flex-col justify-between">

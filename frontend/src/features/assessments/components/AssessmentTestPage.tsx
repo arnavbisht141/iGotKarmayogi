@@ -125,8 +125,8 @@ export default function AssessmentTestPage() {
           <div
             className={`p-8 text-center ${
               results.passed
-                ? "bg-gradient-to-b from-emerald-50 to-white border-b border-emerald-100"
-                : "bg-gradient-to-b from-rose-50 to-white border-b border-rose-100"
+                ? "bg-emerald-50/60 border-b border-emerald-200"
+                : "bg-rose-50/60 border-b border-rose-200"
             }`}
           >
             <div
