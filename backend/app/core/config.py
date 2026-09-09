@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     # SQLite default database, can be swapped with postgresql+psycopg2://...
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./karmayogi.db")
     
+    # Supabase Configuration
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
+    SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", os.getenv("SUPABASE_ANON_KEY", ""))
+    SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+
     # LLM keys for LangChain / LangGraph AI Assistant
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

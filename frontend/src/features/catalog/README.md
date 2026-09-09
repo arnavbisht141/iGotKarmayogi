@@ -8,7 +8,7 @@ The **Catalog** feature module owns course discovery, search filtering, and cour
 - `/discover` (`DiscoverPage.tsx`): Main national course catalog and external accredited training explorer.
 - `/courses/[courseId]` (`CourseDetailPage.tsx`): Comprehensive course overview, module/lesson syllabus breakdown, and enrollment action handlers.
 - Route wrappers (`frontend/src/app/discover/page.tsx`, `frontend/src/app/courses/[courseId]/page.tsx`) delegate directly to these components without owning domain logic.
-- Maintains Next.js standalone container compatibility by wrapping search parameter consumers inside React `<Suspense>` boundaries.
+- Maintains Next.js build compatibility by wrapping search parameter consumers inside React `<Suspense>` boundaries.
 
 ---
 

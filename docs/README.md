@@ -37,7 +37,7 @@ Persistent records tracking both visible repository commits and "invisible" non-
 ### 4. 🏛️ Architecture & Standards
 - [architecture.md](architecture.md) — System architecture diagram, responsibilities table, 17 database models schema, and mandatory operational guidelines for AI agents.
 - [domain-boundaries.md](domain-boundaries.md) — Modular monolith domain boundaries (`backend/app/modules/`) and LMS data ownership principles.
-- [development.md](development.md) — Quick start runbook, Docker development/production commands, local environment setup, and verification tests.
+- [development.md](development.md) — Quick start runbook, local environment setup, verification tests, and database management.
 - [adr/](adr/) — Architectural Decision Records:
   - [`0001-modular-monolith-and-ai-boundary.md`](adr/0001-modular-monolith-and-ai-boundary.md)
   - [`0002-backend-owns-lms-data.md`](adr/0002-backend-owns-lms-data.md)
