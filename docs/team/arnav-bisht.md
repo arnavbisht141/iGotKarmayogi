@@ -74,9 +74,18 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 - Implemented context-aware navigation in `Navbar.tsx`: unauthenticated users on `/` get smooth-scroll anchor links, all other users get dedicated page routes.
 - All pages include bilingual (Hindi/English) support via `useI18n()`.
 
+### 2.9 Design Branch — Comprehensive Visual Overhaul (`design` branch)
+- Redesigned all 6 priority pages and shared components with a "sober yet exciting" institutional aesthetic:
+  - **`globals.css`**: Added extended design token palette (navy scale, teal `#0D9488`, ochre `#B45309`, sage `#059669`), 8 CSS-only `@keyframe` animations, glassmorphism utilities, hero mesh pattern, card-hover-lift transition.
+  - **`EntryLandingPage.tsx`**: Dark navy-teal gradient hero with CSS mesh overlay and radial glow orbs. Frosted-glass stat cards inside hero. About pillars get unique navy/teal/ochre icon backgrounds with left-border accent cards. Horizontal timeline for "How It Works" with gradient connecting line. Top-stripe colored resource cards. Gradient support cards in Help section. Navy gradient closing CTA.
+  - **`HomePage.tsx`**: Full-bleed navy gradient welcome header with gradient avatar ring, online pulse indicator, glassmorphic nav button. Difficulty-colored left-border course cards, gradient progress bars, amber-gradient streak card, colored stat grid cells.
+  - **`DiscoverPage.tsx`**: Glassmorphic search input on gradient header. Trending pills as `glass-card`. Active category tabs use navy-teal gradient. Course cards: top-stripe accent by category, colored difficulty dots, gradient CTA button.
+  - **`AiAssistantWidget.tsx`**: Gradient + `pulse-glow` floating button with ping indicator and hover tooltip. Chat panel with gradient header, teal-left-border bot messages, gradient user bubbles, 3-dot `floatDot` typing animation, auto-scroll.
+  - **`Navbar.tsx`**: Gradient brand icon, bottom-bar gradient underline active indicators, gradient avatar ring, upgraded profile dropdown shadow.
+
 ---
 
-## 3. "Invisible" & Offline Contributions
+## 3. Research & Planning Contributions
 
 ### 3.1 Miro Flow Realization & Requirements Mapping
 - Deconstructed the SIH '26 Miro board user flow into discrete, measurable frontend routes and backend domain modules.
@@ -94,6 +103,7 @@ Lead full-stack engineer and repository architect for the Smart India Hackathon 
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
+| `2026-09-09` | Comprehensive visual design overhaul across all 6 priority pages | `Code` / `UI` / `CSS` / `Design` | `design` branch: dark hero gradient, glassmorphism, nav underline indicators, gradient AI widget, 8 CSS keyframe animations, extended palette |
 | `2026-09-09` | Institutional pages & context-aware navbar routing | `Code` / `UI` / `Routing` | Created `/about`, `/how-it-works`, `/resources`, `/help` standalone pages; smart anchor/page routing in Navbar |
 | `2026-09-09` | Post-login dashboard & repository-wide non-AI redesign | `Code` / `UI` / `Docs` | Seamless white headers, removed emojis/boxes, Navy branding, 100% bilingual Hindi on `/home`, `/my-learning`, `/profile`, `/admin` |
 | `2026-09-08` | Discover page overhaul, background fix & bilingual localization | `Code` / `UI` / `Docs` | Fixed background color layout, removed emojis/boxes, added 100% Hindi compatibility on `/discover` |
