@@ -15,6 +15,7 @@ from app.modules.assessments.router import router as assessments_router
 from app.modules.profile.router import router as profile_router
 from app.modules.admin.router import router as admin_router
 from app.agents.router import router as agents_router
+from app.modules.technical_courses.router import router as technical_courses_router
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -52,6 +53,7 @@ app.include_router(assessments_router, prefix=settings.API_V1_STR)
 app.include_router(profile_router, prefix=settings.API_V1_STR)
 app.include_router(admin_router, prefix=settings.API_V1_STR)
 app.include_router(agents_router, prefix=settings.API_V1_STR)
+app.include_router(technical_courses_router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 def health_check():

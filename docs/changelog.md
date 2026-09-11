@@ -25,6 +25,45 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-11] - Technical Course Content Generation Pipeline Backend
+- **Author**: Antigravity AI & Ravish Kansal (@ravishkansal22)
+- **Scope**: `[backend]` `[ai-service]` `[architecture]` `[docs]`
+- **Branch**: `technical-course-pipeline`
+- **Description**:
+  - Implemented the complete backend pipeline for Technical Course content generation in iGOT Karmayogi under `backend/app/modules/technical_courses/`.
+  - **Transcript Ingestion & Chunking (`transcript_service.py`):** Cleaning WebVTT/SRT timestamps, audio cues, whitespace normalization, token estimation, and overlapping semantic chunking.
+  - **Structured Learning Objective Extraction (`objective_extractor.py`):** Schema-driven extraction (skill, difficulty, action, mode) with Gemini/OpenAI support and deterministic testing fallbacks.
+  - **Quiz vs. Lab Decision Layer (`decision_service.py`):** Extensible Bloom taxonomy classifier determining whether objectives require interactive sandbox labs or multiple-choice quizzes.
+  - **Human-Controlled Lab Templates (`template_service.py`):** Enforces human instructional boundaries; templates define starter code structure, constraints, and unit test suites before LLM filling.
+  - **Controlled Lab Generation (`lab_generator.py`):** Generates concrete labs conforming strictly to `GeneratedLabSchema`.
+  - **Reference Solution Generation (`solution_generator.py`):** Synthesizes reference solutions marked untrusted until validated.
+  - **Isolated Sandbox Validation (`sandbox_service.py`):** Primary Docker container execution (`--network none`, 128MB limit, timeout, non-root) with isolated subprocess fallback for development/testing.
+  - **Full Pipeline Orchestrator (`pipeline_orchestrator.py`):** Coordinates transcript ingestion -> objectives -> lab decision -> template matching -> lab generation -> solution generation -> sandbox validation -> SQLite persistence.
+  - **Database Models (`models.py`):** Added `TechnicalTranscript`, `TechnicalLearningObjective`, `TechnicalLabTemplate`, `TechnicalGeneratedLab`, `TechnicalLabSolution`, and `TechnicalLabValidationResult`.
+  - **Automated Test Suite (`backend/tests/test_technical_pipeline.py`):** 22 unit & integration tests validating all pipeline components, sandbox isolation, error modes, and REST APIs.
+- **Affected Files / Routes**:
+  - `backend/app/modules/technical_courses/` [NEW]
+  - `backend/app/models/models.py`
+  - `backend/app/core/seed_data.py`
+  - `backend/app/main.py`
+  - `backend/tests/test_technical_pipeline.py` [NEW]
+  - `docs/features/technical-course-pipeline.md` [NEW]
+  - `POST /api/technical-courses/process`
+  - `POST /api/technical-courses/objectives`
+  - `POST /api/technical-courses/decide-mode`
+  - `GET /api/technical-courses/templates`
+  - `POST /api/technical-courses/match-template`
+  - `POST /api/technical-courses/labs/generate`
+  - `POST /api/technical-courses/labs/{id}/solution`
+  - `POST /api/technical-courses/labs/{id}/validate`
+  - `GET /api/technical-courses/labs/{id}`
+  - `POST /api/technical-courses/pipeline/run-full`
+- **Agent Context / Rules**:
+  - Code generation must always be validated in Docker/isolated sandbox before marking a lab as deployable.
+  - Keep domain modules strictly isolated so teammates working on Statistical, Governance, and Behavioural pipelines face zero merge conflicts.
+
+---
+
 ### [2026-09-09] - Comprehensive Visual Design Overhaul (design branch)
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[css]` `[design]`

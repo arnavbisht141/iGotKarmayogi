@@ -275,3 +275,116 @@ class SearchHistory(Base):
     searched_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="search_history")
+
+
+# ============================================================================
+# TECHNICAL COURSE CONTENT GENERATION PIPELINE MODELS
+# ============================================================================
+
+class TechnicalTranscript(Base):
+    __tablename__ = "technical_transcripts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    raw_text = Column(Text, nullable=False)
+    cleaned_text = Column(Text, nullable=False)
+    chunks_json = Column(Text, nullable=False)  # JSON list of chunks with metadata
+    metadata_json = Column(Text, nullable=True)  # JSON dict with token_count, source, etc.
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    learning_objectives = relationship("TechnicalLearningObjective", back_populates="transcript", cascade="all, delete-orphan")
+
+
+class TechnicalLearningObjective(Base):
+    __tablename__ = "technical_learning_objectives"
+
+    id = Column(Integer, primary_key=True, index=True)
+    transcript_id = Column(Integer, ForeignKey("technical_transcripts.id", ondelete="CASCADE"), nullable=True)
+    objective = Column(Text, nullable=False)
+    skill = Column(String(255), nullable=False, index=True)
+    difficulty = Column(String(50), default="intermediate")  # beginner, intermediate, advanced
+    action_verb = Column(String(100), nullable=False)  # implement, debug, analyze, configure, etc.
+    assessment_mode = Column(String(50), default="lab")  # lab or quiz
+    suitability_reason = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    transcript = relationship("TechnicalTranscript", back_populates="learning_objectives")
+    generated_labs = relationship("TechnicalGeneratedLab", back_populates="learning_objective")
+
+
+class TechnicalLabTemplate(Base):
+    __tablename__ = "technical_lab_templates"
+
+    id = Column(String(100), primary_key=True, index=True)  # Human-created template identifier
+    title = Column(String(255), nullable=False)
+    skill = Column(String(255), nullable=False, index=True)  # e.g., "FastAPI", "Pandas", "Python", "SQL"
+    language = Column(String(50), default="python", index=True)  # python, sql, bash, etc.
+    difficulty = Column(String(50), default="intermediate")  # beginner, intermediate, advanced
+    lab_type = Column(String(100), default="implementation")  # implementation, debugging, data_analysis, refactoring
+    tags_json = Column(Text, default="[]")  # JSON list of string tags for matching
+    instructions_template = Column(Text, nullable=False)
+    starter_code_template = Column(Text, nullable=False)
+    solution_template = Column(Text, nullable=True)
+    constraints_json = Column(Text, default="[]")  # JSON list of constraint strings
+    test_cases_template_json = Column(Text, default="[]")  # JSON list of test case specs
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    generated_labs = relationship("TechnicalGeneratedLab", back_populates="template")
+
+
+class TechnicalGeneratedLab(Base):
+    __tablename__ = "technical_generated_labs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String(100), ForeignKey("technical_lab_templates.id", ondelete="SET NULL"), nullable=True)
+    objective_id = Column(Integer, ForeignKey("technical_learning_objectives.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    objective = Column(Text, nullable=False)
+    language = Column(String(50), default="python")
+    difficulty = Column(String(50), default="intermediate")
+    instructions = Column(Text, nullable=False)
+    starter_code = Column(Text, nullable=False)
+    constraints_json = Column(Text, default="[]")  # JSON list of string constraints
+    test_cases_json = Column(Text, default="[]")  # JSON list of test case dicts
+    expected_behavior = Column(Text, nullable=True)
+    status = Column(String(50), default="draft")  # draft, pending_validation, validated, rejected
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    template = relationship("TechnicalLabTemplate", back_populates="generated_labs")
+    learning_objective = relationship("TechnicalLearningObjective", back_populates="generated_labs")
+    solution = relationship("TechnicalLabSolution", back_populates="lab", uselist=False, cascade="all, delete-orphan")
+    validation_results = relationship("TechnicalLabValidationResult", back_populates="lab", cascade="all, delete-orphan")
+
+
+class TechnicalLabSolution(Base):
+    __tablename__ = "technical_lab_solutions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("technical_generated_labs.id", ondelete="CASCADE"), unique=True, nullable=False)
+    reference_code = Column(Text, nullable=False)
+    explanation = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    lab = relationship("TechnicalGeneratedLab", back_populates="solution")
+
+
+class TechnicalLabValidationResult(Base):
+    __tablename__ = "technical_lab_validation_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("technical_generated_labs.id", ondelete="CASCADE"), nullable=False)
+    solution_id = Column(Integer, ForeignKey("technical_lab_solutions.id", ondelete="SET NULL"), nullable=True)
+    is_valid = Column(Boolean, default=False, nullable=False)
+    sandbox_type = Column(String(50), default="docker")  # docker or subprocess-dev-fallback
+    exit_code = Column(Integer, default=0)
+    execution_time_ms = Column(Float, default=0.0)
+    stdout = Column(Text, nullable=True)
+    stderr = Column(Text, nullable=True)
+    test_summary_json = Column(Text, nullable=True)  # JSON summary of individual test cases
+    error_message = Column(Text, nullable=True)
+    validated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    lab = relationship("TechnicalGeneratedLab", back_populates="validation_results")
+

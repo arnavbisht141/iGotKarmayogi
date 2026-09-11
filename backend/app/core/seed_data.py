@@ -617,5 +617,27 @@ Vectorized operations execute in optimized C routines, yielding up to a 100x spe
     us1 = UserSkill(user_id=learner_user.id, skill_id=skills[2].id, source_course_id=c3.id)
     db.add(us1)
 
+    # 10. Seed Technical Course Lab Templates (Human-Created)
+    from app.modules.technical_courses.services.template_service import BUILTIN_LAB_TEMPLATES
+    from app.models.models import TechnicalLabTemplate
+    
+    for t in BUILTIN_LAB_TEMPLATES:
+        tc_json = json.dumps([tc.model_dump() for tc in t.test_cases_template])
+        tmpl_record = TechnicalLabTemplate(
+            id=t.id,
+            title=t.title,
+            skill=t.skill,
+            language=t.language,
+            difficulty=t.difficulty,
+            lab_type=t.lab_type,
+            tags_json=json.dumps(t.tags),
+            instructions_template=t.instructions_template,
+            starter_code_template=t.starter_code_template,
+            solution_template=t.solution_template,
+            constraints_json=json.dumps(t.constraints),
+            test_cases_template_json=tc_json
+        )
+        db.merge(tmpl_record)
+
     db.commit()
-    print("Database successfully seeded with realistic civil service curriculum and accounts!")
+    print("Database successfully seeded with realistic civil service curriculum, accounts, and technical lab templates!")
