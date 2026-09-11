@@ -28,12 +28,56 @@ def process_query_node(state: AgentState) -> AgentState:
     query_lower = user_query.lower()
     ctx = state.get("context") or "iGot Karmayogi Learning Ecosystem"
 
-    # Attempt 1: If Google Gemini API key is present
+    # Attempt 1: If Groq API key is present (Primary)
+    if settings.GROQ_API_KEY:
+        try:
+            from langchain_groq import ChatGroq
+            llm = ChatGroq(
+                model_name=settings.GROQ_MODEL,
+                api_key=settings.GROQ_API_KEY,
+                temperature=0.3
+            )
+            prompt = f"""You are the official iGot Karmayogi AI Learning Copilot for Indian civil servants and statisticians (MoSPI).
+Context: {ctx}
+User Question: {user_query}
+
+Provide a concise, authoritative, professional civil-service guidance response in 2-4 sentences."""
+            res = llm.invoke([HumanMessage(content=prompt)])
+            return {
+                "input_message": user_query,
+                "context": ctx,
+                "output_message": res.content,
+                "source": "langgraph-groq"
+            }
+        except Exception as e:
+            print(f"Groq call fallback: {e}")
+
+    # Attempt 2: If OpenAI API key is present (Fallback 1)
+    if settings.OPENAI_API_KEY:
+        try:
+            from langchain_openai import ChatOpenAI
+            llm = ChatOpenAI(
+                model=settings.OPENAI_MODEL,
+                api_key=settings.OPENAI_API_KEY,
+                temperature=0.3
+            )
+            prompt = f"""You are the official iGot Karmayogi AI Learning Copilot for Indian civil servants. Context: {ctx}. Question: {user_query}. Concise, clear answer."""
+            res = llm.invoke([HumanMessage(content=prompt)])
+            return {
+                "input_message": user_query,
+                "context": ctx,
+                "output_message": res.content,
+                "source": "langgraph-openai"
+            }
+        except Exception as e:
+            print(f"OpenAI call fallback: {e}")
+
+    # Attempt 3: If Google Gemini API key is present (Fallback 2)
     if settings.GOOGLE_API_KEY:
         try:
             from langchain_google_genai import ChatGoogleGenerativeAI
             llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
+                model=settings.GEMINI_MODEL,
                 google_api_key=settings.GOOGLE_API_KEY,
                 temperature=0.3
             )
@@ -51,26 +95,6 @@ Provide a concise, authoritative, professional civil-service guidance response i
             }
         except Exception as e:
             print(f"Gemini call fallback: {e}")
-
-    # Attempt 2: If OpenAI API key is present
-    if settings.OPENAI_API_KEY:
-        try:
-            from langchain_openai import ChatOpenAI
-            llm = ChatOpenAI(
-                model="gpt-4o-mini",
-                api_key=settings.OPENAI_API_KEY,
-                temperature=0.3
-            )
-            prompt = f"""You are the official iGot Karmayogi AI Learning Copilot for Indian civil servants. Context: {ctx}. Question: {user_query}. Concise, clear answer."""
-            res = llm.invoke([HumanMessage(content=prompt)])
-            return {
-                "input_message": user_query,
-                "context": ctx,
-                "output_message": res.content,
-                "source": "langgraph-openai"
-            }
-        except Exception as e:
-            print(f"OpenAI call fallback: {e}")
 
     # Built-in civil service statistical domain knowledge responder (deterministic LangGraph fallback)
     response_text = ""
