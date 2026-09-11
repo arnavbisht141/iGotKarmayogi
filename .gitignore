@@ -31,6 +31,9 @@ dist/
 *.sqlite3
 backend/karmayogi.db
 
+# Scraped content cache (lives in Supabase, not git)
+content-pipeline/content/
+
 # Environment variables
 .env
 .env.local
