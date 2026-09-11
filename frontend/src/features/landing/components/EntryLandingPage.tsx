@@ -105,12 +105,12 @@ export default function EntryLandingPage() {
           ════════════════════════════════════════════════ */}
       <section
         id="hero"
-        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)] flex flex-col justify-center hero-gradient hero-mesh py-10 sm:py-16 relative overflow-hidden"
+        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-0 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center hero-gradient hero-mesh py-8 sm:py-16 relative overflow-hidden"
       >
         {/* Radial glow orb — top-left */}
-        <div className="absolute -top-24 -left-24 w-[480px] h-[480px] rounded-full bg-[#1E3A8A]/30 blur-[100px] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-[280px] sm:w-[480px] h-[280px] sm:h-[480px] max-w-full rounded-full bg-[#1E3A8A]/30 blur-[100px] pointer-events-none" />
         {/* Radial glow orb — bottom-right */}
-        <div className="absolute -bottom-24 -right-12 w-[360px] h-[360px] rounded-full bg-[#0D9488]/20 blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-24 -right-12 w-[240px] sm:w-[360px] h-[240px] sm:h-[360px] max-w-full rounded-full bg-[#0D9488]/20 blur-[80px] pointer-events-none" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
           {/* Two-Column Grid */}
@@ -119,39 +119,39 @@ export default function EntryLandingPage() {
             {/* Left Column */}
             <div className="lg:col-span-7 flex flex-col justify-start text-left animate-fade-in-up">
               {/* Eyebrow */}
-              <div className="flex items-center gap-2 mb-5">
+              <div className="flex items-center gap-2 mb-4 sm:mb-5">
                 <div className="flex items-center gap-2 glass-light rounded-full px-3 py-1.5">
                   <Building2 className="h-3.5 w-3.5 text-teal-300" />
-                  <span className="text-[11px] font-bold text-white/80 uppercase tracking-widest">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-white/80 uppercase tracking-widest">
                     MoSPI • Capacity Building Commission
                   </span>
                 </div>
               </div>
 
               {/* Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold tracking-tight text-white leading-[1.1]">
+              <h1 className="text-2xl sm:text-4xl lg:text-[44px] font-extrabold tracking-tight text-white leading-[1.15] sm:leading-[1.1]">
                 {t("hero.title")}
               </h1>
 
               {/* Subtitle */}
-              <p className="mt-5 text-base sm:text-lg text-white/70 font-normal leading-relaxed max-w-xl animate-fade-in-up-delay-1">
+              <p className="mt-4 sm:mt-5 text-sm sm:text-lg text-white/70 font-normal leading-relaxed max-w-xl animate-fade-in-up-delay-1">
                 {t("hero.subtitle")}
               </p>
 
               {/* CTAs */}
-              <div className="mt-8 flex flex-wrap items-center gap-3.5 animate-fade-in-up-delay-2">
-                <a href="/login">
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5 animate-fade-in-up-delay-2">
+                <a href="/login" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="h-12 px-7 rounded-xl bg-white hover:bg-slate-50 text-[#1E3A8A] font-bold text-sm shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer border-0 hover:scale-105"
+                    className="w-full sm:w-auto h-12 px-7 rounded-xl bg-white hover:bg-slate-50 text-[#1E3A8A] font-bold text-sm shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-0 hover:scale-105"
                   >
                     {t("hero.signIn")} <ArrowRight className="h-4 w-4" />
                   </Button>
                 </a>
-                <a href="/discover">
+                <a href="/discover" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="h-12 px-7 rounded-xl glass-light hover:bg-white/20 text-white font-semibold text-sm transition-all duration-200 flex items-center gap-2 cursor-pointer border border-white/30 hover:border-white/50"
+                    className="w-full sm:w-auto h-12 px-7 rounded-xl glass-light hover:bg-white/20 text-white font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-white/30 hover:border-white/50"
                   >
                     <Compass className="h-4 w-4 text-teal-300" /> {t("hero.explore")}
                   </Button>
@@ -159,15 +159,15 @@ export default function EntryLandingPage() {
               </div>
 
               {/* Trust badges */}
-              <div className="mt-8 pt-5 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-2.5 animate-fade-in-up-delay-3">
-                <span className="flex items-center gap-2 text-xs text-white/60 font-medium">
-                  <CheckCircle2 className="h-4 w-4 text-teal-400 shrink-0" /> {t("hero.badgeMospi")}
+              <div className="mt-6 sm:mt-8 pt-4 sm:pt-5 border-t border-white/10 flex flex-wrap items-center gap-x-5 sm:gap-x-6 gap-y-2 animate-fade-in-up-delay-3">
+                <span className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-white/60 font-medium">
+                  <CheckCircle2 className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-teal-400 shrink-0" /> {t("hero.badgeMospi")}
                 </span>
-                <span className="flex items-center gap-2 text-xs text-white/60 font-medium">
-                  <Shield className="h-4 w-4 text-amber-400 shrink-0" /> {t("hero.badgeCbc")}
+                <span className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-white/60 font-medium">
+                  <Shield className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-amber-400 shrink-0" /> {t("hero.badgeCbc")}
                 </span>
-                <span className="flex items-center gap-2 text-xs text-white/60 font-medium">
-                  <Award className="h-4 w-4 text-teal-400 shrink-0" /> {t("hero.badgeIso")}
+                <span className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-white/60 font-medium">
+                  <Award className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-teal-400 shrink-0" /> {t("hero.badgeIso")}
                 </span>
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function EntryLandingPage() {
             <div className="lg:col-span-5 w-full flex flex-col items-end animate-fade-in-up-delay-1">
               <div className="w-full">
                 <div
-                  className="relative w-full h-[240px] sm:h-[270px] rounded-2xl overflow-hidden group"
+                  className="relative w-full h-[200px] xs:h-[230px] sm:h-[270px] rounded-2xl overflow-hidden group"
                   style={{ boxShadow: "0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)" }}
                   onMouseEnter={() => setIsPaused(true)}
                   onMouseLeave={() => setIsPaused(false)}
@@ -258,7 +258,7 @@ export default function EntryLandingPage() {
           ════════════════════════════════════════════════ */}
       <section
         id="about"
-        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)] flex flex-col justify-center bg-gradient-to-b from-white to-slate-50 border-b border-slate-200 py-12 sm:py-16"
+        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-0 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center bg-gradient-to-b from-white to-slate-50 border-b border-slate-200 py-12 sm:py-16"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
@@ -360,7 +360,7 @@ export default function EntryLandingPage() {
           ════════════════════════════════════════════════ */}
       <section
         id="how-it-works"
-        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)] flex flex-col justify-center bg-white border-b border-slate-200 py-12 sm:py-16"
+        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-0 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center bg-white border-b border-slate-200 py-12 sm:py-16"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -431,7 +431,7 @@ export default function EntryLandingPage() {
           ════════════════════════════════════════════════ */}
       <section
         id="resources"
-        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)] flex flex-col justify-center bg-slate-50 border-b border-slate-200 py-12 sm:py-16"
+        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-0 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center bg-slate-50 border-b border-slate-200 py-12 sm:py-16"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
@@ -494,7 +494,7 @@ export default function EntryLandingPage() {
           ════════════════════════════════════════════════ */}
       <section
         id="help"
-        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)] flex flex-col justify-between bg-white pt-12 pb-0"
+        className="scroll-mt-16 sm:scroll-mt-[68px] min-h-0 lg:min-h-[calc(100vh-68px)] flex flex-col justify-between bg-white pt-12 pb-0"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex flex-col justify-center py-4">
           <div className="text-center max-w-2xl mx-auto mb-10">

@@ -1,5 +1,16 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+
+# Automatically load environment variables from root and backend .env
+root_dir = Path(__file__).resolve().parents[3]
+backend_dir = Path(__file__).resolve().parents[2]
+if (root_dir / ".env").exists():
+    load_dotenv(dotenv_path=root_dir / ".env", override=False)
+if (backend_dir / ".env").exists():
+    load_dotenv(dotenv_path=backend_dir / ".env", override=True)
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "iGot Karmayogi - AI Skill Intelligence Platform"

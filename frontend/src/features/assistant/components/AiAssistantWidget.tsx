@@ -85,29 +85,29 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40" suppressHydrationWarning>
+    <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-40" suppressHydrationWarning>
       {!isOpen ? (
         /* ── Floating Trigger Button ── */
         <button
           onClick={() => setIsOpen(true)}
-          className="relative h-14 w-14 rounded-full text-white flex items-center justify-center cursor-pointer select-none group animate-pulse-glow navy-teal-gradient shadow-xl border border-white/20 hover:scale-110 transition-transform duration-200 active:scale-95"
+          className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-full text-white flex items-center justify-center cursor-pointer select-none group animate-pulse-glow navy-teal-gradient shadow-xl border border-white/20 hover:scale-110 transition-transform duration-200 active:scale-95"
           title="Karmayogi Learning Support Desk"
           aria-label="Karmayogi Learning Support Desk"
         >
-          <Sparkles className="h-6 w-6 text-white transition-transform group-hover:scale-110" />
+          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform group-hover:scale-110" />
           {/* Online pulse dot */}
           <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-400 border-2 border-white">
             <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
           </span>
           {/* Tooltip */}
-          <span className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap text-[11px] font-bold text-white bg-[#0C1B3D] px-2.5 py-1 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10">
+          <span className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap text-[11px] font-bold text-white bg-[#0C1B3D] px-2.5 py-1 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 hidden sm:block">
             Karmayogi AI Desk
           </span>
         </button>
       ) : (
         /* ── Chat Panel ── */
-        <div className="w-[380px] rounded-2xl overflow-hidden flex flex-col shadow-2xl"
-          style={{ height: 520, boxShadow: "0 25px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05)" }}>
+        <div className="w-[calc(100vw-24px)] sm:w-[380px] max-h-[82vh] h-[520px] rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+          style={{ boxShadow: "0 25px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05)" }}>
 
           {/* Header — navy-teal gradient */}
           <div className="navy-teal-gradient relative overflow-hidden px-4 py-3.5 flex items-center justify-between shrink-0">

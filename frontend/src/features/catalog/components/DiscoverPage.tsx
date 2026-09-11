@@ -226,7 +226,7 @@ function DiscoverContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
           {/* Category tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs touch-pan-x">
             {[
               { key: "all",     label: t("discover.all") },
               { key: "popular", label: t("discover.popular") },
@@ -235,7 +235,7 @@ function DiscoverContent() {
             ].map((tab) => (
               <button key={tab.key}
                 onClick={() => setCategory(tab.key)}
-                className={`relative px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer whitespace-nowrap border ${
+                className={`relative px-3.5 sm:px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer whitespace-nowrap border shrink-0 ${
                   category === tab.key
                     ? "navy-teal-gradient text-white border-transparent shadow-sm"
                     : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
@@ -246,8 +246,8 @@ function DiscoverContent() {
           </div>
 
           {/* Filter ribbon */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm text-xs">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm text-xs">
+            <div className="flex items-center justify-between sm:justify-start gap-3 w-full md:w-auto">
               <span className="font-bold text-slate-900 text-sm">
                 {courses.length === 1
                   ? t("discover.showingSingle")
@@ -262,30 +262,30 @@ function DiscoverContent() {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <Filter className="h-3.5 w-3.5 text-slate-400" />
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
+              <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
+                <Filter className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 <select value={source} onChange={(e) => setSource(e.target.value)}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:border-[#1E3A8A] cursor-pointer">
+                  className="w-full sm:w-auto rounded-lg border border-slate-200 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:border-[#1E3A8A] cursor-pointer">
                   <option value="all">{t("discover.allProviders")}</option>
                   <option value="internal">{t("discover.mospiInternal")}</option>
                   <option value="external">{t("discover.externalAccredited")}</option>
                 </select>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
                 <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:border-[#1E3A8A] cursor-pointer">
+                  className="w-full sm:w-auto rounded-lg border border-slate-200 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:border-[#1E3A8A] cursor-pointer">
                   <option value="all">{t("discover.allDifficulties")}</option>
                   <option value="beginner">{t("discover.beginner")}</option>
                   <option value="intermediate">{t("discover.intermediate")}</option>
                   <option value="advanced">{t("discover.advanced")}</option>
                 </select>
               </div>
-              <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                <ArrowUpDown className="h-3.5 w-3.5 text-slate-400" />
+              <div className="flex items-center gap-1.5 border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-3 w-full sm:w-auto">
+                <ArrowUpDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                 <span className="text-slate-400 font-semibold">{t("discover.sort")}:</span>
                 <select value={sort} onChange={(e) => setSort(e.target.value)}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:border-[#1E3A8A] cursor-pointer">
+                  className="flex-1 sm:flex-none rounded-lg border border-slate-200 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold focus:outline-none focus:border-[#1E3A8A] cursor-pointer">
                   <option value="popular">{t("discover.sortPopular")}</option>
                   <option value="rating">{t("discover.sortRating")}</option>
                   <option value="new">{t("discover.sortNew")}</option>
