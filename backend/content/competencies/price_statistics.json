@@ -1,0 +1,90 @@
+{
+  "id": "price_statistics",
+  "domain": "price_statistics",
+  "name": "Price Statistics & Index Numbers",
+  "description": "Official price indices, Consumer Price Index (CPI), index formulation methods (Laspeyres, Paasche, Fisher), inflation analytics, and deflation under MoSPI statistical guidelines.",
+  "authority": "Ministry of Statistics and Programme Implementation (MoSPI)",
+  "standard": "National Statistical Commission (NSC) Index Number Guidelines",
+  "skills": [
+    {
+      "id": "price.price_relative",
+      "name": "Price Relative Calculation",
+      "description": "Calculate price relative as ratio of current period price to base period price expressed as percentage.",
+      "difficulty": ["basic"],
+      "prerequisites": [],
+      "question_types": ["numeric", "mcq"],
+      "formula": "R = (P_1 / P_0) * 100",
+      "mastery_threshold": 75.0
+    },
+    {
+      "id": "price.weights",
+      "name": "Commodity Basket Weight Normalization",
+      "description": "Normalize consumption expenditure weights across commodities to sum to 100 or 1.0.",
+      "difficulty": ["basic"],
+      "prerequisites": [],
+      "question_types": ["numeric", "mcq"],
+      "formula": "w_norm_i = (w_i / Σw) * 100",
+      "mastery_threshold": 75.0
+    },
+    {
+      "id": "price.cpi.weighted_price_relatives",
+      "name": "CPI via Weighted Average of Price Relatives",
+      "description": "Calculate Consumer Price Index as the weighted arithmetic mean of individual commodity price relatives.",
+      "difficulty": ["basic", "intermediate"],
+      "prerequisites": ["price.price_relative", "price.weights"],
+      "question_types": ["numeric", "mcq", "chart_interpretation"],
+      "formula": "CPI = Σ(W_i * R_i) / ΣW_i",
+      "mastery_threshold": 80.0
+    },
+    {
+      "id": "price.inflation_rate",
+      "name": "Inflation Rate Computation",
+      "description": "Calculate percentage rate of inflation between two successive periods from index values.",
+      "difficulty": ["basic", "intermediate"],
+      "prerequisites": ["price.cpi.weighted_price_relatives"],
+      "question_types": ["numeric", "mcq", "chart_interpretation"],
+      "formula": "Inflation = ((Index_t - Index_t-1) / Index_t-1) * 100",
+      "mastery_threshold": 80.0
+    },
+    {
+      "id": "price.laspeyres_index",
+      "name": "Laspeyres Price Index",
+      "description": "Calculate Laspeyres fixed-base weighted price index using base period quantities as weights.",
+      "difficulty": ["intermediate", "advanced"],
+      "prerequisites": ["price.price_relative", "price.weights"],
+      "question_types": ["numeric", "mcq"],
+      "formula": "I_L = (Σ(p_1 * q_0) / Σ(p_0 * q_0)) * 100",
+      "mastery_threshold": 80.0
+    },
+    {
+      "id": "price.paasche_index",
+      "name": "Paasche Price Index",
+      "description": "Calculate Paasche price index using current period quantities as dynamic weights.",
+      "difficulty": ["intermediate", "advanced"],
+      "prerequisites": ["price.laspeyres_index"],
+      "question_types": ["numeric", "mcq"],
+      "formula": "I_P = (Σ(p_1 * q_1) / Σ(p_0 * q_1)) * 100",
+      "mastery_threshold": 80.0
+    },
+    {
+      "id": "price.fisher_index",
+      "name": "Fisher Ideal Price Index",
+      "description": "Calculate Fisher ideal index as the geometric mean of Laspeyres and Paasche price indices.",
+      "difficulty": ["advanced"],
+      "prerequisites": ["price.laspeyres_index", "price.paasche_index"],
+      "question_types": ["numeric", "mcq"],
+      "formula": "I_F = sqrt(I_L * I_P)",
+      "mastery_threshold": 85.0
+    },
+    {
+      "id": "price.real_vs_nominal",
+      "name": "Real vs Nominal Value Deflation",
+      "description": "Compute real value (constant price) from nominal value using price deflator/CPI.",
+      "difficulty": ["intermediate", "advanced"],
+      "prerequisites": ["price.cpi.weighted_price_relatives"],
+      "question_types": ["numeric", "mcq"],
+      "formula": "Real_Value = (Nominal_Value / Price_Index) * 100",
+      "mastery_threshold": 80.0
+    }
+  ]
+}
