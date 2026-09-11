@@ -340,17 +340,17 @@ export default function AssessmentTestPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Test Top Bar */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div>
-          <h3 className="text-xs font-bold text-slate-900 truncate max-w-sm">
+      <div className="flex items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xs font-bold text-slate-900 truncate max-w-[180px] sm:max-w-md">
             {assessment.title}
           </h3>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[10px] sm:text-[11px] text-slate-500">
             Question {currentQuestionIdx + 1} of {assessment.questions.length} • {answeredCount} answered
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
-          <Clock className="h-3.5 w-3.5 text-amber-600" />
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 sm:px-3 py-1 rounded-lg shrink-0">
+          <Clock className="h-3.5 w-3.5 text-amber-600 shrink-0" />
           <span>{assessment.time_limit_minutes}:00 mins</span>
         </div>
       </div>

@@ -16,7 +16,7 @@ export function Footer() {
         <p>
           © 2026 iGOT Karmayogi Bharat • Capacity Building Commission • Ministry of Statistics and Programme Implementation
         </p>
-        <div className="flex gap-6 text-slate-400">
+        <div className="flex flex-wrap justify-center sm:justify-end gap-x-5 gap-y-2 text-slate-400">
           <a href="/discover" className="hover:text-slate-600 transition-colors">Privacy Policy</a>
           <a href="/discover" className="hover:text-slate-600 transition-colors">Terms of Service</a>
           <a href="/discover" className="hover:text-slate-600 transition-colors">National Data Governance</a>

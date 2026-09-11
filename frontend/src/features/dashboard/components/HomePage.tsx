@@ -137,17 +137,17 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <a href="/discover">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+              <a href="/discover" className="w-full sm:w-auto">
                 <Button size="sm"
-                  className="h-10 px-5 rounded-xl bg-white hover:bg-slate-50 text-[#1E3A8A] text-xs font-bold shadow-sm transition-all cursor-pointer border-0 hover:scale-105 flex items-center gap-2">
+                  className="w-full sm:w-auto h-10 px-5 rounded-xl bg-white hover:bg-slate-50 text-[#1E3A8A] text-xs font-bold shadow-sm transition-all cursor-pointer border-0 hover:scale-105 flex items-center justify-center gap-2">
                   <Compass className="h-4 w-4" />
                   {t("home.browseCatalogue")}
                 </Button>
               </a>
-              <a href="/my-learning">
+              <a href="/my-learning" className="w-full sm:w-auto">
                 <Button variant="outline" size="sm"
-                  className="h-10 px-5 rounded-xl glass-light text-white border-white/30 hover:bg-white/20 text-xs font-semibold transition-all cursor-pointer flex items-center gap-2">
+                  className="w-full sm:w-auto h-10 px-5 rounded-xl glass-light text-white border-white/30 hover:bg-white/20 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-2">
                   <BookOpen className="h-4 w-4 text-teal-300" />
                   {t("home.myLearningBtn")}
                 </Button>

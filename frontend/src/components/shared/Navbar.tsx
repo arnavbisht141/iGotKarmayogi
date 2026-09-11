@@ -171,7 +171,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation & Actions */}
-        <div className="hidden md:flex items-center gap-1.5">
+        <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
           {/* Institutional Section Navigation Links */}
           {/* ── Institutional anchor/page links ── */}
           {["about", "how-it-works", "resources", "help"].map((section) => {
@@ -185,13 +185,13 @@ export function Navbar() {
                 href={!user && pathname === "/" ? `/#${section}` : `/${section}`}
                 scroll={false} prefetch={false}
                 onClick={(e) => handleAnchorClick(e, section)}
-                className={`relative px-3.5 py-2 text-sm font-medium transition-all duration-200 cursor-pointer ${
+                className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 cursor-pointer ${
                   isActiveLink ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                 }`}
               >
                 {label}
                 {/* Bottom-bar active indicator */}
-                <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
                   isActiveLink ? "navy-teal-gradient opacity-100" : "opacity-0 bg-[#1E3A8A]"
                 }`} style={isActiveLink ? { background: "linear-gradient(90deg,#1E3A8A,#0D9488)" } : {}} />
               </Link>
@@ -203,22 +203,22 @@ export function Navbar() {
             <>
               {[{ href: "/home", label: "Home" }, { href: "/my-learning", label: t("nav.myLearning") }].map(({ href, label }) => (
                 <Link key={href} href={href}
-                  className={`relative px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
                     isActive(href) ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                   }`}>
                   {label}
-                  <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                  <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
                     isActive(href) ? "opacity-100" : "opacity-0"
                   }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
                 </Link>
               ))}
               {isAdmin && (
                 <Link href="/admin"
-                  className={`relative px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
                     isActive("/admin") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                   }`}>
                   {t("nav.admin")}
-                  <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                  <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
                     isActive("/admin") ? "opacity-100" : "opacity-0"
                   }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
                 </Link>
@@ -228,12 +228,12 @@ export function Navbar() {
 
           {/* ── Discover ── */}
           <Link href="/discover"
-            className={`relative flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
+            className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
               isActive("/discover") || isActive("/courses") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
             }`}>
             <Compass className="h-4 w-4" />
             {t("nav.discover")}
-            <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+            <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
               isActive("/discover") || isActive("/courses") ? "opacity-100" : "opacity-0"
             }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
           </Link>
@@ -242,7 +242,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:text-[#1E3A8A] hover:border-[#1E3A8A]/40 hover:bg-blue-50/50 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:text-[#1E3A8A] hover:border-[#1E3A8A]/40 hover:bg-blue-50/50 transition-all cursor-pointer shrink-0"
             title={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}
           >
             <Languages className="h-3.5 w-3.5 text-[#0D9488]" />
@@ -333,10 +333,11 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu trigger */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex lg:hidden items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
+            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition-colors"
+            aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -345,11 +346,11 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
+        <div className="lg:hidden border-t border-slate-200 bg-white/98 backdrop-blur-md px-4 pt-3 pb-6 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto shadow-2xl animate-fade-in-up">
           {user && (
             <Link
               href="/home"
-              className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50"
+              className="block px-3 py-2.5 rounded-xl text-base font-semibold text-slate-800 hover:bg-blue-50/80 transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
