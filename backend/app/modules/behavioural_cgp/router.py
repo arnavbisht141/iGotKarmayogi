@@ -1,8 +1,13 @@
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends, Query
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+from app.models.models import Course
 from .schemas import (
     GovernmentDocument,
     CaseScenario,
+    CourseCaseOverview,
+    GenerateCaseForCourseRequest,
     CarryforwardQuestion,
     CarryforwardSessionStartRequest,
     CarryforwardAnswerRequest,
@@ -19,12 +24,63 @@ from .services.corpus import get_all_documents, get_document_by_id
 from .services.carryforward_generator import (
     get_all_cases,
     get_case_by_id,
-    generate_case_from_document
+    get_cases_for_course,
+    generate_case_from_document,
+    generate_case_for_course,
+    COURSE_NOTICE_MAPPING
 )
 from .services.carryforward_session import CarryforwardSessionManager
 from .services.interview_service import InterviewSessionManager
 
 router = APIRouter(prefix="/behavioural", tags=["behavioural_cgp"])
+
+# --- Course Curriculum & Case Mappings Endpoints ---
+
+@router.get("/courses", response_model=List[CourseCaseOverview])
+def list_courses_with_case_metadata(db: Session = Depends(get_db)):
+    """Returns all database courses with their mapped statutory notices and case scenario counts."""
+    courses = db.query(Course).order_by(Course.id).all()
+    result = []
+    for c in courses:
+        cases = get_cases_for_course(c.id)
+        mapped_doc_id = COURSE_NOTICE_MAPPING.get(c.id)
+        doc = get_document_by_id(mapped_doc_id) if mapped_doc_id else None
+        mapped_notices = [doc.title] if doc else []
+        result.append(CourseCaseOverview(
+            course_id=c.id,
+            title=c.title,
+            organization=c.organization,
+            category=c.category,
+            overview=c.overview,
+            mapped_notices=mapped_notices,
+            case_count=len(cases)
+        ))
+    return result
+
+@router.get("/courses/{course_id}/cases", response_model=List[CaseScenario])
+def get_course_case_scenarios(course_id: int):
+    """Returns all carryforward cases specific to a database course."""
+    return get_cases_for_course(course_id)
+
+@router.post("/courses/{course_id}/generate-case", response_model=CaseScenario)
+def generate_course_anchored_case(
+    course_id: int,
+    req: Optional[GenerateCaseForCourseRequest] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Extracts syllabus concepts from the specified database course and synthesizes
+    a course-anchored carryforward branching case scenario.
+    """
+    payload = req or GenerateCaseForCourseRequest(course_id=course_id)
+    payload.course_id = course_id
+    try:
+        case = generate_case_for_course(db, payload)
+        return case
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate course case: {e}")
 
 # --- Corpus & Government Documents Endpoints ---
 
@@ -43,9 +99,9 @@ def get_government_document(doc_id: str):
 # --- Carryforward Cases & Generator Endpoints ---
 
 @router.get("/cases", response_model=List[CaseScenario])
-def list_case_scenarios():
-    """Returns all pre-seeded and active case scenarios."""
-    return get_all_cases()
+def list_case_scenarios(course_id: Optional[int] = Query(default=None, description="Filter cases by course ID")):
+    """Returns all pre-seeded and active case scenarios, optionally filtered by database course ID."""
+    return get_all_cases(course_id=course_id)
 
 @router.get("/cases/{case_id}", response_model=CaseScenario)
 def get_case_scenario(case_id: str):

@@ -171,6 +171,45 @@ REQUIRED STATUTORY PROCEEDINGS:
             "Statutory notice period of 7 days for regional explanation",
             "Nullification criteria under UN-NQAF Principle 4"
         ]
+    ),
+    GovernmentDocument(
+        id="doc_mospi_data_governance_directive",
+        title="Directive on Algorithmic Reproducibility, Pipeline Integrity and Microdata Anonymization",
+        document_type="Notice",
+        issuing_authority="MoSPI Data Lab & Digital Standards Committee, New Delhi",
+        document_number="MoSPI/DIGITAL/DATA-LAB/2026/044",
+        statutory_reference="Collection of Statistics Act, 2008 & Information Technology Act, 2000 — Section 43A & Section 72",
+        date_of_issue="04 March 2026",
+        full_text="""GOVERNMENT OF INDIA
+MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION
+DATA GOVERNANCE AND HIGH-PERFORMANCE COMPUTING WING
+EAST BLOCK, R.K. PURAM, NEW DELHI
+
+STATUTORY COMPLIANCE DIRECTIVE ON OPEN DATA PIPELINES
+
+Subject: Algorithmic Verification, Uncommitted Code Modifications, and Leakage of Quasi-Identifiers in Python Processing Pipelines.
+
+1. Internal audit logs of the MoSPI Data Lake revealed that during the preparation of the Annual Survey of Unincorporated Sector Enterprises (ASUSE) analytical tables, data science analysts executed uncommitted, manual Python transformation scripts on production datasets without recording Git commit hashes.
+2. The manual scripts performed arbitrary outlier clipping and dropped imputation flags, resulting in discrepancies between raw unit records and official summary tables.
+3. Furthermore, public data release files contained quasi-identifiers (village code + industry 3-digit code + exact turnover) that allow re-identification of surveyed commercial enterprises in contravention of statutory confidentiality safeguards.
+
+MANDATORY DIRECTIVES FOR TECHNICAL LEADS:
+1. Under Section 15 of Collection of Statistics Act 2008, all data transformations must be strictly deterministic, reproducible, and verifiable via automated audit trails.
+2. Direct execution of uncommitted Jupyter notebooks or ad-hoc Python loops on production data is immediately prohibited. All data wrangling must occur via verified, vectorized pipelines using version-controlled packages.
+3. Violation of data protection thresholds or reckless disclosure of commercial secrets constitutes a punishable breach under IT Act Section 43A, subjecting supervising data officers to departmental proceedings.""",
+        key_stakeholders=[
+            "Chief Data Officer (MoSPI)",
+            "Lead Data Pipeline Architect",
+            "Data Science Officers",
+            "Information Security Auditor",
+            "Policy Evaluation Directorate"
+        ],
+        procedural_clauses=[
+            "Mandatory cryptographic hashing of raw ingestion pipelines",
+            "Prohibition of ad-hoc uncommitted script transformations on production datasets",
+            "Enforcement of k-anonymity and l-diversity on survey microdata",
+            "Requirement of peer-reviewed reproducible Git workflows before public statistical release"
+        ]
     )
 ]
 

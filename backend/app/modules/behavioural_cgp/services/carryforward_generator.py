@@ -1,23 +1,37 @@
 import uuid
 import json
 from typing import Dict, List, Optional
+from sqlalchemy.orm import Session
+from app.models.models import Course
 from ..schemas import (
     CaseScenario,
     CarryforwardQuestion,
     CarryforwardOption,
-    CaseGenerationRequest
+    CaseGenerationRequest,
+    GenerateCaseForCourseRequest
 )
-from .corpus import OFFICIAL_GOVERNMENT_DOCUMENTS
+from .corpus import OFFICIAL_GOVERNMENT_DOCUMENTS, get_document_by_id
 from .notice_extractor import NoticeExtractor
 from app.core.config import settings
 
+COURSE_NOTICE_MAPPING: Dict[int, str] = {
+    1: "doc_mospi_nqaf_audit_notice",
+    2: "doc_dopt_rule14_proceeding",
+    3: "doc_rti_first_appeal_proceeding",
+    4: "doc_gfr_gem_procurement_notice",
+    5: "doc_mospi_data_governance_directive",
+}
+
 # Pre-seeded authentic branching case scenarios
 PRE_SEEDED_CASES: List[CaseScenario] = [
-    # Case 1: CCS Rule 14 Disciplinary Inquiry
+    # Case 1: CCS Rule 14 Disciplinary Inquiry (Course 2: CPI & Price Index)
     CaseScenario(
         id="case_ccs_rule14_inquiry",
         title="Disciplinary Inquiry Proceeding under Rule 14 CCS (CCA) Rules",
         category="Disciplinary Proceedings & Natural Justice",
+        course_id=2,
+        course_title="Compilation of Consumer Price Index (CPI) & Inflation Metrics",
+        course_organization="Central Statistics Office (CSO)",
         document_id="doc_dopt_rule14_proceeding",
         document_title="Departmental Inquiry Proceeding under Rule 14 of CCS (CCA) Rules, 1965",
         document_type="Departmental Proceeding",
@@ -210,11 +224,14 @@ The Charged Officer (CO) has submitted Form 4 denying all charges and claims the
         ]
     ),
 
-    # Case 2: GFR 149 & GeM Procurement Irregularity
+    # Case 2: GFR 149 & GeM Procurement Irregularity (Course 4: PFMS)
     CaseScenario(
         id="case_gfr_gem_procurement",
         title="Procurement Scrutiny & Debarment under GFR Rule 149 / 151",
         category="Public Procurement & Vigilance Integrity",
+        course_id=4,
+        course_title="Digital Governance & Public Financial Management System (PFMS)",
+        course_organization="Institute of Secretariat Training & Management (ISTM)",
         document_id="doc_gfr_gem_procurement_notice",
         document_title="Procurement Irregularity Scrutiny Notice & Vendor Debarment under GFR Rule 149 / 151",
         document_type="Notice",
@@ -338,11 +355,14 @@ The Charged Officer (CO) has submitted Form 4 denying all charges and claims the
         ]
     ),
 
-    # Case 3: RTI Statutory First Appeal & Statistical Confidentiality
+    # Case 3: RTI Statutory First Appeal & Statistical Confidentiality (Course 3: Data Quality)
     CaseScenario(
         id="case_rti_microdata_appeal",
         title="Statutory First Appeal under RTI Act, 2005 (Microdata Disclosure)",
         category="Statutory Compliance & Data Governance",
+        course_id=3,
+        course_title="Data Quality Frameworks & Official Statistics in India",
+        course_organization="National Statistical Systems Training Academy (NSSTA)",
         document_id="doc_rti_first_appeal_proceeding",
         document_title="Statutory First Appellate Authority Proceeding under Section 19(1) of RTI Act, 2005",
         document_type="Statutory Form",
@@ -457,11 +477,14 @@ The Charged Officer (CO) has submitted Form 4 denying all charges and claims the
         ]
     ),
 
-    # Case 4: MoSPI NQAF Statistical Quality Audit (NSS Round 79)
+    # Case 4: MoSPI NQAF Statistical Quality Audit (Course 1: NSS Surveys)
     CaseScenario(
         id="case_mospi_nqaf_audit",
         title="NQAF Quality Audit on Unauthorized Hamlet Substitution (NSS Round 79)",
         category="Official Statistics Quality Assurance",
+        course_id=1,
+        course_title="Fundamentals of National Sample Surveys (NSS)",
+        course_organization="National Sample Survey Office (NSSO)",
         document_id="doc_mospi_nqaf_audit_notice",
         document_title="MoSPI National Quality Assurance Framework (NQAF) Audit Notice on Sampling Protocol Violations",
         document_type="Notice",
@@ -581,14 +604,114 @@ The Charged Officer (CO) has submitted Form 4 denying all charges and claims the
             "Apply UN-NQAF Principle 4 and Collection of Statistics Act Section 15",
             "Separate data-quality remediation from fair disciplinary process"
         ]
+    ),
+
+    # Case 5: MoSPI Data Lab Algorithmic Reproducibility & Pipeline Governance (Course 5: Python)
+    CaseScenario(
+        id="case_mospi_data_governance",
+        title="Algorithmic Integrity & Pipeline Reproducibility in NSS Microdata Processing",
+        category="Data Science Governance & Public Ethics",
+        course_id=5,
+        course_title="Python and Statistical Computing for Public Policy",
+        course_organization="MoSPI Data Lab",
+        document_id="doc_mospi_data_governance_directive",
+        document_title="Directive on Algorithmic Reproducibility, Pipeline Integrity and Microdata Anonymization",
+        document_type="Notice",
+        statutory_citations=[
+            "Collection of Statistics Act, 2008 — Section 15",
+            "Information Technology Act, 2000 — Section 43A & Section 72",
+            "UN Fundamental Principles of Official Statistics — Principle 6"
+        ],
+        initial_context="""You are the Lead Data Architect at the MoSPI Data Lab overseeing Python automated ingestion pipelines for the Annual Survey of Unincorporated Sector Enterprises (ASUSE). 
+An urgent parliamentary question demands summary state estimates by tomorrow morning. A junior data scientist proposes executing an ad-hoc, uncommitted Jupyter notebook script directly on production database tables to manually clip outliers without Git version provenance or cryptographic hash logging.""",
+        root_question_id="q_py_root",
+        questions={
+            "q_py_root": CarryforwardQuestion(
+                id="q_py_root",
+                case_id="case_mospi_data_governance",
+                stage_type="root",
+                prompt="Under official statistical governance and the Collection of Statistics Act, how must you instruct the data science team regarding this ad-hoc processing proposal?",
+                context_update="High-pressure deadline for parliamentary tabulation.",
+                options=[
+                    CarryforwardOption(
+                        option_id="A",
+                        text="Refuse uncommitted ad-hoc execution. Require all transformations to be vectorized, unit-tested, committed to Git with hash logging, and run through the deterministic CI/CD pipeline under Section 15.",
+                        is_optimal=True,
+                        is_satisfactory_terminal=True,
+                        consequence_summary="Pipeline reproducibility guaranteed. Audit trail preserved and legal exposure prevented under IT Act & Statistics Act.",
+                        statutory_rationale="Under Section 15 of Collection of Statistics Act, 2008, all published official statistics must have auditable, non-repudiable derivation records.",
+                        next_question_id=None
+                    ),
+                    CarryforwardOption(
+                        option_id="B",
+                        text="Permit the one-time ad-hoc script execution to meet the parliamentary deadline, planning to document the code transformations later.",
+                        is_optimal=False,
+                        is_satisfactory_terminal=False,
+                        consequence_summary="Unverified transformations result in conflicting estimates between central and state sample tables. Discrepancy is flagged in audit.",
+                        statutory_rationale="Executing untracked transformation scripts on production microdata destroys empirical reproducibility and violates MoSPI Data Governance SOPs.",
+                        next_question_id="q_py_branch_audit_discrepancy"
+                    ),
+                    CarryforwardOption(
+                        option_id="C",
+                        text="Instruct the analyst to manually adjust cell values in Excel spreadsheets to match last year's trend lines.",
+                        is_optimal=False,
+                        is_satisfactory_terminal=False,
+                        consequence_summary="Falsification of official statistical returns. Severe statutory misconduct.",
+                        statutory_rationale="Willfully altering official data to match expectations constitutes criminal neglect under Collection of Statistics Act Section 15.",
+                        next_question_id="q_py_branch_audit_discrepancy"
+                    )
+                ],
+                behavioral_competencies=["Ethics", "Decision Making", "Leadership"]
+            ),
+            "q_py_branch_audit_discrepancy": CarryforwardQuestion(
+                id="q_py_branch_audit_discrepancy",
+                case_id="case_mospi_data_governance",
+                stage_type="carryforward_branch",
+                prompt="[CARRYFORWARD FOLLOW-UP] SAQAD auditors detect that published ASUSE state tables diverge from raw microdata by 4.2% due to untracked manual clipping. The Standing Committee demands a technical explanation within 48 hours. How do you lead remediation?",
+                context_update="Technical scrutiny on uncommitted code execution.",
+                options=[
+                    CarryforwardOption(
+                        option_id="A",
+                        text="Immediately freeze the pipeline, rerun the deterministic vectorized cleaning workflow with version-controlled Git commit hashes, issue a transparent corrigendum table with exact mathematical justification, and institute mandatory pre-commit hooks.",
+                        is_optimal=True,
+                        is_satisfactory_terminal=True,
+                        consequence_summary="Institutional integrity restored through transparency, version control enforcement, and mathematical rigor.",
+                        statutory_rationale="Admitting technical discrepancies with transparent corrigenda and automated safeguards demonstrates public accountability and compliance with UN Principle 6.",
+                        next_question_id=None
+                    ),
+                    CarryforwardOption(
+                        option_id="B",
+                        text="Blame the discrepancy on junior contractors and delete the ad-hoc notebook file from the server.",
+                        is_optimal=False,
+                        is_satisfactory_terminal=True,
+                        consequence_summary="Destruction of public records aggravates disciplinary and IT Act liability.",
+                        statutory_rationale="Spoliation of digital evidence during vigilance or parliamentary scrutiny violates CCS (Conduct) Rule 3.",
+                        next_question_id=None
+                    )
+                ],
+                behavioral_competencies=["Leadership", "Change Management", "Ethics"]
+            )
+        },
+        learning_objectives=[
+            "Enforce reproducible data science pipelines using Git and Python",
+            "Prevent uncommitted manual tampering on official survey microdata",
+            "Uphold Section 15 of Collection of Statistics Act in automated data systems"
+        ]
     )
 ]
 
 GENERATED_CASES: Dict[str, CaseScenario] = {}
 
 
-def get_all_cases() -> List[CaseScenario]:
-    return PRE_SEEDED_CASES + list(GENERATED_CASES.values())
+def get_all_cases(course_id: Optional[int] = None) -> List[CaseScenario]:
+    all_cases = PRE_SEEDED_CASES + list(GENERATED_CASES.values())
+    if course_id is not None:
+        return [c for c in all_cases if c.course_id == course_id]
+    return all_cases
+
+
+def get_cases_for_course(course_id: int) -> List[CaseScenario]:
+    return get_all_cases(course_id=course_id)
 
 
 def get_case_by_id(case_id: str) -> Optional[CaseScenario]:
@@ -600,6 +723,247 @@ def get_case_by_id(case_id: str) -> Optional[CaseScenario]:
 
 def register_generated_case(case: CaseScenario) -> None:
     GENERATED_CASES[case.id] = case
+
+
+def generate_case_for_course(db: Session, req: GenerateCaseForCourseRequest) -> CaseScenario:
+    course = db.query(Course).filter(Course.id == req.course_id).first()
+    if not course:
+        raise ValueError(f"Course ID {req.course_id} not found in database")
+
+    # Document retrieval or matching
+    doc = None
+    if req.document_id:
+        doc = get_document_by_id(req.document_id)
+    if not doc:
+        default_doc_id = COURSE_NOTICE_MAPPING.get(course.id, "doc_mospi_nqaf_audit_notice")
+        doc = get_document_by_id(default_doc_id)
+
+    doc_title = doc.title if doc else (req.custom_notice_text[:50] if req.custom_notice_text else f"{course.title} Administrative Directive")
+    doc_text = req.custom_notice_text if req.custom_notice_text else (doc.full_text if doc else course.overview)
+    doc_type = doc.document_type if doc else "Administrative Notice"
+    doc_id = doc.id if doc else f"doc_{uuid.uuid4().hex[:8]}"
+
+    # Extract syllabus excerpts
+    lesson_titles = []
+    lesson_excerpts = []
+    if course.modules:
+        for m in course.modules:
+            for l in m.lessons:
+                lesson_titles.append(l.title)
+                if l.content:
+                    lesson_excerpts.append(f"{l.title}: {l.content[:150].strip()}")
+    syllabus_summary = f"Course: {course.title} ({course.organization}). Modules: " + ", ".join(lesson_titles[:4])
+
+    case_id = f"course_{course.id}_case_{uuid.uuid4().hex[:8]}"
+
+    # Try LLM generation if configured
+    if settings.GOOGLE_API_KEY or settings.OPENAI_API_KEY:
+        try:
+            from langchain_core.messages import HumanMessage
+            prompt = f"""You are an elite civil service instructional designer for iGot Karmayogi (Government of India).
+Design an authentic carryforward branching MCQ scenario anchored specifically to this course curriculum:
+Course Title: {course.title}
+Issuing Department: {course.organization}
+Category: {course.category}
+Key Lessons: {', '.join(lesson_titles[:5])}
+Course Excerpts: {' | '.join(lesson_excerpts[:2])}
+
+Government Notice Context:
+Notice Title: {doc_title}
+Notice Text:
+{doc_text[:2000]}
+
+Generate a multi-tier carryforward decision tree where:
+1. Root question presents a direct operational dilemma testing the officer's application of the course's concepts and the notice rules.
+2. Option A is the optimal procedure (satisfactorily terminal).
+3. Option B is a plausible procedural oversight or shortcut (branches to a carryforward follow-up).
+4. Option C is a severe bureaucratic or statutory error.
+5. A consequential follow-up branch question confronts the fallout of Option B, offering remediation.
+
+Output strictly valid JSON conforming to:
+{{
+  "title": "Case Study: ...",
+  "category": "{course.category}",
+  "initial_context": "...",
+  "root_question": {{
+     "prompt": "...",
+     "options": [
+        {{"option_id": "A", "text": "...", "is_optimal": true, "is_satisfactory_terminal": true, "consequence_summary": "...", "statutory_rationale": "..."}},
+        {{"option_id": "B", "text": "...", "is_optimal": false, "is_satisfactory_terminal": false, "consequence_summary": "...", "statutory_rationale": "...", "next_question_id": "q_course_branch"}},
+        {{"option_id": "C", "text": "...", "is_optimal": false, "is_satisfactory_terminal": false, "consequence_summary": "...", "statutory_rationale": "...", "next_question_id": "q_course_branch"}}
+     ]
+  }},
+  "branch_question": {{
+     "id": "q_course_branch",
+     "prompt": "[CARRYFORWARD FOLLOW-UP] ...",
+     "options": [
+        {{"option_id": "A", "text": "...", "is_optimal": true, "is_satisfactory_terminal": true, "consequence_summary": "...", "statutory_rationale": "..."}},
+        {{"option_id": "B", "text": "...", "is_optimal": false, "is_satisfactory_terminal": true, "consequence_summary": "...", "statutory_rationale": "..."}}
+     ]
+  }},
+  "learning_objectives": ["..."]
+}}"""
+            res_content = ""
+            if settings.GOOGLE_API_KEY:
+                from langchain_google_genai import ChatGoogleGenerativeAI
+                llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=settings.GOOGLE_API_KEY, temperature=0.2)
+                res = llm.invoke([HumanMessage(content=prompt)])
+                res_content = res.content
+            elif settings.OPENAI_API_KEY:
+                from langchain_openai import ChatOpenAI
+                llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.OPENAI_API_KEY, temperature=0.2)
+                res = llm.invoke([HumanMessage(content=prompt)])
+                res_content = res.content
+
+            cleaned = res_content.strip()
+            if cleaned.startswith("```"):
+                cleaned = cleaned.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+            parsed = json.loads(cleaned)
+
+            root_opts = [CarryforwardOption(**opt) for opt in parsed["root_question"]["options"]]
+            branch_opts = [CarryforwardOption(**opt) for opt in parsed["branch_question"]["options"]]
+
+            questions = {
+                "q_root": CarryforwardQuestion(
+                    id="q_root",
+                    case_id=case_id,
+                    stage_type="root",
+                    prompt=parsed["root_question"]["prompt"],
+                    options=root_opts,
+                    behavioral_competencies=["Ethics", "Decision Making", "Leadership"]
+                ),
+                parsed["branch_question"]["id"]: CarryforwardQuestion(
+                    id=parsed["branch_question"]["id"],
+                    case_id=case_id,
+                    stage_type="carryforward_branch",
+                    prompt=parsed["branch_question"]["prompt"],
+                    options=branch_opts,
+                    behavioral_competencies=["Decision Making", "Change Management"]
+                )
+            }
+
+            llm_case = CaseScenario(
+                id=case_id,
+                title=parsed.get("title", f"Case Study: {course.title}"),
+                category=course.category,
+                course_id=course.id,
+                course_title=course.title,
+                course_organization=course.organization,
+                document_id=doc_id,
+                document_title=doc_title,
+                document_type=doc_type,
+                statutory_citations=doc.statutory_reference.split(" & ") if doc else ["Relevant Statutory Rules"],
+                initial_context=parsed.get("initial_context", f"Practical administrative dilemma derived from '{course.title}' ({course.organization})."),
+                root_question_id="q_root",
+                questions=questions,
+                learning_objectives=parsed.get("learning_objectives", [f"Master administrative execution in {course.title}"])
+            )
+            register_generated_case(llm_case)
+            return llm_case
+        except Exception as e:
+            print(f"LLM course case generation fallback: {e}")
+
+    # High-quality deterministic civil-service generator tailored to course syllabus
+    primary_lesson = lesson_titles[0] if lesson_titles else "Core Frameworks"
+    root_prompt = (
+        f"In administering field operations for '{course.title}' under {course.organization}, "
+        f"a critical compliance dilemma emerges regarding {doc_title}. "
+        f"A regional unit proposes bypassing standard verification protocols under '{primary_lesson}' "
+        f"to satisfy imminent reporting milestones. How must you resolve this as the Supervising Officer?"
+    )
+
+    root_opts = [
+        CarryforwardOption(
+            option_id="A",
+            text=f"Direct strict adherence to the prescribed {course.organization} statutory guidelines under '{primary_lesson}', maintaining documented logs and refusing unverified shortcuts.",
+            is_optimal=True,
+            is_satisfactory_terminal=True,
+            consequence_summary="Procedural integrity preserved. Data validity and administrative accountability safeguarded.",
+            statutory_rationale=f"Statutory protocols in {course.title} are non-negotiable and protect official estimates from legal invalidation.",
+            next_question_id=None
+        ),
+        CarryforwardOption(
+            option_id="B",
+            text="Permit the informal bypass temporarily with verbal instructions to regularize documentation once the deadline passes.",
+            is_optimal=False,
+            is_satisfactory_terminal=False,
+            consequence_summary="Procedural irregularity committed. Audit inspection flags non-compliance with statutory standards.",
+            statutory_rationale="Verbal deviations from documented statutory procedures create administrative liability and invalidate subsequent returns.",
+            next_question_id="q_course_branch_remediation"
+        ),
+        CarryforwardOption(
+            option_id="C",
+            text="Delegate the decision entirely to contractual field personnel without supervisory instructions.",
+            is_optimal=False,
+            is_satisfactory_terminal=False,
+            consequence_summary="Dereliction of supervisory oversight resulting in severe quality breakdown.",
+            statutory_rationale="Supervising officers cannot abdicate statutory oversight duties under CCS (Conduct) Rules.",
+            next_question_id="q_course_branch_remediation"
+        )
+    ]
+
+    branch_opts = [
+        CarryforwardOption(
+            option_id="A",
+            text="Issue a formal corrective memorandum, halt the processing of unverified tranches, institute an independent quality audit, and report the rectification transparently to Headquarters.",
+            is_optimal=True,
+            is_satisfactory_terminal=True,
+            consequence_summary="Procedural defect cured under civil service regulations. Institutional credibility preserved.",
+            statutory_rationale="Proactive administrative rectification and transparent reporting cure procedural defects and prevent tribunal quashing.",
+            next_question_id=None
+        ),
+        CarryforwardOption(
+            option_id="B",
+            text="Instruct staff to suppress audit discrepancies and finalize the administrative file as if no defect occurred.",
+            is_optimal=False,
+            is_satisfactory_terminal=True,
+            consequence_summary="Concealment of official irregularities aggravates vigilance liability.",
+            statutory_rationale="Willful concealment of procedural defects during official audits constitutes major misconduct under Rule 14.",
+            next_question_id=None
+        )
+    ]
+
+    questions = {
+        "q_root": CarryforwardQuestion(
+            id="q_root",
+            case_id=case_id,
+            stage_type="root",
+            prompt=root_prompt,
+            options=root_opts,
+            behavioral_competencies=["Ethics", "Decision Making", "Leadership"]
+        ),
+        "q_course_branch_remediation": CarryforwardQuestion(
+            id="q_course_branch_remediation",
+            case_id=case_id,
+            stage_type="carryforward_branch",
+            prompt=f"[CARRYFORWARD REMEDIATION] Quality auditors from {course.organization} have formally raised an objection regarding unverified procedural shortcuts in '{primary_lesson}'. What administrative remediation do you direct?",
+            options=branch_opts,
+            behavioral_competencies=["Decision Making", "Change Management", "Project Management"]
+        )
+    }
+
+    course_case = CaseScenario(
+        id=case_id,
+        title=f"Case Study: {course.title} Compliance",
+        category=course.category,
+        course_id=course.id,
+        course_title=course.title,
+        course_organization=course.organization,
+        document_id=doc_id,
+        document_title=doc_title,
+        document_type=doc_type,
+        statutory_citations=[doc.statutory_reference] if doc else ["Relevant Statutory Administrative Rules"],
+        initial_context=f"Real-world operational case study aligned with '{course.title}' ({course.organization}). Review the statutory notice and exercise principled administrative leadership.",
+        root_question_id="q_root",
+        questions=questions,
+        learning_objectives=[
+            f"Apply core tenets of '{course.title}' to real-world administrative challenges",
+            "Uphold procedural correctness and prevent vigilance scrutiny",
+            "Remediate operational bottlenecks through transparent governance"
+        ]
+    )
+    register_generated_case(course_case)
+    return course_case
 
 def generate_case_from_document(req: CaseGenerationRequest) -> CaseScenario:
     """

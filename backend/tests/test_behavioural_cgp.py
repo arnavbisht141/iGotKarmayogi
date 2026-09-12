@@ -251,3 +251,52 @@ def test_api_live_interview_flow():
     assert "Ethics" in report["competency_scores"]
     assert "Leadership" in report["competency_scores"]
     assert "Change Management" in report["competency_scores"]
+
+
+def test_get_courses_with_case_mappings():
+    res = client.get("/api/behavioural/courses")
+    assert res.status_code == 200
+    courses = res.json()
+    assert len(courses) >= 5
+    nss_course = next((c for c in courses if c["course_id"] == 1), None)
+    assert nss_course is not None
+    assert "National Sample Surveys" in nss_course["title"]
+    assert len(nss_course["mapped_notices"]) > 0
+    assert nss_course["case_count"] >= 1
+
+
+def test_filter_cases_by_course_id():
+    # Filter for Course 1 (NSS)
+    res_course1 = client.get("/api/behavioural/cases?course_id=1")
+    assert res_course1.status_code == 200
+    cases_course1 = res_course1.json()
+    assert len(cases_course1) >= 1
+    for c in cases_course1:
+        assert c["course_id"] == 1
+
+    # Route specific for course cases
+    res_direct = client.get("/api/behavioural/courses/1/cases")
+    assert res_direct.status_code == 200
+    cases_direct = res_direct.json()
+    assert len(cases_direct) >= 1
+    assert cases_direct[0]["course_id"] == 1
+
+
+def test_generate_course_anchored_case():
+    # Dynamically generate a new case for Course 4 (PFMS)
+    res = client.post("/api/behavioural/courses/4/generate-case", json={
+        "course_id": 4,
+        "custom_notice_text": "Ministry of Finance Directive on Treasury Single Account (TSA) fund parking and GeM bidding adherence under GFR 149."
+    })
+    assert res.status_code == 200
+    case_data = res.json()
+    assert case_data["course_id"] == 4
+    assert "Digital Governance" in case_data["course_title"]
+    assert "q_root" in case_data["questions"]
+    root_q = case_data["questions"]["q_root"]
+    assert len(root_q["options"]) >= 2
+    # Verify sub-optimal branch leads to carryforward follow-up
+    branch_opts = [opt for opt in root_q["options"] if not opt["is_optimal"]]
+    assert len(branch_opts) > 0
+    assert branch_opts[0]["next_question_id"] in case_data["questions"]
+

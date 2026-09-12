@@ -57,6 +57,9 @@ interface CaseScenario {
   id: string;
   title: string;
   category: string;
+  course_id?: number;
+  course_title?: string;
+  course_organization?: string;
   document_id: string;
   document_title: string;
   document_type: string;
@@ -65,6 +68,16 @@ interface CaseScenario {
   root_question_id: string;
   questions: Record<string, CarryforwardQuestion>;
   learning_objectives: string[];
+}
+
+interface CourseCaseOverview {
+  course_id: number;
+  title: string;
+  organization: string;
+  category: string;
+  overview: string;
+  mapped_notices: string[];
+  case_count: number;
 }
 
 interface DecisionNodeLog {
@@ -97,6 +110,9 @@ export default function CarryforwardAssessmentPage() {
   const [activeTab, setActiveTab] = useState<"cases" | "generator" | "corpus">("cases");
   const [cases, setCases] = useState<CaseScenario[]>([]);
   const [corpus, setCorpus] = useState<GovernmentDocument[]>([]);
+  const [courses, setCourses] = useState<CourseCaseOverview[]>([]);
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState<number | null>(null);
+  const [selectedGenCourseId, setSelectedGenCourseId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedCaseId, setSelectedCaseId] = useState<string>("");
 
@@ -124,19 +140,39 @@ export default function CarryforwardAssessmentPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
 
-  // Load initial cases and corpus
+  // Load initial cases, corpus, and courses
   useEffect(() => {
     async function loadData() {
       try {
         setLoading(true);
-        const [casesData, corpusData] = await Promise.all([
+        const [casesData, corpusData, coursesData] = await Promise.all([
           fetchApi<CaseScenario[]>("/behavioural/cases"),
-          fetchApi<GovernmentDocument[]>("/behavioural/corpus")
+          fetchApi<GovernmentDocument[]>("/behavioural/corpus"),
+          fetchApi<CourseCaseOverview[]>("/behavioural/courses")
         ]);
         setCases(casesData);
         setCorpus(corpusData);
-        if (casesData.length > 0) {
-          setSelectedCaseId(casesData[0].id);
+        setCourses(coursesData);
+
+        // Check if navigated from a course with ?courseId=X
+        let initialCaseId = casesData.length > 0 ? casesData[0].id : "";
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const cId = params.get("courseId");
+          if (cId) {
+            const parsed = parseInt(cId, 10);
+            if (!isNaN(parsed)) {
+              setSelectedCourseFilter(parsed);
+              setSelectedGenCourseId(parsed);
+              const courseCases = casesData.filter((c) => c.course_id === parsed);
+              if (courseCases.length > 0) {
+                initialCaseId = courseCases[0].id;
+              }
+            }
+          }
+        }
+        if (initialCaseId) {
+          setSelectedCaseId(initialCaseId);
         }
       } catch (err) {
         console.error("Failed to load behavioural cases:", err);
@@ -257,7 +293,38 @@ export default function CarryforwardAssessmentPage() {
     }
   };
 
-  // Custom Notice Generation
+  // Course Notice & Syllabus Pre-filler for Generation Studio
+  const handleLoadCourseNotice = (courseId: number) => {
+    const course = courses.find((c) => c.course_id === courseId);
+    if (!course) return;
+    setSelectedGenCourseId(courseId);
+
+    // Look for matching document from corpus
+    let matchedDoc = corpus.find(
+      (d) => course.mapped_notices.some((mn) => d.title.toLowerCase().includes(mn.toLowerCase()))
+    );
+
+    if (matchedDoc) {
+      setGenTitle(matchedDoc.title);
+      setGenType(matchedDoc.document_type);
+      setGenAuthority(matchedDoc.issuing_authority);
+      setGenReference(matchedDoc.statutory_reference);
+      setGenText(matchedDoc.full_text);
+    } else {
+      setGenTitle(`Operational Scrutiny Notice: ${course.title}`);
+      setGenType("Notice");
+      setGenAuthority(course.organization);
+      setGenReference("GFR 2017 & Administrative Service Rules");
+      setGenText(
+        `GOVERNMENT OF INDIA\n${course.organization.toUpperCase()}\n\nADMINISTRATIVE COMPLIANCE & QUALITY SCRUTINY DIRECTIVE\n\nSubject: Procedural Adherence in ${course.title} Field Protocols.\n\n` +
+        `1. During regular quality monitoring across zonal directorates, procedural variances and delays in submitting statutory returns have been observed.\n` +
+        `2. All controlling officers are directed to enforce strict compliance with core technical methodologies and reporting timelines.\n` +
+        `3. Any informal shortcuts or unverified deviations must be addressed with immediate remediation under administrative rules.`
+      );
+    }
+  };
+
+  // Custom Notice & Course-Anchored Case Generation
   const handleGenerateCase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!genText || genText.length < 50) {
@@ -267,19 +334,34 @@ export default function CarryforwardAssessmentPage() {
     try {
       setIsGenerating(true);
       setGenError(null);
-      const newCase = await fetchApi<CaseScenario>("/behavioural/cases/generate", {
-        method: "POST",
-        body: JSON.stringify({
-          raw_text: genText,
-          document_title: genTitle || "Government Notice",
-          document_type: genType,
-          issuing_authority: genAuthority,
-          statutory_reference: genReference
-        })
-      });
+
+      let newCase: CaseScenario;
+      if (selectedGenCourseId) {
+        newCase = await fetchApi<CaseScenario>(`/behavioural/courses/${selectedGenCourseId}/generate-case`, {
+          method: "POST",
+          body: JSON.stringify({
+            course_id: selectedGenCourseId,
+            custom_notice_text: genText
+          })
+        });
+      } else {
+        newCase = await fetchApi<CaseScenario>("/behavioural/cases/generate", {
+          method: "POST",
+          body: JSON.stringify({
+            raw_text: genText,
+            document_title: genTitle || "Government Notice",
+            document_type: genType,
+            issuing_authority: genAuthority,
+            statutory_reference: genReference
+          })
+        });
+      }
 
       setCases((prev) => [newCase, ...prev]);
       setSelectedCaseId(newCase.id);
+      if (newCase.course_id) {
+        setSelectedCourseFilter(newCase.course_id);
+      }
       setActiveTab("cases");
       await startSession(newCase.id, newCase);
     } catch (err: any) {
@@ -392,11 +474,43 @@ export default function CarryforwardAssessmentPage() {
                     <Building2 className="h-4 w-4 text-[#1E3A8A]" />
                     Select Administrative Case
                   </h3>
-                  <span className="text-xs text-slate-500">{cases.length} Available</span>
+                  <span className="text-xs text-slate-500">
+                    {selectedCourseFilter ? cases.filter((c) => c.course_id === selectedCourseFilter).length : cases.length} of {cases.length}
+                  </span>
+                </div>
+
+                {/* Course Curriculum Filter */}
+                <div className="mt-3.5">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                    Filter by Course Curriculum
+                  </label>
+                  <select
+                    value={selectedCourseFilter ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value ? parseInt(e.target.value, 10) : null;
+                      setSelectedCourseFilter(val);
+                      const targetList = val ? cases.filter((c) => c.course_id === val) : cases;
+                      if (targetList.length > 0) {
+                        setSelectedCaseId(targetList[0].id);
+                        startSession(targetList[0].id);
+                      }
+                    }}
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:border-[#1E3A8A] focus:outline-hidden cursor-pointer"
+                  >
+                    <option value="">All Courses & General Cases ({cases.length})</option>
+                    {courses.map((course) => {
+                      const count = cases.filter((c) => c.course_id === course.course_id).length;
+                      return (
+                        <option key={course.course_id} value={course.course_id}>
+                          Course {course.course_id}: {course.title.length > 34 ? course.title.slice(0, 34) + "..." : course.title} ({count})
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
 
                 <div className="mt-3 space-y-2.5">
-                  {cases.map((c) => {
+                  {(selectedCourseFilter ? cases.filter((c) => c.course_id === selectedCourseFilter) : cases).map((c) => {
                     const isSelected = (activeCase && activeCase.id === c.id) || selectedCaseId === c.id;
                     return (
                       <button
@@ -422,9 +536,30 @@ export default function CarryforwardAssessmentPage() {
                         </div>
                         <h4 className="mt-1.5 text-sm font-bold text-slate-900 leading-snug">{c.title}</h4>
                         <p className="mt-1 text-xs text-slate-500 line-clamp-2">{c.category}</p>
+                        {c.course_title && (
+                          <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-medium text-[#1E3A8A]">
+                            <BookOpen className="h-3 w-3 shrink-0 text-[#0D9488]" />
+                            <span className="truncate">{c.course_title}</span>
+                          </div>
+                        )}
                       </button>
                     );
                   })}
+                  {(selectedCourseFilter && cases.filter((c) => c.course_id === selectedCourseFilter).length === 0) && (
+                    <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-center text-xs text-slate-500">
+                      No cases generated yet for this course.
+                      <button
+                        onClick={() => {
+                          setSelectedGenCourseId(selectedCourseFilter);
+                          handleLoadCourseNotice(selectedCourseFilter);
+                          setActiveTab("generator");
+                        }}
+                        className="mt-2 block w-full rounded bg-[#1E3A8A] text-white py-1.5 font-bold text-[11px] hover:opacity-90 transition-opacity"
+                      >
+                        Generate Case from Syllabus
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -908,6 +1043,49 @@ export default function CarryforwardAssessmentPage() {
             </p>
 
             <form onSubmit={handleGenerateCase} className="mt-6 space-y-4">
+              {/* Course Anchoring Selector */}
+              <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4 space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
+                      Anchor Case to Database Course Curriculum (Optional)
+                    </label>
+                    <p className="text-[11px] text-slate-500">
+                      Select an official course from the platform database to automatically inject its syllabus context and mapped statutory notices.
+                    </p>
+                  </div>
+                  {selectedGenCourseId && (
+                    <button
+                      type="button"
+                      onClick={() => handleLoadCourseNotice(selectedGenCourseId)}
+                      className="shrink-0 px-3 py-1.5 rounded-lg bg-[#1E3A8A] text-white text-xs font-bold hover:bg-[#1E3A8A]/90 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-teal-300" />
+                      Auto-Load Course Notice
+                    </button>
+                  )}
+                </div>
+
+                <select
+                  value={selectedGenCourseId ?? ""}
+                  onChange={(e) => {
+                    const val = e.target.value ? parseInt(e.target.value, 10) : null;
+                    setSelectedGenCourseId(val);
+                    if (val) {
+                      handleLoadCourseNotice(val);
+                    }
+                  }}
+                  className="w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#1E3A8A] focus:outline-hidden cursor-pointer"
+                >
+                  <option value="">None (Independent General Government Scenario)</option>
+                  {courses.map((c) => (
+                    <option key={c.course_id} value={c.course_id}>
+                      Course {c.course_id}: {c.title} — {c.organization}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700">Document Title</label>

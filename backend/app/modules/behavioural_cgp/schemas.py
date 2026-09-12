@@ -48,6 +48,9 @@ class CaseScenario(BaseModel):
     id: str
     title: str
     category: str
+    course_id: Optional[int] = Field(default=None, description="ID of the related database course")
+    course_title: Optional[str] = Field(default=None, description="Title of the related database course")
+    course_organization: Optional[str] = Field(default=None, description="Issuing organization of course")
     document_id: str
     document_title: str
     document_type: str
@@ -56,6 +59,21 @@ class CaseScenario(BaseModel):
     root_question_id: str
     questions: Dict[str, CarryforwardQuestion]
     learning_objectives: List[str]
+
+class CourseCaseOverview(BaseModel):
+    course_id: int
+    title: str
+    organization: str
+    category: str
+    overview: str
+    mapped_notices: List[str] = Field(default_factory=list)
+    case_count: int = 0
+
+class GenerateCaseForCourseRequest(BaseModel):
+    course_id: int
+    document_id: Optional[str] = None
+    custom_notice_text: Optional[str] = None
+    focus_topic: Optional[str] = None
 
 # --- Interactive Carryforward Session Schemas ---
 

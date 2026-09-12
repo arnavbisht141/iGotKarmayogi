@@ -419,7 +419,7 @@ export default function CourseDetailPage() {
                       <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
                     </a>
                     <a
-                      href="/behavioural/cases"
+                      href={`/behavioural/cases?courseId=${course.id}`}
                       className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
                     >
                       <span className="flex items-center gap-2">
