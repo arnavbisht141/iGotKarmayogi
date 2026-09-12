@@ -1,5 +1,5 @@
-import EntryLandingPage from "@/features/landing/components/EntryLandingPage";
+import { KarmayogiPage } from "@/components/karmayogi/KarmayogiPage";
 
 export default function Page() {
-  return <EntryLandingPage />;
+  return <KarmayogiPage />;
 }
