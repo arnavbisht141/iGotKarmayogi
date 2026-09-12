@@ -15,6 +15,8 @@ import {
   Sparkles,
   ExternalLink,
   Clock,
+  Layers,
+  BookOpen,
 } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 

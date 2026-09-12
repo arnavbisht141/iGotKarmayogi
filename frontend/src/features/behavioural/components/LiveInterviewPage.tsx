@@ -184,6 +184,20 @@ export default function LiveInterviewPage() {
   const [analysisReport, setAnalysisReport] = useState<InterviewAnalysisResponse | null>(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState<boolean>(false);
 
+  // Sync course selection from URL query if navigated from a course page
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const cId = params.get("courseId");
+      if (cId) {
+        const parsed = parseInt(cId, 10);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= 5) {
+          setSelectedCourseId(parsed);
+        }
+      }
+    }
+  }, []);
+
   // Initialize Media Stream (Camera & Mic)
   useEffect(() => {
     let stream: MediaStream | null = null;
