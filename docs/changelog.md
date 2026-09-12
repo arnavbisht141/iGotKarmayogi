@@ -25,6 +25,31 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-12] - Digital Governance & Cyber Defense Curriculum Architecture (Milestone 1)
+- **Author**: Diwakar Ujjwal (@diwakarujjwal)
+- **Scope**: `[backend]` `[curriculum]` `[assessments]` `[tests]` `[docs]`
+- **Branch**: `cgp/digital-governance`
+- **Description**:
+  - Seeded official Government of India curriculum: *"Digital Governance, Cyber Defense & Public Digital Architecture"* accredited by NeGD and CERT-In (`backend/app/core/seed_data.py`).
+  - Implemented 5 comprehensive modules covering the 5 core national pillars:
+    1. **Cybersecurity**: CERT-In 6-hour reporting mandate (Section 70B IT Act 2000), Critical Information Infrastructure (NCIIPC), and live SOC telemetry triage.
+    2. **Data Privacy**: Digital Personal Data Protection Act 2023 (DPDP Act), Data Fiduciary obligations, Consent Managers, and DPBI penalty structures.
+    3. **Digital Signatures & PKI**: IT Act Sections 3 & 3A, Controller of Certifying Authorities (CCA), Class 3 DSC tokens, Aadhaar eSign in e-Office, and non-repudiation under Indian Evidence Act Section 65B.
+    4. **Government Cloud (MeghRaj / GI Cloud)**: MeitY CSP empanelment, STQC security audits, sovereign data localization, and Government Community Cloud isolation.
+    5. **Digital Public Infrastructure (DPI / India Stack)**: Aadhaar e-KYC protocols, DigiLocker Rule 9A legal parity, PFMS Direct Benefit Transfer (DBT), and API Setu interoperability.
+  - Added in-lesson practice MCQs with detailed statutory explanations across all 10 lessons in `CourseLearningPlayerPage.tsx`.
+  - Engineered 15-question end-of-course Certification Assessment with automated grading, 70% passing threshold, and credential certificate preview via `AssessmentTestPage.tsx`.
+  - Added unit test suite `backend/tests/test_digital_governance.py` with 4 automated tests passing in 0.03s.
+- **Affected Files**:
+  - `backend/requirements.txt`
+  - `backend/app/core/seed_data.py`
+  - `backend/tests/test_digital_governance.py`
+  - `docs/team/diwakar-ujjwal.md`
+  - `docs/features/digital-governance-cybersecurity.md`
+  - `docs/changelog.md`
+
+---
+
 ### [2026-09-09] - Comprehensive Visual Design Overhaul (design branch)
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[css]` `[design]`

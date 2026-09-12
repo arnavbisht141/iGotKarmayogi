@@ -35,6 +35,18 @@ Frontend engineering lead for landing page navigation, viewport layout stability
 - Aligned hero headline and statistics section with the official navy aesthetic (`#1E3A8A`).
 - Delivered through merged **[Pull Request #6](https://github.com/arnavbisht141/iGotKarmayogi/pull/6)** (*"Merged UI changes from aarna and arnav"*).
 
+### 2.6 Digital Governance & Cybersecurity Curriculum Architecture (`cgp/digital-governance` Milestone 1)
+- Formulated and seeded official Government of India curriculum: *"Digital Governance, Cyber Defense & Public Digital Architecture"* accredited by NeGD and CERT-In (`backend/app/core/seed_data.py`).
+- Implemented 5 comprehensive modules spanning the 5 core national digital governance pillars:
+  1. **Cybersecurity**: CERT-In 6-hour mandatory reporting under IT Act Section 70B, Critical Information Infrastructure (NCIIPC), SOC telemetry & brute-force triage.
+  2. **Data Privacy**: Digital Personal Data Protection Act 2023 (DPDP), Data Fiduciary obligations, Consent Managers, and Data Protection Board of India penalty regimes.
+  3. **Digital Signatures & PKI**: IT Act Sections 3 & 3A, Controller of Certifying Authorities (CCA), Class 3 DSC tokens, Aadhaar eSign in e-Office, and non-repudiation under Indian Evidence Act Section 65B.
+  4. **Government Cloud (MeghRaj / GI Cloud)**: MeitY CSP empanelment, STQC security audits, sovereign data localization, and Government Community Cloud isolation.
+  5. **Digital Public Infrastructure (DPI / India Stack)**: Aadhaar e-KYC authentication, DigiLocker Rule 9A legal parity, PFMS Direct Benefit Transfer (DBT), and API Setu interoperability.
+- Embedded interactive practice MCQs with detailed statutory explanations across all 10 lessons in `CourseLearningPlayerPage.tsx`.
+- Engineered the 15-question end-of-course Certification Examination with automated scoring, 70% pass threshold, and verifiable credential certificate generation via `AssessmentTestPage.tsx`.
+- Authored automated test suite `backend/tests/test_digital_governance.py` validating metadata, lesson activities, 15 examination questions, and skill relationships.
+
 ---
 
 ## 3. "Invisible" & Offline Contributions
@@ -52,6 +64,7 @@ Frontend engineering lead for landing page navigation, viewport layout stability
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
+| `2026-09-12` | Digital Governance Curriculum & MCQs Architecture | `Code` / `Curriculum` | Branch `cgp/digital-governance` Milestone 1: 5-module course, in-lesson MCQs, 15-Q certification exam, seed data, and unit tests |
 | `2026-09-07` | Aligned hero and statistics with navy aesthetic | `Code` / `UI` | PR #6 merged into `main` (`5562fdd`) |
 | `2026-09-07` | Refined navbar brand and ministry ribbon | `Code` / `UI` | Commit `65453e4` |
 | `2026-09-07` | Reconciled branch merge and scroll mechanics | `Code` / `UX` | Commit `44c8e92` |
