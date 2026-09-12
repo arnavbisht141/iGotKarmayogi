@@ -25,6 +25,35 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-12] - Multi-Stage Incident Response Tabletop Engine (Milestone 2)
+- **Author**: Diwakar Ujjwal (@diwakarujjwal)
+- **Scope**: `[backend]` `[frontend]` `[scenarios]` `[api]` `[tests]` `[docs]`
+- **Branch**: `cgp/digital-governance`
+- **Description**:
+  - Implemented the Multi-Stage Incident Response Tabletop Engine in `backend/app/modules/digital_governance/` and mounted under `/api/v1/digital-governance/scenarios`.
+  - Formulated 5 comprehensive civil-service case scenarios covering the 5 national digital governance pillars:
+    1. **Cybersecurity**: *Operation Vajra* — Ransomware outbreak on State Treasury Payment Gateway (PFMS), network segmentation vs. volatile memory destruction, CERT-In 6-hour reporting adherence under Section 70B, and Section 65B forensic chain of custody.
+    2. **Data Privacy**: *Operation Raksha* — Aadhaar-linked DBT citizen pension registry leak on public cloud, statutory notification to the Data Protection Board of India under Section 8(6) of DPDP Act 2023, Aadhaar masking, and Significant Data Fiduciary (SDF) appointment.
+    3. **Digital Signatures & PKI**: *Operation Mudra* — Disputed ₹45 crore e-procurement tender on GeM, Class 3 DSC token theft defense, OCSP/CRL timestamp inspection, and legal non-repudiation under IT Act Sections 3 & 3A.
+    4. **Government Cloud (MeghRaj / GI Cloud)**: *Operation Megh* — Unauthorized foreign region workload migration during peak traffic, STQC audit enforcement, sovereign data localization, and Government Community Cloud (GCC) isolation.
+    5. **Digital Public Infrastructure (DPI / India Stack)**: *Operation Setu* — 65,000 req/sec cryptographic replay attack on citizen e-KYC and API Setu highway, single-use nonce validation, adaptive rate-limiting, and NCCC threat sharing.
+  - Built interactive client interface `CyberScenariosPage.tsx` at `/digital-governance/scenarios` matching the `dev` institutional design tokens (Navy `#1E3A8A`, Gold `#EAB308`, Slate `#F8FAFC`).
+  - Added real-time compliance scoring ($0–100\%$), decision consequence summaries, and executive debrief certification.
+  - Added unit test suite `backend/tests/test_scenarios.py` with 4 automated tests passing in 0.001s.
+- **Affected Files**:
+  - `backend/app/modules/digital_governance/schemas.py`
+  - `backend/app/modules/digital_governance/services/scenario_service.py`
+  - `backend/app/modules/digital_governance/router.py`
+  - `backend/app/main.py`
+  - `backend/tests/test_scenarios.py`
+  - `frontend/src/app/digital-governance/scenarios/page.tsx`
+  - `frontend/src/features/digital_governance/components/CyberScenariosPage.tsx`
+  - `docs/team/diwakar-ujjwal.md`
+  - `docs/features/digital-governance-cybersecurity.md`
+  - `docs/changelog.md`
+
+---
+
 ### [2026-09-12] - Digital Governance & Cyber Defense Curriculum Architecture (Milestone 1)
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)
 - **Scope**: `[backend]` `[curriculum]` `[assessments]` `[tests]` `[docs]`

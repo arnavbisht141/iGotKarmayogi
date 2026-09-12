@@ -47,6 +47,18 @@ Frontend engineering lead for landing page navigation, viewport layout stability
 - Engineered the 15-question end-of-course Certification Examination with automated scoring, 70% pass threshold, and verifiable credential certificate generation via `AssessmentTestPage.tsx`.
 - Authored automated test suite `backend/tests/test_digital_governance.py` validating metadata, lesson activities, 15 examination questions, and skill relationships.
 
+### 2.7 Multi-Stage Incident Response Tabletop Engine (`cgp/digital-governance` Milestone 2)
+- Architected and implemented the interactive incident response tabletop simulation engine in `backend/app/modules/digital_governance/services/scenario_service.py` and `router.py`.
+- Formulated 5 realistic multi-stage branching case scenarios covering the 5 national pillars for Indian civil servants:
+  1. **Cybersecurity**: *Operation Vajra* — Critical ransomware outbreak on state treasury payment gateway (PFMS), live network segmentation, CERT-In mandatory 6-hour reporting window under Section 70B, and volatile RAM preservation under Section 65B of the Indian Evidence Act.
+  2. **Data Privacy**: *Operation Raksha* — Aadhaar-linked DBT citizen pension registry exposure on public cloud, statutory Data Fiduciary notice to the Data Protection Board of India under Section 8(6) of DPDP Act 2023, Aadhaar masking, and Significant Data Fiduciary (SDF) appointment.
+  3. **Digital Signatures & PKI**: *Operation Mudra* — Disputed ₹45 crore e-procurement tender on GeM, Class 3 DSC token revocation defense, OCSP/CRL cryptographic timestamp inspection, and legal non-repudiation under IT Act Sections 3 & 3A.
+  4. **Government Cloud (MeghRaj / GI Cloud)**: *Operation Megh* — Unauthorized foreign region workload migration during peak traffic, STQC audit enforcement, sovereign data localization, and Government Community Cloud (GCC) tenant isolation.
+  5. **Digital Public Infrastructure (DPI / India Stack)**: *Operation Setu* — High-volume cryptographic replay attack on citizen e-KYC and API Setu highway, nonce validation, rate-limiting, and NCCC threat intelligence sharing.
+- Built interactive client interface `CyberScenariosPage.tsx` at `/digital-governance/scenarios` matching the `dev` institutional design tokens (Navy `#1E3A8A`, Gold `#EAB308`, Slate `#F8FAFC`).
+- Implemented real-time procedural compliance scoring, decision trail audit log, and executive debrief report.
+- Authored automated unit test suite `backend/tests/test_scenarios.py` validating all 5 domains, multi-stage branching, scoring calculations, and summary retrieval.
+
 ---
 
 ## 3. "Invisible" & Offline Contributions
@@ -64,6 +76,7 @@ Frontend engineering lead for landing page navigation, viewport layout stability
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
+| `2026-09-12` | Multi-Stage Tabletop Simulation Engine | `Code` / `UX` | Branch `cgp/digital-governance` Milestone 2: 5 branching scenarios across 5 domains, backend session engine, CyberScenariosPage UI, and unit tests |
 | `2026-09-12` | Digital Governance Curriculum & MCQs Architecture | `Code` / `Curriculum` | Branch `cgp/digital-governance` Milestone 1: 5-module course, in-lesson MCQs, 15-Q certification exam, seed data, and unit tests |
 | `2026-09-07` | Aligned hero and statistics with navy aesthetic | `Code` / `UI` | PR #6 merged into `main` (`5562fdd`) |
 | `2026-09-07` | Refined navbar brand and ministry ribbon | `Code` / `UI` | Commit `65453e4` |

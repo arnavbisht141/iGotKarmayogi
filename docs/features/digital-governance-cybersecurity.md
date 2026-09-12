@@ -48,11 +48,46 @@ Attached directly to the course via the core `Assessment` and `Question` schema:
 
 ---
 
-## 3. Verification & Testing
+## 3. Multi-Stage Incident Response Tabletop Engine (Milestone 2)
 
-Milestone 1 is verified through automated unit tests in `backend/tests/test_digital_governance.py`:
-- `test_01_course_metadata`: Verifies course title, NeGD/CERT-In accreditation, and module counts.
-- `test_02_modules_and_in_lesson_activities`: Verifies all 10 lessons and their 4-option practice activities.
-- `test_03_certification_assessment_and_15_questions`: Validates 30-min time limit, 70% threshold, and all 15 questions.
-- `test_04_skills_association`: Confirms linkage across all 5 digital governance skills.
+### 3.1 Overview & Simulation Mechanics
+Located at `/digital-governance/scenarios` (backed by `backend/app/modules/digital_governance/`), the Tabletop Engine presents real-world crisis management simulations for government officers.
+
+### 3.2 The 5 National Pillars & Scenario Catalog
+1. **Cybersecurity (`dg-sec-01-ransomware-treasury`)**: *Operation Vajra*
+   - Context: Active ransomware file encryption on State Treasury Payment Gateway (`TREASURY-DB-01`) at 02:15 AM before ₹180 crore pension release.
+   - Core Statutory Decision: Network segmentation vs. hard power-off (preserving volatile memory under Section 65B of Indian Evidence Act); adherence to CERT-In's mandatory 6-hour incident reporting window under Section 70B(6) of IT Act 2000.
+2. **Data Privacy (`dg-priv-02-dbt-cloud-breach`)**: *Operation Raksha*
+   - Context: Unauthenticated public cloud storage bucket exposing 75,000 unredacted citizen bank records and Aadhaar numbers.
+   - Core Statutory Decision: Immediate credential revocation; dual notification to the Data Protection Board of India and affected Data Principals under Section 8(6) of DPDP Act 2023; appointment of Data Protection Officer (DPO) and DPIA under Section 10.
+3. **Digital Signatures & PKI (`dg-pki-03-gem-tender-dispute`)**: *Operation Mudra*
+   - Context: Contractor disputes a ₹45 crore e-tender submitted via GeM with their Class 3 DSC token, claiming token theft.
+   - Core Statutory Decision: Verification against CA OCSP responder and CRL revocation logs; non-repudiation enforcement under Sections 3, 3A, and 42 of IT Act 2000; Section 65B evidentiary certification for High Court defense.
+4. **Government Cloud / MeghRaj (`dg-cloud-04-meghraj-sovereignty`)**: *Operation Megh*
+   - Context: System integrator deploys automated containers into an unempaneled overseas data center to handle festival traffic spikes.
+   - Core Statutory Decision: Emergency traffic cutoff and failover to domestic GCC; enforcement of STQC security auditing and MeitY empanelment; NIST SP 800-88 cryptographic sanitization verification.
+5. **Digital Public Infrastructure / DPI (`dg-dpi-05-apisetu-replay-attack`)**: *Operation Setu*
+   - Context: 65,000 requests/second replay attack against state scholarship e-KYC gateway.
+   - Core Statutory Decision: Gateway-level cryptographic nonce verification and clock-skew tolerance (<300ms); adaptive token-bucket rate limiting per Virtual ID (VID); threat intelligence sharing with CERT-In and NCCC.
+
+### 3.3 Interactive Client Player (`CyberScenariosPage.tsx`)
+- **Pillar Filter Tabs**: Quick filtering across the 5 domains.
+- **Dynamic Decision Nodes**: Step-by-step branching prompts with instant operational consequence callouts and statutory rationale citations.
+- **Compliance Score Tracking**: Real-time scoring meter ($0–100\%$) rewarding statutory compliance and penalizing procedural infractions.
+- **Executive Debrief Report**: Chronological decision trail, optimal vs sub-optimal breakdown, and printable compliance summary.
+
+---
+
+## 4. Verification & Testing
+
+- **Curriculum & MCQs Tests (`backend/tests/test_digital_governance.py`)**:
+  - `test_01_course_metadata`: Verifies course title, NeGD/CERT-In accreditation, and module counts.
+  - `test_02_modules_and_in_lesson_activities`: Verifies all 10 lessons and their 4-option practice activities.
+  - `test_03_certification_assessment_and_15_questions`: Validates 30-min time limit, 70% threshold, and all 15 questions.
+  - `test_04_skills_association`: Confirms linkage across all 5 digital governance skills.
+- **Tabletop Scenarios Tests (`backend/tests/test_scenarios.py`)**:
+  - `test_01_all_five_domains_represented`: Validates full coverage of the 5 national pillars.
+  - `test_02_scenario_session_lifecycle_and_branching`: Tests multi-stage branching on the Treasury Ransomware case.
+  - `test_03_suboptimal_path_handling`: Tests score deduction and consequence delivery on procedural violations.
+  - `test_04_session_summary_retrieval`: Validates final executive debrief generation and decision trail logging.
 
