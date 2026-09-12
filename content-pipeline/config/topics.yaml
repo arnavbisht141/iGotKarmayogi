@@ -1,0 +1,46 @@
+fields:
+  - slug: statistical
+    name: Statistical Competencies
+    topics:
+      - {slug: survey-design, name: Survey Design}
+      - {slug: sampling, name: Sampling}
+      - {slug: national-accounts, name: National Accounts}
+      - {slug: price-statistics, name: Price Statistics}
+      - {slug: labour-statistics, name: Labour Statistics}
+      - {slug: agricultural-statistics, name: Agricultural Statistics}
+      - {slug: industrial-statistics, name: Industrial Statistics}
+      - {slug: sdg-indicators, name: SDG Indicators}
+      - {slug: metadata-standards, name: Metadata Standards}
+      - {slug: data-quality-frameworks, name: Data Quality Frameworks}
+  - slug: technical
+    name: Technical Competencies
+    topics:
+      - {slug: python, name: Python}
+      - {slug: r, name: R}
+      - {slug: sql, name: SQL}
+      - {slug: stata, name: Stata}
+      - {slug: spss, name: SPSS}
+      - {slug: sas, name: SAS}
+      - {slug: gis, name: GIS}
+      - {slug: data-visualization, name: Data Visualization}
+      - {slug: ai-ml, name: AI/ML}
+      - {slug: cloud-computing, name: Cloud Computing}
+      - {slug: apis, name: APIs}
+      - {slug: open-data, name: Open Data}
+  - slug: digital-governance
+    name: Digital Governance
+    topics:
+      - {slug: cybersecurity, name: Cybersecurity}
+      - {slug: data-privacy, name: Data Privacy}
+      - {slug: digital-signatures, name: Digital Signatures}
+      - {slug: government-cloud, name: Government Cloud}
+      - {slug: digital-public-infrastructure, name: Digital Public Infrastructure}
+  - slug: behavioural
+    name: Behavioural and Managerial Competencies
+    topics:
+      - {slug: leadership, name: Leadership}
+      - {slug: communication, name: Communication}
+      - {slug: project-management, name: Project Management}
+      - {slug: ethics, name: Ethics}
+      - {slug: decision-making, name: Decision Making}
+      - {slug: change-management, name: Change Management}
