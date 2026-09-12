@@ -38,6 +38,7 @@ function LearningPlayerContent() {
   const [modulesTree, setModulesTree] = useState<ModuleSummary[]>([]);
   const [currentLesson, setCurrentLesson] = useState<CurrentLesson | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
 
   // In-lesson Activity Practice state
   const [selectedActivityOption, setSelectedActivityOption] = useState<number | null>(null);
@@ -73,6 +74,7 @@ function LearningPlayerContent() {
   }, [courseId, lessonQueryId]);
 
   const handleSelectLesson = (lessonId: number) => {
+    setMobileSyllabusOpen(false);
     loadPlayerData(lessonId);
   };
 
@@ -140,8 +142,25 @@ function LearningPlayerContent() {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-65px)] bg-slate-50">
+      {/* Mobile Syllabus Toggle Bar */}
+      <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-2xs">
+        <div className="flex items-center gap-2 min-w-0">
+          <BookOpen className="h-4 w-4 text-[#1E3A8A] shrink-0" />
+          <span className="text-xs font-bold text-slate-900 truncate">
+            {currentLesson.module_title}: {currentLesson.title}
+          </span>
+        </div>
+        <button
+          onClick={() => setMobileSyllabusOpen(!mobileSyllabusOpen)}
+          className="text-xs font-bold text-[#1E3A8A] hover:text-[#172554] flex items-center gap-1 shrink-0 ml-2 px-2.5 py-1 rounded-lg bg-blue-50/80 border border-blue-200/80 cursor-pointer transition-colors"
+        >
+          {mobileSyllabusOpen ? "Hide Syllabus" : "View Syllabus"}
+          <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${mobileSyllabusOpen ? "rotate-90" : ""}`} />
+        </button>
+      </div>
+
       {/* Collapsible Left Course Syllabus Sidebar */}
-      <aside className="w-full lg:w-80 border-r border-slate-200 bg-white flex flex-col shrink-0">
+      <aside className={`${mobileSyllabusOpen ? "flex" : "hidden"} lg:flex w-full lg:w-80 border-r border-slate-200 bg-white flex-col shrink-0 transition-all duration-300`}>
         <div className="p-4 border-b border-slate-200 bg-slate-50/50">
           <a
             href={`/courses/${courseId}`}
@@ -183,7 +202,7 @@ function LearningPlayerContent() {
                       onClick={() => handleSelectLesson(l.id)}
                       className={`w-full flex items-center justify-between p-2 rounded-lg text-left text-xs transition-colors cursor-pointer ${
                         isCurrent
-                          ? "bg-slate-900 text-white font-semibold shadow-xs"
+                          ? "bg-[#1E3A8A] text-white font-semibold shadow-xs"
                           : l.completed
                           ? "text-slate-700 hover:bg-slate-100 bg-slate-50/80"
                           : "text-slate-600 hover:bg-slate-100"
@@ -240,12 +259,12 @@ function LearningPlayerContent() {
       {/* Main Content Stage */}
       <main className="flex-1 flex flex-col overflow-y-auto">
         {/* Lesson Header */}
-        <div className="px-6 py-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
               {currentLesson.module_title}
             </span>
-            <h1 className="text-xl font-bold text-slate-900 mt-0.5">
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">
               {currentLesson.title}
             </h1>
           </div>
@@ -255,15 +274,15 @@ function LearningPlayerContent() {
               {currentLesson.content_type} • {currentLesson.duration_minutes} Minutes
             </Badge>
             {currentLesson.completed && (
-              <Badge variant="success" className="text-xs">
-                Completed ✓
+              <Badge variant="success" className="text-xs inline-flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Completed
               </Badge>
             )}
           </div>
         </div>
 
         {/* Lesson Body Content */}
-        <div className="flex-1 max-w-4xl w-full mx-auto p-6 sm:p-8 space-y-8">
+        <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* Simulated Video Player if Content Type is Video */}
           {currentLesson.content_type === "video" && (
             <div className="rounded-2xl overflow-hidden bg-slate-950 shadow-md aspect-video relative flex items-center justify-center text-white">
@@ -317,7 +336,7 @@ function LearningPlayerContent() {
                         }}
                         className={`w-full p-3 rounded-xl border text-left text-xs font-medium transition-all cursor-pointer flex items-center gap-3 ${
                           isSelected
-                            ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                            ? "bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-xs"
                             : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
@@ -394,7 +413,7 @@ function LearningPlayerContent() {
             <Button
               size="sm"
               onClick={handleCompleteAndNext}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5"
+              className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-5 cursor-pointer"
             >
               {currentLesson.is_last_lesson
                 ? t("learn.takeAssessment")

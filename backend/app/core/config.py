@@ -1,5 +1,16 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+
+# Automatically load environment variables from root and backend .env
+root_dir = Path(__file__).resolve().parents[3]
+backend_dir = Path(__file__).resolve().parents[2]
+if (root_dir / ".env").exists():
+    load_dotenv(dotenv_path=root_dir / ".env", override=False)
+if (backend_dir / ".env").exists():
+    load_dotenv(dotenv_path=backend_dir / ".env", override=True)
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "iGot Karmayogi - AI Skill Intelligence Platform"
@@ -11,6 +22,11 @@ class Settings(BaseSettings):
     # SQLite default database, can be swapped with postgresql+psycopg2://...
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./karmayogi.db")
     
+    # Supabase Configuration
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
+    SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", os.getenv("SUPABASE_ANON_KEY", ""))
+    SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+
     # LLM keys for LangChain / LangGraph AI Assistant
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

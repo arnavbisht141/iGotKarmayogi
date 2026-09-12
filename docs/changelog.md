@@ -25,6 +25,167 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-09] - Comprehensive Visual Design Overhaul (design branch)
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[css]` `[design]`
+- **Branch**: `design`
+- **Description**:
+  - **Design Foundation (`globals.css`):** Expanded the design token system with an extended palette — navy scale (`#070E20` → `#1E3A8A`), teal accents (`#0D9488`, `#14B8A6`), ochre (`#B45309`), sage (`#059669`). Added 8 CSS keyframe animations (`fadeInUp`, `pulseGlow`, `shimmer`, `floatDot`, `slideLine`, `cardHover`) and utility classes (`.hero-gradient`, `.navy-teal-gradient`, `.glass-light`, `.glass-card`, `.card-hover-lift`, `.hero-mesh`, `.animate-pulse-glow`, `.animate-float-dot*`).
+  - **Landing Page (`EntryLandingPage.tsx`):** Transformed hero section to a dramatic `hero-gradient` (dark navy-to-teal) with CSS mesh-grid pattern overlay and two radial glow orbs. Stats bar moved into the hero as frosted glass cards. Carousel now uses full `object-cover` with gradient overlay and teal dot controls. About section: unique icon backgrounds per pillar (navy/teal/ochre) with left-border accent cards. How It Works: horizontal timeline with gradient connecting line and colored step circles (navy/teal/amber/ochre) — stacked mobile version. Resources: top-stripe colored cards per document category. Help: 3 gradient-accent support cards with distinct top stripes (navy/teal/ochre). Closing CTA banner reuses hero-gradient with mesh overlay.
+  - **Home Page Dashboard (`HomePage.tsx`):** Welcome header becomes a full hero-gradient section with CSS mesh, two glow orbs, gradient avatar ring with online pulse, and glassmorphic secondary button. Teal left-border on "Continue Learning" card; gradient horizontal progress bars replacing flat navy; amber-gradient streak card when streak ≥ 3; difficulty-colored left-border course cards (green=beginner, blue=intermediate, amber=advanced). All card section icons upgraded to colored rounded-xl icon containers (navy/teal/amber/sage). Stats grid uses color-coded cells (slate/teal/blue).
+  - **Discover Page (`DiscoverPage.tsx`):** Header becomes hero-gradient with glassmorphic search input (glass-light class), gradient send button, and glass trending topic pills. Category tabs use navy-teal-gradient for active state. Course cards get category-colored accent top stripe, colored difficulty dots, gradient "View Course" button, and card-hover-lift animation. Empty state and loading spinner upgraded.
+  - **AI Assistant Widget (`AiAssistantWidget.tsx`):** Floating button uses navy-teal-gradient with `animate-pulse-glow`, ping online indicator, and hover tooltip. Chat panel: gradient header with mesh overlay, assistant messages with teal left-border, user messages with gradient bubble, animated typing indicator (3 bouncing dots using `animate-float-dot*`), gradient send button, auto-scroll to latest message.
+  - **Navbar (`Navbar.tsx`):** Brand icon upgraded to rounded-xl navy-teal-gradient. Active nav link indicators changed from bg-blue-50 rectangle to bottom-bar gradient underline (`linear-gradient(navy→teal)`). Profile avatar upgraded to gradient ring with dark center. Profile dropdown upgraded to `rounded-2xl` with enhanced shadow. Register button upgraded to navy-teal gradient. Language switcher gets teal icon and rounded-full style.
+- **Design Principles Enforced:**
+  - No emojis, no colored pill boxes above headings
+  - All animations use CSS-only keyframes (no JS animation libraries)
+  - `prefers-reduced-motion` media query kills all animations for accessibility
+  - Hindi/English i18n completely preserved — no translation keys changed
+  - All routing logic untouched
+- **Affected Files**:
+  - `frontend/src/app/globals.css`
+  - `frontend/src/features/landing/components/EntryLandingPage.tsx`
+  - `frontend/src/features/dashboard/components/HomePage.tsx`
+  - `frontend/src/features/catalog/components/DiscoverPage.tsx`
+  - `frontend/src/features/assistant/components/AiAssistantWidget.tsx`
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `docs/changelog.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/features/ui-design-system.md`
+
+---
+
+### [2026-09-09] - Dedicated Institutional Pages & Context-Aware Navbar Routing
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[i18n]` `[routing]` `[docs]`
+- **Branch**: `postlogin`
+- **Description**:
+  - Created 4 dedicated institutional pages (`/about`, `/how-it-works`, `/resources`, `/help`) as standalone routes with full-page components under `frontend/src/features/institutional/components/`.
+  - **About Page (`/about`):** Institutional framework overview featuring 3 competency pillars (Statistical Methodology, Standardized Evaluation, Cadre AI Assistant), a paradigm shift comparison (Rule-Based vs. Role-Based learning), 6 institutional stakeholder cards (MoSPI, CBC, NSSTA, NSSO, CSO, ISTM), and a verifiable credentials banner.
+  - **How It Works Page (`/how-it-works`):** Detailed 4-stage capacity building breakdown (Authenticate & Onboard, Study Accredited Curriculum, Standardized Assessment, Earn Verified Credential) with full explanations, key standard operations, process guarantee stats, and learning process FAQ section.
+  - **Resources Page (`/resources`):** Searchable and filterable official statistical library with 6 cadre document cards (NSSO Field Manual, CPI Technical Manual, UN-NQAF Rubrics, CAPI Operations Manual, NAS Handbook, PFMS Guide), download modal with authentication badges, and category/search filtering.
+  - **Help Page (`/help`):** 3-channel support grid (24/7 AI Assistant, Central Training Division Desk, Nodal Cadre Coordinators), collapsible FAQ accordion with 5 common queries, and full support ticket submission form with simulated tracking IDs.
+  - **Context-Aware Navbar Routing:** Updated `Navbar.tsx` to differentiate between unauthenticated landing page users (smooth-scroll anchor links to `/#about`, `/#how-it-works`, etc.) and authenticated/inner-page users (dedicated page routes to `/about`, `/how-it-works`, etc.).
+  - All 4 pages follow the institutional design standard: white header banner (`bg-white border-b border-slate-200`), continuous `#F8FAFC` slate canvas, Official Navy `#1E3A8A` branding, and Lucide SVG iconography.
+  - Each page includes bilingual (Hindi/English) support via `useI18n()` for all translated keys.
+- **Affected Files**:
+  - `frontend/src/features/institutional/components/AboutPage.tsx` [NEW]
+  - `frontend/src/features/institutional/components/HowItWorksPage.tsx` [NEW]
+  - `frontend/src/features/institutional/components/ResourcesPage.tsx` [NEW]
+  - `frontend/src/features/institutional/components/HelpPage.tsx` [NEW]
+  - `frontend/src/app/about/page.tsx` [NEW]
+  - `frontend/src/app/how-it-works/page.tsx` [NEW]
+  - `frontend/src/app/resources/page.tsx` [NEW]
+  - `frontend/src/app/help/page.tsx` [NEW]
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `docs/changelog.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/features/homepage-portal.md`
+
+---
+
+### [2026-09-09] - Post-Login Homepage & Repository-Wide Non-AI Institutional Redesign
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
+- **Branch**: `postlogin`
+- **Description**:
+  - Extended the non-AI, white background institutional standard from Discover across the post-login homepage (`/home`), my learning (`/my-learning`), officer profile (`/profile`), and administration console (`/admin`).
+  - Replaced isolated floating widget cards and dark gradients with seamless full-width white institutional headers (`bg-white border-b border-slate-200 py-8 sm:py-10`) and a continuous `#F8FAFC` slate canvas.
+  - Stripped all remaining decorative unicode emojis (`🔥`, `✨`, `★`, `🎉`) and text checkmarks (`Completed ✓`) across all pages (`CourseLearningPlayerPage.tsx`, `AssessmentTestPage.tsx`, `OnboardingWizardPage.tsx`, `AdminDashboardPage.tsx`), replacing them with semantic Lucide SVG icons (`CheckCircle2`, `XCircle`, `Check`).
+  - Eliminated artificial colored/saffron eyebrow pill boxes above headings; standardized on letter-spaced ministry headers with Lucide `Building2` iconography.
+  - Standardized interactive buttons across the application on Official Navy Primary (`#1E3A8A` / hover `#172554`).
+  - Implemented 100% full bilingual (Hindi/English) translation parity across `home.*`, `learning.*`, `profile.*`, and `admin.*` keys in `frontend/src/lib/i18n/index.tsx`.
+  - Updated documentation across `docs/features/ui-design-system.md`, `docs/features/analytics-dashboard.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
+- **Affected Files**:
+  - `frontend/src/features/dashboard/components/HomePage.tsx`
+  - `frontend/src/features/progress/components/MyLearningPage.tsx`
+  - `frontend/src/features/profile/components/ProfilePage.tsx`
+  - `frontend/src/features/administration/components/AdminDashboardPage.tsx`
+  - `frontend/src/features/learning/components/CourseLearningPlayerPage.tsx`
+  - `frontend/src/features/assessments/components/AssessmentTestPage.tsx`
+  - `frontend/src/features/onboarding/components/OnboardingWizardPage.tsx`
+  - `frontend/src/features/auth/components/ForgotPasswordPage.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `docs/features/ui-design-system.md`
+  - `docs/features/analytics-dashboard.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+
+---
+
+### [2026-09-08] - Discover Page Overhaul, Background Fix & Full Hindi Localization
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
+- **Branch**: `discover`
+- **Description**:
+  - Solved the background color and container problem on `/discover`: replaced the nested, floating widget box layout with a seamless full-width institutional white header banner (`bg-white border-b border-slate-200`) and a unified `#F8FAFC` slate catalog canvas.
+  - Eliminated all artificial "AI telltale" indicators: removed unicode emojis (`🔥`, `✨`, `★`) from category tabs, trending pills, and course cards, and replaced rectangular colored pill boxes above headings with clean, letter-spaced ministry eyebrow text and Lucide `Building2` iconography.
+  - Implemented 100% full bilingual (Hindi/English) compatibility: expanded `frontend/src/lib/i18n/index.tsx` dictionary with translations for search inputs, search/clear buttons, trending topics (*National Sample Survey*, *CPI*, *PFMS*, etc.), discipline categories, filter options, sort order, and dynamic course card title/overview metadata.
+  - Elevated course card presentation: integrated official MoSPI/ISTM badges, Lucide `Clock` duration counters, Lucide `Star` ratings with enrolled counts, structured metadata lists, and official Navy `#1E3A8A` primary buttons.
+  - Added an institutional accreditation trust ribbon affirming MoSPI accreditation, CBC competency guidelines, and verifiable cryptographic credentials.
+  - Harmonized `CourseDetailPage.tsx` with clean layout, Lucide `Star` rating icons, and bilingual string lookup.
+  - Updated documentation across `docs/features/course-management.md`, `docs/features/ui-design-system.md`, `docs/team/arnav-bisht.md`, and `docs/changelog.md`.
+- **Affected Files**:
+  - `frontend/src/features/catalog/components/DiscoverPage.tsx`
+  - `frontend/src/features/catalog/components/CourseDetailPage.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `docs/features/course-management.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+
+---
+
+### [2026-09-08] - Homepage Streamlining, Sober Yellow Accents & Hindi Toggle Migration
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[docs]`
+- **Branch**: `homepage`
+- **Description**:
+  - Removed top ministry ribbon from `Navbar.tsx`; integrated language toggle button (`हिन्दी / English`) directly into main navbar action bar and mobile drawer.
+  - Eliminated artificial "AI telltale" elements: stripped out multi-colored eyebrow pill boxes above section titles, removed fake progress meters, rainbow gradient lines, and synthetic query chips.
+  - Transitioned from saturated amber-gold to sober warm yellow accents (`#EAB308` / `#CA8A04` / `#FEF9C3`), keeping it restrained, dignified, and authentic to Indian public-service standards.
+  - Streamlined page architecture to a bare-bones, highly focused portal: clean hero with framed carousel, clean 4-metric statistics strip, grounded institutional overview card, direct 4-step milestone cards, uniform document cards, and solid deep navy closing banner.
+  - Recalibrated section scroll offsets and viewports to `scroll-mt-16 sm:scroll-mt-[68px] min-h-[calc(100vh-68px)]`.
+  - Implemented full bilingual internationalization (Hindi/English) across all homepage sections (`hero`, `about`, `howItWorks`, `resources`, `help`, `footer`, and carousel slides) via `useI18n()`.
+  - Updated `docs/features/homepage-portal.md`, `docs/features/ui-design-system.md`, and `docs/team/arnav-bisht.md`.
+- **Affected Files**:
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `frontend/src/features/landing/components/EntryLandingPage.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `frontend/src/app/globals.css`
+  - `docs/features/homepage-portal.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+
+---
+
+### [2026-09-08] - Homepage Aesthetic Unification & Navy/Gold Design System
+- **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
+- **Scope**: `[frontend]` `[ui]` `[docs]`
+- **Branch**: `homepage`
+- **Description**:
+  - Completely unified the portal landing page (`EntryLandingPage.tsx`) under the official **Navy Blue (`#1E3A8A`) & Gold/Yellow (`#F59E0B`) Institutional Standard**, systematically replacing fragmented legacy rose/charcoal hues.
+  - Introduced rich graphical elements: connected horizontal progression line with navy-to-gold gradient, competency progress meters, dual-tone icon containers, and ambient backdrop lighting.
+  - Integrated comprehensive `lucide-react` iconography across metrics, milestones, resource cards, and interactive support channels.
+  - Enhanced text readability with relaxed line-heights, high contrast WCAG AAA ratios, interactive AI Copilot sample prompt chips, and scannable cadre FAQ cards.
+  - Preserved single-viewport layout physics (`scroll-mt-[120px] min-h-[calc(100vh-120px)]`) and zero-shift programmatic glide scrolling.
+  - Added new feature specification `docs/features/homepage-portal.md`, updated `docs/features/ui-design-system.md`, and logged contributor activity in `docs/team/arnav-bisht.md`.
+- **Affected Files**:
+  - `frontend/src/features/landing/components/EntryLandingPage.tsx`
+  - `frontend/src/app/globals.css`
+  - `docs/features/homepage-portal.md`
+  - `docs/features/ui-design-system.md`
+  - `docs/features/README.md`
+  - `docs/team/arnav-bisht.md`
+  - `docs/changelog.md`
+- **Agent Context / Rules**:
+  - Maintain the Navy Blue & Gold color tokens (`--color-navy-primary`, `--color-gold-primary`) and avoid reintroducing legacy rose tones (`#965C66`).
+  - Keep single-viewport section heights (`min-h-[calc(100vh-120px)]`) and ID anchors intact for smooth navbar gliding.
+
+---
+
 ### [2026-09-08] - Documentation Hierarchy Revamp & Knowledge Decentralization
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[docs]`

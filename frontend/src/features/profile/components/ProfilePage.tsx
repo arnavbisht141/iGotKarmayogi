@@ -14,11 +14,11 @@ import {
   Target,
   Briefcase,
   GraduationCap,
+  Building2,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { fetchApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
@@ -96,209 +96,225 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-amber-600 animate-spin" />
+      <div className="min-h-[70vh] flex items-center justify-center bg-[#F8FAFC]">
+        <div className="h-8 w-8 rounded-full border-3 border-slate-200 border-t-[#1E3A8A] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header Banner */}
-      <div className="rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-bold border border-slate-800 shadow-sm">
-            {formData.full_name?.charAt(0) || "U"}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900">{formData.full_name}</h1>
-              <Badge variant="saffron" className="text-[10px] capitalize">
-                {user?.role} Official
-              </Badge>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* 1. Institutional White Header */}
+      <section className="bg-white border-b border-slate-200 py-8 sm:py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="h-16 w-16 rounded-2xl bg-[#1E3A8A] text-white flex items-center justify-center text-2xl font-bold shadow-sm ring-4 ring-blue-50 shrink-0">
+                {formData.full_name?.charAt(0) || "U"}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Building2 className="h-3.5 w-3.5 text-[#1E3A8A]" />
+                  <span className="text-[11px] font-bold text-[#1E3A8A] uppercase tracking-wider">
+                    {t("profile.eyebrow")}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    {formData.full_name || t("profile.title")}
+                  </h1>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-blue-50 text-[#1E3A8A] border border-blue-200">
+                    <ShieldCheck className="h-3 w-3 text-[#1E3A8A]" />
+                    {user?.role ? `${user.role.toUpperCase()} • ${t("profile.verifiedOfficial")}` : t("profile.verifiedOfficial")}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  {formData.designation ? `${formData.designation} • ${formData.department}` : t("profile.subtitle")}
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {formData.designation} • {formData.department}
-            </p>
+
+            {savedSuccess && (
+              <div className="p-3 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                {t("profile.savedSuccess")}
+              </div>
+            )}
           </div>
         </div>
+      </section>
 
-        {savedSuccess && (
-          <div className="p-2.5 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            Profile Updated Successfully
-          </div>
-        )}
+      {/* 2. Main Content Canvas */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <form onSubmit={handleSave} className="space-y-6">
+          {/* Section 1: Personal & Professional Info */}
+          <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden">
+            <CardHeader className="pb-3 border-b border-slate-100">
+              <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-[#1E3A8A]" />
+                {t("profile.officialRole")}
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                {t("profile.officialRoleDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.fullName")}
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.phone")}
+                  </label>
+                  <Input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.designation")}
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.designation}
+                    onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.department")}
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.jobRole")}
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.job_role}
+                    onChange={(e) => setFormData({ ...formData, job_role: e.target.value })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.yearsInService")}
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.work_experience_years}
+                    onChange={(e) => setFormData({ ...formData, work_experience_years: parseInt(e.target.value) || 0 })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  {t("profile.currentAssignment")}
+                </label>
+                <Input
+                  type="text"
+                  value={formData.current_assignment}
+                  onChange={(e) => setFormData({ ...formData, current_assignment: e.target.value })}
+                  className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  {t("profile.qualifications")}
+                </label>
+                <Input
+                  type="text"
+                  value={formData.education}
+                  onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                  className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 2: Settings & Preferences */}
+          <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden">
+            <CardHeader className="pb-3 border-b border-slate-100">
+              <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Settings className="h-4 w-4 text-[#1E3A8A]" />
+                {t("profile.preferences")}
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                {t("profile.preferencesDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.interfaceLanguage")}
+                  </label>
+                  <select
+                    value={formData.language_pref}
+                    onChange={(e) => setFormData({ ...formData, language_pref: e.target.value })}
+                    className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                  >
+                    <option value="en">English (Official Civil Services)</option>
+                    <option value="hi">हिन्दी (राजभाषा)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {t("profile.dailyGoal")}
+                  </label>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={180}
+                    value={formData.daily_goal_minutes}
+                    onChange={(e) => setFormData({ ...formData, daily_goal_minutes: parseInt(e.target.value) || 30 })}
+                    className="text-xs border-slate-300 focus:border-[#1E3A8A]"
+                  />
+                </div>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-end border-t border-slate-100 pt-4 pb-4">
+              <Button
+                type="submit"
+                disabled={saving}
+                className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-6 shadow-xs cursor-pointer"
+              >
+                <Save className="h-3.5 w-3.5 mr-1.5" />
+                {saving ? t("profile.saving") : t("profile.saveChanges")}
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
       </div>
-
-      <form onSubmit={handleSave} className="space-y-6">
-        {/* Section 1: Personal & Professional Info */}
-        <Card className="border-slate-200 bg-white shadow-xs">
-          <CardHeader className="pb-3 border-b border-slate-100">
-            <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-amber-600" />
-              Official Role & Organizational Placement
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Sourced from your 5-step onboarding; fully editable as responsibilities evolve
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Full Name
-                </label>
-                <Input
-                  type="text"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Phone / WhatsApp
-                </label>
-                <Input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Official Designation
-                </label>
-                <Input
-                  type="text"
-                  value={formData.designation}
-                  onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                  className="text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Ministry / Department
-                </label>
-                <Input
-                  type="text"
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Job Role
-                </label>
-                <Input
-                  type="text"
-                  value={formData.job_role}
-                  onChange={(e) => setFormData({ ...formData, job_role: e.target.value })}
-                  className="text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Years in Service
-                </label>
-                <Input
-                  type="number"
-                  value={formData.work_experience_years}
-                  onChange={(e) => setFormData({ ...formData, work_experience_years: parseInt(e.target.value) || 0 })}
-                  className="text-xs"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Current Active Project / Assignment
-              </label>
-              <Input
-                type="text"
-                value={formData.current_assignment}
-                onChange={(e) => setFormData({ ...formData, current_assignment: e.target.value })}
-                className="text-xs"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Academic Qualifications & Prior Training
-              </label>
-              <Input
-                type="text"
-                value={formData.education}
-                onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                className="text-xs"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 2: Settings & Preferences */}
-        <Card className="border-slate-200 bg-white shadow-xs">
-          <CardHeader className="pb-3 border-b border-slate-100">
-            <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Settings className="h-4 w-4 text-slate-600" />
-              {t("nav.settings")} & Preferences
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Configure interface language, appearance, and study targets
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Portal Interface Language
-                </label>
-                <select
-                  value={formData.language_pref}
-                  onChange={(e) => setFormData({ ...formData, language_pref: e.target.value })}
-                  className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white text-slate-900"
-                >
-                  <option value="en">English (Official Civil Services)</option>
-                  <option value="hi">हिन्दी (राजभाषा)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Daily Study Goal (Minutes)
-                </label>
-                <Input
-                  type="number"
-                  min={10}
-                  max={180}
-                  value={formData.daily_goal_minutes}
-                  onChange={(e) => setFormData({ ...formData, daily_goal_minutes: parseInt(e.target.value) || 30 })}
-                  className="text-xs"
-                />
-              </div>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex justify-end border-t border-slate-100 pt-4">
-            <Button
-              type="submit"
-              disabled={saving}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-6"
-            >
-              <Save className="h-3.5 w-3.5 mr-1.5" />
-              {saving ? "Saving Changes..." : "Save Profile Settings"}
-            </Button>
-          </CardFooter>
-        </Card>
-      </form>
     </div>
   );
 }
