@@ -227,3 +227,52 @@ class FullPipelineResponse(BaseModel):
     validated_labs_count: int
     labs: List[Dict[str, Any]]
     execution_summary: Dict[str, Any]
+
+
+# ============================================================================
+# INTERACTIVE LAB EXECUTION & NOTEBOOK SCHEMAS
+# ============================================================================
+
+class ExecuteStudentCodeRequest(BaseModel):
+    code: str = Field(..., description="Student code implementation to validate")
+
+
+class ExecuteStudentCodeResponse(BaseModel):
+    lab_id: int
+    all_passed: bool
+    passed_tests_count: int
+    total_tests_count: int
+    test_results: List[TestResultItem]
+    execution_time_ms: float
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    exit_code: int
+    feedback: Optional[str] = None
+
+
+class ExecuteCellRequest(BaseModel):
+    code: str = Field(..., description="Python cell code to execute")
+    context_code: Optional[str] = Field(default="", description="Optional preceding context code")
+
+
+class ExecuteCellResponse(BaseModel):
+    success: bool
+    output: Optional[str] = None
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    execution_time_ms: float
+    exit_code: int
+
+
+class ExportNotebookRequest(BaseModel):
+    title: str = Field("Karmayogi Lab Notebook", description="Title of the notebook")
+    format: str = Field("marimo", description="'marimo' for Python app or 'ipynb' for Jupyter notebook")
+    cells: List[Dict[str, Any]] = Field(default_factory=list, description="List of cell objects with type and content")
+
+
+class ExportNotebookResponse(BaseModel):
+    filename: str
+    content: str
+    format: str
+    mime_type: str
+

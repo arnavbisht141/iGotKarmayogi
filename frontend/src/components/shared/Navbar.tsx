@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Award,
+  FlaskConical,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
@@ -253,6 +254,19 @@ export function Navbar() {
             }`} />
           </Link>
 
+          {/* Hands-on Labs */}
+          <Link href="/labs"
+            className={`relative flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium transition-colors ${
+              isActive("/labs") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+            }`}>
+            <FlaskConical className="h-4 w-4 text-amber-600" />
+            {t("nav.labs")}
+            <span className={`absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full transition-opacity ${
+              isActive("/labs") ? "bg-[#1E3A8A] opacity-100" : "opacity-0"
+            }`} />
+          </Link>
+
+
           {/* Language Switcher */}
           <button
             type="button"
@@ -375,6 +389,15 @@ export function Navbar() {
             <Compass className="h-4 w-4 text-[#1E3A8A]" />
             {t("nav.discover")}
           </Link>
+          <Link
+            href="/labs"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-900 hover:bg-blue-50"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <FlaskConical className="h-4 w-4 text-amber-600" />
+            {t("nav.labs")}
+          </Link>
+
           <Link
             href={!user && pathname === "/" ? "/#about" : "/about"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${

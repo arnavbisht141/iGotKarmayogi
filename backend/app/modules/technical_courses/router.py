@@ -16,7 +16,10 @@ from app.modules.technical_courses.schemas import (
     LabGenerationRequest, LabGenerationResponse,
     SolutionGenerationRequest, SolutionGenerationResponse,
     LabValidationResponse, FullPipelineRequest, FullPipelineResponse,
-    GeneratedLabSchema, TestCaseSchema, ValidationResultSchema, TestResultItem
+    GeneratedLabSchema, TestCaseSchema, ValidationResultSchema, TestResultItem,
+    ExecuteStudentCodeRequest, ExecuteStudentCodeResponse,
+    ExecuteCellRequest, ExecuteCellResponse,
+    ExportNotebookRequest, ExportNotebookResponse
 )
 from app.modules.technical_courses.services.transcript_service import TranscriptService
 from app.modules.technical_courses.services.objective_extractor import ObjectiveExtractor
@@ -218,3 +221,239 @@ def run_full_technical_pipeline(
         return TechnicalPipelineOrchestrator.run_pipeline(req, db=db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {str(e)}")
+
+
+# 11. List All Available Labs (Catalog & Generated)
+@router.get("/labs")
+def list_all_labs(
+    skill: Optional[str] = None,
+    difficulty: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Returns all hands-on labs available in the system, combining database-generated labs
+    and built-in catalog templates for immediate interactive learning.
+    """
+    query = db.query(TechnicalGeneratedLab)
+    if difficulty:
+        query = query.filter(TechnicalGeneratedLab.difficulty == difficulty)
+    db_labs = query.all()
+
+    result = []
+    # Add database labs
+    for lab in db_labs:
+        test_cases_raw = json.loads(lab.test_cases_json) if lab.test_cases_json else []
+        constraints_raw = json.loads(lab.constraints_json) if lab.constraints_json else []
+        result.append({
+            "id": lab.id,
+            "template_id": lab.template_id,
+            "title": lab.title,
+            "objective": lab.objective,
+            "language": lab.language,
+            "difficulty": lab.difficulty,
+            "status": lab.status,
+            "instructions": lab.instructions,
+            "starter_code": lab.starter_code,
+            "constraints": constraints_raw,
+            "test_cases_count": len(test_cases_raw),
+            "created_at": lab.created_at.isoformat() if lab.created_at else None,
+            "is_generated": True
+        })
+
+    # Add built-in template catalog labs with negative/virtual IDs if not already present
+    from app.modules.technical_courses.services.template_service import BUILTIN_LAB_TEMPLATES
+    for idx, tmpl in enumerate(BUILTIN_LAB_TEMPLATES, start=1001):
+        if skill and skill.lower() not in tmpl.skill.lower():
+            continue
+        if difficulty and difficulty.lower() != tmpl.difficulty.lower():
+            continue
+        result.append({
+            "id": idx,
+            "template_id": tmpl.id,
+            "title": tmpl.title,
+            "objective": f"Master {tmpl.skill} in practical public administration data workflows.",
+            "language": tmpl.language,
+            "difficulty": tmpl.difficulty,
+            "status": "validated",
+            "instructions": tmpl.instructions_template.format(
+                objective=f"Implement and validate {tmpl.title}",
+                function_name="process_api_request"
+            ),
+            "starter_code": tmpl.starter_code_template,
+            "constraints": tmpl.constraints,
+            "test_cases_count": len(tmpl.test_cases_template),
+            "created_at": None,
+            "is_generated": False,
+            "tags": tmpl.tags
+        })
+
+    return result
+
+
+# 12. Execute Student Submission
+@router.post("/labs/{lab_id}/execute", response_model=ExecuteStudentCodeResponse)
+def execute_student_submission(
+    lab_id: int,
+    req: ExecuteStudentCodeRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Validates learner code by executing test harness assertions in the isolated Sandbox.
+    """
+    # Check if this is a built-in template lab (id >= 1000)
+    if lab_id >= 1000:
+        from app.modules.technical_courses.services.template_service import BUILTIN_LAB_TEMPLATES
+        tmpl_idx = lab_id - 1001
+        if 0 <= tmpl_idx < len(BUILTIN_LAB_TEMPLATES):
+            tmpl = BUILTIN_LAB_TEMPLATES[tmpl_idx]
+            val_result = SandboxService.validate_code(
+                solution_code=req.code,
+                test_cases=tmpl.test_cases_template
+            )
+            all_passed = val_result.is_valid
+            return ExecuteStudentCodeResponse(
+                lab_id=lab_id,
+                all_passed=all_passed,
+                passed_tests_count=val_result.passed_tests_count,
+                total_tests_count=val_result.total_tests_count,
+                test_results=val_result.test_results,
+                execution_time_ms=val_result.execution_time_ms,
+                stdout=val_result.stdout,
+                stderr=val_result.stderr,
+                exit_code=val_result.exit_code,
+                feedback="All test cases passed! Verification badge earned." if all_passed else f"{val_result.passed_tests_count} of {val_result.total_tests_count} test cases passed."
+            )
+
+    try:
+        return SandboxService.execute_student_code(
+            lab_id=lab_id,
+            student_code=req.code,
+            db=db
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lab execution failed: {str(e)}")
+
+
+# 13. Execute Arbitrary Notebook Cell in Sandbox
+@router.post("/sandbox/execute-code", response_model=ExecuteCellResponse)
+def execute_notebook_cell(req: ExecuteCellRequest):
+    """
+    Runs an interactive Python code snippet / notebook cell inside the isolated Docker/Subprocess Sandbox.
+    """
+    try:
+        return SandboxService.execute_cell_code(
+            code=req.code,
+            context_code=req.context_code or ""
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cell execution failed: {str(e)}")
+
+
+# 14. Export Notebook (Marimo Reactive App or Jupyter .ipynb)
+@router.post("/notebook/export", response_model=ExportNotebookResponse)
+def export_notebook(req: ExportNotebookRequest):
+    """
+    Exports interactive lab cells to standard Jupyter (.ipynb) or Marimo reactive app (.py) format.
+    """
+    clean_title = req.title.replace(" ", "_").lower()
+    
+    if req.format.lower() == "marimo":
+        filename = f"{clean_title}_marimo.py"
+        mime_type = "text/x-python"
+        
+        # Build pure Python reactive Marimo file
+        marimo_lines = [
+            "# -*- coding: utf-8 -*-",
+            "import marimo",
+            "",
+            '__generated_with = "0.10.0"',
+            'app = marimo.App(width="medium", app_title=' + json.dumps(req.title) + ")",
+            "",
+            "@app.cell",
+            "def __():",
+            "    import marimo as mo",
+            "    return (mo,)",
+            ""
+        ]
+        
+        for idx, cell in enumerate(req.cells, start=1):
+            cell_type = cell.get("type", "code")
+            content = cell.get("content", "")
+            
+            marimo_lines.append("@app.cell")
+            marimo_lines.append(f"def _cell_{idx}(mo):")
+            
+            if cell_type == "markdown":
+                escaped_md = repr(content)
+                marimo_lines.append(f"    _md = mo.md({escaped_md})")
+                marimo_lines.append("    return (_md,)")
+            else:
+                for line in content.splitlines():
+                    marimo_lines.append(f"    {line}")
+                if not content.strip():
+                    marimo_lines.append("    pass")
+                marimo_lines.append("    return")
+            marimo_lines.append("")
+            
+        marimo_lines.extend([
+            'if __name__ == "__main__":',
+            "    app.run()",
+            ""
+        ])
+        
+        content_str = "\n".join(marimo_lines)
+    else:
+        filename = f"{clean_title}_notebook.ipynb"
+        mime_type = "application/x-ipynb+json"
+        
+        # Build standard Jupyter Notebook JSON (nbformat v4)
+        ipynb_cells = []
+        for cell in req.cells:
+            cell_type = cell.get("type", "code")
+            content = cell.get("content", "")
+            lines = [l + "\n" for l in content.splitlines()]
+            if lines and lines[-1].endswith("\n"):
+                lines[-1] = lines[-1][:-1]
+                
+            if cell_type == "markdown":
+                ipynb_cells.append({
+                    "cell_type": "markdown",
+                    "metadata": {},
+                    "source": lines
+                })
+            else:
+                ipynb_cells.append({
+                    "cell_type": "code",
+                    "execution_count": cell.get("execution_count", 1),
+                    "metadata": {},
+                    "outputs": [],
+                    "source": lines
+                })
+                
+        ipynb_data = {
+            "cells": ipynb_cells,
+            "metadata": {
+                "language_info": {
+                    "name": "python",
+                    "version": "3.11"
+                },
+                "kernelspec": {
+                    "display_name": "Python 3 (iGot Karmayogi Sandbox)",
+                    "language": "python",
+                    "name": "python3"
+                }
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }
+        content_str = json.dumps(ipynb_data, indent=2)
+
+    return ExportNotebookResponse(
+        filename=filename,
+        content=content_str,
+        format=req.format.lower(),
+        mime_type=mime_type
+    )
+

@@ -29,6 +29,8 @@ const translations: Translations = {
   "nav.login": { en: "Sign In", hi: "लॉग इन" },
   "nav.register": { en: "Register", hi: "पंजीकरण" },
   "nav.askAi": { en: "Support Desk", hi: "सहायता केंद्र" },
+  "nav.labs": { en: "Hands-on Labs", hi: "हैंड्स-ऑन लैब्स" },
+
 
   // Home Dashboard (Post-Login)
   "home.eyebrow": { en: "Official Cadre Dashboard • Ministry of Statistics & Programme Implementation", hi: "आधिकारिक संवर्ग डैशबोर्ड • सांख्यिकी एवं कार्यक्रम कार्यान्वयन मंत्रालय" },
