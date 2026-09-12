@@ -12,6 +12,7 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ```markdown
 ### [YYYY-MM-DD] - Short Title of Change
+
 - **Author**: Name (@github-username)
 - **Scope**: `[frontend]` | `[backend]` | `[ai-service]` | `[docs]` | `[devops]` | `[architecture]`
 - **Description**: Concise explanation of what was changed and the rationale.
@@ -25,18 +26,77 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-13] - Upgraded 8-Sandbox Suite, SQLAlchemy Persistence & Supabase Integration (Milestone 3)
+
+- **Author**: Diwakar Ujjwal (@diwakarujjwal)
+- **Scope**: `[backend]` `[frontend]` `[sandbox]` `[ctf]` `[sqlalchemy]` `[supabase]` `[marimo]` `[tests]` `[docs]`
+- **Branch**: `cgp/digital-governance`
+- **Description**:
+  - Upgraded and restored all 5 original sandboxes plus 3 digital governance domain challenges into mature procedural templates:
+    1. **`01-soc-auth-investigation`**: _Operation NightShift_ — Windows Security Event telemetry (4624, 4625, 4688) with brute-force triage and LOLBin staging.
+    2. **`02-phishing-dfir`**: _Executive Spearphish & Invoice Fraud_ — Raw MIME `.eml` with SPF/DKIM spoofing and DNS C2 beacon correlation.
+    3. **`03-compromised-linux-server`**: _Operation Shakti (Linux IR)_ — `auth.log`, `crontab.txt`, `backup_sync.sh`, and `bash_history` for privilege escalation and malicious cron persistence.
+    4. **`04-vulnerable-web-app`**: _Operation Suraksha (Citizen DB)_ — `corp_directory.db` (SQLite citizen registry) with UNION SQL injection vulnerability and DPDP Act breach triage.
+    5. **`05-threat-hunting-lotl`**: _Operation Garuda (Threat Hunting)_ — Sysmon process trees and high-entropy DNS tunneling exfiltration analysis.
+    6. **`06-pki-token-dispute`**: _Operation Mudra (PKI Defense)_ — GeM e-tender submission timestamping vs. CA revocation lists (CRL/OCSP) under IT Act Section 3 & 3A.
+    7. **`07-meghraj-cloud-audit`**: _Operation Megh (Sovereign Cloud)_ — Cloud audit logs detecting unauthorized cross-border container migrations violating MeitY data localization.
+    8. **`08-dpi-apisetu-replay`**: _Operation Setu (API Setu Defense)_ — e-KYC gateway logs with duplicate cryptographic nonces and WAF rate-limiting mitigations.
+  - **SQLAlchemy Database Persistence Architecture**:
+    - Created models `CyberSandboxChallenge`, `CyberSandboxSession`, and `UserCyberCompetency` in `backend/app/models/models.py`.
+    - Stored all challenge manifests, evidence telemetry (`artifacts_json`), and Marimo Python notebooks (`notebook_code`) directly in SQLite/Postgres.
+    - Completely purged `backend/content/` from the repository, preventing git file sprawl.
+    - Ephemeral materialization into `backend/scratch/sandboxes/<session_id>/` on session launch with automatic cleanup upon termination.
+  - **Live Supabase Knowledge Base Integration (Strictly Read-Only GET)**:
+    - Built `supabase_service.py` to query scraped Wikipedia articles and YouTube curricula from `https://tdcrpjlpvkqjptvsndnp.supabase.co` across the 5 official Digital Governance topics (`cybersecurity`, `data-privacy`, `digital-signatures`, `government-cloud`, `digital-public-infrastructure`).
+    - Exposed `GET /api/digital-governance/sandbox/knowledge-base` and `POST /api/digital-governance/sandbox/generate-from-topic`.
+  - **Client Console & Navigation**:
+    - Enhanced `CyberSandboxPage.tsx` with a 3-tab generator modal (Live Supabase Knowledge Base, Lecture Presets, Custom Transcripts), 9-category filter pills, live Marimo console embed, and CTFd flag verification.
+    - Added "Digital Governance" navigation link in `Navbar.tsx` (desktop and mobile) and bilingual English/Hindi translations in `frontend/src/lib/i18n/index.tsx`.
+  - **Verification**:
+    - Full backend test suite passing (15 tests total: 4 curriculum, 4 tabletop scenarios, 7 sandbox suite tests).
+    - `npx tsc --noEmit` and `npm run build` compiled all 20 pages with 0 errors.
+- **Affected Files / Routes**:
+  - `backend/app/models/models.py`
+  - `backend/app/core/seed_data.py`
+  - `backend/app/modules/digital_governance/services/llm_provider.py`
+  - `backend/app/modules/digital_governance/services/supabase_service.py`
+  - `backend/app/modules/digital_governance/services/sandbox_manager.py`
+  - `backend/app/modules/digital_governance/services/content_pipeline.py`
+  - `backend/app/modules/digital_governance/services/templates/` (all 8 templates)
+  - `backend/app/modules/digital_governance/schemas.py`
+  - `backend/app/modules/digital_governance/router.py`
+  - `backend/tests/test_sandbox.py`
+  - `frontend/src/features/digital_governance/components/CyberSandboxPage.tsx`
+  - `frontend/src/components/shared/Navbar.tsx`
+  - `frontend/src/lib/i18n/index.tsx`
+  - `GET /api/digital-governance/sandbox/challenges`
+  - `GET /api/digital-governance/sandbox/knowledge-base`
+  - `POST /api/digital-governance/sandbox/generate-from-topic`
+  - `POST /api/digital-governance/sandbox/generate`
+  - `POST /api/digital-governance/sandbox/session/start`
+  - `GET /api/digital-governance/sandbox/session/{session_id}`
+  - `POST /api/digital-governance/sandbox/session/{session_id}/stop`
+  - `POST /api/digital-governance/sandbox/session/submit-flag`
+  - `POST /api/digital-governance/sandbox/session/unlock-hint`
+  - `GET /api/digital-governance/sandbox/competencies`
+- **Agent Context / Rules**:
+  - Zero git file clutter: all challenges and evidence files must reside in the SQLAlchemy database.
+  - Ephemeral scratch runtime files must only be materialized in `backend/scratch/` (gitignored).
+  - Supabase is strictly read-only: never perform POST/PUT/PATCH/DELETE against Supabase.
+
 ### [2026-09-12] - Multi-Stage Incident Response Tabletop Engine (Milestone 2)
+
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)
 - **Scope**: `[backend]` `[frontend]` `[scenarios]` `[api]` `[tests]` `[docs]`
 - **Branch**: `cgp/digital-governance`
 - **Description**:
   - Implemented the Multi-Stage Incident Response Tabletop Engine in `backend/app/modules/digital_governance/` and mounted under `/api/v1/digital-governance/scenarios`.
   - Formulated 5 comprehensive civil-service case scenarios covering the 5 national digital governance pillars:
-    1. **Cybersecurity**: *Operation Vajra* — Ransomware outbreak on State Treasury Payment Gateway (PFMS), network segmentation vs. volatile memory destruction, CERT-In 6-hour reporting adherence under Section 70B, and Section 65B forensic chain of custody.
-    2. **Data Privacy**: *Operation Raksha* — Aadhaar-linked DBT citizen pension registry leak on public cloud, statutory notification to the Data Protection Board of India under Section 8(6) of DPDP Act 2023, Aadhaar masking, and Significant Data Fiduciary (SDF) appointment.
-    3. **Digital Signatures & PKI**: *Operation Mudra* — Disputed ₹45 crore e-procurement tender on GeM, Class 3 DSC token theft defense, OCSP/CRL timestamp inspection, and legal non-repudiation under IT Act Sections 3 & 3A.
-    4. **Government Cloud (MeghRaj / GI Cloud)**: *Operation Megh* — Unauthorized foreign region workload migration during peak traffic, STQC audit enforcement, sovereign data localization, and Government Community Cloud (GCC) isolation.
-    5. **Digital Public Infrastructure (DPI / India Stack)**: *Operation Setu* — 65,000 req/sec cryptographic replay attack on citizen e-KYC and API Setu highway, single-use nonce validation, adaptive rate-limiting, and NCCC threat sharing.
+    1. **Cybersecurity**: _Operation Vajra_ — Ransomware outbreak on State Treasury Payment Gateway (PFMS), network segmentation vs. volatile memory destruction, CERT-In 6-hour reporting adherence under Section 70B, and Section 65B forensic chain of custody.
+    2. **Data Privacy**: _Operation Raksha_ — Aadhaar-linked DBT citizen pension registry leak on public cloud, statutory notification to the Data Protection Board of India under Section 8(6) of DPDP Act 2023, Aadhaar masking, and Significant Data Fiduciary (SDF) appointment.
+    3. **Digital Signatures & PKI**: _Operation Mudra_ — Disputed ₹45 crore e-procurement tender on GeM, Class 3 DSC token theft defense, OCSP/CRL timestamp inspection, and legal non-repudiation under IT Act Sections 3 & 3A.
+    4. **Government Cloud (MeghRaj / GI Cloud)**: _Operation Megh_ — Unauthorized foreign region workload migration during peak traffic, STQC audit enforcement, sovereign data localization, and Government Community Cloud (GCC) isolation.
+    5. **Digital Public Infrastructure (DPI / India Stack)**: _Operation Setu_ — 65,000 req/sec cryptographic replay attack on citizen e-KYC and API Setu highway, single-use nonce validation, adaptive rate-limiting, and NCCC threat sharing.
   - Built interactive client interface `CyberScenariosPage.tsx` at `/digital-governance/scenarios` matching the `dev` institutional design tokens (Navy `#1E3A8A`, Gold `#EAB308`, Slate `#F8FAFC`).
   - Added real-time compliance scoring ($0–100\%$), decision consequence summaries, and executive debrief certification.
   - Added unit test suite `backend/tests/test_scenarios.py` with 4 automated tests passing in 0.001s.
@@ -55,11 +115,12 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-12] - Digital Governance & Cyber Defense Curriculum Architecture (Milestone 1)
+
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)
 - **Scope**: `[backend]` `[curriculum]` `[assessments]` `[tests]` `[docs]`
 - **Branch**: `cgp/digital-governance`
 - **Description**:
-  - Seeded official Government of India curriculum: *"Digital Governance, Cyber Defense & Public Digital Architecture"* accredited by NeGD and CERT-In (`backend/app/core/seed_data.py`).
+  - Seeded official Government of India curriculum: _"Digital Governance, Cyber Defense & Public Digital Architecture"_ accredited by NeGD and CERT-In (`backend/app/core/seed_data.py`).
   - Implemented 5 comprehensive modules covering the 5 core national pillars:
     1. **Cybersecurity**: CERT-In 6-hour reporting mandate (Section 70B IT Act 2000), Critical Information Infrastructure (NCIIPC), and live SOC telemetry triage.
     2. **Data Privacy**: Digital Personal Data Protection Act 2023 (DPDP Act), Data Fiduciary obligations, Consent Managers, and DPBI penalty structures.
@@ -80,6 +141,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-09] - Comprehensive Visual Design Overhaul (design branch)
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[css]` `[design]`
 - **Branch**: `design`
@@ -110,6 +172,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-09] - Dedicated Institutional Pages & Context-Aware Navbar Routing
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[i18n]` `[routing]` `[docs]`
 - **Branch**: `postlogin`
@@ -140,6 +203,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-09] - Post-Login Homepage & Repository-Wide Non-AI Institutional Redesign
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
 - **Branch**: `postlogin`
@@ -169,13 +233,14 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-08] - Discover Page Overhaul, Background Fix & Full Hindi Localization
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[i18n]` `[docs]`
 - **Branch**: `discover`
 - **Description**:
   - Solved the background color and container problem on `/discover`: replaced the nested, floating widget box layout with a seamless full-width institutional white header banner (`bg-white border-b border-slate-200`) and a unified `#F8FAFC` slate catalog canvas.
   - Eliminated all artificial "AI telltale" indicators: removed unicode emojis (`🔥`, `✨`, `★`) from category tabs, trending pills, and course cards, and replaced rectangular colored pill boxes above headings with clean, letter-spaced ministry eyebrow text and Lucide `Building2` iconography.
-  - Implemented 100% full bilingual (Hindi/English) compatibility: expanded `frontend/src/lib/i18n/index.tsx` dictionary with translations for search inputs, search/clear buttons, trending topics (*National Sample Survey*, *CPI*, *PFMS*, etc.), discipline categories, filter options, sort order, and dynamic course card title/overview metadata.
+  - Implemented 100% full bilingual (Hindi/English) compatibility: expanded `frontend/src/lib/i18n/index.tsx` dictionary with translations for search inputs, search/clear buttons, trending topics (_National Sample Survey_, _CPI_, _PFMS_, etc.), discipline categories, filter options, sort order, and dynamic course card title/overview metadata.
   - Elevated course card presentation: integrated official MoSPI/ISTM badges, Lucide `Clock` duration counters, Lucide `Star` ratings with enrolled counts, structured metadata lists, and official Navy `#1E3A8A` primary buttons.
   - Added an institutional accreditation trust ribbon affirming MoSPI accreditation, CBC competency guidelines, and verifiable cryptographic credentials.
   - Harmonized `CourseDetailPage.tsx` with clean layout, Lucide `Star` rating icons, and bilingual string lookup.
@@ -192,6 +257,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-08] - Homepage Streamlining, Sober Yellow Accents & Hindi Toggle Migration
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[docs]`
 - **Branch**: `homepage`
@@ -216,6 +282,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-08] - Homepage Aesthetic Unification & Navy/Gold Design System
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[ui]` `[docs]`
 - **Branch**: `homepage`
@@ -241,6 +308,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-08] - Documentation Hierarchy Revamp & Knowledge Decentralization
+
 - **Author**: Antigravity AI & Arnav Bisht (@arnavbisht141)
 - **Scope**: `[docs]`
 - **Description**:
@@ -259,6 +327,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-07] - Domain Boundary Reorganization & Modular Monolith Transition
+
 - **Author**: Arnav Bisht (@arnavbisht141)
 - **Scope**: `[backend]` `[architecture]`
 - **Description**:
@@ -275,6 +344,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-07] - Hero, Navbar Brand & Statistics Polish (Navy Aesthetic)
+
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)
 - **Scope**: `[frontend]`
 - **Description**:
@@ -288,6 +358,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-06] - Viewport-Snap Navigation, Scroll-Spy Lock & Dynamic Footer Architecture
+
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)
 - **Scope**: `[frontend]`
 - **Description**:
@@ -307,6 +378,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-06] - Header & Landing Page Aesthetic Parity Refinements
+
 - **Author**: Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[docs]`
 - **Description**:
@@ -324,6 +396,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-06] - Official iGOT Karmayogi Navy & Slate Aesthetic Refinement
+
 - **Author**: Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]`
 - **Description**:
@@ -337,12 +410,13 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-06] - Muted Rose Design System & Floating AI Assistant Redesign
+
 - **Author**: Aarna (@aarna605-dot), Ravish Kansal (@RavishKansal), Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]`
 - **Description**:
   - Implemented the **Muted Rose Design System** palette tokens (`#965C66` primary, `#C8A8A9` secondary, `#EEE8E9` warm background, `#241E20` charcoal text).
   - Redesigned landing page hero layout and statistics bar with aspect-ratio-preserved official photographs (`/karmayogi.jpg`, `/government-meeting.jpg`, `/ai-daksh.jpg`).
-  - Redesigned floating AI assistant widget (`AiAssistantWidget.tsx`) into a sleek circular launcher (`h-14 w-14 rounded-full bg-[#965C66]`), removed LangGraph vendor branding, and established civil-service identity: *"Karmayogi AI - Civil Service Intelligence Assistant"*.
+  - Redesigned floating AI assistant widget (`AiAssistantWidget.tsx`) into a sleek circular launcher (`h-14 w-14 rounded-full bg-[#965C66]`), removed LangGraph vendor branding, and established civil-service identity: _"Karmayogi AI - Civil Service Intelligence Assistant"_.
   - Merged PR #2 (`Aarna` branch).
 - **Affected Files**:
   - `frontend/src/app/page.tsx`
@@ -353,6 +427,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-06] - Dockerization & Multi-Stage Deployment Architecture
+
 - **Author**: Arnav Bisht (@arnavbisht141)
 - **Scope**: `[devops]` `[infra]`
 - **Description**:
@@ -370,6 +445,7 @@ When contributing changes, append entries at the top of the appropriate version/
 ---
 
 ### [2026-09-06] - Initial Codebase & LMS Domain Implementation
+
 - **Author**: Arnav Bisht (@arnavbisht141)
 - **Scope**: `[frontend]` `[backend]`
 - **Description**:

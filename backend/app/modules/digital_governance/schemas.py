@@ -94,3 +94,103 @@ class ScenarioAnswerResponse(BaseModel):
     compliance_score: int
     step_number: int
     session_summary: Optional[ScenarioSummary] = None
+
+
+# ==========================================
+# Cybersecurity Sandbox & CTF Pipeline Schemas
+# ==========================================
+
+class SandboxChallengeSummary(BaseModel):
+    id: str
+    title: str
+    category: str
+    difficulty: str
+    points: int
+    duration_minutes: int
+    is_flagship: bool = False
+    solved: bool = False
+    competency_id: str
+    tags: List[str] = []
+    mitre_techniques: List[str] = []
+    objectives: List[str] = []
+
+
+class SandboxGenerateRequest(BaseModel):
+    transcript_text: str
+    student_id: Optional[str] = "nodal_officer_01"
+
+
+class SandboxGenerateResponse(BaseModel):
+    challenge_id: str
+    title: str
+    category: str
+    difficulty: str
+    points: int
+    objectives: List[str]
+    scenario_md: str
+    extracted_meta: Dict[str, Any]
+
+
+class SandboxStartRequest(BaseModel):
+    challenge_id: str
+    duration_minutes: Optional[int] = 45
+
+
+class SandboxSessionResponse(BaseModel):
+    session_id: str
+    challenge_id: str
+    title: str
+    category: str
+    difficulty: str
+    points: int
+    expires_at: str
+    remaining_seconds: int
+    status: str
+    assigned_port: int
+    marimo_url: str
+    hints: List[Dict[str, Any]]
+    scenario_md: str
+    objectives: List[str]
+    solved: bool = False
+
+
+class SandboxFlagSubmitRequest(BaseModel):
+    session_id: str
+    flag: str
+
+
+class SandboxFlagSubmitResponse(BaseModel):
+    correct: bool
+    message: str
+    points_awarded: int
+    competency_id: str
+    competency_score: int
+
+
+class SandboxHintUnlockRequest(BaseModel):
+    session_id: str
+    hint_id: int
+
+
+class SandboxHintUnlockResponse(BaseModel):
+    hint_id: int
+    content: str
+    penalty: int
+    remaining_points: int
+
+
+class UserCompetencyRadar(BaseModel):
+    soc_investigation: int = 0
+    phishing_analysis: int = 0
+    cloud_security: int = 0
+    dpi_security: int = 0
+    digital_forensics: int = 0
+    total_score: int = 0
+    solved_challenges_count: int = 0
+
+
+class TopicGenerateRequest(BaseModel):
+    topic_name: str
+    student_id: Optional[str] = "officer_1"
+
+

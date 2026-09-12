@@ -22,6 +22,8 @@ class User(Base):
     planned_courses = relationship("PlannedCourse", back_populates="user", cascade="all, delete-orphan")
     learning_history = relationship("LearningHistory", back_populates="user", cascade="all, delete-orphan")
     search_history = relationship("SearchHistory", back_populates="user", cascade="all, delete-orphan")
+    cyber_sessions = relationship("CyberSandboxSession", back_populates="user", cascade="all, delete-orphan")
+    cyber_competency = relationship("UserCyberCompetency", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
 
 class UserProfile(Base):
@@ -275,3 +277,205 @@ class SearchHistory(Base):
     searched_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="search_history")
+
+
+# ============================================================================
+# TECHNICAL COURSE CONTENT GENERATION PIPELINE MODELS
+# ============================================================================
+
+class TechnicalTranscript(Base):
+    __tablename__ = "technical_transcripts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    raw_text = Column(Text, nullable=False)
+    cleaned_text = Column(Text, nullable=False)
+    chunks_json = Column(Text, nullable=False)  # JSON list of chunks with metadata
+    metadata_json = Column(Text, nullable=True)  # JSON dict with token_count, source, etc.
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    learning_objectives = relationship("TechnicalLearningObjective", back_populates="transcript", cascade="all, delete-orphan")
+
+
+class TechnicalLearningObjective(Base):
+    __tablename__ = "technical_learning_objectives"
+
+    id = Column(Integer, primary_key=True, index=True)
+    transcript_id = Column(Integer, ForeignKey("technical_transcripts.id", ondelete="CASCADE"), nullable=True)
+    objective = Column(Text, nullable=False)
+    skill = Column(String(255), nullable=False, index=True)
+    difficulty = Column(String(50), default="intermediate")  # beginner, intermediate, advanced
+    action_verb = Column(String(100), nullable=False)  # implement, debug, analyze, configure, etc.
+    assessment_mode = Column(String(50), default="lab")  # lab or quiz
+    suitability_reason = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    transcript = relationship("TechnicalTranscript", back_populates="learning_objectives")
+    generated_labs = relationship("TechnicalGeneratedLab", back_populates="learning_objective")
+
+
+class TechnicalLabTemplate(Base):
+    __tablename__ = "technical_lab_templates"
+
+    id = Column(String(100), primary_key=True, index=True)  # Human-created template identifier
+    title = Column(String(255), nullable=False)
+    skill = Column(String(255), nullable=False, index=True)  # e.g., "FastAPI", "Pandas", "Python", "SQL"
+    language = Column(String(50), default="python", index=True)  # python, sql, bash, etc.
+    difficulty = Column(String(50), default="intermediate")  # beginner, intermediate, advanced
+    lab_type = Column(String(100), default="implementation")  # implementation, debugging, data_analysis, refactoring
+    tags_json = Column(Text, default="[]")  # JSON list of string tags for matching
+    instructions_template = Column(Text, nullable=False)
+    starter_code_template = Column(Text, nullable=False)
+    solution_template = Column(Text, nullable=True)
+    constraints_json = Column(Text, default="[]")  # JSON list of constraint strings
+    test_cases_template_json = Column(Text, default="[]")  # JSON list of test case specs
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    generated_labs = relationship("TechnicalGeneratedLab", back_populates="template")
+
+
+class TechnicalGeneratedLab(Base):
+    __tablename__ = "technical_generated_labs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String(100), ForeignKey("technical_lab_templates.id", ondelete="SET NULL"), nullable=True)
+    objective_id = Column(Integer, ForeignKey("technical_learning_objectives.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    objective = Column(Text, nullable=False)
+    language = Column(String(50), default="python")
+    difficulty = Column(String(50), default="intermediate")
+    instructions = Column(Text, nullable=False)
+    starter_code = Column(Text, nullable=False)
+    constraints_json = Column(Text, default="[]")  # JSON list of string constraints
+    test_cases_json = Column(Text, default="[]")  # JSON list of test case dicts
+    expected_behavior = Column(Text, nullable=True)
+    status = Column(String(50), default="draft")  # draft, pending_validation, validated, rejected
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    template = relationship("TechnicalLabTemplate", back_populates="generated_labs")
+    learning_objective = relationship("TechnicalLearningObjective", back_populates="generated_labs")
+    solution = relationship("TechnicalLabSolution", back_populates="lab", uselist=False, cascade="all, delete-orphan")
+    validation_results = relationship("TechnicalLabValidationResult", back_populates="lab", cascade="all, delete-orphan")
+
+
+class TechnicalLabSolution(Base):
+    __tablename__ = "technical_lab_solutions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("technical_generated_labs.id", ondelete="CASCADE"), unique=True, nullable=False)
+    reference_code = Column(Text, nullable=False)
+    explanation = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    lab = relationship("TechnicalGeneratedLab", back_populates="solution")
+
+
+class TechnicalLabValidationResult(Base):
+    __tablename__ = "technical_lab_validation_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("technical_generated_labs.id", ondelete="CASCADE"), nullable=False)
+    solution_id = Column(Integer, ForeignKey("technical_lab_solutions.id", ondelete="SET NULL"), nullable=True)
+    is_valid = Column(Boolean, default=False, nullable=False)
+    sandbox_type = Column(String(50), default="docker")  # docker or subprocess-dev-fallback
+    exit_code = Column(Integer, default=0)
+    execution_time_ms = Column(Float, default=0.0)
+    stdout = Column(Text, nullable=True)
+    stderr = Column(Text, nullable=True)
+    test_summary_json = Column(Text, nullable=True)  # JSON summary of individual test cases
+    error_message = Column(Text, nullable=True)
+    validated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    lab = relationship("TechnicalGeneratedLab", back_populates="validation_results")
+
+
+# ============================================================================
+# DIGITAL GOVERNANCE & CYBERSECURITY SANDBOX MODELS
+# ============================================================================
+
+class CyberSandboxTemplate(Base):
+    __tablename__ = "cyber_sandbox_templates"
+
+    id = Column(String(100), primary_key=True, index=True)  # Human-created template identifier
+    title = Column(String(255), nullable=False)
+    category = Column(String(100), nullable=False)
+    difficulty = Column(String(50), default="intermediate")
+    competency_id = Column(String(100), default="soc_investigation")
+    points = Column(Integer, default=100)
+    duration_minutes = Column(Integer, default=45)
+    tags_json = Column(Text, default="[]")
+    mitre_techniques_json = Column(Text, default="[]")
+    scenario_template = Column(Text, nullable=False)
+    instructions_template = Column(Text, nullable=False)
+    hints_template_json = Column(Text, default="[]")
+    artifacts_spec_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    challenges = relationship("CyberSandboxChallenge", back_populates="template")
+
+
+class CyberSandboxChallenge(Base):
+    __tablename__ = "cyber_sandbox_challenges"
+
+    id = Column(String(100), primary_key=True, index=True)
+    template_id = Column(String(100), ForeignKey("cyber_sandbox_templates.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    category = Column(String(100), nullable=False)
+    difficulty = Column(String(50), default="intermediate")
+    points = Column(Integer, default=100)
+    duration_minutes = Column(Integer, default=45)
+    competency_id = Column(String(100), default="soc_investigation")
+    is_flagship = Column(Boolean, default=False)
+    tags_json = Column(Text, default="[]")
+    mitre_techniques_json = Column(Text, default="[]")
+    objectives_json = Column(Text, default="[]")
+    scenario_markdown = Column(Text, nullable=False)
+    flag = Column(String(255), nullable=False)
+    hints_json = Column(Text, default="[]")  # JSON list of hints with point penalties
+    artifacts_json = Column(Text, default="{}")  # JSON map of telemetry and evidence files
+    notebook_code = Column(Text, nullable=False)  # Full interactive Marimo Python notebook code
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    template = relationship("CyberSandboxTemplate", back_populates="challenges")
+    sessions = relationship("CyberSandboxSession", back_populates="challenge", cascade="all, delete-orphan")
+
+
+class CyberSandboxSession(Base):
+    __tablename__ = "cyber_sandbox_sessions"
+
+    id = Column(String(100), primary_key=True, index=True)  # session_id e.g. "sess_..."
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    challenge_id = Column(String(100), ForeignKey("cyber_sandbox_challenges.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String(50), default="running")  # running, stopped, expired, solved
+    assigned_port = Column(Integer, nullable=False)
+    flag = Column(String(255), nullable=False)  # unique dynamic flag for this session
+    unlocked_hints_json = Column(Text, default="[]")
+    total_penalties = Column(Integer, default=0)
+    final_score = Column(Integer, default=0)
+    is_solved = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    expires_at = Column(DateTime, nullable=False)
+    solved_at = Column(DateTime, nullable=True)
+
+    challenge = relationship("CyberSandboxChallenge", back_populates="sessions")
+    user = relationship("User", back_populates="cyber_sessions")
+
+
+class UserCyberCompetency(Base):
+    __tablename__ = "user_cyber_competencies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    soc_investigation = Column(Integer, default=0)
+    phishing_analysis = Column(Integer, default=0)
+    cloud_security = Column(Integer, default=0)
+    dpi_security = Column(Integer, default=0)
+    digital_forensics = Column(Integer, default=0)
+    total_score = Column(Integer, default=0)
+    solved_challenges_count = Column(Integer, default=0)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="cyber_competency")
+

@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from app.models.models import (
     User, UserProfile, Department, Course, Module, Lesson,
     Skill, CourseSkill, UserSkill, Enrollment, Progress,
-    Assessment, Question, PlannedCourse, LearningHistory
+    Assessment, Question, PlannedCourse, LearningHistory,
+    CyberSandboxChallenge, CyberSandboxTemplate
 )
 from app.core.security import get_password_hash
 
@@ -12,6 +13,7 @@ def seed_database(db: Session):
     # Check if already seeded
     # Always ensure Digital Governance and Cyber Defense curriculum is seeded
     seed_digital_governance_curriculum(db)
+    seed_cybersec_challenges(db)
 
     # Check if already seeded base data
     if db.query(User).first():
@@ -1281,3 +1283,116 @@ The **Public Financial Management System (PFMS)** administered by the Controller
 
     db.commit()
     print("Digital Governance & Cyber Defense curriculum and 15-question examination successfully seeded!")
+
+
+def seed_cybersec_challenges(db: Session):
+    """Seed all 8 procedural CTF challenges into the cyber_sandbox_challenges table."""
+    import tempfile
+    import base64
+    from pathlib import Path
+    from app.modules.digital_governance.services.templates import get_template
+
+    challenges_map = [
+        ("01-soc-auth-investigation", "01-soc-auth-investigation", True),
+        ("02-phishing-dfir", "02-phishing-dfir", True),
+        ("03-compromised-linux-server", "03-compromised-linux-server", False),
+        ("04-vulnerable-web-app", "04-vulnerable-web-app", False),
+        ("05-threat-hunting-lotl", "05-threat-hunting-lotl", False),
+        ("06-pki-token-dispute", "06-pki-token-dispute", False),
+        ("07-meghraj-cloud-audit", "07-meghraj-cloud-audit", False),
+        ("08-dpi-apisetu-replay", "08-dpi-apisetu-replay", False),
+    ]
+
+    for cid, tmpl_key, is_flagship in challenges_map:
+        existing = db.query(CyberSandboxChallenge).filter_by(id=cid).first()
+        tmpl = get_template(tmpl_key)
+        if not tmpl:
+            continue
+
+        slots = tmpl.generate_random_slots(seed=f"official_seed_{cid}")
+        flag = tmpl.compute_flag(slots)
+        hints = tmpl.generate_hints(slots)
+        objectives = tmpl.generate_objectives(slots)
+        scenario_md = tmpl.generate_scenario_description(slots)
+
+        # 1. Seed or update CyberSandboxTemplate (Human-Designed Template)
+        existing_tmpl = db.query(CyberSandboxTemplate).filter_by(id=tmpl_key).first()
+        if not existing_tmpl:
+            template_record = CyberSandboxTemplate(
+                id=tmpl_key,
+                title=tmpl.title,
+                category=tmpl.category,
+                difficulty=tmpl.difficulty,
+                competency_id=tmpl.competency_id,
+                points=tmpl.base_points,
+                duration_minutes=tmpl.duration_minutes,
+                tags_json=json.dumps(tmpl.tags),
+                mitre_techniques_json=json.dumps(tmpl.mitre_techniques),
+                scenario_template=scenario_md,
+                instructions_template=scenario_md,
+                hints_template_json=json.dumps(hints),
+                artifacts_spec_json=json.dumps(list(tmpl.get_slot_schema().keys())),
+            )
+            db.add(template_record)
+            db.flush()
+
+        # 2. Seed or update CyberSandboxChallenge (Generated/Concrete Lab Challenge)
+        existing = db.query(CyberSandboxChallenge).filter_by(id=cid).first()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            p = Path(tmpdir)
+            data_files = tmpl.synthesize_artifacts(slots, p)
+            nb_path = tmpl.generate_notebook(slots, p)
+
+            artifacts = {}
+            for fname, fpath in data_files.items():
+                if fpath.is_file():
+                    try:
+                        artifacts[fname] = fpath.read_text(encoding="utf-8")
+                    except UnicodeDecodeError:
+                        artifacts[fname] = "base64:" + base64.b64encode(fpath.read_bytes()).decode("ascii")
+            nb_code = nb_path.read_text(encoding="utf-8") if nb_path.is_file() else ""
+
+        if existing:
+            existing.template_id = tmpl_key
+            existing.title = tmpl.title
+            existing.category = tmpl.category
+            existing.difficulty = tmpl.difficulty
+            existing.points = tmpl.base_points
+            existing.duration_minutes = tmpl.duration_minutes
+            existing.competency_id = tmpl.competency_id
+            existing.is_flagship = is_flagship
+            existing.tags_json = json.dumps(tmpl.tags)
+            existing.mitre_techniques_json = json.dumps(tmpl.mitre_techniques)
+            existing.objectives_json = json.dumps(objectives)
+            existing.scenario_markdown = scenario_md
+            existing.flag = flag
+            existing.hints_json = json.dumps(hints)
+            existing.artifacts_json = json.dumps(artifacts)
+            existing.notebook_code = nb_code
+        else:
+            challenge = CyberSandboxChallenge(
+                id=cid,
+                template_id=tmpl_key,
+                title=tmpl.title,
+                category=tmpl.category,
+                difficulty=tmpl.difficulty,
+                points=tmpl.base_points,
+                duration_minutes=tmpl.duration_minutes,
+                competency_id=tmpl.competency_id,
+                is_flagship=is_flagship,
+                tags_json=json.dumps(tmpl.tags),
+                mitre_techniques_json=json.dumps(tmpl.mitre_techniques),
+                objectives_json=json.dumps(objectives),
+                scenario_markdown=scenario_md,
+                flag=flag,
+                hints_json=json.dumps(hints),
+                artifacts_json=json.dumps(artifacts),
+                notebook_code=nb_code,
+            )
+            db.add(challenge)
+
+    db.commit()
+    print("All 8 Cybersecurity Sandbox challenges successfully seeded into database!")
+    print("All 8 Cybersecurity Sandbox challenges and templates successfully seeded into database!")
+

@@ -1,0 +1,226 @@
+"""Unit Tests for Cybersecurity Sandbox Suite, SQLAlchemy Persistence, and CTF Pipeline."""
+
+import os
+import shutil
+import unittest
+import asyncio
+from pathlib import Path
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from app.core.database import Base
+from app.core.seed_data import seed_cybersec_challenges
+from app.models.models import (
+    User,
+    CyberSandboxChallenge,
+    CyberSandboxSession,
+    UserCyberCompetency,
+)
+from app.modules.digital_governance.services.llm_provider import MultiLLMProvider
+from app.modules.digital_governance.services.templates import (
+    TEMPLATE_REGISTRY,
+    get_template,
+    match_template_by_metadata,
+    list_templates,
+)
+from app.modules.digital_governance.services.templates.soc_auth_template import SocAuthTemplate
+from app.modules.digital_governance.services.templates.phishing_dfir_template import PhishingDfirTemplate
+from app.modules.digital_governance.services.templates.linux_forensics_template import LinuxForensicsTemplate
+from app.modules.digital_governance.services.templates.web_sqli_template import WebSqliTemplate
+from app.modules.digital_governance.services.templates.threat_hunting_lotl_template import ThreatHuntingLotlTemplate
+from app.modules.digital_governance.services.templates.pki_defense_template import PkiDefenseTemplate
+from app.modules.digital_governance.services.templates.cloud_audit_template import CloudAuditTemplate
+from app.modules.digital_governance.services.templates.dpi_replay_template import DpiReplayTemplate
+from app.modules.digital_governance.services.content_pipeline import ContentGenerationPipeline
+from app.modules.digital_governance.services.sandbox_manager import sandbox_manager
+from app.modules.digital_governance.services.supabase_service import supabase_knowledge_service
+
+
+class TestCybersecuritySandbox(unittest.IsolatedAsyncioTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.engine = create_engine("sqlite:///:memory:", echo=False)
+        Base.metadata.create_all(bind=cls.engine)
+        cls.TestSession = sessionmaker(bind=cls.engine)
+
+    def setUp(self):
+        self.db = self.TestSession()
+        seed_cybersec_challenges(self.db)
+        self.scratch_dir = Path("/tmp/test_cybersec_scratch")
+        self.scratch_dir.mkdir(parents=True, exist_ok=True)
+
+    def tearDown(self):
+        self.db.close()
+        if self.scratch_dir.exists():
+            shutil.rmtree(self.scratch_dir, ignore_errors=True)
+
+    def test_01_multi_llm_provider_initialization_and_status(self):
+        provider = MultiLLMProvider()
+        status = provider.get_provider_status()
+
+        self.assertIn("groq", status)
+        self.assertIn("nim", status)
+        self.assertIn("gemini", status)
+        self.assertIn("openai", status)
+
+        # Test safe json parsing
+        valid_json = '{"domain": "Cybersecurity", "tags": ["soc", "auth"]}'
+        self.assertIsNotNone(provider.parse_json_safely(valid_json))
+
+        markdown_json = '```json\n{"domain": "Data Privacy", "score": 90}\n```'
+        parsed = provider.parse_json_safely(markdown_json)
+        self.assertIsNotNone(parsed)
+        self.assertEqual(parsed["domain"], "Data Privacy")
+
+    def test_02_all_eight_templates_registered(self):
+        templates = list_templates()
+        self.assertEqual(len(templates), 8)
+
+        # Check all expected canonical keys exist
+        expected_keys = [
+            "01-soc-auth-investigation",
+            "02-phishing-dfir",
+            "03-compromised-linux-server",
+            "04-vulnerable-web-app",
+            "05-threat-hunting-lotl",
+            "06-pki-token-dispute",
+            "07-meghraj-cloud-audit",
+            "08-dpi-apisetu-replay",
+        ]
+        for key in expected_keys:
+            tmpl = get_template(key)
+            self.assertIsNotNone(tmpl, f"Template {key} should be resolvable")
+
+    def test_03_tag_and_keyword_matching_across_governance_domains(self):
+        # Domain 1: SOC / Brute force
+        t1 = match_template_by_metadata(domain="Cybersecurity", tags=["event-4625", "brute-force"])
+        self.assertEqual(t1.template_id, "soc-auth-investigation")
+
+        # Domain 2: Phishing DFIR
+        t2 = match_template_by_metadata(domain="DFIR", tags=["phish", "dmarc", "email"])
+        self.assertEqual(t2.template_id, "phishing-dfir")
+
+        # Domain 3: Linux Persistence
+        t3 = match_template_by_metadata(domain="CII", tags=["linux", "crontab", "sudo"])
+        self.assertEqual(t3.template_id, "03-compromised-linux-server")
+
+        # Domain 4: Web SQLi
+        t4 = match_template_by_metadata(domain="Data Privacy", tags=["web", "sqli", "dpdp"])
+        self.assertEqual(t4.template_id, "04-vulnerable-web-app")
+
+        # Domain 5: Threat Hunting LOTL
+        t5 = match_template_by_metadata(domain="Cybersecurity", tags=["lotl", "dns-tunneling", "sysmon"])
+        self.assertEqual(t5.template_id, "05-threat-hunting-lotl")
+
+        # Domain 6: Digital Signatures / PKI
+        t6 = match_template_by_metadata(domain="Digital Signatures", tags=["pki", "dsc", "gem"])
+        self.assertEqual(t6.template_id, "06-pki-token-dispute")
+
+        # Domain 7: Government Cloud / MeghRaj
+        t7 = match_template_by_metadata(domain="Government Cloud", tags=["meghraj", "stqc"])
+        self.assertEqual(t7.template_id, "cloud-meghraj-audit")
+
+        # Domain 8: DPI / API Setu
+        t8 = match_template_by_metadata(domain="DPI", tags=["aadhaar", "api-setu", "replay"])
+        self.assertEqual(t8.template_id, "dpi-apisetu-replay")
+
+    def test_04_database_seeding_and_challenge_listing(self):
+        challenges = sandbox_manager.list_challenges(db=self.db)
+        self.assertEqual(len(challenges), 8)
+
+        ids = [c.id for c in challenges]
+        self.assertIn("01-soc-auth-investigation", ids)
+        self.assertIn("02-phishing-dfir", ids)
+        self.assertIn("03-compromised-linux-server", ids)
+        self.assertIn("04-vulnerable-web-app", ids)
+        self.assertIn("05-threat-hunting-lotl", ids)
+        self.assertIn("06-pki-token-dispute", ids)
+        self.assertIn("07-meghraj-cloud-audit", ids)
+        self.assertIn("08-dpi-apisetu-replay", ids)
+
+        # Flagship checks
+        c1 = next(c for c in challenges if c.id == "01-soc-auth-investigation")
+        self.assertTrue(c1.is_flagship)
+
+        c3 = next(c for c in challenges if c.id == "03-compromised-linux-server")
+        self.assertEqual(c3.category, "Incident Response / Linux Forensics")
+
+    async def test_05_session_lifecycle_with_db_materialization(self):
+        # Start session for Upgraded Module 3 (Linux Forensics)
+        sess = await sandbox_manager.start_session(
+            "03-compromised-linux-server", duration_minutes=30, db=self.db
+        )
+        self.assertTrue(sess.session_id.startswith("sess_"))
+        self.assertEqual(sess.challenge_id, "03-compromised-linux-server")
+        self.assertGreater(sess.assigned_port, 8000)
+        self.assertEqual(sess.status, "running")
+
+        # Check session recorded in DB
+        db_sess = self.db.query(CyberSandboxSession).filter_by(id=sess.session_id).first()
+        self.assertIsNotNone(db_sess)
+        self.assertEqual(db_sess.status, "running")
+
+        # Unlock hint
+        hint_res = sandbox_manager.unlock_hint(sess.session_id, 1, db=self.db)
+        self.assertGreater(hint_res.penalty, 0)
+        self.assertIn("crontab", hint_res.content)
+
+        # Verify hint recorded in DB
+        self.db.refresh(db_sess)
+        self.assertIn("1", db_sess.unlocked_hints_json)
+
+        # Submit wrong flag
+        bad_res = sandbox_manager.submit_flag(sess.session_id, "FLAG{wrong_guess}", db=self.db)
+        self.assertFalse(bad_res.correct)
+
+        # Submit correct flag
+        good_res = sandbox_manager.submit_flag(sess.session_id, sess_flag := db_sess.flag, db=self.db)
+        self.assertTrue(good_res.correct)
+        self.assertGreater(good_res.points_awarded, 0)
+
+        # Verify solved status in DB
+        self.db.refresh(db_sess)
+        self.assertTrue(db_sess.is_solved)
+        self.assertEqual(db_sess.status, "solved")
+
+        # Stop session
+        stopped = await sandbox_manager.stop_session(sess.session_id, db=self.db)
+        self.assertTrue(stopped)
+
+        self.db.refresh(db_sess)
+        self.assertEqual(db_sess.status, "stopped")
+
+    async def test_06_content_pipeline_and_db_persistence(self):
+        sample_transcript = """
+        In this cyber audit session, we analyze a critical vulnerability on the citizen welfare web portal.
+        Attackers used SQL injection techniques with UNION SELECT on the citizen search parameter
+        to bypass authentication and dump confidential data violating the Digital Personal Data Protection (DPDP) Act 2023.
+        """
+        res = await sandbox_manager.generate_from_transcript(
+            transcript_text=sample_transcript,
+            student_id="test_nodal_42",
+            db=self.db,
+        )
+
+        self.assertIn("challenge_id", res)
+        self.assertTrue(res["flag"].startswith("FLAG{"))
+
+        # Verify challenge was saved into cyber_sandbox_challenges
+        chal_db = self.db.query(CyberSandboxChallenge).filter_by(id=res["challenge_id"]).first()
+        self.assertIsNotNone(chal_db)
+        self.assertEqual(chal_db.title, res["title"])
+
+    def test_07_supabase_read_only_knowledge_base(self):
+        kb = supabase_knowledge_service.get_full_knowledge_base()
+        self.assertEqual(len(kb), 5)
+        pillar_names = [p["topic_name"] for p in kb]
+        self.assertIn("Cybersecurity", pillar_names)
+        self.assertIn("Data Privacy", pillar_names)
+        self.assertIn("Digital Signatures", pillar_names)
+        self.assertIn("Government Cloud", pillar_names)
+        self.assertIn("Digital Public Infrastructure", pillar_names)
+
+
+if __name__ == "__main__":
+    unittest.main()

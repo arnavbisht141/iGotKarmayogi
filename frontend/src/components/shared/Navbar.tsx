@@ -30,7 +30,8 @@ export function Navbar() {
   const isProgrammaticScrollRef = useRef(false);
   const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const isActive = (path: string) => pathname === path || pathname?.startsWith(`${path}/`);
+  const isActive = (path: string) =>
+    pathname === path || pathname?.startsWith(`${path}/`);
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "hi" : "en");
@@ -59,7 +60,9 @@ export function Navbar() {
       if (isProgrammaticScrollRef.current) return;
 
       const header = document.querySelector("header");
-      const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 68;
+      const headerHeight = header
+        ? Math.round(header.getBoundingClientRect().height)
+        : 68;
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
@@ -77,7 +80,8 @@ export function Navbar() {
       }
 
       // Find section closest to viewport center
-      const viewportCenter = scrollY + headerHeight + (windowHeight - headerHeight) / 2;
+      const viewportCenter =
+        scrollY + headerHeight + (windowHeight - headerHeight) / 2;
       let closestId = "hero";
       let minDistance = Infinity;
 
@@ -104,7 +108,10 @@ export function Navbar() {
   }, [pathname]);
 
   // Precision smooth scroll handler for anchor links
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+  const handleAnchorClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string,
+  ) => {
     if (!user && pathname === "/") {
       e.preventDefault();
       e.stopPropagation();
@@ -127,20 +134,30 @@ export function Navbar() {
       const el = document.getElementById(targetId);
       if (el) {
         const header = document.querySelector("header");
-        const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 68;
-        const targetTop = Math.round(el.getBoundingClientRect().top + window.scrollY - headerHeight);
+        const headerHeight = header
+          ? Math.round(header.getBoundingClientRect().height)
+          : 68;
+        const targetTop = Math.round(
+          el.getBoundingClientRect().top + window.scrollY - headerHeight,
+        );
         window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
       }
     }
   };
 
-  const handleMobileAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+  const handleMobileAnchorClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string,
+  ) => {
     setMobileMenuOpen(false);
     handleAnchorClick(e, targetId);
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/98 backdrop-blur-md shadow-sm" suppressHydrationWarning>
+    <header
+      className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/98 backdrop-blur-md shadow-sm"
+      suppressHydrationWarning
+    >
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
@@ -175,25 +192,46 @@ export function Navbar() {
           {/* Institutional Section Navigation Links */}
           {/* ── Institutional anchor/page links ── */}
           {["about", "how-it-works", "resources", "help"].map((section) => {
-            const isActiveLink = isActive(`/${section}`) || (pathname === "/" && activeSection === section);
-            const label = section === "about" ? t("nav.about")
-              : section === "how-it-works" ? t("nav.howItWorks")
-              : section === "resources" ? t("nav.resources")
-              : t("nav.help");
+            const isActiveLink =
+              isActive(`/${section}`) ||
+              (pathname === "/" && activeSection === section);
+            const label =
+              section === "about"
+                ? t("nav.about")
+                : section === "how-it-works"
+                  ? t("nav.howItWorks")
+                  : section === "resources"
+                    ? t("nav.resources")
+                    : t("nav.help");
             return (
-              <Link key={section}
-                href={!user && pathname === "/" ? `/#${section}` : `/${section}`}
-                scroll={false} prefetch={false}
+              <Link
+                key={section}
+                href={
+                  !user && pathname === "/" ? `/#${section}` : `/${section}`
+                }
+                scroll={false}
+                prefetch={false}
                 onClick={(e) => handleAnchorClick(e, section)}
                 className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 cursor-pointer ${
-                  isActiveLink ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+                  isActiveLink
+                    ? "text-[#1E3A8A] font-bold"
+                    : "text-slate-600 hover:text-[#1E3A8A]"
                 }`}
               >
                 {label}
                 {/* Bottom-bar active indicator */}
-                <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                  isActiveLink ? "navy-teal-gradient opacity-100" : "opacity-0 bg-[#1E3A8A]"
-                }`} style={isActiveLink ? { background: "linear-gradient(90deg,#1E3A8A,#0D9488)" } : {}} />
+                <span
+                  className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                    isActiveLink
+                      ? "navy-teal-gradient opacity-100"
+                      : "opacity-0 bg-[#1E3A8A]"
+                  }`}
+                  style={
+                    isActiveLink
+                      ? { background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }
+                      : {}
+                  }
+                />
               </Link>
             );
           })}
@@ -201,41 +239,91 @@ export function Navbar() {
           {/* ── Authenticated user links ── */}
           {user && (
             <>
-              {[{ href: "/home", label: "Home" }, { href: "/my-learning", label: t("nav.myLearning") }].map(({ href, label }) => (
-                <Link key={href} href={href}
+              {[
+                { href: "/home", label: "Home" },
+                { href: "/my-learning", label: t("nav.myLearning") },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
                   className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
-                    isActive(href) ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-                  }`}>
+                    isActive(href)
+                      ? "text-[#1E3A8A] font-bold"
+                      : "text-slate-600 hover:text-[#1E3A8A]"
+                  }`}
+                >
                   {label}
-                  <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                    isActive(href) ? "opacity-100" : "opacity-0"
-                  }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+                  <span
+                    className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                      isActive(href) ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{
+                      background: "linear-gradient(90deg,#1E3A8A,#0D9488)",
+                    }}
+                  />
                 </Link>
               ))}
               {isAdmin && (
-                <Link href="/admin"
+                <Link
+                  href="/admin"
                   className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
-                    isActive("/admin") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-                  }`}>
+                    isActive("/admin")
+                      ? "text-[#1E3A8A] font-bold"
+                      : "text-slate-600 hover:text-[#1E3A8A]"
+                  }`}
+                >
                   {t("nav.admin")}
-                  <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                    isActive("/admin") ? "opacity-100" : "opacity-0"
-                  }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+                  <span
+                    className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                      isActive("/admin") ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{
+                      background: "linear-gradient(90deg,#1E3A8A,#0D9488)",
+                    }}
+                  />
                 </Link>
               )}
             </>
           )}
 
           {/* ── Discover ── */}
-          <Link href="/discover"
+          <Link
+            href="/discover"
             className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
-              isActive("/discover") || isActive("/courses") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-            }`}>
+              isActive("/discover") || isActive("/courses")
+                ? "text-[#1E3A8A] font-bold"
+                : "text-slate-600 hover:text-[#1E3A8A]"
+            }`}
+          >
             <Compass className="h-4 w-4" />
             {t("nav.discover")}
-            <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-              isActive("/discover") || isActive("/courses") ? "opacity-100" : "opacity-0"
-            }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+            <span
+              className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                isActive("/discover") || isActive("/courses")
+                  ? "opacity-100"
+                  : "opacity-0"
+              }`}
+              style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }}
+            />
+          </Link>
+
+          {/* ── Digital Governance & Cyber Sandbox ── */}
+          <Link
+            href="/digital-governance/sandbox"
+            className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
+              isActive("/digital-governance")
+                ? "text-[#1E3A8A] font-bold"
+                : "text-slate-600 hover:text-[#1E3A8A]"
+            }`}
+          >
+            <ShieldAlert className="h-4 w-4 text-[#1E3A8A]" />
+            {t("nav.digitalGovernance")}
+            <span
+              className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+                isActive("/digital-governance") ? "opacity-100" : "opacity-0"
+              }`}
+              style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }}
+            />
           </Link>
 
           {/* Language Switcher */}
@@ -274,10 +362,20 @@ export function Navbar() {
 
               {/* Profile Dropdown */}
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white py-1 shadow-xl z-50" style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)" }}>
+                <div
+                  className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white py-1 shadow-xl z-50"
+                  style={{
+                    boxShadow:
+                      "0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",
+                  }}
+                >
                   <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs font-semibold text-[#0F172A]">{user.full_name}</p>
-                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                    <p className="text-xs font-semibold text-[#0F172A]">
+                      {user.full_name}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {user.email}
+                    </p>
                   </div>
                   <Link
                     href="/profile"
@@ -339,7 +437,11 @@ export function Navbar() {
             className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition-colors"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
       </div>
@@ -367,7 +469,8 @@ export function Navbar() {
           <Link
             href={!user && pathname === "/" ? "/#about" : "/about"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/about") || (pathname === "/" && activeSection === "about")
+              isActive("/about") ||
+              (pathname === "/" && activeSection === "about")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -376,9 +479,12 @@ export function Navbar() {
             {t("nav.about")}
           </Link>
           <Link
-            href={!user && pathname === "/" ? "/#how-it-works" : "/how-it-works"}
+            href={
+              !user && pathname === "/" ? "/#how-it-works" : "/how-it-works"
+            }
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/how-it-works") || (pathname === "/" && activeSection === "how-it-works")
+              isActive("/how-it-works") ||
+              (pathname === "/" && activeSection === "how-it-works")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -389,7 +495,8 @@ export function Navbar() {
           <Link
             href={!user && pathname === "/" ? "/#resources" : "/resources"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/resources") || (pathname === "/" && activeSection === "resources")
+              isActive("/resources") ||
+              (pathname === "/" && activeSection === "resources")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -400,7 +507,8 @@ export function Navbar() {
           <Link
             href={!user && pathname === "/" ? "/#help" : "/help"}
             className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/help") || (pathname === "/" && activeSection === "help")
+              isActive("/help") ||
+              (pathname === "/" && activeSection === "help")
                 ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
                 : "text-slate-700 hover:bg-blue-50 border-transparent"
             }`}
@@ -427,6 +535,22 @@ export function Navbar() {
             </Link>
           )}
 
+          {/* Mobile Digital Governance */}
+          <Link
+            href="/digital-governance/sandbox"
+            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
+              isActive("/digital-governance")
+                ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
+                : "text-slate-700 hover:bg-blue-50 border-transparent"
+            }`}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4 text-[#1E3A8A]" />
+              <span>{t("nav.digitalGovernance")}</span>
+            </div>
+          </Link>
+
           {/* Mobile Language Switcher */}
           <div className="pt-2 pb-1">
             <button
@@ -439,7 +563,9 @@ export function Navbar() {
             >
               <span className="flex items-center gap-2">
                 <Languages className="h-4 w-4 text-slate-500" />
-                <span>{language === "en" ? "भाषा: हिन्दी" : "Language: English"}</span>
+                <span>
+                  {language === "en" ? "भाषा: हिन्दी" : "Language: English"}
+                </span>
               </span>
               <span className="text-xs text-[#1E3A8A] font-bold">
                 {language === "en" ? "बदलें" : "Switch"}
@@ -470,7 +596,10 @@ export function Navbar() {
             ) : (
               <div className="flex flex-col gap-2 pt-2">
                 <Link href="/login" className="w-full">
-                  <Button variant="outline" className="w-full border-slate-300 text-slate-800">
+                  <Button
+                    variant="outline"
+                    className="w-full border-slate-300 text-slate-800"
+                  >
                     {t("nav.login")}
                   </Button>
                 </Link>

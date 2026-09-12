@@ -31,6 +31,9 @@ dist/
 *.sqlite3
 backend/karmayogi.db
 
+# Ephemeral runtime scratch directories
+backend/scratch/
+
 # Environment variables
 .env
 .env.local
