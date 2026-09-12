@@ -1,29 +1,19 @@
-# iGOT Karmayogi frontend
+# Karmayogi+ — SIH prototype
 
-Next.js 16 App Router frontend for the iGOT Karmayogi learning experience.
+This frontend is a visual product prototype for an AI-enabled Skill Intelligence and Adaptive Learning Platform integrated with the iGOT Karmayogi ecosystem.
+
+The previous learning-platform frontend has been replaced. Backend and database projects remain independent and unchanged.
+
+## Run
+
+Run `npm ci`, then `npm run dev` and open http://localhost:3000.
+Validate with `npm run lint` and `npm run build`.
 
 ## Structure
 
-- `src/app`: URL and layout ownership only. Pages are deliberately thin route entry points.
-- `src/features`: domain UI and client-side orchestration. See its README and each feature README for boundaries.
-- `src/components/ui`: reusable, domain-neutral interface primitives.
-- `src/components/shared`: reusable application-wide presentation such as navigation.
-- `src/components/certificate`: cross-feature certificate presentation shared by progress and assessments.
-- `src/lib`: cross-cutting API client, providers, types, i18n, and utilities.
+- `src/app`: page entry point, metadata, and responsive styles.
+- `src/components/karmayogi`: landing page, product UI mockups and local interactions.
+- `src/components/ui/button.tsx` and `src/lib/utils.ts`: shared primitives.
+- `public/fonts`: self-hosted Inter Tight fonts.
 
-## Data and state flow
-
-`src/app/layout.tsx` provides auth and i18n context. Feature components own local interactive state, consume those providers, and use `fetchApi` plus shared types for backend communication. Keep route parameters and URL navigation inside the feature that owns the screen. Do not import feature internals across domains; promote truly reusable code to `components` or `lib`.
-
-## Commands
-
-```bash
-npm run dev
-npm run lint
-npx tsc --noEmit
-npm run build
-```
-
-## Planned structure
-
-Feature-level `api/`, `hooks/`, `types/`, or finer-grained component folders are added only when real implementation needs justify them. They are intentionally absent today.
+The layout keeps the Divi Pixel visual rhythm while communicating the Karmayogi+ intelligence loop. The product controls are local prototype interactions; synthetic data, mock integration and future production capability are explicitly labeled.

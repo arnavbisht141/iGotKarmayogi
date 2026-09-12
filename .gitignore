@@ -43,3 +43,13 @@ backend/karmayogi.db
 Thumbs.db
 .vscode/
 .idea/
+
+# Local agent and browser tooling
+.codex/
+.github/hooks/
+.playwright-mcp/
+
+# Temporary inspection and generated preview artifacts
+.tmp/
+/goodwill-*.png
+/karmayogi-*.png
