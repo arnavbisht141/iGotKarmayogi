@@ -177,6 +177,28 @@ def test_template_matching_pandas():
     assert "pandas" in res.template.id
 
 
+def test_template_matching_sql():
+    req = TemplateMatchRequest(
+        objective="Write SQL queries to aggregate departmental records",
+        skill="SQL",
+        language="python"
+    )
+    res = TemplateService.match_template(req)
+    assert res.matched is True
+    assert "sql" in res.template.id
+
+
+def test_template_matching_aiml():
+    req = TemplateMatchRequest(
+        objective="Evaluate classification metrics for machine learning models",
+        skill="AI/ML",
+        language="python"
+    )
+    res = TemplateService.match_template(req)
+    assert res.matched is True
+    assert "ml-evaluation" in res.template.id
+
+
 def test_template_matching_fallback():
     req = TemplateMatchRequest(
         objective="Perform complex custom algorithmic computation",

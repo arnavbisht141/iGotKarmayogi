@@ -178,7 +178,29 @@ class ObjectiveExtractor:
                 suitability_reason="Hands-on SQL query execution produces verifiable query result sets."
             ))
 
-        # Pattern 5: General Python logic / functions
+        # Pattern 5: AI/ML Model Evaluation
+        if any(w in text_lower for w in ["machine learning", "ai/ml", "ai", "model evaluation", "classification", "precision", "recall", "f1 score", "accuracy metric"]):
+            extracted.append(LearningObjectiveSchema(
+                objective="Compute and validate classification performance metrics including accuracy, precision, and recall",
+                skill="AI/ML",
+                difficulty="intermediate",
+                action="analyze",
+                assessment_mode="lab",
+                suitability_reason="Evaluation metrics require deterministic arithmetic test verification in sandbox."
+            ))
+
+        # Pattern 6: Data Visualization / Charting
+        if any(w in text_lower for w in ["data visualization", "visualization", "histogram", "binning", "chart", "distribution", "plot"]):
+            extracted.append(LearningObjectiveSchema(
+                objective="Calculate frequency distributions and histogram bins for visual data analytics",
+                skill="Data Visualization",
+                difficulty="intermediate",
+                action="analyze",
+                assessment_mode="lab",
+                suitability_reason="Data distribution logic produces verifiable numerical intervals."
+            ))
+
+        # Pattern 7: General Python logic / functions
         if not extracted or any(w in text_lower for w in ["function", "python", "algorithm", "loop", "dictionary"]):
             extracted.append(LearningObjectiveSchema(
                 objective="Implement robust Python utility functions with strict input validation and boundary condition handling",

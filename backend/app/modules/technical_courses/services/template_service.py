@@ -272,6 +272,301 @@ except ZeroDivisionError:
 """
             )
         ]
+    ),
+    LabTemplateSchema(
+        id="python-sql-analytics-001",
+        title="SQL Analytics & In-Memory Table Query Engine",
+        skill="SQL",
+        language="python",
+        difficulty="intermediate",
+        lab_type="data_analysis",
+        tags=["sql", "query", "database", "sqlite", "table", "analytics", "filter", "aggregate", "join", "select"],
+        instructions_template="""### Objective
+{objective}
+
+### Task Instructions
+1. Implement the database query function `{function_name}` using Python's `sqlite3` library.
+2. Create an in-memory database table, insert the given records, and execute the required SQL query.
+3. Return the query results as a list of dictionaries with column names as keys.
+4. Handle cases where the dataset is empty by returning an empty list.
+""",
+        starter_code_template="""import sqlite3
+from typing import List, Dict, Any
+
+def run_sql_query(records: List[Dict[str, Any]], min_score: float = 0.0) -> List[Dict[str, Any]]:
+    \"\"\"
+    TODO: Create an in-memory sqlite3 database table named 'submissions',
+    insert records, and run:
+    SELECT department, COUNT(*) as total_records, AVG(score) as avg_score
+    FROM submissions
+    WHERE score >= ?
+    GROUP BY department
+    ORDER BY department ASC
+    
+    Return the result as a list of dicts:
+    [{'department': str, 'total_records': int, 'avg_score': float}]
+    \"\"\"
+    # Write your solution below:
+    pass
+""",
+        solution_template="""import sqlite3
+from typing import List, Dict, Any
+
+def run_sql_query(records: List[Dict[str, Any]], min_score: float = 0.0) -> List[Dict[str, Any]]:
+    if not records:
+        return []
+    
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE submissions (id INTEGER, department TEXT, score REAL)")
+    
+    for r in records:
+        cursor.execute("INSERT INTO submissions VALUES (?, ?, ?)", (r.get("id"), r.get("department"), r.get("score")))
+    
+    conn.commit()
+    
+    query = \"\"\"
+    SELECT department, COUNT(*) as total_records, AVG(score) as avg_score
+    FROM submissions
+    WHERE score >= ?
+    GROUP BY department
+    ORDER BY department ASC
+    \"\"\"
+    cursor.execute(query, (min_score,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    return [
+        {"department": row[0], "total_records": row[1], "avg_score": round(float(row[2]), 2)}
+        for row in rows
+    ]
+""",
+        constraints=[
+            "Use sqlite3 in-memory database ':memory:'.",
+            "Ensure connection is properly closed after query execution.",
+            "Order query results by department ascending."
+        ],
+        test_cases_template=[
+            TestCaseSchema(
+                name="test_sql_aggregation",
+                description="Tests standard SQL aggregation with grouping",
+                test_code="""
+data = [
+    {"id": 1, "department": "Statistics", "score": 85.0},
+    {"id": 2, "department": "Statistics", "score": 95.0},
+    {"id": 3, "department": "Finance", "score": 70.0}
+]
+res = run_sql_query(data, min_score=80.0)
+assert len(res) == 1
+assert res[0]["department"] == "Statistics"
+assert res[0]["total_records"] == 2
+assert res[0]["avg_score"] == 90.0
+"""
+            ),
+            TestCaseSchema(
+                name="test_sql_empty_input",
+                description="Tests that empty records return empty list",
+                test_code="""
+res = run_sql_query([], min_score=50.0)
+assert res == []
+"""
+            )
+        ]
+    ),
+    LabTemplateSchema(
+        id="python-ml-evaluation-001",
+        title="Machine Learning Model Evaluation & Classification Metrics",
+        skill="AI/ML",
+        language="python",
+        difficulty="intermediate",
+        lab_type="data_analysis",
+        tags=["ai-ml", "machine-learning", "metrics", "accuracy", "precision", "recall", "f1", "evaluation", "classification"],
+        instructions_template="""### Objective
+{objective}
+
+### Task Instructions
+1. Implement `{function_name}` to calculate classification performance metrics.
+2. Compute True Positives (TP), False Positives (FP), True Negatives (TN), and False Negatives (FN).
+3. Calculate Accuracy, Precision, Recall, and F1-Score.
+4. If (Precision + Recall) is 0, F1-Score should be returned as 0.0.
+""",
+        starter_code_template="""from typing import List, Dict
+
+def evaluate_classification_metrics(y_true: List[int], y_pred: List[int]) -> Dict[str, float]:
+    \"\"\"
+    TODO: Compute binary classification metrics.
+    Return a dict:
+    {
+        'accuracy': float,
+        'precision': float,
+        'recall': float,
+        'f1_score': float
+    }
+    Raise ValueError("Length mismatch") if len(y_true) != len(y_pred).
+    \"\"\"
+    # Write your solution below:
+    pass
+""",
+        solution_template="""from typing import List, Dict
+
+def evaluate_classification_metrics(y_true: List[int], y_pred: List[int]) -> Dict[str, float]:
+    if len(y_true) != len(y_pred):
+        raise ValueError("Length mismatch")
+    if not y_true:
+        return {"accuracy": 0.0, "precision": 0.0, "recall": 0.0, "f1_score": 0.0}
+        
+    tp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 1 and yp == 1)
+    fp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 0 and yp == 1)
+    fn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 1 and yp == 0)
+    tn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 0 and yp == 0)
+    total = len(y_true)
+    
+    accuracy = (tp + tn) / total if total > 0 else 0.0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+    
+    return {
+        "accuracy": round(accuracy, 4),
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "f1_score": round(f1, 4)
+    }
+""",
+        constraints=[
+            "Raise ValueError when input lists have differing lengths.",
+            "Guard against ZeroDivisionError for precision, recall, and F1 calculations.",
+            "Round returned float values to 4 decimal places."
+        ],
+        test_cases_template=[
+            TestCaseSchema(
+                name="test_perfect_predictions",
+                description="Tests metrics when predictions are 100% accurate",
+                test_code="""
+yt = [1, 0, 1, 1, 0]
+yp = [1, 0, 1, 1, 0]
+metrics = evaluate_classification_metrics(yt, yp)
+assert metrics["accuracy"] == 1.0
+assert metrics["precision"] == 1.0
+assert metrics["recall"] == 1.0
+assert metrics["f1_score"] == 1.0
+"""
+            ),
+            TestCaseSchema(
+                name="test_imperfect_predictions",
+                description="Tests standard metrics with some false positives and false negatives",
+                test_code="""
+yt = [1, 1, 0, 0]
+yp = [1, 0, 1, 0]
+metrics = evaluate_classification_metrics(yt, yp)
+assert metrics["accuracy"] == 0.5
+assert metrics["precision"] == 0.5
+assert metrics["recall"] == 0.5
+assert metrics["f1_score"] == 0.5
+"""
+            ),
+            TestCaseSchema(
+                name="test_length_mismatch_error",
+                description="Tests ValueError when input list lengths differ",
+                test_code="""
+try:
+    evaluate_classification_metrics([1, 0], [1])
+    assert False, "Expected ValueError"
+except ValueError:
+    pass
+"""
+            )
+        ]
+    ),
+    LabTemplateSchema(
+        id="python-data-viz-001",
+        title="Data Distribution & Histogram Binning for Visual Analytics",
+        skill="Data Visualization",
+        language="python",
+        difficulty="intermediate",
+        lab_type="data_analysis",
+        tags=["data-visualization", "visualization", "chart", "trend", "bins", "distribution", "summary", "open-data", "gis"],
+        instructions_template="""### Objective
+{objective}
+
+### Task Instructions
+1. Implement `{function_name}` to calculate frequency distributions for numerical survey indicators.
+2. Given a list of numerical values and custom bin edges, compute the item count and percentage distribution for each bin.
+3. Return the formatted summary ready for charting engines.
+""",
+        starter_code_template="""from typing import List, Dict, Any
+
+def compute_histogram_bins(values: List[float], bin_edges: List[float]) -> List[Dict[str, Any]]:
+    \"\"\"
+    TODO: Given values and sorted bin_edges (e.g. [0, 50, 100]),
+    compute counts for intervals [bin_edges[i], bin_edges[i+1]).
+    For the last bin, include the right edge (inclusive).
+    
+    Return list of dicts:
+    [{'bin': '0.0-50.0', 'count': int, 'percentage': float}]
+    \"\"\"
+    # Write your solution below:
+    pass
+""",
+        solution_template="""from typing import List, Dict, Any
+
+def compute_histogram_bins(values: List[float], bin_edges: List[float]) -> List[Dict[str, Any]]:
+    if not values or len(bin_edges) < 2:
+        return []
+        
+    total = len(values)
+    bins = []
+    
+    for i in range(len(bin_edges) - 1):
+        low = bin_edges[i]
+        high = bin_edges[i+1]
+        is_last = (i == len(bin_edges) - 2)
+        
+        if is_last:
+            count = sum(1 for v in values if low <= v <= high)
+        else:
+            count = sum(1 for v in values if low <= v < high)
+            
+        pct = round((count / total) * 100.0, 2)
+        bins.append({
+            "bin": f"{low}-{high}",
+            "count": count,
+            "percentage": pct
+        })
+        
+    return bins
+""",
+        constraints=[
+            "Return empty list if values list is empty or bin_edges has fewer than 2 elements.",
+            "Last bin interval must include the right edge value.",
+            "Percentages must be rounded to 2 decimal places."
+        ],
+        test_cases_template=[
+            TestCaseSchema(
+                name="test_histogram_distribution",
+                description="Tests standard bin count and percentage distribution",
+                test_code="""
+vals = [10.0, 25.0, 40.0, 60.0, 80.0, 100.0]
+edges = [0.0, 50.0, 100.0]
+res = compute_histogram_bins(vals, edges)
+assert len(res) == 2
+assert res[0]["bin"] == "0.0-50.0"
+assert res[0]["count"] == 3
+assert res[0]["percentage"] == 50.0
+assert res[1]["bin"] == "50.0-100.0"
+assert res[1]["count"] == 3
+assert res[1]["percentage"] == 50.0
+"""
+            ),
+            TestCaseSchema(
+                name="test_empty_values_returns_empty",
+                description="Tests empty inputs gracefully return empty list",
+                test_code="""
+assert compute_histogram_bins([], [0.0, 10.0]) == []
+assert compute_histogram_bins([5.0], [0.0]) == []
+"""
+            )
+        ]
     )
 ]
 
