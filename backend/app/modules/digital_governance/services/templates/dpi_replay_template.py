@@ -1,4 +1,4 @@
-"""Digital Public Infrastructure (DPI) & API Setu Replay Defense Template (Module 4)."""
+"""Digital Public Infrastructure (DPI) & API Setu Replay Defense Template (Module 8)."""
 
 from pathlib import Path
 from typing import Dict, Any, List, Optional
@@ -14,7 +14,7 @@ class DpiReplayTemplate(BaseChallengeTemplate):
     """
     Template for Digital Public Infrastructure (India Stack / API Setu) Replay Attack Defense.
     Generates synthetic API gateway access telemetry with cryptographic nonce reuse,
-    timestamp skew anomalies, and rate-limiting enforcement.
+    timestamp skew anomalies, and rate-limiting enforcement with full Marimo console.
     """
 
     template_id = "dpi-apisetu-replay"
@@ -70,7 +70,7 @@ class DpiReplayTemplate(BaseChallengeTemplate):
         return [
             {
                 "id": 1,
-                "content": "Filter `apisetu_gateway_logs.json` for requests where the 'x-request-nonce' header appears more than once across distinct client IPs.",
+                "content": "Filter apisetu_gateway_logs.json for requests where 'x-request-nonce' appears more than once across distinct client IPs.",
                 "penalty": 15,
             },
             {
@@ -107,47 +107,61 @@ Your mandate:
         data_dir.mkdir(parents=True, exist_ok=True)
 
         flag = self.compute_flag(slots)
-        events = []
-        base_time = datetime.datetime(2026, 9, 12, 14, 0, 0, tzinfo=datetime.timezone.utc)
-
-        # Baseline legitimate traffic
-        for i in range(100):
-            ts = base_time + datetime.timedelta(seconds=i * 5)
-            unique_nonce = f"nonce_{hashlib.md5(f'legit-{i}'.encode()).hexdigest()[:16]}"
-            events.append({
-                "timestamp": ts.isoformat(),
-                "endpoint": slots["gateway_endpoint"],
-                "client_id": slots["legit_client_id"],
-                "client_ip": f"10.150.{i % 10}.{i % 40}",
-                "x-request-nonce": unique_nonce,
-                "status_code": 200,
-                "response_time_ms": 42 + (i % 10),
-            })
-
-        # Replay attack cluster using same replayed_nonce
+        endpoint = slots["gateway_endpoint"]
         replayed_nonce = slots["replayed_nonce"]
-        burst_time = base_time + datetime.timedelta(seconds=350)
-        prefix = slots["attacker_subnet"].split(".")[0]
+        subnet_prefix = slots["attacker_subnet"].rsplit(".", 2)[0]
 
-        for j in range(25):
-            ts = burst_time + datetime.timedelta(milliseconds=j * 150)
-            events.append({
+        logs = []
+        base_t = datetime.datetime(2026, 9, 12, 8, 0, 0, tzinfo=datetime.timezone.utc)
+
+        # 1. 80 normal transactions with unique nonces
+        for i in range(80):
+            ts = base_t + datetime.timedelta(seconds=i * 12)
+            n = f"nonce_{hashlib.sha256(f'legit_{i}'.encode()).hexdigest()[:16]}"
+            logs.append({
                 "timestamp": ts.isoformat(),
-                "endpoint": slots["gateway_endpoint"],
-                "client_id": slots["legit_client_id"],
-                "client_ip": f"{prefix}.100.{j % 5}.{j + 10}",
-                "x-request-nonce": replayed_nonce,
-                "status_code": 200 if j == 0 else 409,
-                "response_time_ms": 15,
-                "waf_mitigation_token": flag if j == 24 else None,
-                "error_detail": None if j == 0 else "NONCE_REUSE_DETECTED",
+                "endpoint": endpoint,
+                "method": "POST",
+                "client_ip": f"10.20.{random.randint(1, 10)}.{random.randint(10, 200)}",
+                "x_request_nonce": n,
+                "response_code": 200,
+                "status": "VALIDATED",
             })
 
-        events.sort(key=lambda x: x["timestamp"])
-        data_file = data_dir / "apisetu_gateway_logs.json"
-        data_file.write_text(json.dumps(events, indent=2), encoding="utf-8")
+        # 2. Replay attack: 1 initial legitimate request + 10 replayed duplicates
+        init_ts = base_t + datetime.timedelta(minutes=18)
+        logs.append({
+            "timestamp": init_ts.isoformat(),
+            "endpoint": endpoint,
+            "method": "POST",
+            "client_ip": "10.20.1.55",
+            "x_request_nonce": replayed_nonce,
+            "response_code": 200,
+            "status": "VALIDATED",
+        })
 
-        return {"apisetu_gateway_logs.json": data_file}
+        for j in range(10):
+            replay_ts = init_ts + datetime.timedelta(seconds=2 + j * 4)
+            is_target = (j == 3)
+            entry = {
+                "timestamp": replay_ts.isoformat(),
+                "endpoint": endpoint,
+                "method": "POST",
+                "client_ip": f"{subnet_prefix}.{random.randint(10, 240)}.{random.randint(2, 250)}",
+                "x_request_nonce": replayed_nonce,
+                "response_code": 403,
+                "status": "REJECTED_NONCE_REPLAY",
+            }
+            if is_target:
+                entry["waf_mitigation_token"] = flag
+            logs.append(entry)
+
+        logs.sort(key=lambda x: x["timestamp"])
+
+        log_file = data_dir / "apisetu_gateway_logs.json"
+        log_file.write_text(json.dumps(logs, indent=2), encoding="utf-8")
+
+        return {"apisetu_gateway_logs.json": log_file}
 
     def generate_notebook(self, slots: Dict[str, Any], output_dir: Path) -> Path:
         marimo_dir = output_dir / "marimo"
@@ -157,72 +171,294 @@ Your mandate:
         flag = self.compute_flag(slots)
         dynamic_hash = hashlib.sha256(flag.encode()).hexdigest()
 
-        code = f'''import marimo
+        code = _NOTEBOOK_TEMPLATE
+        code = code.replace("__APP_TITLE__", f"API Setu Replay Defense: {slots.get('incident_codename', 'Operation Setu')}")
+        code = code.replace("__INCIDENT_CODENAME__", slots.get('incident_codename', 'INC-0808-APISETU-REPLAY'))
+        code = code.replace("__GATEWAY_ENDPOINT__", slots.get('gateway_endpoint', '/api/v2/ekyc/verify-aadhaar-otp'))
+        code = code.replace("__REPLAYED_NONCE__", slots.get('replayed_nonce', 'nonce_abcd1234ef567890'))
+        code = code.replace("__ATTACKER_SUBNET__", slots.get('attacker_subnet', '185.120.44.0/24'))
+        code = code.replace("__TARGET_HASH__", dynamic_hash)
 
-__generated_with = "0.17.6"
-app = marimo.App(width="full", app_title="API Setu Security: {slots.get('incident_codename', 'Operation')}")
+        target_nb.write_text(code, encoding="utf-8")
+        return target_nb
+
+
+_NOTEBOOK_TEMPLATE = r'''import marimo
+
+__generated_with = "0.24.1"
+app = marimo.App(width="full", app_title="__APP_TITLE__")
 
 
 @app.cell(hide_code=True)
 def __():
-    import json
     import hashlib
+    import json
     from pathlib import Path
-    import pandas as pd
+    import re
     import marimo as mo
-    return Path, hashlib, json, mo, pd
+    import pandas as pd
+
+    return Path, hashlib, json, mo, pd, re
 
 
 @app.cell(hide_code=True)
 def __(Path, json, pd):
-    paths = [Path("data/apisetu_gateway_logs.json"), Path("../data/apisetu_gateway_logs.json")]
-    p = next((x for x in paths if x.exists()), None)
-    if p:
-        df = pd.DataFrame(json.loads(p.read_text()))
-    else:
-        df = pd.DataFrame()
-    return df, p
+    possible_paths = [
+        Path("data/apisetu_gateway_logs.json"),
+        Path("../data/apisetu_gateway_logs.json"),
+        Path("/workspace/data/apisetu_gateway_logs.json"),
+    ]
+    if "__file__" in globals():
+        possible_paths.insert(0, Path(__file__).resolve().parent.parent / "data" / "apisetu_gateway_logs.json")
+
+    p = next((x for x in possible_paths if x.exists()), None)
+    logs = json.loads(p.read_text()) if p else []
+    df = pd.DataFrame(logs) if logs else pd.DataFrame()
+
+    total_reqs = len(df)
+    valid_reqs = len(df[df["status"] == "VALIDATED"]) if not df.empty and "status" in df.columns else 0
+    replay_reqs = len(df[df["status"] == "REJECTED_NONCE_REPLAY"]) if not df.empty and "status" in df.columns else 0
+
+    return df, logs, p, replay_reqs, total_reqs, valid_reqs
 
 
-@app.cell
+@app.cell(hide_code=True)
+def __(mo):
+    # Sidebar
+    check_nonce = mo.ui.checkbox(label="1. Group requests by x-request-nonce", value=False)
+    check_collision = mo.ui.checkbox(label="2. Detect cryptographic nonce collision", value=False)
+    check_subnet = mo.ui.checkbox(label="3. Trace botnet source IP cluster", value=False)
+    check_spec = mo.ui.checkbox(label="4. Affirm India Stack mTLS & HMAC requirements", value=False)
+    check_flag = mo.ui.checkbox(label="5. Extract WAF defense mitigation token", value=False)
+
+    sidebar_content = mo.vstack(
+        [
+            mo.md("## 🇮🇳 API Setu DPI Defense Console"),
+            mo.md("**Incident ID**: `__INCIDENT_CODENAME__`"),
+            mo.md("**Endpoint**: `__GATEWAY_ENDPOINT__`"),
+            mo.md("**Target Nonce**: `__REPLAYED_NONCE__`"),
+            mo.md("**Botnet Subnet**: `__ATTACKER_SUBNET__`"),
+            mo.md("---"),
+            mo.md("### 🎯 Investigation Checklist"),
+            check_nonce,
+            check_collision,
+            check_subnet,
+            check_spec,
+            check_flag,
+            mo.md("---"),
+            mo.md("### 📜 India Stack Specifications"),
+            mo.md(
+                "- **API Setu Guideline 3.4**: Nonce uniqueness TTL = 300s\n"
+                "- **mTLS & HMAC-SHA256**: Payload integrity assurance\n"
+                "- **DPDP Act 2023**: Protection of citizen identity tokens"
+            ),
+        ]
+    )
+    mo.sidebar(sidebar_content)
+    return (
+        check_collision,
+        check_flag,
+        check_nonce,
+        check_spec,
+        check_subnet,
+        sidebar_content,
+    )
+
+
+@app.cell(hide_code=True)
+def __(mo, replay_reqs, total_reqs, valid_reqs):
+    # Tab 1: Scope
+    tab1_view = mo.vstack(
+        [
+            mo.md("""
+            # 🇮🇳 API Setu Security: __INCIDENT_CODENAME__
+            ### Digital Public Infrastructure (DPI) Replay Attack Defense & Nonce Audit
+            """),
+            mo.callout(
+                mo.md(
+                    "**DPI WAF Alert**: The national API gateway serving `__GATEWAY_ENDPOINT__` detected high-frequency requests duplicating an identical cryptographic nonce (`__REPLAYED_NONCE__`) originating from foreign botnet subnet `__ATTACKER_SUBNET__`. Inspect gateway access logs, identify the replay mechanism, and recover the WAF cryptographic defense token."
+                ),
+                kind="warn",
+            ),
+            mo.hstack(
+                [
+                    mo.stat(
+                        value=f"{total_reqs}",
+                        label="Gateway API Requests",
+                        caption="Ingested Gateway Window",
+                        bordered=True,
+                    ),
+                    mo.stat(
+                        value=f"{valid_reqs}",
+                        label="Valid Transactions",
+                        caption="Unique Nonces Authenticated",
+                        bordered=True,
+                    ),
+                    mo.stat(
+                        value=f"{replay_reqs}",
+                        label="Blocked Replays",
+                        caption="Rejected with 403 Forbidden",
+                        direction="increase",
+                        bordered=True,
+                    ),
+                    mo.stat(
+                        value="CONTAINED",
+                        label="WAF Defense Status",
+                        caption="Nonce Cache Enforced",
+                        bordered=True,
+                    ),
+                ],
+                justify="start",
+                gap=1,
+            ),
+        ]
+    )
+    return (tab1_view,)
+
+
+@app.cell(hide_code=True)
 def __(df, mo):
-    mo.md(f"""
-    # ⚡ API Setu Gateway Telemetry: {slots.get('incident_codename', 'Analysis')}
-    Endpoint: **{slots.get('gateway_endpoint', 'N/A')}** | Client: **{slots.get('legit_client_id', 'N/A')}**
-    """)
-    return
+    # Tab 2: Gateway Log Explorer
+    status_select = mo.ui.dropdown(
+        options=["ALL", "VALIDATED", "REJECTED_NONCE_REPLAY"],
+        value="ALL",
+        label="Filter Status:",
+    )
+    return (status_select,)
 
 
-@app.cell
-def __(df):
-    # Analyze duplicate nonces
-    dup_nonces = df.groupby("x-request-nonce").size().reset_index(name="count")
-    dup_nonces.sort_values(by="count", ascending=False).head(5)
-    return dup_nonces,
+@app.cell(hide_code=True)
+def __(df, mo, status_select):
+    filtered = df.copy() if not df.empty else df
+    if not filtered.empty and status_select.value != "ALL":
+        filtered = filtered[filtered["status"] == status_select.value]
+
+    table = mo.ui.table(
+        filtered[["timestamp", "endpoint", "client_ip", "x_request_nonce", "response_code", "status"]]
+        if not filtered.empty and "endpoint" in filtered.columns else filtered,
+        selection=None,
+        pagination=True,
+        page_size=8,
+    )
+
+    tab2_view = mo.vstack(
+        [
+            mo.md("## 🔍 API Setu Access Gateway Log Explorer (`apisetu_gateway_logs.json`)"),
+            status_select,
+            table,
+        ]
+    )
+    return filtered, table, tab2_view
 
 
-@app.cell
-def __(hashlib, mo):
-    target_hash = "{dynamic_hash}"
-    flag_input = mo.ui.text(placeholder="Enter flag e.g. FLAG{{...}}", label="Submit Verified Flag")
-    return flag_input, target_hash
+@app.cell(hide_code=True)
+def __(df, mo):
+    # Tab 3: Nonce Collision
+    replays = df[df["status"] == "REJECTED_NONCE_REPLAY"] if not df.empty and "status" in df.columns else df
+    r_table = mo.ui.table(replays, selection=None, pagination=True, page_size=6) if not replays.empty else mo.md("No replays found.")
+
+    tab3_view = mo.vstack(
+        [
+            mo.md("## ⚡ Cryptographic Nonce Collision Analysis"),
+            mo.callout(
+                mo.md(
+                    "**Replay Attack Signature**:\n\n"
+                    "- **Replayed Nonce**: `__REPLAYED_NONCE__`\n"
+                    "- **Target Endpoint**: `__GATEWAY_ENDPOINT__`\n"
+                    "- **Botnet Subnet Cluster**: `__ATTACKER_SUBNET__`\n"
+                    "- **Defense Mechanism**: Centralized in-memory nonce cache with sliding TTL window (300 seconds) prevents multiple execution of signed payloads."
+                ),
+                kind="danger",
+            ),
+            r_table,
+        ]
+    )
+    return r_table, replays, tab3_view
 
 
-@app.cell
-def __(flag_input, hashlib, mo, target_hash):
-    user_flag = flag_input.value.strip()
-    if not user_flag:
-        result = mo.md("*(Enter flag above to verify solution)*")
-    elif hashlib.sha256(user_flag.encode()).hexdigest() == target_hash:
-        result = mo.md("### 🎯 FLAG ACCEPTED! Replay vulnerability resolved with cryptographic nonce validation.")
+@app.cell(hide_code=True)
+def __(mo):
+    # Tab 4: Flag Input Control
+    candidate_flag = mo.ui.text(
+        placeholder="FLAG{...}",
+        label="Enter WAF Mitigation Defense Token to Verify:",
+    )
+    return (candidate_flag,)
+
+
+@app.cell(hide_code=True)
+def __(candidate_flag, hashlib, mo, re):
+    val = candidate_flag.value.strip()
+    target_hash = "__TARGET_HASH__"
+
+    if not val:
+        flag_feedback = mo.md("Enter the waf_mitigation_token logged in the rejected replay records.")
+        cert_view = mo.md("🔒 *National DPI Security Clearance Certificate locked until valid flag verified.*")
+    elif hashlib.sha256(val.encode()).hexdigest() == target_hash:
+        flag_feedback = mo.callout(
+            mo.md("🎉 **WAF DEFENSE TOKEN VERIFIED!**\n\nSubmit this flag in the left CyberLab portal pane to claim 175 points and DPI Security competency!"),
+            kind="success",
+        )
+        cert_view = mo.vstack(
+            [
+                mo.md("### 🏛️ National Critical DPI Hardening Certification:"),
+                mo.md("""
+                | Defense Parameter | Hardening Status |
+                | :--- | :--- |
+                | **Nonce Validation Engine** | Active — Strict one-time-use validation verified |
+                | **Replay Defense** | 100% of malicious duplicate requests dropped |
+                | **India Stack Compliance** | **CERTIFIED** — Full conformance with UIDAI & API Setu specifications |
+                """),
+            ]
+        )
+    elif re.match(r"^FLAG\{.*\}$", val):
+        flag_feedback = mo.callout(mo.md("❌ Incorrect token. Inspect the `waf_mitigation_token` in the Nonce Collision tab."), kind="danger")
+        cert_view = mo.md("🔒 *Locked.*")
     else:
-        result = mo.md("### ❌ INCORRECT FLAG. Locate the waf_mitigation_token in the replay cluster.")
-    mo.vstack([flag_input, result])
-    return result, user_flag
+        flag_feedback = mo.callout(mo.md("⚠️ Format must begin with `FLAG{` and end with `}`."), kind="warn")
+        cert_view = mo.md("🔒 *Locked.*")
+
+    tab4_view = mo.vstack(
+        [
+            mo.md("## 🏁 DPI Hardening & Incident Closure"),
+            candidate_flag,
+            flag_feedback,
+            mo.md("---"),
+            cert_view,
+        ]
+    )
+    return cert_view, flag_feedback, tab4_view, target_hash, val
+
+
+@app.cell
+def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view):
+    styles = mo.Html("""
+    <style>
+    [data-testid="chrome-sidebar"], #app-chrome-sidebar, #app-chrome-panel, .resize-handle { display: none !important; }
+    [data-testid="drag-button"], [data-testid="cell-actions-button"], [data-testid="create-cell-button"], [data-testid="run-button"], [data-testid="hide-code-button"], [data-testid="fullscreen-output-button"], [data-testid="expand-output-button"], .hover-actions-parent > .hover-action, .shoulder-right, .cell-actions, .cell-actions-button, .cell-bottom-menu, .add-cell-button { display: none !important; }
+    [data-testid="filename-input"], [data-testid="chrome-controls-top-right"], [data-testid="chrome-controls-bottom-right"], [data-testid="chrome-footer"], [data-testid="footer-panel"] { display: none !important; }
+    .marimo-cell:not(:has(.cyberlab-topbar)) { display: none !important; }
+    .marimo-cell .cm-editor, .marimo-cell .cm-scroller, .marimo-cell .cell-editor, [data-testid="cell-editor"] { display: none !important; height: 0 !important; overflow: hidden !important; }
+    .marimo-cell:has(.cyberlab-topbar) { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 4px !important; }
+    #App, main, #app-chrome-body, [data-testid="column-container"] { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    .cyberlab-topbar { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 16px; margin-bottom: 10px; }
+    .cyberlab-topbar .title { font-size: 13px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
+    </style>
+    """)
+    header = mo.Html('<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>')
+    console = mo.ui.tabs(
+        {
+            "📋 DPI Scope": tab1_view,
+            "🔍 Gateway Logs": tab2_view,
+            "⚡ Nonce Collision": tab3_view,
+            "🏁 Verify & Certify": tab4_view,
+        }
+    )
+    workspace = mo.vstack([styles, header, console])
+    workspace
+    return console, header, styles, workspace
 
 
 if __name__ == "__main__":
     app.run()
 '''
-        target_nb.write_text(code, encoding="utf-8")
-        return target_nb

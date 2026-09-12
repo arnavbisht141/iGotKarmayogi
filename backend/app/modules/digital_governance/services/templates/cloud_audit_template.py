@@ -1,4 +1,4 @@
-"""Government Cloud (MeghRaj / GI Cloud) & STQC Audit Template (Module 3)."""
+"""Government Cloud (MeghRaj / GI Cloud) & STQC Audit Template (Module 7)."""
 
 from pathlib import Path
 from typing import Dict, Any, List, Optional
@@ -14,7 +14,7 @@ class CloudAuditTemplate(BaseChallengeTemplate):
     """
     Template for Government Community Cloud (MeghRaj) & STQC Audit Analysis.
     Generates synthetic cloud access logs, cross-border egress anomalies,
-    and MeitY empanelment non-compliance indicators.
+    and MeitY empanelment non-compliance indicators with full Marimo console.
     """
 
     template_id = "cloud-meghraj-audit"
@@ -67,7 +67,7 @@ class CloudAuditTemplate(BaseChallengeTemplate):
         return [
             {
                 "id": 1,
-                "content": "Filter `cloud_audit_events.json` for records where 'region' does NOT start with 'meghraj-'. MeitY guidelines restrict all citizen data workloads to empaneled domestic regions.",
+                "content": "Filter cloud_audit_events.json for records where 'region' does not start with 'meghraj-'. MeitY guidelines mandate strict domestic data residency.",
                 "penalty": 15,
             },
             {
@@ -104,42 +104,49 @@ Your mandate:
         data_dir.mkdir(parents=True, exist_ok=True)
 
         flag = self.compute_flag(slots)
-        events = []
-        base_time = datetime.datetime(2026, 9, 12, 10, 0, 0, tzinfo=datetime.timezone.utc)
+        unauth_reg = slots["unauthorized_region"]
+        egress_ip = slots["egress_ip"]
+        b_name = slots["bucket_name"]
 
-        # Baseline compliant logs in domestic MeghRaj
-        for i in range(80):
-            ts = base_time + datetime.timedelta(minutes=i)
+        events = []
+        base_t = datetime.datetime(2026, 9, 12, 6, 0, 0, tzinfo=datetime.timezone.utc)
+
+        # 60 legitimate MeghRaj in-country API events
+        for i in range(60):
+            ts = base_t + datetime.timedelta(minutes=i * 2)
             events.append({
                 "timestamp": ts.isoformat(),
-                "event_source": "s3.meghraj.gov.in",
-                "event_name": "GetObject",
-                "region": "meghraj-delhi-dc1" if i % 2 == 0 else "meghraj-hyderabad-dc2",
-                "source_ip": f"10.244.{i % 10}.{i % 50}",
-                "user_identity": "arn:meghraj:iam::gov:role/PortalAppRole",
-                "bucket": f"meghraj-{slots['department']}-prod",
-                "status": "COMPLIANT_DOMESTIC",
+                "event_name": random.choice(["GetObject", "PutObject", "ListBucket", "DescribeInstances"]),
+                "region": random.choice(["meghraj-delhi-dc1", "meghraj-hyderabad-dc2"]),
+                "source_ip": f"10.150.2.{random.randint(10, 80)}",
+                "user_identity": "arn:nic:iam::998877:user/app_sync_service",
+                "resource_name": f"meghraj-{slots['department']}-store",
+                "status": "SUCCESS",
+                "compliance_status": "COMPLIANT_IN_COUNTRY",
             })
 
-        # Non-compliant foreign deployment event
-        breach_ts = base_time + datetime.timedelta(minutes=42)
-        events.append({
-            "timestamp": breach_ts.isoformat(),
-            "event_source": "s3.amazonaws.com",
-            "event_name": "PutBucketPolicy",
-            "region": slots["unauthorized_region"],
-            "source_ip": slots["egress_ip"],
-            "user_identity": "arn:aws:iam::thirdparty:user/devops_contractor",
-            "bucket": slots["bucket_name"],
-            "status": "NON_COMPLIANT_CROSS_BORDER",
-            "response_elements": {"stqc_audit_token": flag, "remediation": "ENFORCE_DATA_LOCALIZATION_DPDP_SEC_8"},
-        })
+        # 8 non-compliant foreign replication events
+        for j in range(8):
+            ts = base_t + datetime.timedelta(minutes=15 + j * 3)
+            is_target = (j == 4)
+            events.append({
+                "timestamp": ts.isoformat(),
+                "event_name": "ReplicateBucketMetadata" if not is_target else "ExportSovereignArchive",
+                "region": unauth_reg,
+                "source_ip": egress_ip,
+                "user_identity": "arn:cloud:iam::unauth-contractor",
+                "resource_name": b_name,
+                "status": "SUCCESS",
+                "compliance_status": "VIOLATION_CROSS_BORDER_TRANSFER",
+                "response_elements": {"stqc_remediation_token": flag} if is_target else {"status": "replicated"},
+            })
 
         events.sort(key=lambda x: x["timestamp"])
-        data_file = data_dir / "cloud_audit_events.json"
-        data_file.write_text(json.dumps(events, indent=2), encoding="utf-8")
 
-        return {"cloud_audit_events.json": data_file}
+        audit_file = data_dir / "cloud_audit_events.json"
+        audit_file.write_text(json.dumps(events, indent=2), encoding="utf-8")
+
+        return {"cloud_audit_events.json": audit_file}
 
     def generate_notebook(self, slots: Dict[str, Any], output_dir: Path) -> Path:
         marimo_dir = output_dir / "marimo"
@@ -149,72 +156,295 @@ Your mandate:
         flag = self.compute_flag(slots)
         dynamic_hash = hashlib.sha256(flag.encode()).hexdigest()
 
-        code = f'''import marimo
+        code = _NOTEBOOK_TEMPLATE
+        code = code.replace("__APP_TITLE__", f"MeghRaj Cloud Audit: {slots.get('incident_codename', 'Operation Megh')}")
+        code = code.replace("__INCIDENT_CODENAME__", slots.get('incident_codename', 'INC-0707-MEGHRAJ-AUDIT'))
+        code = code.replace("__DEPARTMENT__", slots.get('department', 'state-transport'))
+        code = code.replace("__BUCKET_NAME__", slots.get('bucket_name', 'meghraj-vault-01'))
+        code = code.replace("__UNAUTHORIZED_REGION__", slots.get('unauthorized_region', 'unapproved-us-east-1'))
+        code = code.replace("__EGRESS_IP__", slots.get('egress_ip', '54.210.10.4'))
+        code = code.replace("__TARGET_HASH__", dynamic_hash)
 
-__generated_with = "0.17.6"
-app = marimo.App(width="full", app_title="MeghRaj Cloud Audit: {slots.get('incident_codename', 'Operation')}")
+        target_nb.write_text(code, encoding="utf-8")
+        return target_nb
+
+
+_NOTEBOOK_TEMPLATE = r'''import marimo
+
+__generated_with = "0.24.1"
+app = marimo.App(width="full", app_title="__APP_TITLE__")
 
 
 @app.cell(hide_code=True)
 def __():
-    import json
     import hashlib
+    import json
     from pathlib import Path
-    import pandas as pd
+    import re
     import marimo as mo
-    return Path, hashlib, json, mo, pd
+    import pandas as pd
+
+    return Path, hashlib, json, mo, pd, re
 
 
 @app.cell(hide_code=True)
 def __(Path, json, pd):
-    paths = [Path("data/cloud_audit_events.json"), Path("../data/cloud_audit_events.json")]
-    p = next((x for x in paths if x.exists()), None)
-    if p:
-        df = pd.DataFrame(json.loads(p.read_text()))
-    else:
-        df = pd.DataFrame()
-    return df, p
+    possible_paths = [
+        Path("data/cloud_audit_events.json"),
+        Path("../data/cloud_audit_events.json"),
+        Path("/workspace/data/cloud_audit_events.json"),
+    ]
+    if "__file__" in globals():
+        possible_paths.insert(0, Path(__file__).resolve().parent.parent / "data" / "cloud_audit_events.json")
+
+    p = next((x for x in possible_paths if x.exists()), None)
+    events = json.loads(p.read_text()) if p else []
+    df = pd.DataFrame(events) if events else pd.DataFrame()
+
+    total_events = len(df)
+    domestic_events = len(df[df["compliance_status"] == "COMPLIANT_IN_COUNTRY"]) if not df.empty else 0
+    violation_events = len(df[df["compliance_status"] == "VIOLATION_CROSS_BORDER_TRANSFER"]) if not df.empty else 0
+
+    return df, domestic_events, events, p, total_events, violation_events
 
 
-@app.cell
+@app.cell(hide_code=True)
+def __(mo):
+    # Sidebar
+    check_region = mo.ui.checkbox(label="1. Filter for unapproved overseas regions", value=False)
+    check_bucket = mo.ui.checkbox(label="2. Isolate misconfigured S3 bucket", value=False)
+    check_egress = mo.ui.checkbox(label="3. Trace foreign egress IP endpoint", value=False)
+    check_stqc = mo.ui.checkbox(label="4. Affirm MeitY MeghRaj localization directive", value=False)
+    check_flag = mo.ui.checkbox(label="5. Extract STQC remediation compliance token", value=False)
+
+    sidebar_content = mo.vstack(
+        [
+            mo.md("## ☁️ MeghRaj Cloud Audit Console"),
+            mo.md("**Incident ID**: `__INCIDENT_CODENAME__`"),
+            mo.md("**Department**: `__DEPARTMENT__`"),
+            mo.md("**Bucket Target**: `__BUCKET_NAME__`"),
+            mo.md("**Non-Empaneled Region**: `__UNAUTHORIZED_REGION__`"),
+            mo.md("---"),
+            mo.md("### 🎯 Audit Checklist"),
+            check_region,
+            check_bucket,
+            check_egress,
+            check_stqc,
+            check_flag,
+            mo.md("---"),
+            mo.md("### 📜 MeitY Directives"),
+            mo.md(
+                "- **GI Cloud (MeghRaj)**: Empaneled Community Cloud Services\n"
+                "- **STQC Guidelines**: Annual Cloud Security Compliance & Audit\n"
+                "- **Data Localization Mandate**: 100% Indian Jurisdiction Residency"
+            ),
+        ]
+    )
+    mo.sidebar(sidebar_content)
+    return (
+        check_bucket,
+        check_egress,
+        check_flag,
+        check_region,
+        check_stqc,
+        sidebar_content,
+    )
+
+
+@app.cell(hide_code=True)
+def __(domestic_events, mo, total_events, violation_events):
+    # Tab 1: Scope
+    tab1_view = mo.vstack(
+        [
+            mo.md("""
+            # ☁️ MeghRaj Cloud Audit: __INCIDENT_CODENAME__
+            ### GI Cloud Sovereignty & Multi-Tenant Isolation Forensics
+            """),
+            mo.callout(
+                mo.md(
+                    "**STQC Regulatory Notice**: An automated security scan flagged unexpected outbound telemetry and object replication targeting non-empaneled region `__UNAUTHORIZED_REGION__` involving bucket `__BUCKET_NAME__`. Under MeitY policy, all government citizen data must reside exclusively within the territory of India in MeghRaj empaneled data centres."
+                ),
+                kind="warn",
+            ),
+            mo.hstack(
+                [
+                    mo.stat(
+                        value=f"{total_events}",
+                        label="Total Cloud Events",
+                        caption="Audited API Window",
+                        bordered=True,
+                    ),
+                    mo.stat(
+                        value=f"{domestic_events}",
+                        label="Empaneled Domestic Events",
+                        caption="Delhi / Hyderabad GCC",
+                        bordered=True,
+                    ),
+                    mo.stat(
+                        value=f"{violation_events}",
+                        label="Cross-Border Violations",
+                        caption="__UNAUTHORIZED_REGION__",
+                        direction="increase",
+                        bordered=True,
+                    ),
+                    mo.stat(
+                        value="NON-COMPLIANT",
+                        label="STQC Status",
+                        caption="Immediate Containment Required",
+                        bordered=True,
+                    ),
+                ],
+                justify="start",
+                gap=1,
+            ),
+        ]
+    )
+    return (tab1_view,)
+
+
+@app.cell(hide_code=True)
 def __(df, mo):
-    mo.md(f"""
-    # ☁️ MeghRaj Cloud Audit: {slots.get('incident_codename', 'Audit')}
-    Department: **{slots.get('department', 'N/A')}** | Non-Compliant Region: **{slots.get('unauthorized_region', 'N/A')}**
-    """)
-    return
+    # Tab 2: Telemetry Explorer
+    region_filter = mo.ui.dropdown(
+        options=["ALL", "meghraj-delhi-dc1", "meghraj-hyderabad-dc2", "__UNAUTHORIZED_REGION__"],
+        value="ALL",
+        label="Filter Cloud Region:",
+    )
+    return (region_filter,)
 
 
-@app.cell
-def __(df):
-    # Filter for non-domestic regions
-    non_domestic = df[~df["region"].str.startswith("meghraj-", na=False)]
-    non_domestic
-    return non_domestic,
+@app.cell(hide_code=True)
+def __(df, mo, region_filter):
+    filtered = df.copy() if not df.empty else df
+    if not filtered.empty and region_filter.value != "ALL":
+        filtered = filtered[filtered["region"] == region_filter.value]
+
+    table = mo.ui.table(
+        filtered[["timestamp", "event_name", "region", "source_ip", "resource_name", "compliance_status"]]
+        if not filtered.empty and "region" in filtered.columns else filtered,
+        selection=None,
+        pagination=True,
+        page_size=8,
+    )
+
+    tab2_view = mo.vstack(
+        [
+            mo.md("## 🔍 CloudTrail Audit Event Stream (`cloud_audit_events.json`)"),
+            region_filter,
+            table,
+        ]
+    )
+    return filtered, table, tab2_view
 
 
-@app.cell
-def __(hashlib, mo):
-    target_hash = "{dynamic_hash}"
-    flag_input = mo.ui.text(placeholder="Enter flag e.g. FLAG{{...}}", label="Submit Verified Flag")
-    return flag_input, target_hash
+@app.cell(hide_code=True)
+def __(df, mo):
+    # Tab 3: Violation Analysis
+    violations = df[df["compliance_status"] == "VIOLATION_CROSS_BORDER_TRANSFER"] if not df.empty and "compliance_status" in df.columns else df
+    v_table = mo.ui.table(violations, selection=None, pagination=True, page_size=6) if not violations.empty else mo.md("No violations.")
+
+    tab3_view = mo.vstack(
+        [
+            mo.md("## 🚨 Cross-Border Sovereign Data Violations"),
+            mo.callout(
+                mo.md(
+                    "**Unempaneled Replicas Detected**:\n\n"
+                    "- **Target Region**: `__UNAUTHORIZED_REGION__`\n"
+                    "- **Egress Destination IP**: `__EGRESS_IP__`\n"
+                    "- **Misconfigured Resource**: `__BUCKET_NAME__`\n"
+                    "- **Remediation Action**: Revoke foreign replication role and enforce SCP (Service Control Policy) geo-fencing."
+                ),
+                kind="danger",
+            ),
+            v_table,
+        ]
+    )
+    return tab3_view, v_table, violations
 
 
-@app.cell
-def __(flag_input, hashlib, mo, target_hash):
-    user_flag = flag_input.value.strip()
-    if not user_flag:
-        result = mo.md("*(Enter flag above to verify solution)*")
-    elif hashlib.sha256(user_flag.encode()).hexdigest() == target_hash:
-        result = mo.md("### 🎯 FLAG ACCEPTED! Sovereign data boundaries restored.")
+@app.cell(hide_code=True)
+def __(mo):
+    # Tab 4: Flag input
+    candidate_flag = mo.ui.text(
+        placeholder="FLAG{...}",
+        label="Enter STQC Remediation Token to Certify Sovereign Clearance:",
+    )
+    return (candidate_flag,)
+
+
+@app.cell(hide_code=True)
+def __(candidate_flag, hashlib, mo, re):
+    val = candidate_flag.value.strip()
+    target_hash = "__TARGET_HASH__"
+
+    if not val:
+        flag_feedback = mo.md("Enter the stqc_remediation_token found in the violation event response elements.")
+        clearance_view = mo.md("🔒 *STQC Sovereign Cloud Clearance locked until valid token is verified.*")
+    elif hashlib.sha256(val.encode()).hexdigest() == target_hash:
+        flag_feedback = mo.callout(
+            mo.md("🎉 **STQC AUDIT TOKEN CONFIRMED!**\n\nSubmit this flag in the left CyberLab portal pane to claim 125 points and Cloud Security competency!"),
+            kind="success",
+        )
+        clearance_view = mo.vstack(
+            [
+                mo.md("### 📋 STQC Sovereign Cloud Clearance Report:"),
+                mo.md("""
+                | Audit Requirement | Finding & Remediation Status |
+                | :--- | :--- |
+                | **Data Residency** | Overseas replication terminated — 100% domestic MeghRaj enforced |
+                | **Empanelment Verification** | Non-compliant cloud region blocked via organization SCP |
+                | **Sovereign Clearance** | **APPROVED** — MeitY GI Cloud Guidelines Section 4.2 |
+                """),
+            ]
+        )
+    elif re.match(r"^FLAG\{.*\}$", val):
+        flag_feedback = mo.callout(mo.md("❌ Incorrect token. Inspect the `response_elements` in the non-compliant region logs."), kind="danger")
+        clearance_view = mo.md("🔒 *Locked.*")
     else:
-        result = mo.md("### ❌ INCORRECT FLAG. Inspect the STQC audit token in response_elements.")
-    mo.vstack([flag_input, result])
-    return result, user_flag
+        flag_feedback = mo.callout(mo.md("⚠️ Format must begin with `FLAG{` and end with `}`."), kind="warn")
+        clearance_view = mo.md("🔒 *Locked.*")
+
+    tab4_view = mo.vstack(
+        [
+            mo.md("## 🏁 Sovereign Cloud Remediation & STQC Clearance"),
+            candidate_flag,
+            flag_feedback,
+            mo.md("---"),
+            clearance_view,
+        ]
+    )
+    return clearance_view, flag_feedback, tab4_view, target_hash, val
+
+
+@app.cell
+def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view):
+    styles = mo.Html("""
+    <style>
+    [data-testid="chrome-sidebar"], #app-chrome-sidebar, #app-chrome-panel, .resize-handle { display: none !important; }
+    [data-testid="drag-button"], [data-testid="cell-actions-button"], [data-testid="create-cell-button"], [data-testid="run-button"], [data-testid="hide-code-button"], [data-testid="fullscreen-output-button"], [data-testid="expand-output-button"], .hover-actions-parent > .hover-action, .shoulder-right, .cell-actions, .cell-actions-button, .cell-bottom-menu, .add-cell-button { display: none !important; }
+    [data-testid="filename-input"], [data-testid="chrome-controls-top-right"], [data-testid="chrome-controls-bottom-right"], [data-testid="chrome-footer"], [data-testid="footer-panel"] { display: none !important; }
+    .marimo-cell:not(:has(.cyberlab-topbar)) { display: none !important; }
+    .marimo-cell .cm-editor, .marimo-cell .cm-scroller, .marimo-cell .cell-editor, [data-testid="cell-editor"] { display: none !important; height: 0 !important; overflow: hidden !important; }
+    .marimo-cell:has(.cyberlab-topbar) { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 4px !important; }
+    #App, main, #app-chrome-body, [data-testid="column-container"] { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    .cyberlab-topbar { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 16px; margin-bottom: 10px; }
+    .cyberlab-topbar .title { font-size: 13px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
+    </style>
+    """)
+    header = mo.Html('<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>')
+    console = mo.ui.tabs(
+        {
+            "📋 Audit Scope": tab1_view,
+            "🔍 CloudTrail Stream": tab2_view,
+            "🚨 Cross-Border Violations": tab3_view,
+            "🏁 Verify & STQC Clearance": tab4_view,
+        }
+    )
+    workspace = mo.vstack([styles, header, console])
+    workspace
+    return console, header, styles, workspace
 
 
 if __name__ == "__main__":
     app.run()
 '''
-        target_nb.write_text(code, encoding="utf-8")
-        return target_nb

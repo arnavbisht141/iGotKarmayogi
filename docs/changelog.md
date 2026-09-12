@@ -26,6 +26,37 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-13] - Restoration of Complete 400-760 Line Interactive Marimo Notebooks & Governance Elevation
+
+- **Author**: Diwakar Ujjwal (@diwakarujjwal)
+- **Scope**: `[backend]` `[sandbox]` `[marimo]` `[ctf]` `[sqlalchemy]` `[docs]`
+- **Branch**: `cgp/digital-governance`
+- **Description**:
+  - Restored the complete, full-depth 400–760 line interactive Marimo challenge notebooks from the reference repository into procedural templates, replacing legacy stubs with full reactive analyst workbenches:
+    1. **`01-soc-auth-investigation` (764 lines)**: Sidebar checklist (`mo.sidebar`), stat KPIs (`mo.stat`), filterable telemetry table with JSON export, reactive Python analytics scratchpad, anomaly failure threshold slider, chronological attack timeline, confirmed breach callout, and Living-off-the-Land (LOLBin) command cards.
+    2. **`02-phishing-dfir` (679 lines)**: Sidebar checklist, RFC 822 `.eml` parser & download, attachment carving & MD5/SHA-256 metadata, decompiled VBA macro preview, live Python deobfuscator, manual Base64 decoder widget, and correlated host DNS telemetry table with C2 beacon alert.
+    3. **`03-compromised-linux-server` (488 lines)**: Sidebar checklist, GTFOBins sudo find escalation pattern detector, `/var/log/auth.log` triage table, `/etc/cron.d/` scheduled persistence hunter, `.sync.sh` reverse shell reverse engineering, and IR remediation checklist.
+    4. **`04-vulnerable-web-app` (415 lines)**: Sidebar checklist, OWASP A03 mapping, interactive SQL injection workbench with methodology presets and live SQLite execution, executed SQL display, query status badge, and parameterized remediation comparison.
+    5. **`05-threat-hunting-lotl` (485 lines)**: Sidebar checklist, Sysmon process telemetry audit with rogue non-System32 `svchost.exe` detection, Shannon entropy ($H$) & query length sliders, high-entropy DNS hunt table, and Base64 subdomain chunk decoder widget.
+  - Elevated the 3 Digital Governance domain challenges to matching CyberLab standard:
+    6. **`06-pki-token-dispute` (277 lines)**: High-Value GeM Tender Dispute with Sidebar checklist, GeM bid submission TSA metadata, CA CRL revocation list explorer, IT Act Section 3A legal non-repudiation timeline analysis, and Indian Evidence Act Section 65B Certificate unlock.
+    7. **`07-meghraj-cloud-audit` (278 lines)**: MeghRaj Sovereign Cloud Audit with Sidebar checklist, CloudTrail audit stream with region filter, cross-border data residency violation detector, S3 sovereign replication audit, and STQC Sovereign Cloud Clearance Report unlock.
+    8. **`08-dpi-apisetu-replay` (278 lines)**: API Setu Replay Defense with Sidebar checklist, India Stack access gateway log explorer, cryptographic nonce collision analyzer, botnet subnet cluster detection, WAF sliding TTL replay protection, and National DPI Hardening Certification unlock.
+  - Re-seeded both `backend/karmayogi.db` and root `karmayogi.db` with full notebook code in `cyber_sandbox_challenges.notebook_code` and `cyber_sandbox_templates`.
+  - Static validation: All 8 challenge notebooks passed `marimo check` with returncode 0.
+  - Test suite: All 15 backend unit tests pass.
+- **Affected Files / Routes**:
+  - `backend/app/modules/digital_governance/services/templates/soc_auth_template.py`
+  - `backend/app/modules/digital_governance/services/templates/phishing_dfir_template.py`
+  - `backend/app/modules/digital_governance/services/templates/linux_forensics_template.py`
+  - `backend/app/modules/digital_governance/services/templates/web_sqli_template.py`
+  - `backend/app/modules/digital_governance/services/templates/threat_hunting_lotl_template.py`
+  - `backend/app/modules/digital_governance/services/templates/pki_defense_template.py`
+  - `backend/app/modules/digital_governance/services/templates/cloud_audit_template.py`
+  - `backend/app/modules/digital_governance/services/templates/dpi_replay_template.py`
+  - `backend/requirements.txt`
+  - `docs/changelog.md`
+
 ### [2026-09-13] - Upgraded 8-Sandbox Suite, SQLAlchemy Persistence & Supabase Integration (Milestone 3)
 
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)

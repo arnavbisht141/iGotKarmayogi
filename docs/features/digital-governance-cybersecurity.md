@@ -122,30 +122,38 @@ flowchart TD
 
 ### 4.3 Full Catalog of 8 Procedural Challenge Templates (`services/templates/`)
 
-All 8 challenges are stored with full evidence telemetry and interactive Marimo notebooks in the database:
+All 8 challenges are stored with full evidence telemetry and complete 270–764 line interactive Marimo analyst notebooks in the database (`cyber_sandbox_challenges.notebook_code` and `cyber_sandbox_templates`):
 
-1. **Module 1 (`01-soc-auth-investigation`)**: _Operation NightShift_ (SOC Investigation)
-   - Telemetry: Windows Security Event logs (Event 4624 logon, 4625 brute-force, 4688 LOLBin certutil/bitsadmin execution).
-   - Flag: `FLAG{<victim_user>_<lolbin>_<hash>}` discovered via post-exploitation process creation events.
-2. **Module 2 (`02-phishing-dfir`)**: _Executive Spearphish & Invoice Fraud_ (DFIR / Phishing)
-   - Telemetry: Raw RFC 822 `.eml` with SPF/DKIM authentication failures and internal DNS query telemetry with C2 callbacks.
-   - Flag: `FLAG{dmarc_fail_<domain>_<hash>}` correlated via anomalous C2 DNS queries.
-3. **Module 3 (`03-compromised-linux-server`)**: _Operation Shakti_ (Incident Response / Linux Forensics)
-   - Telemetry: `auth.log`, `crontab.txt`, `backup_sync.sh`, and `bash_history` detailing sudoers privilege escalation and malicious cron persistence.
-   - Flag: `FLAG{crontab_reverse_shell_persisted_<user>_<hash>}` discovered by auditing cron tasks and de-obfuscating bash reverse shells.
-4. **Module 4 (`04-vulnerable-web-app`)**: _Operation Suraksha_ (Web Application Security / Data Privacy)
-   - Telemetry: `corp_directory.db` (SQLite citizen registry) with UNION-based SQL injection vulnerability on citizen welfare queries.
-   - Flag: `FLAG{sqli_union_citizen_leak_<hash>}` recovered from unredacted citizen subsidy records violating the DPDP Act 2023.
-5. **Module 5 (`05-threat-hunting-lotl`)**: _Operation Garuda_ (CII Threat Hunting / Cyber Defense)
-   - Telemetry: Sysmon process creation logs (`sysmon_events.json`) and DNS queries (`dns_events.json`) with Shannon entropy analysis.
-   - Flag: `FLAG{dns_tunneling_entropy_exfil_<hash>}` recovered by isolating masqueraded LOLBin execution and Base64 DNS tunneling.
-6. **Module 6 (`06-pki-token-dispute`)**: _Operation Mudra_ (Digital Signatures / PKI)
+1. **Module 1 (`01-soc-auth-investigation`)**: _Operation NightShift_ (SOC Investigation — 764 lines)
+   - Interactive UI: `mo.sidebar` checklist, MITRE ATT&CK matrix, alert triage KPIs (`mo.stat`), filterable event telemetry table with JSON export (`mo.ui.table`, `mo.download`), live Python security analytics console (`mo.ui.code_editor`, `exec`/`eval`), anomaly failure threshold slider (`mo.ui.slider`), chronological attack timeline, confirmed breach callout, and Living-off-the-Land (LOLBin) command cards.
+   - Telemetry: Windows Security Event logs (`auth_events.json`: Events 4624 logon, 4625 brute-force, 4688 LOLBin certutil/bitsadmin execution).
+   - Flag: `FLAG{<victim_user>_<lolbin>_<hash>}` verified via SHA-256 anti-cheat unlock to reveal confirmed Threat Intelligence IOCs.
+2. **Module 2 (`02-phishing-dfir`)**: _Executive Spearphish & Invoice Fraud_ (DFIR / Phishing — 679 lines)
+   - Interactive UI: `mo.sidebar` checklist, RFC 822 `.eml` header parser, download raw EML button, attachment carving & MD5/SHA-256 metadata, decompiled VBA macro preview, live Python deobfuscation workbench, manual Base64 decoder widget (UTF-8 / UTF-16LE modes), and correlated host DNS telemetry table with C2 beacon alert.
+   - Telemetry: Raw RFC 822 `urgent_invoice.eml` with weaponized `.docm` attachment and internal `dns_telemetry.json` query telemetry with C2 callbacks.
+   - Flag: `FLAG{dmarc_fail_<domain>_<hash>}` recovered from decoded macro payload and correlated C2 DNS telemetry.
+3. **Module 3 (`03-compromised-linux-server`)**: _Operation Shakti_ (Incident Response / Linux Forensics — 488 lines)
+   - Interactive UI: `mo.sidebar` checklist, GTFOBins sudo find escalation pattern detector, `/var/log/auth.log` triage table, `/etc/cron.d/` scheduled persistence hunter, `.sync.sh` reverse shell reverse engineering, and verified IR remediation plan checklist.
+   - Telemetry: Directory hierarchy including `home/deploy/.bash_history`, `var/log/auth.log`, `etc/cron.d/cert-sync`, and `opt/cert-tools/.sync.sh`.
+   - Flag: `FLAG{crontab_reverse_shell_persisted_<hash>}` discovered by auditing cron tasks and de-obfuscating bash reverse shells.
+4. **Module 4 (`04-vulnerable-web-app`)**: _Operation AppSec_ (Web Application Security / SQLi — 415 lines)
+   - Interactive UI: `mo.sidebar` checklist, OWASP A03 mapping, interactive SQL injection workbench with methodology presets and live SQLite database execution, backend SQL query display, query error/success badges, and secure parameterized query remediation comparison.
+   - Telemetry: `corp_directory.db` (SQLite relational database with `employees` and `payroll_audit` tables).
+   - Flag: `FLAG{sqli_union_payroll_leak_<hash>}` exfiltrated from the internal payroll audit table via UNION SELECT.
+5. **Module 5 (`05-threat-hunting-lotl`)**: _Operation CloudSnoop_ (Threat Hunting / Malicious Persistence — 485 lines)
+   - Interactive UI: `mo.sidebar` checklist, Sysmon process telemetry audit with rogue non-System32 `svchost.exe` detection, Shannon entropy ($H$) & query length sliders, high-entropy DNS hunt table, and Base64 subdomain chunk decoder widget with reactive decoded text output.
+   - Telemetry: Endpoint Sysmon process telemetry (`sysmon_processes.csv`) and network DNS queries (`dns_queries.csv`).
+   - Flag: `FLAG{dns_tunneling_data_exfil_<hash>}` recovered by isolating masqueraded LOLBin execution and reassembling Base64 DNS tunneling chunks.
+6. **Module 6 (`06-pki-token-dispute`)**: _Operation Mudra_ (Digital Signatures / PKI — 277 lines)
+   - Interactive UI: `mo.sidebar` checklist, GeM bid submission TSA metadata table, Certifying Authority CRL revocation list explorer, IT Act Section 3A legal non-repudiation timeline analysis, and Indian Evidence Act Section 65B Certificate unlock.
    - Telemetry: `gem_tender_submission.json` and `crl_revocation_list.json` analyzing GeM e-tender submission timestamps vs. CA revocation lists.
    - Flag: `FLAG{pki_non_repudiation_valid_<hash>}` validating non-repudiation under IT Act 2000 Section 3, 3A, and 42.
-7. **Module 7 (`07-meghraj-cloud-audit`)**: _Operation Megh_ (Government Cloud / MeghRaj)
+7. **Module 7 (`07-meghraj-cloud-audit`)**: _Operation Megh_ (Government Cloud / MeghRaj — 278 lines)
+   - Interactive UI: `mo.sidebar` checklist, CloudTrail audit stream table with region filter, cross-border data residency violation detector, S3 sovereign replication audit, and STQC Sovereign Cloud Clearance Report unlock.
    - Telemetry: Cloud audit event logs (`cloud_audit_events.json`) identifying unauthorized container migrations to foreign unempaneled regions.
-   - Flag: `FLAG{meghraj_sovereign_unapproved_<region>_<hash>}` recovered from STQC audit remediation telemetry.
-8. **Module 8 (`08-dpi-apisetu-replay`)**: _Operation Setu_ (Digital Public Infrastructure / DPI)
+   - Flag: `FLAG{meghraj_sovereign_<region>_<hash>}` recovered from STQC audit remediation telemetry.
+8. **Module 8 (`08-dpi-apisetu-replay`)**: _Operation Setu_ (Digital Public Infrastructure / DPI — 278 lines)
+   - Interactive UI: `mo.sidebar` checklist, India Stack & API Setu access gateway log explorer, cryptographic nonce collision analyzer, botnet subnet cluster detection, WAF sliding TTL replay protection, and National DPI Hardening Certification unlock.
    - Telemetry: API Setu gateway access telemetry (`apisetu_gateway_logs.json`) with duplicate cryptographic nonces and timestamp skews.
    - Flag: `FLAG{apisetu_replay_blocked_<nonce>_<hash>}` recovered from WAF rate-limiting mitigation tokens.
 
