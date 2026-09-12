@@ -190,11 +190,11 @@ def get_carryforward_session_summary(session_id: str):
 # --- AI Live Feed Interview Endpoints ---
 
 @router.post("/interview/start")
-def start_live_interview(req: InterviewStartRequest):
+def start_live_interview(req: InterviewStartRequest, db: Session = Depends(get_db)):
     """
-    Initiates a live AI oral competency interview related to the specified course.
+    Initiates a live AI oral competency interview dynamically grounded in the specified course syllabus and notices.
     """
-    session = InterviewSessionManager.start_interview(req)
+    session = InterviewSessionManager.start_interview(req, db=db)
     first_q = session.transcript[0].content
     return {
         "session_id": session.session_id,
@@ -210,8 +210,8 @@ def start_live_interview(req: InterviewStartRequest):
 @router.post("/interview/turn", response_model=InterviewTurnResponse)
 def submit_interview_turn(req: InterviewTurnRequest):
     """
-    Submits the officer's verbal/text answer. The AI evaluates both course knowledge
-    and the 6 behavioral competencies, generating an adaptive follow-up question.
+    Submits the officer's verbal/text answer with multimodal delivery telemetry (WPM, eye contact, composure).
+    The AI evaluates both course knowledge and the 6 behavioral competencies, generating an adaptive follow-up question.
     """
     session = InterviewSessionManager.get_session(req.session_id)
     if not session:
@@ -219,7 +219,11 @@ def submit_interview_turn(req: InterviewTurnRequest):
     
     turn_res = session.process_turn(
         officer_text=req.officer_response,
-        elapsed_seconds=req.elapsed_seconds
+        elapsed_seconds=req.elapsed_seconds,
+        speaking_pace_wpm=req.speaking_pace_wpm,
+        eye_contact_percent=req.eye_contact_percent,
+        composure_score=req.composure_score,
+        voice_clarity_score=req.voice_clarity_score
     )
     return turn_res
 

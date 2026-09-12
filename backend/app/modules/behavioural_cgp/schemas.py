@@ -142,7 +142,10 @@ class InterviewTurnRequest(BaseModel):
     session_id: str
     officer_response: str
     elapsed_seconds: int
-
+    speaking_pace_wpm: Optional[float] = None
+    eye_contact_percent: Optional[float] = None
+    composure_score: Optional[float] = None
+    voice_clarity_score: Optional[float] = None
 
 class InterviewEndRequest(BaseModel):
     session_id: str
@@ -158,6 +161,8 @@ class InterviewTurnResponse(BaseModel):
     is_final_turn: bool
     pacing_advice: Optional[str] = None
     acknowledgement_note: Optional[str] = None
+    detected_competencies: List[str] = Field(default_factory=list)
+    delivery_feedback: Optional[str] = None
 
 class CompetencyScore(BaseModel):
     competency_name: str
@@ -171,6 +176,13 @@ class TranscriptEntry(BaseModel):
     content: str
     timestamp_seconds: int
     behavioral_tags: List[str] = Field(default_factory=list)
+
+class MultimodalTelemetrySummary(BaseModel):
+    average_speaking_wpm: float
+    delivery_composure_score: float
+    speech_clarity_rating: str
+    total_speaking_time_seconds: int
+    pacing_adherence: str
 
 class InterviewAnalysisResponse(BaseModel):
     session_id: str
@@ -187,3 +199,5 @@ class InterviewAnalysisResponse(BaseModel):
     priority_development_areas: List[str]
     recommended_apar_actions: List[str]
     transcript: List[TranscriptEntry]
+    telemetry_summary: Optional[MultimodalTelemetrySummary] = None
+

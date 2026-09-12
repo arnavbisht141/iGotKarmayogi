@@ -232,16 +232,23 @@ def test_api_live_interview_flow():
     session_id = data["session_id"]
     assert "Inflation" in data["course_title"]
 
-    # Submit turn API
+    # Submit turn API with multimodal telemetry (WPM, eye contact, composure, clarity)
     turn_res = client.post("/api/behavioural/interview/turn", json={
         "session_id": session_id,
-        "officer_response": "Jevons Geometric Mean minimizes substitution bias across elementary price quotations according to MoSPI Laspeyres standards.",
-        "elapsed_seconds": 250
+        "officer_response": "Jevons Geometric Mean minimizes substitution bias across elementary price quotations according to MoSPI Laspeyres standards under statutory rules.",
+        "elapsed_seconds": 250,
+        "speaking_pace_wpm": 132.5,
+        "eye_contact_percent": 88.0,
+        "composure_score": 90.0,
+        "voice_clarity_score": 94.0
     })
     assert turn_res.status_code == 200
     turn_data = turn_res.json()
     assert turn_data["turn_number"] == 2
     assert turn_data["target_duration_minutes"] == 28
+    assert turn_data["delivery_feedback"] is not None
+    assert "132" in turn_data["delivery_feedback"] or "cadence" in turn_data["delivery_feedback"].lower()
+    assert len(turn_data["detected_competencies"]) > 0
 
     # Conclude interview API
     end_res = client.post("/api/behavioural/interview/end", json={"session_id": session_id})
@@ -251,6 +258,9 @@ def test_api_live_interview_flow():
     assert "Ethics" in report["competency_scores"]
     assert "Leadership" in report["competency_scores"]
     assert "Change Management" in report["competency_scores"]
+    assert report["telemetry_summary"] is not None
+    assert report["telemetry_summary"]["average_speaking_wpm"] > 0
+    assert report["telemetry_summary"]["delivery_composure_score"] >= 80.0
 
 
 def test_get_courses_with_case_mappings():
@@ -299,4 +309,47 @@ def test_generate_course_anchored_case():
     branch_opts = [opt for opt in root_q["options"] if not opt["is_optimal"]]
     assert len(branch_opts) > 0
     assert branch_opts[0]["next_question_id"] in case_data["questions"]
+
+
+def test_live_interview_with_dynamic_database_course():
+    # Test starting live interview grounded in Course 4 (Digital Governance & PFMS)
+    res_start = client.post("/api/behavioural/interview/start", json={
+        "course_id": 4,
+        "officer_name": "Sharma",
+        "target_duration_minutes": 30
+    })
+    assert res_start.status_code == 200
+    data = res_start.json()
+    assert "PFMS" in data["course_title"] or "Digital Governance" in data["course_title"]
+    assert "initial_ai_question" in data
+    assert len(data["initial_ai_question"]) > 20
+    session_id = data["session_id"]
+
+    # Submit turn with telemetry
+    turn_res = client.post("/api/behavioural/interview/turn", json={
+        "session_id": session_id,
+        "officer_response": "We enforce Treasury Single Account protocols strictly to prevent idle parking of scheme funds in commercial banks, mandating Just-in-Time releases under GFR Rule 149.",
+        "elapsed_seconds": 180,
+        "speaking_pace_wpm": 128.0,
+        "eye_contact_percent": 90.0,
+        "composure_score": 92.0,
+        "voice_clarity_score": 95.0
+    })
+    assert turn_res.status_code == 200
+    turn_data = turn_res.json()
+    assert turn_data["turn_number"] == 2
+    assert "128" in turn_data["delivery_feedback"] or "cadence" in turn_data["delivery_feedback"].lower()
+    assert "Project Management" in turn_data["detected_competencies"] or "Ethics" in turn_data["detected_competencies"]
+
+    # Conclude interview and verify diagnostic analysis
+    end_res = client.post(f"/api/behavioural/interview/{session_id}/end")
+    assert end_res.status_code == 200
+    analysis = end_res.json()
+    assert analysis["session_id"] == session_id
+    assert analysis["overall_score_percent"] > 70
+    assert len(analysis["competency_scores"]) == 7
+    assert analysis["telemetry_summary"] is not None
+    assert analysis["telemetry_summary"]["average_speaking_wpm"] == 128.0
+    assert analysis["telemetry_summary"]["delivery_composure_score"] == 92.0
+
 
