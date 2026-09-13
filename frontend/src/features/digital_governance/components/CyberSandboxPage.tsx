@@ -381,6 +381,7 @@ export default function CyberSandboxPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: activeSession.session_id,
+            challenge_id: activeSession.challenge_id,
             flag: flagInput.trim(),
           }),
         },
@@ -434,6 +435,34 @@ export default function CyberSandboxPage() {
     }
   };
 
+  const CHALLENGE_HINTS_CATALOG: Record<string, Record<number, string>> = {
+    "01-soc-auth-investigation": {
+      1: "Filter authentication events where event_id is 4625 (logon failure) and aggregate count by ip_address to identify the brute-force source.",
+      2: "Once you locate the attacker IP, filter for the subsequent successful logon (event_id 4624) to find the compromised account name, then inspect the Event 4688 command line.",
+    },
+    "03-compromised-linux-server": {
+      1: "Inspect the deploy user's command history in Step 1 (.bash_history) for curl or base64 decoding commands.",
+      2: "Inspect Step 3 (/etc/cron.d). Check the file configured to run periodically and find where the persistence payload is placed.",
+    },
+    "04-vulnerable-web-app": {
+      1: "Test input with `'`. Observe if SQLite syntax errors leak database structure.",
+      2: "Determine column count with UNION SELECT. Try `' UNION SELECT 1, 2, 3, 4 --` until no column count error occurs.",
+      3: "Query sqlite_master schema: `' UNION SELECT 1, name, sql, 4 FROM sqlite_master WHERE type='table' --` to discover secret vault tables.",
+    },
+    "05-threat-hunting-lotl": {
+      1: "Genuine Windows svchost.exe only runs from C:\\Windows\\System32. Check parent process and command line for anomalous paths.",
+      2: "Adjust the Shannon Entropy slider to 4.0 or above in Step 2. High entropy DNS queries often indicate C2 exfiltration or base64 data tunneling.",
+    },
+    "06-pki-token-dispute": {
+      1: "Compare the submission timestamp in gem_tender_submission.json against the DSC CRL revocation timestamp in dsc_revocation_list.json.",
+      2: "Under Section 3A of the IT Act, a digital signature created after the certificate revocation timestamp is legally null and void.",
+    },
+    "07-meghraj-cloud-audit": {
+      1: "Filter cloud_audit_events.json for records where 'region' does not equal 'ap-south-1' (MeghRaj Sovereign Cloud Mumbai).",
+      2: "Inspect the 'response_elements' in the non-compliant region event to uncover the replicated bucket name and storage tier.",
+    },
+  };
+
   // Unlock Hint
   const handleUnlockHint = async (hintId: number) => {
     if (!activeSession) return;
@@ -446,6 +475,7 @@ export default function CyberSandboxPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: activeSession.session_id,
+            challenge_id: activeSession.challenge_id,
             hint_id: hintId,
           }),
         },
@@ -453,36 +483,57 @@ export default function CyberSandboxPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setActiveSession({
-          ...activeSession,
-          points: data.remaining_points,
-          hints: activeSession.hints.map((h) =>
-            h.id === hintId
-              ? { ...h, unlocked: true, content: data.content }
-              : h,
-          ),
-        });
-      } else {
-        // Local simulation fallback
-        setActiveSession({
-          ...activeSession,
-          points: Math.max(10, activeSession.points - 15),
-          hints: activeSession.hints.map((h) =>
-            h.id === hintId
-              ? {
-                  ...h,
-                  unlocked: true,
-                  content:
-                    hintId === 1
-                      ? "Filter authentication events by status=='FAILURE' and aggregate by source_ip to discover anomalous volume."
-                      : "Once the attacker IP is found, trace the subsequent 'SUCCESS' logon event and inspect the Event 4688 command line.",
-                }
-              : h,
-          ),
-        });
+        if (
+          data.content &&
+          data.content !== "Session not found." &&
+          data.content !== "Hint ID not found for this challenge."
+        ) {
+          setActiveSession({
+            ...activeSession,
+            points:
+              data.remaining_points !== undefined
+                ? data.remaining_points
+                : activeSession.points,
+            hints: activeSession.hints.map((h) =>
+              h.id === hintId
+                ? { ...h, unlocked: true, content: data.content }
+                : h,
+            ),
+          });
+          return;
+        }
       }
+
+      // Local simulation / fallback hint content
+      const fallbackContent =
+        CHALLENGE_HINTS_CATALOG[activeSession.challenge_id]?.[hintId] ||
+        (hintId === 1
+          ? "Inspect evidence telemetry and log sequences to locate anomalous events and identify the threat actor."
+          : "Correlate off-hours network connections with privilege escalation activity to isolate the flag.");
+
+      setActiveSession({
+        ...activeSession,
+        points: Math.max(10, activeSession.points - 15),
+        hints: activeSession.hints.map((h) =>
+          h.id === hintId
+            ? { ...h, unlocked: true, content: fallbackContent }
+            : h,
+        ),
+      });
     } catch (e) {
       console.error(e);
+      const fallbackContent =
+        CHALLENGE_HINTS_CATALOG[activeSession.challenge_id]?.[hintId] ||
+        "Inspect telemetry logs in the notebook console to identify indicators of compromise.";
+      setActiveSession({
+        ...activeSession,
+        points: Math.max(10, activeSession.points - 15),
+        hints: activeSession.hints.map((h) =>
+          h.id === hintId
+            ? { ...h, unlocked: true, content: fallbackContent }
+            : h,
+        ),
+      });
     } finally {
       setUnlockingHintId(null);
     }
@@ -855,9 +906,9 @@ export default function CyberSandboxPage() {
                       sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                     />
 
-                    {/* Iframe fallback notice */}
+                    {/* Iframe badge */}
                     <div className="absolute bottom-2 right-2 bg-slate-900/90 border border-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded backdrop-blur pointer-events-none">
-                      Interactive Python Notebook • Port{" "}
+                      Interactive Analysis Console • Port{" "}
                       {activeSession.assigned_port}
                     </div>
                   </div>

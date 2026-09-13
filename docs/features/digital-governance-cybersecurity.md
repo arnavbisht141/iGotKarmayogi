@@ -120,51 +120,55 @@ flowchart TD
 - **Failover Chain**: Groq $\to$ NIM $\to$ Gemini $\to$ OpenAI $\to$ Heuristic Fallback Engine.
 - **Zero-Token Resilience**: Built-in civil defense heuristic parser ensures deterministic challenge generation even when no API keys are configured.
 
-### 4.3 Full Catalog of 8 Procedural Challenge Templates (`services/templates/`)
+### 4.3 Active Suite of 6 Procedural Challenge Templates (`services/templates/`)
 
-All 8 challenges are stored with full evidence telemetry and complete 270–764 line interactive Marimo analyst notebooks in the database (`cyber_sandbox_challenges.notebook_code` and `cyber_sandbox_templates`):
+The active range focuses on 6 canonical civil service digital governance and incident response modules, each backed by full evidence telemetry and interactive Marimo analyst notebooks stored in the database (`cyber_sandbox_challenges` and `cyber_sandbox_templates`):
 
-1. **Module 1 (`01-soc-auth-investigation`)**: _Operation NightShift_ (SOC Investigation — 764 lines)
-   - Interactive UI: `mo.sidebar` checklist, MITRE ATT&CK matrix, alert triage KPIs (`mo.stat`), filterable event telemetry table with JSON export (`mo.ui.table`, `mo.download`), live Python security analytics console (`mo.ui.code_editor`, `exec`/`eval`), anomaly failure threshold slider (`mo.ui.slider`), chronological attack timeline, confirmed breach callout, and Living-off-the-Land (LOLBin) command cards.
+1. **Module 1 (`01-soc-auth-investigation`)**: _Operation NightShift_ (SOC Investigation)
+   - Interactive UI: `mo.sidebar` checklist, alert triage KPIs, filterable event telemetry table with JSON export, live Python security analytics console, anomaly threshold slider, chronological attack timeline, and Living-off-the-Land (LOLBin) command inspection.
    - Telemetry: Windows Security Event logs (`auth_events.json`: Events 4624 logon, 4625 brute-force, 4688 LOLBin certutil/bitsadmin execution).
    - Flag: `FLAG{<victim_user>_<lolbin>_<hash>}` verified via SHA-256 anti-cheat unlock to reveal confirmed Threat Intelligence IOCs.
-2. **Module 2 (`02-phishing-dfir`)**: _Executive Spearphish & Invoice Fraud_ (DFIR / Phishing — 679 lines)
-   - Interactive UI: `mo.sidebar` checklist, RFC 822 `.eml` header parser, download raw EML button, attachment carving & MD5/SHA-256 metadata, decompiled VBA macro preview, live Python deobfuscation workbench, manual Base64 decoder widget (UTF-8 / UTF-16LE modes), and correlated host DNS telemetry table with C2 beacon alert.
-   - Telemetry: Raw RFC 822 `urgent_invoice.eml` with weaponized `.docm` attachment and internal `dns_telemetry.json` query telemetry with C2 callbacks.
-   - Flag: `FLAG{dmarc_fail_<domain>_<hash>}` recovered from decoded macro payload and correlated C2 DNS telemetry.
-3. **Module 3 (`03-compromised-linux-server`)**: _Operation Shakti_ (Incident Response / Linux Forensics — 488 lines)
+2. **Module 2 / 3 (`03-compromised-linux-server`)**: _Operation Shakti_ (Incident Response / Linux Forensics)
    - Interactive UI: `mo.sidebar` checklist, GTFOBins sudo find escalation pattern detector, `/var/log/auth.log` triage table, `/etc/cron.d/` scheduled persistence hunter, `.sync.sh` reverse shell reverse engineering, and verified IR remediation plan checklist.
    - Telemetry: Directory hierarchy including `home/deploy/.bash_history`, `var/log/auth.log`, `etc/cron.d/cert-sync`, and `opt/cert-tools/.sync.sh`.
    - Flag: `FLAG{crontab_reverse_shell_persisted_<hash>}` discovered by auditing cron tasks and de-obfuscating bash reverse shells.
-4. **Module 4 (`04-vulnerable-web-app`)**: _Operation AppSec_ (Web Application Security / SQLi — 415 lines)
+3. **Module 3 / 4 (`04-vulnerable-web-app`)**: _Operation Suraksha_ (Web Application Security / SQLi)
    - Interactive UI: `mo.sidebar` checklist, OWASP A03 mapping, interactive SQL injection workbench with methodology presets and live SQLite database execution, backend SQL query display, query error/success badges, and secure parameterized query remediation comparison.
    - Telemetry: `corp_directory.db` (SQLite relational database with `employees` and `payroll_audit` tables).
    - Flag: `FLAG{sqli_union_payroll_leak_<hash>}` exfiltrated from the internal payroll audit table via UNION SELECT.
-5. **Module 5 (`05-threat-hunting-lotl`)**: _Operation CloudSnoop_ (Threat Hunting / Malicious Persistence — 485 lines)
+4. **Module 4 / 5 (`05-threat-hunting-lotl`)**: _Operation CloudSnoop_ (Threat Hunting / Malicious Persistence)
    - Interactive UI: `mo.sidebar` checklist, Sysmon process telemetry audit with rogue non-System32 `svchost.exe` detection, Shannon entropy ($H$) & query length sliders, high-entropy DNS hunt table, and Base64 subdomain chunk decoder widget with reactive decoded text output.
    - Telemetry: Endpoint Sysmon process telemetry (`sysmon_processes.csv`) and network DNS queries (`dns_queries.csv`).
    - Flag: `FLAG{dns_tunneling_data_exfil_<hash>}` recovered by isolating masqueraded LOLBin execution and reassembling Base64 DNS tunneling chunks.
-6. **Module 6 (`06-pki-token-dispute`)**: _Operation Mudra_ (Digital Signatures / PKI — 277 lines)
+5. **Module 5 / 6 (`06-pki-token-dispute`)**: _Operation Mudra_ (Digital Signatures / PKI)
    - Interactive UI: `mo.sidebar` checklist, GeM bid submission TSA metadata table, Certifying Authority CRL revocation list explorer, IT Act Section 3A legal non-repudiation timeline analysis, and Indian Evidence Act Section 65B Certificate unlock.
    - Telemetry: `gem_tender_submission.json` and `crl_revocation_list.json` analyzing GeM e-tender submission timestamps vs. CA revocation lists.
    - Flag: `FLAG{pki_non_repudiation_valid_<hash>}` validating non-repudiation under IT Act 2000 Section 3, 3A, and 42.
-7. **Module 7 (`07-meghraj-cloud-audit`)**: _Operation Megh_ (Government Cloud / MeghRaj — 278 lines)
+6. **Module 6 / 7 (`07-meghraj-cloud-audit`)**: _Operation Megh_ (Government Cloud / MeghRaj)
    - Interactive UI: `mo.sidebar` checklist, CloudTrail audit stream table with region filter, cross-border data residency violation detector, S3 sovereign replication audit, and STQC Sovereign Cloud Clearance Report unlock.
    - Telemetry: Cloud audit event logs (`cloud_audit_events.json`) identifying unauthorized container migrations to foreign unempaneled regions.
    - Flag: `FLAG{meghraj_sovereign_<region>_<hash>}` recovered from STQC audit remediation telemetry.
-8. **Module 8 (`08-dpi-apisetu-replay`)**: _Operation Setu_ (Digital Public Infrastructure / DPI — 278 lines)
-   - Interactive UI: `mo.sidebar` checklist, India Stack & API Setu access gateway log explorer, cryptographic nonce collision analyzer, botnet subnet cluster detection, WAF sliding TTL replay protection, and National DPI Hardening Certification unlock.
-   - Telemetry: API Setu gateway access telemetry (`apisetu_gateway_logs.json`) with duplicate cryptographic nonces and timestamp skews.
-   - Flag: `FLAG{apisetu_replay_blocked_<nonce>_<hash>}` recovered from WAF rate-limiting mitigation tokens.
 
-### 4.4 Database Persistence Architecture (Zero Git Sprawl)
+### 4.4 Marimo App Mode (`marimo run`) & Code-Hidden Console Architecture
+
+- **App / Run Mode Serving**: Rather than editor mode, the backend launches instances using `marimo run` with `--headless`, `--no-token`, `--no-skew-protection`, and `--allow-origins *`.
+- **Code Privacy & Focus**: All underlying Python source code cells, editor gutters, and cell management tools are completely hidden (`mode="read"`). The officer is presented strictly with the clean interactive analysis console: UI widgets (sliders, filters, tables, buttons), markdown incident descriptions, and live telemetry outputs.
+- **Autorun Runtime**: Configured with `.marimo.toml` (`[runtime] auto_instantiate = true`, `on_cell_change = "autorun"`) and environment overrides ensuring all analysis pipelines execute automatically on session launch.
+
+### 4.5 Session Re-hydration & Resilient Hint Unlocking
+
+- **Database Session Recovery**: To prevent "Session not found" errors when backend restarts or uvicorn reloads clear memory, `sandbox_manager.py` implements `_restore_session_from_db(session_id, db)` which re-hydrates active sessions from `cyber_sandbox_sessions` and `cyber_sandbox_challenges`.
+- **Direct Challenge Fallback**: If a session was initiated in client simulation mode (`sim_...`), `unlock_hint` and `submit_flag` resolve tiered hints and verify flags directly from the database challenge record using `challenge_id`.
+- **Client Fallback Catalog**: `CyberSandboxPage.tsx` maintains a static `CHALLENGE_HINTS_CATALOG` ensuring that even in offline or degraded network conditions, valid tiered hints are delivered to the officer without error prompts.
+
+### 4.6 Database Persistence Architecture (Zero Git Sprawl)
 
 - **SQLAlchemy Schema**: Challenge definitions, telemetry artifacts (`artifacts_json`), and Marimo `notebook_code` reside directly in `cyber_sandbox_challenges`. The old static `backend/content/` directory has been completely deleted.
 - **Ephemeral Materialization**: When an officer launches a session, evidence files and notebooks are materialized on demand into `backend/scratch/sandboxes/<session_id>/` (gitignored) and purged on termination.
 - **Session Tracking**: Active sessions are persisted in `cyber_sandbox_sessions` with dynamic anti-cheat flags and hint penalties.
 - **Competency Accounting**: Verified flag submissions award competency points across the 5 pillars in `user_cyber_competencies`.
 
-### 4.5 Live Supabase Digital Governance Knowledge Base (Strictly Read-Only GET)
+### 4.7 Live Supabase Digital Governance Knowledge Base (Strictly Read-Only GET)
 
 - Connects directly to the live Supabase database (`tdcrpjlpvkqjptvsndnp.supabase.co`) using read-only `GET` queries.
 - Ingests scraped Wikipedia articles and YouTube curricula across the 5 official domains: `cybersecurity`, `data-privacy`, `digital-signatures`, `government-cloud`, and `digital-public-infrastructure`.
@@ -176,14 +180,14 @@ All 8 challenges are stored with full evidence telemetry and complete 270–764 
 
 - **Backend Unit Tests (`backend/tests/test_digital_governance.py`)**: 4 tests passing (curriculum, in-lesson activities, 15 certification questions, skills linkage).
 - **Tabletop Scenarios Tests (`backend/tests/test_scenarios.py`)**: 4 tests passing (5 domains, branching lifecycle, penalty deductions, executive debrief).
-- **Cybersecurity Sandbox Tests (`backend/tests/test_sandbox.py`)**: 7 tests passing:
+- **Cybersecurity Sandbox Tests (`backend/tests/test_sandbox.py`)**: 8 tests passing (16 tests total in backend):
   - Multi-LLM provider initialization and failover.
-  - All 8 procedural templates registered and resolvable.
+  - All procedural templates registered and resolvable.
   - Tag and keyword matching across all governance domains.
-  - Database seeding and challenge listing from `cyber_sandbox_challenges`.
+  - Database seeding and challenge listing from `cyber_sandbox_challenges` (6 canonical challenges).
   - Session lifecycle with DB materialization, hint unlocking, flag verification, and shutdown.
   - ContentGenerationPipeline transcript compilation and database persistence.
   - Supabase read-only knowledge base retrieval across the 5 pillars.
+  - Server restart / memory-wipe session re-hydration and fallback hint unlocking (`test_08_hint_unlock_after_server_reload_and_fallback`).
 - **Frontend Verification**:
-  - `npx tsc --noEmit` passed with 0 errors.
-  - `npm run build` compiled all 20 pages successfully.
+  - `npm run build` compiled all 20 pages successfully with 0 errors and 0 warnings.

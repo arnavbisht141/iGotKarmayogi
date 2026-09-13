@@ -93,6 +93,33 @@ Frontend engineering lead for landing page navigation, viewport layout stability
   - Full backend test suite passing (15 tests total: 4 curriculum, 4 tabletop scenarios, 7 sandbox suite tests).
   - `npx tsc --noEmit` and `npm run build` compiled all 20 pages with 0 errors.
 
+### 2.9 Core 6-Challenge Range Alignment, Marimo App Run Mode & Hint Session Resiliency (`cgp/digital-governance` Milestone 4)
+
+- **Active Challenge Range Alignment**:
+  - Aligned active hands-on sandboxes strictly to the 6 core default challenges:
+    1. `01-soc-auth-investigation` (SOC Authentication Triage & Credential Stuffing)
+    2. `03-compromised-linux-server` (State Data Centre Linux Server Persistence & IR)
+    3. `04-vulnerable-web-app` (Corporate Directory SQL Injection & Exfiltration)
+    4. `05-threat-hunting-lotl` (Living-off-the-Land & High-Entropy DNS Tunneling Hunt)
+    5. `06-pki-token-dispute` (GeM e-Tender Dispute & Class 3 DSC Non-Repudiation)
+    6. `07-meghraj-cloud-audit` (MeghRaj Cloud Audit & Cross-Border Sovereignty)
+  - Purged non-default challenges (`02-phishing-dfir`, `08-dpi-apisetu-replay`) and temporary generated sandboxes from SQLite databases and disk.
+  - Stripped all legacy "CyberLab" branding across templates and eliminated "FLAGSHIP" tags across UI and backend.
+- **Marimo App / Run Execution Mode (`marimo run`)**:
+  - Replaced `marimo edit` with `marimo run` in `sandbox_manager.py` to serve notebooks as interactive web applications in read-only App Mode (`mode="read"`).
+  - Completely hides Python code cells, editor gutters, and developer controls, exposing solely the clean institutional analysis console with interactive widgets (sliders, filters, tables, buttons, markdown scenario briefings).
+- **Hint Session Resiliency & DB Re-hydration**:
+  - Implemented `_restore_session_from_db(session_id, db)` in `sandbox_manager.py` to eliminate "Session not found" errors when server restarts clear in-memory state.
+  - Added direct challenge fallback lookup using `challenge_id` to ensure hint unlocks and flag submissions remain robust across client simulation fallbacks (`sim_...`).
+  - Implemented `CHALLENGE_HINTS_CATALOG` in `CyberSandboxPage.tsx` providing client-side fallback hints for all 6 active modules.
+- **LLM Model Alignment & UI Streamlining**:
+  - Aligned default LLM model configs with `cgp/technical` (`llama-3.3-70b-versatile`, `gpt-4o-mini`, `gemini-1.5-flash`, `meta/llama-3.1-70b-instruct`).
+  - Streamlined UI by temporarily shelving the generation pipeline modal and transcript compiler button.
+- **Verification**:
+  - Added `test_08_hint_unlock_after_server_reload_and_fallback` to `backend/tests/test_sandbox.py`.
+  - Full backend test suite passing (16/16 tests passing).
+  - Frontend production build (`npm run build`) passing with 0 errors across all 20 routes.
+
 ---
 
 ## 3. "Invisible" & Offline Contributions
@@ -110,18 +137,19 @@ Frontend engineering lead for landing page navigation, viewport layout stability
 
 ## 4. Chronological Activity Log
 
-| Date         | Activity                                                                | Category                | Notes / Deliverables                                                                                                                                                                                                                                            |
-| ------------ | ----------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `2026-09-13` | Upgraded 8-Sandbox Suite, SQLAlchemy Persistence & Supabase Integration | `Code` / `Architecture` | Branch `cgp/digital-governance` Milestone 3: 8 upgraded procedural templates, SQLAlchemy DB models & seeding, zero file sprawl (purged backend/content), strictly read-only Supabase knowledge base integration, Navbar link, and 15 passing backend unit tests |
-| `2026-09-12` | Multi-Stage Tabletop Simulation Engine                                  | `Code` / `UX`           | Branch `cgp/digital-governance` Milestone 2: 5 branching scenarios across 5 domains, backend session engine, CyberScenariosPage UI, and unit tests                                                                                                              |
-| `2026-09-12` | Digital Governance Curriculum & MCQs Architecture                       | `Code` / `Curriculum`   | Branch `cgp/digital-governance` Milestone 1: 5-module course, in-lesson MCQs, 15-Q certification exam, seed data, and unit tests                                                                                                                                |
-| `2026-09-07` | Aligned hero and statistics with navy aesthetic                         | `Code` / `UI`           | PR #6 merged into `main` (`5562fdd`)                                                                                                                                                                                                                            |
-| `2026-09-07` | Refined navbar brand and ministry ribbon                                | `Code` / `UI`           | Commit `65453e4`                                                                                                                                                                                                                                                |
-| `2026-09-07` | Reconciled branch merge and scroll mechanics                            | `Code` / `UX`           | Commit `44c8e92`                                                                                                                                                                                                                                                |
-| `2026-09-06` | Git repository cleanup                                                  | `DevOps`                | Purged 10,590 tracked `backend/venv` files (`56d954b`)                                                                                                                                                                                                          |
-| `2026-09-06` | Fixed button blink and layout shift during scroll                       | `Code` / `UX`           | Standardized 1px borders and scroll-spy lock (`b3d3e92`)                                                                                                                                                                                                        |
-| `2026-09-06` | Dynamic footer implementation                                           | `Code` / `UI`           | Context-aware footer component (`78c166c`)                                                                                                                                                                                                                      |
-| `2026-09-06` | Viewport-snap landing page navigation & smooth scroll                   | `Code` / `UX`           | Restored all 4 missing sections & scroll logic (`fdab73f`, `78c166c`)                                                                                                                                                                                           |
+| Date         | Activity                                                                   | Category                | Notes / Deliverables                                                                                                                                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `2026-09-13` | Core 6 Range Alignment, Marimo App Run Mode & Hint Session Resiliency       | `Code` / `Architecture` | Branch `cgp/digital-governance`: Marimo app/run mode (code hidden, analysis console visible), session re-hydration & hint fix, 6-challenge range alignment, CyberLab/FLAGSHIP purge, UI streamlining, and 16 passing backend tests                           |
+| `2026-09-13` | Upgraded 8-Sandbox Suite, SQLAlchemy Persistence & Supabase Integration    | `Code` / `Architecture` | Branch `cgp/digital-governance` Milestone 3: 8 upgraded procedural templates, SQLAlchemy DB models & seeding, zero file sprawl (purged backend/content), strictly read-only Supabase knowledge base integration, Navbar link, and 15 passing backend unit tests |
+| `2026-09-12` | Multi-Stage Tabletop Simulation Engine                                     | `Code` / `UX`           | Branch `cgp/digital-governance` Milestone 2: 5 branching scenarios across 5 domains, backend session engine, CyberScenariosPage UI, and unit tests                                                                                                              |
+| `2026-09-12` | Digital Governance Curriculum & MCQs Architecture                          | `Code` / `Curriculum`   | Branch `cgp/digital-governance` Milestone 1: 5-module course, in-lesson MCQs, 15-Q certification exam, seed data, and unit tests                                                                                                                                |
+| `2026-09-07` | Aligned hero and statistics with navy aesthetic                            | `Code` / `UI`           | PR #6 merged into `main` (`5562fdd`)                                                                                                                                                                                                                            |
+| `2026-09-07` | Refined navbar brand and ministry ribbon                                   | `Code` / `UI`           | Commit `65453e4`                                                                                                                                                                                                                                                |
+| `2026-09-07` | Reconciled branch merge and scroll mechanics                               | `Code` / `UX`           | Commit `44c8e92`                                                                                                                                                                                                                                                |
+| `2026-09-06` | Git repository cleanup                                                     | `DevOps`                | Purged 10,590 tracked `backend/venv` files (`56d954b`)                                                                                                                                                                                                          |
+| `2026-09-06` | Fixed button blink and layout shift during scroll                          | `Code` / `UX`           | Standardized 1px borders and scroll-spy lock (`b3d3e92`)                                                                                                                                                                                                        |
+| `2026-09-06` | Dynamic footer implementation                                              | `Code` / `UI`           | Context-aware footer component (`78c166c`)                                                                                                                                                                                                                      |
+| `2026-09-06` | Viewport-snap landing page navigation & smooth scroll                      | `Code` / `UX`           | Restored all 4 missing sections & scroll logic (`fdab73f`, `78c166c`)                                                                                                                                                                                           |
 
 ---
 

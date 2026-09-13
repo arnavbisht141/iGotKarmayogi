@@ -166,9 +166,9 @@ async def start_sandbox_session(req: SandboxStartRequest, db: Session = Depends(
 
 
 @router.get("/sandbox/session/{session_id}", response_model=SandboxSessionResponse)
-def get_sandbox_session_status(session_id: str):
+def get_sandbox_session_status(session_id: str, db: Session = Depends(get_db)):
     """Checks session status, remaining TTL seconds, and unlocked hints."""
-    sess = sandbox_manager.get_session(session_id)
+    sess = sandbox_manager.get_session(session_id, db=db)
     if not sess:
         raise HTTPException(status_code=404, detail="Sandbox session not found")
     return sess
@@ -186,13 +186,23 @@ async def stop_sandbox_session(session_id: str, db: Session = Depends(get_db)):
 @router.post("/sandbox/session/submit-flag", response_model=SandboxFlagSubmitResponse)
 def submit_sandbox_flag(req: SandboxFlagSubmitRequest, db: Session = Depends(get_db)):
     """Validates the officer's submitted FLAG{...}, applies hint deductions, and records competency points in DB."""
-    return sandbox_manager.submit_flag(session_id=req.session_id, flag_attempt=req.flag, db=db)
+    return sandbox_manager.submit_flag(
+        session_id=req.session_id,
+        flag_attempt=req.flag,
+        db=db,
+        challenge_id=req.challenge_id,
+    )
 
 
 @router.post("/sandbox/session/unlock-hint", response_model=SandboxHintUnlockResponse)
 def unlock_sandbox_hint(req: SandboxHintUnlockRequest, db: Session = Depends(get_db)):
     """Unlocks a tiered hint for the challenge and records the point penalty in DB."""
-    return sandbox_manager.unlock_hint(session_id=req.session_id, hint_id=req.hint_id, db=db)
+    return sandbox_manager.unlock_hint(
+        session_id=req.session_id,
+        hint_id=req.hint_id,
+        db=db,
+        challenge_id=req.challenge_id,
+    )
 
 
 @router.get("/sandbox/competencies", response_model=UserCompetencyRadar)

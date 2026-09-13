@@ -26,6 +26,36 @@ When contributing changes, append entries at the top of the appropriate version/
 
 ## 🔄 Change History
 
+### [2026-09-13] - Marimo App Run Mode, Code Hiding & Hint Session Resiliency
+
+- **Author**: Diwakar Ujjwal (@diwakarujjwal)
+- **Scope**: `[frontend]` `[backend]` `[sandbox]` `[marimo]` `[ctf]` `[docs]`
+- **Branch**: `cgp/digital-governance`
+- **Description**:
+  - **Marimo App Run Mode & Code Hiding**:
+    - Converted `sandbox_manager.py` Marimo runner from `marimo edit` to `marimo run` (`run <notebook_path> --host 127.0.0.1 --port <port> --no-token --headless --no-skew-protection --allow-origins *`).
+    - Exposes notebooks exclusively in read-only App Mode (`mode="read"`), hiding raw Python code cells, editor gutters, and cell execution controls, leaving strictly the interactive analysis console (widgets, KPIs, telemetry tables, timeline viewers, deobfuscator sandboxes, and verification checklists).
+    - Updated console iframe status badge in `CyberSandboxPage.tsx` to `"Interactive Analysis Console • Port [port]"`.
+  - **Database Session Re-hydration & Resilient Hint Unlocking**:
+    - Resolved root cause of `"Session not found"` errors occurring during hint unlocking when Uvicorn reloads or worker processes recycle.
+    - Implemented `_restore_session_from_db(session_id, db)` in `SandboxManager` to lazily reconstruct `ActiveSession` objects and challenge templates directly from SQLite (`cyber_sandbox_sessions` and `cyber_sandbox_challenges`).
+    - Updated `unlock_hint`, `submit_flag`, `get_session`, and `stop_session` to re-hydrate from database whenever in-memory `_sessions` is cold.
+    - Updated `SandboxHintUnlockRequest` and `SandboxFlagSubmitRequest` schemas and router endpoints to accept `challenge_id` for deterministic fallback.
+    - Added `CHALLENGE_HINTS_CATALOG` in `CyberSandboxPage.tsx` with tiered progressive hints for all active challenges, providing instant offline fallback and preventing `"Session not found."` from ever displaying in the UI.
+  - **Testing**:
+    - Added `test_08_hint_unlock_after_server_reload_and_fallback` to `backend/tests/test_sandbox.py` verifying DB re-hydration after clearing in-memory state.
+    - All 16 backend unit tests pass (`PYTHONPATH=backend python3 -m unittest discover -s backend/tests -p "test_*.py"`).
+    - Frontend Next.js Turbopack build succeeds with 0 errors across 20 routes.
+- **Affected Files**:
+  - `backend/app/modules/digital_governance/router.py`
+  - `backend/app/modules/digital_governance/schemas.py`
+  - `backend/app/modules/digital_governance/services/sandbox_manager.py`
+  - `backend/tests/test_sandbox.py`
+  - `frontend/src/features/digital_governance/components/CyberSandboxPage.tsx`
+  - `docs/features/digital-governance-cybersecurity.md`
+  - `docs/team/diwakar-ujjwal.md`
+  - `docs/changelog.md`
+
 ### [2026-09-13] - Real-Life Elevation of All 8 CTF Templates, Marimo Sidebar Restoration & Auto-run Engine
 
 - **Author**: Diwakar Ujjwal (@diwakarujjwal)

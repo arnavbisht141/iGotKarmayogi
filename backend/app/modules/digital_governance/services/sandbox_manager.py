@@ -326,13 +326,18 @@ def __(mo):
         # Also write .marimo.toml in the working directory where marimo runs
         (scratch_dir / ".marimo.toml").write_text(marimo_config_content)
 
-        # 5. Spawn isolated Marimo edit process
+        # 5. Spawn isolated Marimo run process (app mode: code hidden, analysis console visible)
         python_bin = sys.executable
-        marimo_bin = shutil.which("marimo") or "/Users/ujjwal/Library/Python/3.9/bin/marimo"
+        venv_marimo = REPO_ROOT / "backend" / "venv" / "bin" / "marimo"
+        if venv_marimo.exists():
+            marimo_bin = str(venv_marimo)
+        else:
+            marimo_bin = shutil.which("marimo") or "/Users/ujjwal/Library/Python/3.9/bin/marimo"
+
         if os.path.exists(marimo_bin):
             cmd = [
                 marimo_bin,
-                "edit",
+                "run",
                 str(marimo_script.resolve()),
                 "--host",
                 "127.0.0.1",
@@ -340,7 +345,6 @@ def __(mo):
                 str(assigned_port),
                 "--no-token",
                 "--headless",
-                "--skip-update-check",
                 "--no-skew-protection",
                 "--allow-origins",
                 "*",
@@ -350,7 +354,7 @@ def __(mo):
                 python_bin,
                 "-c",
                 "from marimo._cli.cli import main; import sys; sys.argv = ['marimo'] + sys.argv[1:]; main()",
-                "edit",
+                "run",
                 str(marimo_script.resolve()),
                 "--host",
                 "127.0.0.1",
@@ -358,7 +362,6 @@ def __(mo):
                 str(assigned_port),
                 "--no-token",
                 "--headless",
-                "--skip-update-check",
                 "--no-skew-protection",
                 "--allow-origins",
                 "*",
@@ -462,8 +465,64 @@ def __(mo):
             solved=False,
         )
 
-    def get_session(self, session_id: str) -> Optional[SandboxSessionResponse]:
+    def _restore_session_from_db(
+        self, session_id: str, db: Optional[Session]
+    ) -> Optional[ActiveSession]:
+        if db is None:
+            return None
+        try:
+            db_sess = db.query(CyberSandboxSession).filter_by(id=session_id).first()
+            if not db_sess:
+                return None
+            db_chal = db.query(CyberSandboxChallenge).filter_by(id=db_sess.challenge_id).first()
+            if not db_chal:
+                return None
+
+            hints = json.loads(db_chal.hints_json) if db_chal.hints_json else []
+            objectives = json.loads(db_chal.objectives_json) if db_chal.objectives_json else []
+            scratch_dir = SCRATCH_BASE_DIR / session_id
+
+            session = ActiveSession(
+                session_id=session_id,
+                challenge_id=db_chal.id,
+                title=db_chal.title,
+                category=db_chal.category,
+                difficulty=db_chal.difficulty,
+                base_points=db_chal.points,
+                flag=db_sess.flag,
+                hints=hints,
+                objectives=objectives,
+                scenario_md=db_chal.scenario_markdown or "",
+                competency_id=db_chal.competency_id or "soc_investigation",
+                assigned_port=db_sess.assigned_port,
+                scratch_dir=scratch_dir,
+            )
+            if db_sess.expires_at:
+                exp = db_sess.expires_at
+                if exp.tzinfo is None:
+                    exp = exp.replace(tzinfo=datetime.timezone.utc)
+                session.expires_at = exp
+            session.unlocked_hint_ids = (
+                json.loads(db_sess.unlocked_hints_json)
+                if db_sess.unlocked_hints_json
+                else []
+            )
+            session.total_penalties = db_sess.total_penalties or 0
+            session.is_solved = bool(db_sess.is_solved)
+            session.status = db_sess.status
+
+            self._sessions[session_id] = session
+            return session
+        except Exception as e:
+            logger.warning(f"Error restoring session {session_id} from DB: {e}")
+            return None
+
+    def get_session(
+        self, session_id: str, db: Optional[Session] = None
+    ) -> Optional[SandboxSessionResponse]:
         session = self._sessions.get(session_id)
+        if not session and db is not None:
+            session = self._restore_session_from_db(session_id, db)
         if not session:
             return None
 
@@ -501,7 +560,15 @@ def __(mo):
 
     async def stop_session(self, session_id: str, db: Optional[Session] = None) -> bool:
         session = self._sessions.get(session_id)
+        if not session and db is not None:
+            session = self._restore_session_from_db(session_id, db)
         if not session:
+            if db is not None:
+                db_sess = db.query(CyberSandboxSession).filter_by(id=session_id).first()
+                if db_sess:
+                    db_sess.status = "stopped"
+                    db.commit()
+                    return True
             return False
         if session.process:
             try:
@@ -541,9 +608,30 @@ def __(mo):
         flag_attempt: str,
         db: Optional[Session] = None,
         user_id: Optional[int] = None,
+        challenge_id: Optional[str] = None,
     ) -> SandboxFlagSubmitResponse:
         session = self._sessions.get(session_id)
+        if not session and db is not None:
+            session = self._restore_session_from_db(session_id, db)
+
         if not session:
+            # Fallback check directly against database challenge record
+            if db is not None:
+                db_chal = None
+                if challenge_id:
+                    db_chal = db.query(CyberSandboxChallenge).filter_by(id=challenge_id).first()
+                if not db_chal and not session_id.startswith("sim_"):
+                    db_chal = db.query(CyberSandboxChallenge).filter_by(id=session_id).first()
+                if db_chal and db_chal.flag:
+                    if flag_attempt.strip().lower() == db_chal.flag.strip().lower():
+                        return SandboxFlagSubmitResponse(
+                            correct=True,
+                            message="🎯 CONGRATULATIONS! Incident Flag Verified. Threat neutralized and points recorded.",
+                            points_awarded=db_chal.points,
+                            competency_id=db_chal.competency_id or "soc_investigation",
+                            competency_score=db_chal.points,
+                        )
+
             return SandboxFlagSubmitResponse(
                 correct=False,
                 message="Session not found or already terminated.",
@@ -632,10 +720,57 @@ def __(mo):
         )
 
     def unlock_hint(
-        self, session_id: str, hint_id: int, db: Optional[Session] = None
+        self,
+        session_id: str,
+        hint_id: int,
+        db: Optional[Session] = None,
+        challenge_id: Optional[str] = None,
     ) -> SandboxHintUnlockResponse:
         session = self._sessions.get(session_id)
+        if not session and db is not None:
+            session = self._restore_session_from_db(session_id, db)
+
         if not session:
+            # Fallback lookup directly against challenge in DB or templates
+            db_chal = None
+            if db is not None:
+                if challenge_id:
+                    db_chal = db.query(CyberSandboxChallenge).filter_by(id=challenge_id).first()
+                if not db_chal and not session_id.startswith("sim_"):
+                    db_chal = db.query(CyberSandboxChallenge).filter_by(id=session_id).first()
+                if not db_chal:
+                    db_chal = db.query(CyberSandboxChallenge).first()
+
+            if db_chal and db_chal.hints_json:
+                try:
+                    hints = json.loads(db_chal.hints_json)
+                    matching = next((h for h in hints if h.get("id") == hint_id), None)
+                    if matching:
+                        penalty = matching.get("penalty", 15)
+                        content = matching.get("content", "Follow evidence telemetry to locate the flag.")
+                        return SandboxHintUnlockResponse(
+                            hint_id=hint_id,
+                            content=content,
+                            penalty=penalty,
+                            remaining_points=max(10, db_chal.points - penalty),
+                        )
+                except Exception as e:
+                    logger.warning(f"Error parsing hints from challenge: {e}")
+
+            if challenge_id and challenge_id in self._templates:
+                tmpl = self._templates[challenge_id]
+                slots = tmpl.generate_random_slots(seed=f"seed_{challenge_id}")
+                hints = tmpl.generate_hints(slots)
+                matching = next((h for h in hints if h.get("id") == hint_id), None)
+                if matching:
+                    penalty = matching.get("penalty", 15)
+                    return SandboxHintUnlockResponse(
+                        hint_id=hint_id,
+                        content=matching.get("content", ""),
+                        penalty=penalty,
+                        remaining_points=max(10, tmpl.base_points - penalty),
+                    )
+
             return SandboxHintUnlockResponse(
                 hint_id=hint_id,
                 content="Session not found.",

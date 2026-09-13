@@ -219,5 +219,40 @@ class TestCybersecuritySandbox(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Digital Public Infrastructure", pillar_names)
 
 
+    async def test_08_hint_unlock_after_server_reload_and_fallback(self):
+        # 1. Start a session
+        sess = await sandbox_manager.start_session(
+            "01-soc-auth-investigation", duration_minutes=30, db=self.db
+        )
+        session_id = sess.session_id
+
+        # 2. Simulate server restart/reload by clearing in-memory sessions dictionary
+        if session_id in sandbox_manager._sessions:
+            active_s = sandbox_manager._sessions[session_id]
+            if active_s.log_file:
+                active_s.log_file.close()
+        sandbox_manager._sessions.clear()
+        self.assertNotIn(session_id, sandbox_manager._sessions)
+
+        # 3. Unlock hint with cleared memory: should restore from DB without error
+        hint_res = sandbox_manager.unlock_hint(session_id, 1, db=self.db)
+        self.assertNotEqual(hint_res.content, "Session not found.")
+        self.assertIn("4625", hint_res.content)
+        self.assertGreater(hint_res.penalty, 0)
+
+        # 4. Verify session was re-hydrated into memory
+        self.assertIn(session_id, sandbox_manager._sessions)
+
+        # 5. Client fallback test: simulated session with challenge_id
+        sim_hint_res = sandbox_manager.unlock_hint(
+            "sim_custom_client_123",
+            1,
+            db=self.db,
+            challenge_id="01-soc-auth-investigation",
+        )
+        self.assertNotEqual(sim_hint_res.content, "Session not found.")
+        self.assertIn("4625", sim_hint_res.content)
+
+
 if __name__ == "__main__":
     unittest.main()

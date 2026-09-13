@@ -157,6 +157,7 @@ class SandboxSessionResponse(BaseModel):
 class SandboxFlagSubmitRequest(BaseModel):
     session_id: str
     flag: str
+    challenge_id: Optional[str] = None
 
 
 class SandboxFlagSubmitResponse(BaseModel):
@@ -170,6 +171,7 @@ class SandboxFlagSubmitResponse(BaseModel):
 class SandboxHintUnlockRequest(BaseModel):
     session_id: str
     hint_id: int
+    challenge_id: Optional[str] = None
 
 
 class SandboxHintUnlockResponse(BaseModel):
