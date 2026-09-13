@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronRight,
   ShieldCheck,
+  ShieldAlert,
   ArrowRight,
   Star,
   Building2,
@@ -33,7 +34,9 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
-  const [expandedModules, setExpandedModules] = useState<Record<number, boolean>>({});
+  const [expandedModules, setExpandedModules] = useState<
+    Record<number, boolean>
+  >({});
 
   useEffect(() => {
     if (!courseId) return;
@@ -125,8 +128,12 @@ export default function CourseDetailPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 bg-[#F8FAFC]">
         <BookOpen className="h-12 w-12 text-slate-400 mb-3" />
-        <h2 className="text-xl font-bold text-slate-900">{t("course.notFound")}</h2>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm">{t("course.notFoundDesc")}</p>
+        <h2 className="text-xl font-bold text-slate-900">
+          {t("course.notFound")}
+        </h2>
+        <p className="text-xs text-slate-500 mt-1 max-w-sm">
+          {t("course.notFoundDesc")}
+        </p>
         <a href="/discover">
           <Button
             variant="outline"
@@ -163,7 +170,8 @@ export default function CourseDetailPage() {
             </span>
             <span className="text-xs text-slate-400">•</span>
             <span className="text-xs font-medium text-slate-600">
-              {t(`category.${course.category}`) !== `category.${course.category}`
+              {t(`category.${course.category}`) !==
+              `category.${course.category}`
                 ? t(`category.${course.category}`)
                 : course.category}
             </span>
@@ -186,22 +194,34 @@ export default function CourseDetailPage() {
           {/* Instructor & Accreditation Info Strip */}
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-y border-slate-100 text-xs">
             <div>
-              <span className="text-slate-400 block font-medium">{t("course.instructor")}</span>
-              <span className="font-bold text-slate-900 mt-0.5 block">{course.instructor}</span>
+              <span className="text-slate-400 block font-medium">
+                {t("course.instructor")}
+              </span>
+              <span className="font-bold text-slate-900 mt-0.5 block">
+                {course.instructor}
+              </span>
             </div>
             <div>
-              <span className="text-slate-400 block font-medium">{t("course.organization")}</span>
-              <span className="font-bold text-slate-900 mt-0.5 block">{getCourseOrg()}</span>
+              <span className="text-slate-400 block font-medium">
+                {t("course.organization")}
+              </span>
+              <span className="font-bold text-slate-900 mt-0.5 block">
+                {getCourseOrg()}
+              </span>
             </div>
             <div>
-              <span className="text-slate-400 block font-medium">{t("course.duration")}</span>
+              <span className="text-slate-400 block font-medium">
+                {t("course.duration")}
+              </span>
               <span className="font-bold text-slate-900 mt-0.5 block flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5 text-slate-400" />
                 {course.duration_hours} {t("course.learningHours")}
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block font-medium">{t("course.officialRating")}</span>
+              <span className="text-slate-400 block font-medium">
+                {t("course.officialRating")}
+              </span>
               <span className="font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
                 <span>{course.rating}</span>
@@ -238,7 +258,8 @@ export default function CourseDetailPage() {
                   size="sm"
                   className="text-xs rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 cursor-pointer"
                 >
-                  {t("course.takeAssessment")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                  {t("course.takeAssessment")}{" "}
+                  <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </a>
             )}
@@ -259,7 +280,9 @@ export default function CourseDetailPage() {
                   </CardTitle>
                   <p className="text-xs text-slate-500">
                     {course.modules.length} {t("discover.units")} •{" "}
-                    {course.counts.readings + course.counts.videos + course.counts.labs}{" "}
+                    {course.counts.readings +
+                      course.counts.videos +
+                      course.counts.labs}{" "}
                     {t("course.learningHours")}
                   </p>
                 </CardHeader>
@@ -284,7 +307,8 @@ export default function CourseDetailPage() {
                                 {mod.title}
                               </h4>
                               <p className="text-[11px] text-slate-500">
-                                {mod.lessons.length} {t("course.lessons")} • {mod.description}
+                                {mod.lessons.length} {t("course.lessons")} •{" "}
+                                {mod.description}
                               </p>
                             </div>
                           </div>
@@ -312,7 +336,9 @@ export default function CourseDetailPage() {
                                   {lesson.content_type === "reading" && (
                                     <FileText className="h-3.5 w-3.5 text-slate-400" />
                                   )}
-                                  <span className="font-medium text-slate-800">{lesson.title}</span>
+                                  <span className="font-medium text-slate-800">
+                                    {lesson.title}
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-500">
                                   {lesson.has_activity && (
@@ -331,6 +357,73 @@ export default function CourseDetailPage() {
                   })}
                 </CardContent>
               </Card>
+
+              {/* Specialized Hands-On Labs & Crisis Simulations for Digital Governance */}
+              {(course.category?.toLowerCase().includes("digital governance") ||
+                course.category?.toLowerCase().includes("cyber") ||
+                course.title?.toLowerCase().includes("digital governance")) && (
+                <Card className="border-slate-200 bg-gradient-to-br from-white to-blue-50/50 shadow-sm rounded-xl overflow-hidden border-l-4 border-l-[#1E3A8A]">
+                  <CardHeader className="border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-[#1E3A8A] text-white">
+                        <ShieldAlert className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm font-bold text-slate-900">
+                          Practical DFIR Labs & Crisis Workbenches
+                        </CardTitle>
+                        <p className="text-[11px] text-slate-500">
+                          Interactive investigation consoles and CERT-In crisis
+                          response simulations for this competency
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <a
+                        href="/digital-governance/sandbox"
+                        className="p-3.5 rounded-xl bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-md transition-all group block"
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
+                            8 Live DFIR Labs
+                          </span>
+                          <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] transition-colors" />
+                        </div>
+                        <h5 className="text-xs font-bold text-slate-900 group-hover:text-[#1E3A8A] transition-colors">
+                          Cyber Defense Sandbox
+                        </h5>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                          Analyze auth logs, deobfuscate phishing payloads, and
+                          audit cloud infrastructure in an interactive Marimo
+                          console.
+                        </p>
+                      </a>
+
+                      <a
+                        href="/digital-governance/scenarios"
+                        className="p-3.5 rounded-xl bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-md transition-all group block"
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
+                            National Incident Injects
+                          </span>
+                          <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] transition-colors" />
+                        </div>
+                        <h5 className="text-xs font-bold text-slate-900 group-hover:text-[#1E3A8A] transition-colors">
+                          Tabletop Crisis Simulation
+                        </h5>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                          Practice real-time crisis decision making, 6-hour
+                          CERT-In breach reporting, and DPDP Act 2023
+                          compliance.
+                        </p>
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar Column: Materials Breakdown & Skills Gained */}
@@ -345,28 +438,39 @@ export default function CourseDetailPage() {
                 <CardContent className="p-4 space-y-3 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 text-slate-600">
-                      <Video className="h-3.5 w-3.5 text-amber-600" /> {t("course.videoLectures")}
+                      <Video className="h-3.5 w-3.5 text-amber-600" />{" "}
+                      {t("course.videoLectures")}
                     </span>
-                    <span className="font-bold text-slate-900">{course.counts.videos}</span>
+                    <span className="font-bold text-slate-900">
+                      {course.counts.videos}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 text-slate-600">
-                      <FileText className="h-3.5 w-3.5 text-slate-400" /> {t("course.readingModules")}
+                      <FileText className="h-3.5 w-3.5 text-slate-400" />{" "}
+                      {t("course.readingModules")}
                     </span>
-                    <span className="font-bold text-slate-900">{course.counts.readings}</span>
+                    <span className="font-bold text-slate-900">
+                      {course.counts.readings}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 text-slate-600">
                       <FlaskConical className="h-3.5 w-3.5 text-indigo-600" />{" "}
                       {t("course.practicalLabs")}
                     </span>
-                    <span className="font-bold text-slate-900">{course.counts.labs}</span>
+                    <span className="font-bold text-slate-900">
+                      {course.counts.labs}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 text-slate-600">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> {t("course.mcqTest")}
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />{" "}
+                      {t("course.mcqTest")}
                     </span>
-                    <span className="font-bold text-slate-900">{course.counts.assessments}</span>
+                    <span className="font-bold text-slate-900">
+                      {course.counts.assessments}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
