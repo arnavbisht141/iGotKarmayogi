@@ -40,8 +40,8 @@ class WebSqliTemplate(BaseChallengeTemplate):
     ) -> Dict[str, Any]:
         rng = random.Random(seed) if seed else random.Random()
         slots = {
-            "incident_codename": f"Operation AppSec-{rng.randint(401, 999)}",
-            "target_app": "Corporate Directory & Payroll API",
+            "incident_codename": f"Operation BlindSpot-{rng.randint(101, 899)}",
+            "target_app": "Corporate Directory & Staff Lookup API",
             "seed_hash": hashlib.md5(f"{seed}-{rng.random()}".encode()).hexdigest(),
         }
         if overrides:
@@ -49,38 +49,48 @@ class WebSqliTemplate(BaseChallengeTemplate):
         return slots
 
     def compute_flag(self, slots: Dict[str, Any]) -> str:
-        return f"FLAG{{sqli_union_payroll_leak_{slots['seed_hash'][:8]}}}"
+        h = slots.get("seed_hash", "default")[:6]
+        return f"FLAG{{sqli_union_payroll_audit_{h}}}"
 
     def generate_hints(self, slots: Dict[str, Any]) -> List[Dict[str, Any]]:
         return [
             {
                 "id": 1,
-                "content": "The search query parameter concatenates untrusted input. Test syntax with a single quote: ' OR 1=1 --",
-                "penalty": 20,
+                "content": "Test input with `'`. Observe if SQLite syntax errors leak database implementation details.",
+                "penalty": 10,
             },
             {
                 "id": 2,
-                "content": "Query arity is 4 columns. Enumerate tables in sqlite_master, then inject: ' UNION SELECT id, employee_id, notes, flag FROM payroll_audit --",
-                "penalty": 35,
+                "content": "Determine column count with UNION SELECT. Try `' UNION SELECT 1, 2, 3, 4 --` until query arity matches.",
+                "penalty": 15,
+            },
+            {
+                "id": 3,
+                "content": "Query sqlite_master schema: `' UNION SELECT 1, name, sql, 4 FROM sqlite_master WHERE type='table' --` to reveal the secret payroll audit table.",
+                "penalty": 20,
             },
         ]
 
     def generate_objectives(self, slots: Dict[str, Any]) -> List[str]:
         return [
-            "Probe search input for SQL injection vulnerabilities using boolean tautologies and syntax breakers.",
-            "Determine column arity using UNION SELECT technique.",
-            "Enumerate hidden tables in sqlite_master and exfiltrate the payroll audit secret flag.",
+            "Probe the employee search endpoint for SQL syntax error disclosures.",
+            "Determine the target query column count using UNION SELECT projection.",
+            "Enumerate hidden tables via `sqlite_master` catalog extraction.",
+            "Exfiltrate the confidential audit finding flag from the `payroll_audit` table.",
         ]
 
     def generate_scenario_description(self, slots: Dict[str, Any]) -> str:
-        return f"""### Web Application Security Assessment: {slots['incident_codename']}
+        return f"""### Emergency Incident Briefing: {slots['incident_codename']}
 
-The corporate directory search endpoint at `/api/search?q=` directly interpolates user input into backend SQL queries without sanitization.
+During an internal penetration test of `{slots['target_app']}`, auditors identified a suspected SQL injection flaw in the directory lookup service.
+
+The search input parameter concatenates unvalidated user input directly into backend SQLite query strings without parameterization.
 
 Your mandate:
-1. Exploit the SQL injection vulnerability to determine query structure.
-2. Enumerate database schema objects via `sqlite_master`.
-3. Extract restricted records from the internal `payroll_audit` table to recover the flag.
+1. Probe the query interface in the interactive Marimo notebook.
+2. Confirm SQL injection vulnerability and determine column arity.
+3. Enumerate the database schema via `sqlite_master`.
+4. Extract the secret flag from the restricted `payroll_audit` table and review parameterized defense.
 """
 
     def synthesize_artifacts(
@@ -90,32 +100,50 @@ Your mandate:
         data_dir.mkdir(parents=True, exist_ok=True)
         db_path = data_dir / "corp_directory.db"
 
-        flag = self.compute_flag(slots)
+        if db_path.exists():
+            db_path.unlink()
 
-        # Build SQLite database
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(str(db_path))
         cur = conn.cursor()
-        cur.execute("DROP TABLE IF EXISTS employees")
-        cur.execute("DROP TABLE IF EXISTS payroll_audit")
-        cur.execute("CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, department TEXT, email TEXT)")
-        cur.execute("CREATE TABLE payroll_audit (id INTEGER PRIMARY KEY, employee_id INT, notes TEXT, flag TEXT)")
+
+        cur.execute("""
+        CREATE TABLE employees (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            department TEXT NOT NULL,
+            email TEXT NOT NULL
+        )
+        """)
 
         employees = [
-            (1, "Alice Smith", "Engineering", "alice@corp.internal"),
-            (2, "Bob Miller", "Human Resources", "bob@corp.internal"),
-            (3, "Charlie Davis", "Finance", "charlie@corp.internal"),
-            (4, "Dana White", "Executive", "dana@corp.internal"),
-            (5, "Elena Rostova", "Legal & Compliance", "elena@corp.internal"),
-            (6, "Farhan Khan", "Operations", "farhan@corp.internal"),
+            (1, "Aarav Sharma", "Engineering", "a.sharma@gov.internal"),
+            (2, "Priya Patel", "Finance", "p.patel@gov.internal"),
+            (3, "Vikram Singh", "Executive", "v.singh@gov.internal"),
+            (4, "Ananya Iyer", "Human Resources", "a.iyer@gov.internal"),
+            (5, "Rohan Verma", "Engineering", "r.verma@gov.internal"),
+            (6, "Neha Gupta", "Legal & Compliance", "n.gupta@gov.internal"),
+            (7, "Siddharth Rao", "Engineering", "s.rao@gov.internal"),
+            (8, "Kavita Reddy", "Finance", "k.reddy@gov.internal"),
         ]
         cur.executemany("INSERT INTO employees VALUES (?, ?, ?, ?)", employees)
 
+        flag = self.compute_flag(slots)
+        cur.execute("""
+        CREATE TABLE payroll_audit (
+            audit_id INTEGER PRIMARY KEY,
+            employee_ref TEXT NOT NULL,
+            discrepancy_amount REAL NOT NULL,
+            notes TEXT NOT NULL
+        )
+        """)
+
         audits = [
-            (1, 4, "Executive bonus disbursement verification", flag),
-            (2, 3, "Quarterly tax withholding reconciliation", "N/A"),
-            (3, 1, "Off-cycle project bonus clearance", "N/A"),
+            (101, "EMP-0012", 45000.0, "Duplicate disbursement flagged in Q2"),
+            (102, "EMP-0044", 128500.0, f"Unauthorized severance bonus {flag}"),
+            (103, "EMP-0089", 12000.0, "Travel allowance unreconciled balance"),
         ]
         cur.executemany("INSERT INTO payroll_audit VALUES (?, ?, ?, ?)", audits)
+
         conn.commit()
         conn.close()
 
@@ -145,7 +173,7 @@ __generated_with = "0.24.1"
 app = marimo.App(width="full", app_title="__APP_TITLE__")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __():
     import hashlib
     import json
@@ -158,8 +186,8 @@ def __():
     return Path, hashlib, json, mo, pd, re, sqlite3
 
 
-@app.cell
-def __(Path, sqlite3):
+@app.cell(hide_code=True)
+def __(Path, pd, sqlite3):
     # Connect to the authentic corporate database
     possible_db_paths = [
         Path("data/corp_directory.db"),
@@ -173,17 +201,25 @@ def __(Path, sqlite3):
         )
     db_file = next((p for p in possible_db_paths if p.exists()), None)
     conn = sqlite3.connect(db_file if db_file else ":memory:", check_same_thread=False)
-    return conn, db_file, possible_db_paths
+
+    try:
+        df_employees = pd.read_sql_query("SELECT id, name, department, email FROM employees", conn)
+    except Exception:
+        df_employees = pd.DataFrame()
+
+    raw_db_bytes = db_file.read_bytes() if db_file and db_file.exists() else b""
+
+    return conn, db_file, df_employees, possible_db_paths, raw_db_bytes
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(mo):
     # Analyst Sidebar: OWASP Classification, MITRE ATT&CK & Checklist
     check_probe = mo.ui.checkbox(
         label="1. Probe input for SQL syntax errors (single quote)", value=False
     )
     check_bypass = mo.ui.checkbox(
-        label="2. Confirm boolean tautology bypass (' OR 1=1 --)", value=False
+        label="2. Confirm boolean filter bypass (' OR 1=1 --)", value=False
     )
     check_cols = mo.ui.checkbox(
         label="3. Enumerate query column count (UNION SELECT)", value=False
@@ -192,7 +228,7 @@ def __(mo):
         label="4. Enumerate schema via sqlite_master injection", value=False
     )
     check_flag = mo.ui.checkbox(
-        label="5. Exfiltrate secret audit records & verify flag", value=False
+        label="5. Exfiltrate secret payroll audit flag", value=False
     )
 
     hints = mo.accordion(
@@ -201,10 +237,10 @@ def __(mo):
                 "Test input with a single quote (`'`). If the application returns a syntax error, untrusted input is concatenated directly into the query string without sanitization."
             ),
             "💡 Hint 2: Determining Column Count": mo.md(
-                "UNION SELECT injections require the injected query to return the exact same number of columns as the original query. Test `' UNION SELECT 1 --`, `' UNION SELECT 1, 2 --`, etc., until no column mismatch error occurs."
+                "UNION SELECT injections require the injected query to return the exact same number of columns as the original query (4 columns). Test `' UNION SELECT 1, 2, 3, 4 --` to align arity."
             ),
             "💡 Hint 3: Database Schema Enumeration": mo.md(
-                "In SQLite, all table schemas are cataloged in `sqlite_master`. Inject a UNION query selecting `name` and `sql` from `sqlite_master` to uncover hidden internal tables."
+                "In SQLite, all table schemas are cataloged in `sqlite_master`. Inject a UNION query: `' UNION SELECT 1, name, sql, 4 FROM sqlite_master --` to uncover hidden internal tables like `payroll_audit`."
             ),
         }
     )
@@ -227,14 +263,13 @@ def __(mo):
             mo.md(
                 "- **CWE-89**: Improper Neutralization of Special Elements used in an SQL Command\n"
                 "- **OWASP Top 10**: A03:2021 - Injection\n"
-                "- **MITRE ATT&CK**: T1190 (Exploit Public-Facing Application)"
+                "- **MITRE ATT&CK**: T1190 (Exploit Public-Facing Application)\n"
+                "- **CAPEC**: CAPEC-66 (SQL Injection)"
             ),
             mo.md("---"),
             hints,
         ]
     )
-
-    mo.sidebar(sidebar_content)
     return (
         check_bypass,
         check_cols,
@@ -247,235 +282,300 @@ def __(mo):
 
 
 @app.cell
-def __(conn, mo):
-    # Header Banner & Stat KPIs
-    cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM employees")
-    emp_count = cur.fetchone()[0]
+def __(mo, sidebar_content):
+    return (mo.sidebar(sidebar_content),)
 
-    header_view = mo.vstack(
+
+@app.cell(hide_code=True)
+def __(df_employees, mo):
+    # Tab 1: Alert Triage & Scope View
+    triage_view = mo.vstack(
         [
             mo.md("""
-            # 🌐 Incident: __INCIDENT_CODENAME__
-            ### Web Application Security, SQL Injection & Data Exfiltration Workbench
+            # 🌐 Assessment: __INCIDENT_CODENAME__
+            ### Web Application Security: In-Band SQL Injection & Exfiltration Workbench
             """),
             mo.callout(
                 mo.md(
-                    "**AppSec Penetration Testing Notice**: The Employee Directory search endpoint concatenates untrusted user queries directly into SQL commands. Exploit the SQL injection vulnerability to determine query structure, enumerate backend schema objects via `sqlite_master`, extract restricted audit records, and demonstrate secure parameterized remediation."
+                    "**AppSec Penetration Testing Notice**: The Employee Directory search endpoint (`/api/search?q=`) directly concatenates untrusted user queries into SQL commands. As the AppSec assessor, exploit the SQL injection vulnerability to determine query structure, enumerate backend schema objects via `sqlite_master`, extract restricted payroll audit records, and verify parameterized remediation."
                 ),
                 kind="warn",
             ),
             mo.hstack(
                 [
                     mo.stat(
-                        value="Vulnerable",
-                        label="Input Sanitization",
-                        caption="Direct String Interpolation",
-                        direction="increase",
+                        value=f"{len(df_employees)} Records",
+                        label="Public Directory Size",
+                        caption="Legitimate Employees",
                         bordered=True,
                     ),
                     mo.stat(
-                        value=f"{emp_count} Records",
-                        label="Visible Directory Entries",
-                        caption="Public Employees Table",
+                        value="CWE-89",
+                        label="Primary Vulnerability",
+                        caption="In-Band Union SQLi",
                         bordered=True,
                     ),
                     mo.stat(
-                        value="SQLite 3",
-                        label="Database Engine",
-                        caption="Backend Relational DBMS",
+                        value="HIGH (CVSS 8.6)",
+                        label="Risk Assessment",
+                        caption="Arbitrary Database Read",
                         bordered=True,
                     ),
                     mo.stat(
-                        value="OWASP A03",
-                        label="Risk Classification",
-                        caption="Critical SQL Injection Flaw",
+                        value="sqlite3",
+                        label="DBMS Technology",
+                        caption="Embedded Relational Engine",
                         bordered=True,
                     ),
                 ],
                 justify="start",
                 gap=1,
             ),
+            mo.md("---"),
+            mo.md("""
+            ### 🏛️ Web Application Architecture & Injection Surface
+            ```text
+            [Browser / Client] ─── HTTP GET /api/search?q=' UNION... ───> [Python / Flask Backend]
+                                                                                   │
+                                                          [Vulnerable Query Build] │ cur.execute(f"...WHERE name LIKE '%{q}%'")
+                                                                                   v
+                                                                        [SQLite Database Engine]
+                                                                        ├── employees (Public)
+                                                                        └── payroll_audit (CONFIDENTIAL)
+            ```
+            """),
         ]
     )
-    return cur, emp_count, header_view
+    return (triage_view,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(mo):
-    # Step 1: Interactive SQL Injection Controls
-    payload_preset = mo.ui.dropdown(
+    # Tab 2: SQL Injection Interactive Workbench Controls
+    payload_presets = mo.ui.dropdown(
         options=[
-            "Custom Injection Query",
-            "1. Standard Search: 'Alice'",
-            "2. Syntax Error Probe: '",
-            "3. Boolean Filter Bypass: ' OR 1=1 --",
-            "4. Column Count Enumeration: ' UNION SELECT 1, 2, 3, 4 --",
+            "-- Select Injection Methodology Preset --",
+            "Single Quote Probe: '",
+            "Boolean Tautology: ' OR 1=1 --",
+            "Column Arity Probe: ' UNION SELECT 1, 2, 3, 4 --",
+            "Schema Enumeration: ' UNION SELECT 1, name, sql, 4 FROM sqlite_master WHERE type='table' --",
+            "Audit Exfiltration: ' UNION SELECT audit_id, employee_ref, discrepancy_amount, notes FROM payroll_audit --",
         ],
-        value="1. Standard Search: 'Alice'",
-        label="Methodology Preset:",
+        value="-- Select Injection Methodology Preset --",
+        label="Quick Payloads:",
     )
-
-    custom_payload_input = mo.ui.text(
-        value="Alice",
-        placeholder="Enter search term or SQL injection payload (e.g. ' UNION SELECT ...)...",
-        label="SQL Injection Input (Query Parameter `q`):",
-        full_width=True,
+    search_input = mo.ui.text(
+        value="Sharma",
+        placeholder="Enter search term or SQL injection payload...",
+        label="Search Query Input (`q`):",
     )
+    return payload_presets, search_input
 
-    return custom_payload_input, payload_preset
 
+@app.cell(hide_code=True)
+def __(conn, mo, payload_presets, pd, search_input):
+    # Reactive Payload Synchronization
+    current_q = search_input.value
+    if payload_presets.value != "-- Select Injection Methodology Preset --":
+        preset_val = payload_presets.value.split(": ", 1)[-1]
+        current_q = preset_val
 
-@app.cell
-def __(conn, custom_payload_input, mo, payload_preset, pd):
-    # Step 1: Live Database Query Execution & Results Rendering
-    active_query = custom_payload_input.value
-    if payload_preset.value == "1. Standard Search: 'Alice'":
-        active_query = "Alice"
-    elif "Syntax Error Probe" in payload_preset.value:
-        active_query = "'"
-    elif "Boolean Filter Bypass" in payload_preset.value:
-        active_query = "' OR 1=1 --"
-    elif "Column Count Enumeration" in payload_preset.value:
-        active_query = "' UNION SELECT 1, 2, 3, 4 --"
+    raw_sql = f"SELECT id, name, department, email FROM employees WHERE name LIKE '%{current_q}%'"
 
-    constructed_sql = f"SELECT id, name, department, email FROM employees WHERE name LIKE '%{active_query}%'"
-
-    query_success = False
-    query_error = ""
-    result_rows = []
+    error_msg = None
+    query_results = []
+    columns = ["id", "name", "department", "email"]
 
     try:
-        cur_exec = conn.cursor()
-        cur_exec.execute(constructed_sql)
-        result_rows = cur_exec.fetchall()
-        query_success = True
-    except Exception as err:
-        query_error = str(err)
-        query_success = False
+        cur = conn.cursor()
+        cur.execute(raw_sql)
+        rows = cur.fetchall()
+        query_results = rows
+        if cur.description:
+            columns = [d[0] for d in cur.description]
+    except Exception as e:
+        error_msg = str(e)
 
-    if query_success:
-        df_results = pd.DataFrame(
-            result_rows,
-            columns=[
-                "Col 1 (id)",
-                "Col 2 (name)",
-                "Col 3 (department)",
-                "Col 4 (email)",
-            ],
-        )
-        query_status_badge = mo.callout(
-            mo.md(
-                f"✅ **Database Execution Succeeded**: `{len(df_results)}` row(s) returned."
-            ),
-            kind="success",
-        )
-        results_view = mo.ui.table(
-            df_results,
-            selection=None,
-            pagination=True,
-            page_size=8,
-            show_column_summaries=False,
-        )
-    else:
-        df_results = pd.DataFrame()
-        query_status_badge = mo.callout(
-            mo.md(
-                f"❌ **Database Execution Error**: `{query_error}`\n\n*This error indicates unsanitized SQL syntax injection!*"
-            ),
+    if error_msg:
+        status_badge = mo.callout(
+            mo.md(f"⚠️ **SQLite Database Error**: `{error_msg}`"),
             kind="danger",
         )
-        results_view = mo.md("")
+        res_display = mo.md("No rows returned due to query execution error.")
+    else:
+        status_badge = mo.callout(
+            mo.md(f"✅ **Query Executed Successfully** — `{len(query_results)}` row(s) returned."),
+            kind="success",
+        )
+        df_res = pd.DataFrame(query_results, columns=columns) if query_results else pd.DataFrame()
+        res_display = mo.ui.table(df_res, selection=None, pagination=True, page_size=6) if not df_res.empty else mo.md("0 matching records found.")
 
-    step1_view = mo.vstack(
+    sqli_view = mo.vstack(
         [
-            mo.md("## 🔬 Step 1: Interactive SQL Injection Console"),
+            mo.md("## 🔬 In-Band SQL Injection Interactive Console"),
             mo.md(
-                "Test search inputs and SQL injection strings against the target employee directory. Observe the generated backend SQL statement and the returned database records:"
+                "Test query parameters against the live `/api/search` endpoint. Select a preset or type arbitrary payloads directly:"
             ),
-            payload_preset,
-            custom_payload_input,
+            mo.hstack([payload_presets, search_input], justify="start", gap=2),
             mo.md("---"),
-            mo.md("#### 🖥️ Backend SQL Query Executed:"),
-            mo.md(f"```sql\n{constructed_sql}\n```"),
-            query_status_badge,
-            results_view,
+            mo.md(f"### 📡 Executed Query String:\n```sql\n{raw_sql}\n```"),
+            status_badge,
+            mo.md("---"),
+            mo.md("### 📊 Database Output Table:"),
+            res_display,
         ]
     )
     return (
-        active_query,
-        constructed_sql,
-        cur_exec,
-        df_results,
-        query_error,
-        query_status_badge,
-        query_success,
-        result_rows,
-        results_view,
-        step1_view,
+        columns,
+        current_q,
+        error_msg,
+        payload_presets,
+        query_results,
+        raw_sql,
+        res_display,
+        sqli_view,
+        status_badge,
     )
 
 
-@app.cell
+@app.cell(hide_code=True)
+def __(conn, df_employees, mo, pd, raw_db_bytes, re):
+    # Tab 3: Python Scratchpad & Database File Export
+    download_db = mo.download(
+        data=raw_db_bytes,
+        filename="corp_directory.db",
+        label="📥 Export corp_directory.db",
+    )
+    scratchpad = mo.ui.code_editor(
+        value="# Python AppSec Database Analytics Scratchpad\n# Available: conn (sqlite3 connection), df_employees, pd, re\n\n# Query the internal sqlite_master directly:\npd.read_sql_query('SELECT type, name, sql FROM sqlite_master', conn)\n",
+        language="python",
+        label="AppSec Python Console:",
+    )
+    return download_db, scratchpad
+
+
+@app.cell(hide_code=True)
+def __(conn, df_employees, download_db, mo, pd, re, scratchpad):
+    # Tab 3: Reactive Python Execution Engine
+    code_text = scratchpad.value.strip()
+    eval_result = None
+
+    if code_text:
+        locs = {
+            "conn": conn,
+            "df_employees": df_employees,
+            "pd": pd,
+            "re": re,
+        }
+        try:
+            lines = [
+                l
+                for l in code_text.splitlines()
+                if l.strip() and not l.strip().startswith("#")
+            ]
+            if lines:
+                exec_chunk = "\n".join(lines[:-1])
+                last_line = lines[-1]
+                if exec_chunk:
+                    exec(exec_chunk, {"__builtins__": __builtins__}, locs)
+                try:
+                    res = eval(last_line, {"__builtins__": __builtins__}, locs)
+                except SyntaxError:
+                    exec(last_line, {"__builtins__": __builtins__}, locs)
+                    res = locs.get("output", locs.get("result", "Script executed successfully."))
+
+                if isinstance(res, pd.DataFrame):
+                    eval_result = mo.ui.table(res, selection=None, pagination=True, page_size=6)
+                elif isinstance(res, pd.Series):
+                    eval_result = mo.ui.table(res.to_frame(), selection=None, pagination=True)
+                elif res is not None:
+                    eval_result = mo.md(f"```python\n{repr(res)}\n```")
+                else:
+                    eval_result = mo.md("✅ *Execution completed without output.*")
+            else:
+                eval_result = mo.md("ℹ️ *Enter Python code above to run interactive queries.*")
+        except Exception as e:
+            eval_result = mo.callout(
+                mo.md(f"**Execution Error**: `{type(e).__name__}: {str(e)}`"),
+                kind="danger",
+            )
+    else:
+        eval_result = mo.md("ℹ️ *Analyst scratchpad idle.*")
+
+    scratchpad_view = mo.vstack(
+        [
+            mo.md("## 💻 Analyst Python AppSec Scratchpad"),
+            mo.md(
+                "Inspect the database tables directly or download the authentic raw SQLite database file:"
+            ),
+            mo.hstack([download_db], justify="start"),
+            mo.md("---"),
+            scratchpad,
+            mo.md("---"),
+            mo.md("### 📤 Execution Output:"),
+            eval_result,
+        ]
+    )
+    return code_text, eval_result, scratchpad_view
+
+
+@app.cell(hide_code=True)
 def __(mo):
-    # Step 2: Secure Code Remediation
+    # Tab 4: Secure Remediation & Parameterized Diff View
     remediation_view = mo.vstack(
         [
-            mo.md("## 🛡️ Step 2: Secure Code Remediation (Parameterized Queries)"),
-            mo.md("""
-            SQL injection occurs when untrusted input is interpolated directly into SQL syntax.
-            """),
-            mo.md("""
-            #### ❌ Vulnerable Implementation:
-            ```python
-            # Untrusted input 'q' is formatted directly into the SQL string:
-            sql = f"SELECT id, name, department, email FROM employees WHERE name LIKE '%{q}%'"
-            cursor.execute(sql)
-            ```
-            
-            #### ✅ Secure Parameterized Implementation:
-            ```python
-            # The database engine treats the query parameter strictly as literal data:
-            sql = "SELECT id, name, department, email FROM employees WHERE name LIKE ?"
-            cursor.execute(sql, (f"%{q}%",))
-            ```
-            """),
+            mo.md("## 🛡️ Secure Code Remediation: Parameterized Queries"),
             mo.callout(
                 mo.md(
-                    "**Security Guarantee**: In a parameterized query, SQL metacontrol characters like quotes (`'`) or keywords (`UNION SELECT`) are never interpreted as SQL syntax, neutralizing 100% of injection attacks."
+                    "**CWE-89 Remediation Standard**: String interpolation (e.g., `f\"... WHERE name LIKE '%{q}%'\"`) compiles untrusted data as executable SQL code. Using parameterized queries ensures user input is strictly treated as literal data, completely neutralizing injection."
                 ),
-                kind="success",
+                kind="info",
+            ),
+            mo.ui.code_editor(
+                value="""# --- VULNERABLE CODE ---
+def search_employees_insecure(query: str):
+    sql = f"SELECT id, name, department, email FROM employees WHERE name LIKE '%{query}%'"
+    return conn.cursor().execute(sql).fetchall()
+
+# --- SECURE REMEDIATION (Parameterized Prepared Statement) ---
+def search_employees_secure(query: str):
+    sql = "SELECT id, name, department, email FROM employees WHERE name LIKE ?"
+    pattern = f"%{query}%"
+    return conn.cursor().execute(sql, (pattern,)).fetchall()
+""",
+                language="python",
+                label="Vulnerable vs Hardened Parameterized Implementation:",
             ),
         ]
     )
     return (remediation_view,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(mo):
-    # Step 3: Flag Input Control
+    # Tab 5: Flag Input Control
     candidate_flag = mo.ui.text(
-        placeholder="FLAG{...}",
-        label="Enter Extracted Payroll Audit Flag to Verify:",
+        placeholder="FLAG{sqli_union_payroll_audit_...}",
+        label="Enter Exfiltrated Payroll Audit Flag to Verify:",
     )
     return (candidate_flag,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(candidate_flag, hashlib, mo, re):
     val = candidate_flag.value.strip()
     target_hash = "__TARGET_HASH__"
 
     if not val:
         flag_feedback = mo.md(
-            "Enter the flag exfiltrated from the internal payroll audit records."
+            "Enter the flag exfiltrated from the internal `payroll_audit` records."
         )
         report_view = mo.md("🔒 *Audit Finding Verification Report locked until valid flag is provided.*")
     elif hashlib.sha256(val.encode()).hexdigest() == target_hash:
         flag_feedback = mo.callout(
             mo.md(
                 "🎉 **FLAG VERIFIED CORRECT!**\n\n"
-                "Your exfiltrated payroll audit finding is confirmed! Now copy and submit this flag in the **Submit Flag** box in the left CyberLab portal pane to register your 150 points and Web Application Security competency!"
+                "Your exfiltrated payroll audit finding is confirmed! Now submit this flag in the left CyberLab portal pane to claim 150 points and Web Application Security competency!"
             ),
             kind="success",
         )
@@ -483,21 +583,20 @@ def __(candidate_flag, hashlib, mo, re):
             [
                 mo.md("### 📋 Confirmed Vulnerability Assessment Report:"),
                 mo.md("""
-                | Vulnerability Factor | Assessment Detail |
-                | :--- | :--- |
-                | **Vulnerability Class** | In-Band Union-Based SQL Injection (CWE-89) |
-                | **Vulnerable Parameter** | `q` (GET request query parameter) |
-                | **Original Query Arity** | 4 Columns (`id, name, department, email`) |
-                | **Exfiltrated Table** | `payroll_audit` |
-                | **Root Cause** | Unsanitized string interpolation in query builder |
-                | **Remediation Status** | Parameterized query specification delivered |
+                | Assessment Parameter | Confirmed Value | Standard Reference |
+                | :--- | :--- | :--- |
+                | **Vulnerability Class** | In-Band Union-Based SQL Injection | CWE-89 / OWASP A03 |
+                | **Vulnerable Parameter** | `q` (GET search query parameter) | RFC 3986 URI Query |
+                | **Original Query Arity** | 4 Columns (`id, name, department, email`) | SQLite Engine Arity |
+                | **Compromised Table** | `payroll_audit` (Internal Non-Public Vault) | MeitY Data Classification |
+                | **Remediation Delivered** | Parameterized query specification verified | OWASP ASVS 4.0 §5.3 |
                 """),
             ]
         )
     elif re.match(r"^FLAG\{.*\}$", val):
         flag_feedback = mo.callout(
             mo.md(
-                "❌ Incorrect flag. Use UNION injection to discover hidden tables in `sqlite_master`, then extract records from the internal audit table."
+                "❌ Incorrect flag. Use UNION injection to discover hidden tables in `sqlite_master`, then extract records from the internal `payroll_audit` table."
             ),
             kind="danger",
         )
@@ -511,40 +610,120 @@ def __(candidate_flag, hashlib, mo, re):
         )
         report_view = mo.md("🔒 *Audit Finding Verification Report locked until valid flag is provided.*")
 
-    step3_view = mo.vstack(
+    verification_view = mo.vstack(
         [
-            mo.md("## 🏁 Step 3: Verify Exfiltrated Incident Flag & Audit Report"),
+            mo.md("## 🏁 Step 5: Verify Exfiltrated Flag & Audit Report"),
             candidate_flag,
             flag_feedback,
             mo.md("---"),
             report_view,
         ]
     )
-    return flag_feedback, report_view, step3_view, target_hash, val
+    return flag_feedback, report_view, target_hash, val, verification_view
 
 
 @app.cell
-def console_root(header_view, mo, remediation_view, step1_view, step3_view):
+def console_root(
+    mo,
+    remediation_view,
+    scratchpad_view,
+    sidebar_content,
+    sqli_view,
+    triage_view,
+    verification_view,
+):
     styles = mo.Html("""
     <style>
-    [data-testid="chrome-sidebar"], #app-chrome-sidebar, #app-chrome-panel, .resize-handle { display: none !important; }
-    [data-testid="drag-button"], [data-testid="cell-actions-button"], [data-testid="create-cell-button"], [data-testid="run-button"], [data-testid="hide-code-button"], [data-testid="fullscreen-output-button"], [data-testid="expand-output-button"], .hover-actions-parent > .hover-action, .shoulder-right, .cell-actions, .cell-actions-button, .cell-bottom-menu, .add-cell-button { display: none !important; }
-    [data-testid="filename-input"], [data-testid="chrome-controls-top-right"], [data-testid="chrome-controls-bottom-right"], [data-testid="chrome-footer"], [data-testid="footer-panel"] { display: none !important; }
-    .marimo-cell:not(:has(.cyberlab-topbar)) { display: none !important; }
-    .marimo-cell .cm-editor, .marimo-cell .cm-scroller, .marimo-cell .cell-editor, [data-testid="cell-editor"] { display: none !important; height: 0 !important; overflow: hidden !important; }
-    .marimo-cell:has(.cyberlab-topbar) { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 4px !important; }
-    #App, main, #app-chrome-body, [data-testid="column-container"] { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-    .cyberlab-topbar { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 16px; margin-bottom: 10px; }
-    .cyberlab-topbar .title { font-size: 13px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
+    /* Ensure Marimo chrome sidebar & inspection panels are visible */
+    [data-testid="chrome-sidebar"], #app-chrome-sidebar, #app-chrome-panel, .resize-handle {
+        display: block !important;
+    }
+
+    /* Un-hide all Marimo cells while keeping action toolbar hidden */
+    .marimo-cell:not(:has(.cyberlab-topbar)) {
+        display: block !important;
+    }
+
+    [data-testid="drag-button"],
+    [data-testid="cell-actions-button"],
+    [data-testid="create-cell-button"],
+    [data-testid="run-button"],
+    [data-testid="hide-code-button"],
+    [data-testid="fullscreen-output-button"],
+    [data-testid="expand-output-button"],
+    .hover-actions-parent > .hover-action,
+    .shoulder-right,
+    .cell-actions,
+    .cell-actions-button,
+    .cell-bottom-menu,
+    .add-cell-button {
+        display: none !important;
+    }
+
+    [data-testid="filename-input"],
+    [data-testid="chrome-controls-top-right"],
+    [data-testid="chrome-controls-bottom-right"],
+    [data-testid="chrome-footer"],
+    [data-testid="footer-panel"] {
+        display: none !important;
+    }
+
+    .marimo-cell:has(.cyberlab-topbar) {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 4px !important;
+    }
+
+    #App, main, #app-chrome-body, [data-testid="column-container"] {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .cyberlab-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 10px 16px;
+        margin-bottom: 10px;
+    }
+    .cyberlab-topbar .title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .cyberlab-topbar .live-badge {
+        background: #0284c7;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+    }
     </style>
     """)
-    header = mo.Html('<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>')
+
+    # Invisible anchor div keeps the .cyberlab-topbar CSS selector working
+    header = mo.Html(
+        '<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>'
+    )
+
     console = mo.ui.tabs(
         {
-            "📋 Triage & Scope": header_view,
-            "🔬 Step 1: SQLi Console": step1_view,
-            "🛡️ Step 2: Secure Remediation": remediation_view,
-            "🏁 Step 3: Verify & Audit Report": step3_view,
+            "📋 Triage & Scope": triage_view,
+            "🔬 SQLi Interactive Console": sqli_view,
+            "💻 Python AppSec Scratchpad": scratchpad_view,
+            "🛡️ Secure Remediation": remediation_view,
+            "📌 Assessment Checklist": sidebar_content,
+            "🏁 Verify & Audit Report": verification_view,
         }
     )
     workspace = mo.vstack([styles, header, console])

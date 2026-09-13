@@ -395,6 +395,11 @@ def __(mo):
     )
 
 
+@app.cell
+def __(mo, sidebar_content):
+    return (mo.sidebar(sidebar_content),)
+
+
 @app.cell(hide_code=True)
 def __(attachments, df_dns, mo, msg, raw_eml_bytes):
     # Tab 1: Email Header & Sender Authentication Forensics
@@ -782,6 +787,9 @@ def __(candidate_flag, hashlib, mo, re):
 
 @app.cell
 def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view):
+def console_root(
+    mo, sidebar_content, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view
+):
     # Pure CyberLab Console Styles & Overrides
     styles = mo.Html("""
     <style>
@@ -791,9 +799,25 @@ def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view):
     #app-chrome-panel,
     .resize-handle {
         display: none !important;
+    /* Ensure Marimo chrome sidebar & inspection panels are visible */
+    [data-testid="chrome-sidebar"], #app-chrome-sidebar, #app-chrome-panel, .resize-handle {
+        display: block !important;
     }
 
     /* 2. Eliminate Cell Handles & Authoring Overlays */
+    /* 2. Style Marimo Sidebar if active */
+    [data-testid="chrome-sidebar"],
+    #app-chrome-sidebar {
+        display: flex !important;
+        visibility: visible !important;
+        background: #090d16 !important;
+        border-right: 1px solid #1e293b !important;
+    /* Un-hide all Marimo cells while keeping action toolbar hidden */
+    .marimo-cell:not(:has(.cyberlab-topbar)) {
+        display: block !important;
+    }
+
+    /* 3. Eliminate Cell Handles & Authoring Overlays */
     [data-testid="drag-button"],
     [data-testid="cell-actions-button"],
     [data-testid="create-cell-button"],
@@ -811,6 +835,7 @@ def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view):
     }
 
     /* 3. Eliminate Marimo Authoring Header & Footers */
+    /* 4. Eliminate Marimo Authoring Header & Footers */
     [data-testid="filename-input"],
     [data-testid="chrome-controls-top-right"],
     [data-testid="chrome-controls-bottom-right"],
@@ -821,7 +846,15 @@ def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view):
 
     /* 4. Hide all backend/setup cells above the Console */
     .marimo-cell:not(:has(.cyberlab-topbar)) {
+    /* 5. Hide all backend/setup cells above the Console, except marimo-sidebar */
+    .marimo-cell:not(:has(.cyberlab-topbar)):not(:has(marimo-sidebar)) {
         display: none !important;
+    }
+    .marimo-cell:has(marimo-sidebar) {
+        position: absolute !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        pointer-events: none !important;
     }
 
     /* 5. Hide code editors in all cells (show only outputs) */
@@ -909,6 +942,7 @@ def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view):
             "📎 Attachment Carving": tab2_view,
             "💻 Deobfuscator & Scratchpad": tab3_view,
             "📡 DNS C2 Correlation": tab4_view,
+            "📌 Investigation Checklist": sidebar_content,
             "🏁 Case Verification & IOCs": tab5_view,
         }
     )

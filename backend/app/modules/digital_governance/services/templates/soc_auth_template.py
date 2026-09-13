@@ -381,6 +381,11 @@ def __(mo):
     )
 
 
+@app.cell
+def __(mo, sidebar_content):
+    return (mo.sidebar(sidebar_content),)
+
+
 @app.cell(hide_code=True)
 def __(failed_events, mo, success_events, total_events, unique_ips):
     # Tab 1: Alert Triage & Scope View
@@ -877,6 +882,7 @@ def __(candidate_flag, hashlib, mo, re):
 def console_root(
     mo,
     scratchpad_view,
+    sidebar_content,
     telemetry_view,
     timeline_view,
     triage_view,
@@ -894,6 +900,16 @@ def console_root(
     }
 
     /* 2. Eliminate Cell Handles & Authoring Overlays */
+    /* 2. Style Marimo Sidebar if active */
+    [data-testid="chrome-sidebar"],
+    #app-chrome-sidebar {
+        display: flex !important;
+        visibility: visible !important;
+        background: #090d16 !important;
+        border-right: 1px solid #1e293b !important;
+    }
+
+    /* 3. Eliminate Cell Handles & Authoring Overlays */
     [data-testid="drag-button"],
     [data-testid="cell-actions-button"],
     [data-testid="create-cell-button"],
@@ -911,6 +927,7 @@ def console_root(
     }
 
     /* 3. Eliminate Marimo Authoring Header & Footers */
+    /* 4. Eliminate Marimo Authoring Header & Footers */
     [data-testid="filename-input"],
     [data-testid="chrome-controls-top-right"],
     [data-testid="chrome-controls-bottom-right"],
@@ -921,7 +938,15 @@ def console_root(
 
     /* 4. Hide all backend/setup cells above the Console */
     .marimo-cell:not(:has(.cyberlab-topbar)) {
+    /* 5. Hide all backend/setup cells above the Console, except marimo-sidebar */
+    .marimo-cell:not(:has(.cyberlab-topbar)):not(:has(marimo-sidebar)) {
         display: none !important;
+    }
+    .marimo-cell:has(marimo-sidebar) {
+        position: absolute !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        pointer-events: none !important;
     }
 
     /* 5. Hide code editors in all cells (show only outputs) */
@@ -1009,6 +1034,7 @@ def console_root(
             "🔍 Telemetry Explorer": telemetry_view,
             "💻 Analyst Python Scratchpad": scratchpad_view,
             "⚡ Attack Timeline & Pivot": timeline_view,
+            "📌 Investigation Checklist": sidebar_content,
             "🏁 Case Verification & IOCs": verification_view,
         }
     )

@@ -1335,6 +1335,19 @@ def seed_cybersec_challenges(db: Session):
             )
             db.add(template_record)
             db.flush()
+        else:
+            existing_tmpl.title = tmpl.title
+            existing_tmpl.category = tmpl.category
+            existing_tmpl.difficulty = tmpl.difficulty
+            existing_tmpl.competency_id = tmpl.competency_id
+            existing_tmpl.points = tmpl.base_points
+            existing_tmpl.duration_minutes = tmpl.duration_minutes
+            existing_tmpl.tags_json = json.dumps(tmpl.tags)
+            existing_tmpl.mitre_techniques_json = json.dumps(tmpl.mitre_techniques)
+            existing_tmpl.scenario_template = scenario_md
+            existing_tmpl.instructions_template = scenario_md
+            existing_tmpl.hints_template_json = json.dumps(hints)
+            existing_tmpl.artifacts_spec_json = json.dumps(list(tmpl.get_slot_schema().keys()))
 
         # 2. Seed or update CyberSandboxChallenge (Generated/Concrete Lab Challenge)
         existing = db.query(CyberSandboxChallenge).filter_by(id=cid).first()

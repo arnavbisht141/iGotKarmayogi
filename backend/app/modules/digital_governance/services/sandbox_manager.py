@@ -308,9 +308,23 @@ def __(mo):
 ''')
 
         # 4. Configure Marimo dark theme
+        # 4. Configure Marimo dark theme and autorun
         config_dir = scratch_dir / ".config" / "marimo"
         config_dir.mkdir(parents=True, exist_ok=True)
         (config_dir / "marimo.toml").write_text('[display]\ntheme = "dark"\ndataframes = "rich"\n')
+        marimo_config_content = (
+            '[display]\n'
+            'theme = "dark"\n'
+            'dataframes = "rich"\n\n'
+            '[runtime]\n'
+            'auto_instantiate = true\n'
+            'on_cell_change = "autorun"\n\n'
+            '[server]\n'
+            'browser = false\n'
+        )
+        (config_dir / "marimo.toml").write_text(marimo_config_content)
+        # Also write .marimo.toml in the working directory where marimo runs
+        (scratch_dir / ".marimo.toml").write_text(marimo_config_content)
 
         # 5. Spawn isolated Marimo edit process
         python_bin = sys.executable
@@ -353,6 +367,8 @@ def __(mo):
         log_file = open(scratch_dir / "marimo.log", "w")
         env = dict(os.environ)
         env["PYTHONUNBUFFERED"] = "1"
+        env["_MARIMO_CONFIG_OVERLOAD_RUNTIME_AUTO_INSTANTIATE"] = "true"
+        env["XDG_CONFIG_HOME"] = str(scratch_dir / ".config")
         # Ensure user site-packages and sys.path are preserved so marimo and deps are found
         current_pp = env.get("PYTHONPATH", "")
         sys_paths = [p for p in sys.path if p]
