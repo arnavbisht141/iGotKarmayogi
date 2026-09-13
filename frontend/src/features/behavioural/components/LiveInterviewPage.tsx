@@ -285,67 +285,91 @@ export default function LiveInterviewPage() {
   }, []);
 
   // Initialize Media Stream (Camera & Mic)
-  useEffect(() => {
-    let stream: MediaStream | null = null;
-
-    async function setupMedia() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: "user" },
-          audio: true
-        });
-        mediaStreamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+  const setupMedia = async () => {
+    try {
+      if (mediaStreamRef.current && mediaStreamRef.current.active) {
+        if (videoRef.current && videoRef.current.srcObject !== mediaStreamRef.current) {
+          videoRef.current.srcObject = mediaStreamRef.current;
         }
-
-        // Setup Audio Analyser for realistic audio visualizer
-        try {
-          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-          const audioCtx = new AudioContextClass();
-          audioContextRef.current = audioCtx;
-          const source = audioCtx.createMediaStreamSource(stream);
-          const analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 64;
-          source.connect(analyser);
-          analyserRef.current = analyser;
-
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          const updateAudioMeter = () => {
-            if (analyserRef.current) {
-              analyserRef.current.getByteFrequencyData(dataArray);
-              let sum = 0;
-              for (let i = 0; i < dataArray.length; i++) {
-                sum += dataArray[i];
-              }
-              const average = sum / dataArray.length;
-              const curLevel = Math.min(100, Math.round((average / 128) * 100));
-              setAudioLevel(curLevel);
-
-              // Sample 12 frequency bars for animated equalizer
-              const step = Math.max(1, Math.floor(dataArray.length / 12));
-              const bars: number[] = [];
-              for (let b = 0; b < 12; b++) {
-                const idx = Math.min(dataArray.length - 1, b * step);
-                bars.push(Math.round((dataArray[idx] / 255) * 100));
-              }
-              setFrequencyBars(bars);
-            }
-            animFrameRef.current = requestAnimationFrame(updateAudioMeter);
-          };
-          updateAudioMeter();
-        } catch (audioErr) {
-          console.log("AudioContext visualizer not available:", audioErr);
-        }
-      } catch (err) {
-        console.log("Camera or microphone permission not granted, running in fallback mode:", err);
-        setCameraActive(false);
+        return mediaStreamRef.current;
       }
+
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        setCameraActive(false);
+        return null;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: "user" },
+        audio: true
+      });
+      mediaStreamRef.current = stream;
+      setCameraActive(true);
+      setMicActive(true);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+
+      // Setup Audio Analyser for realistic audio visualizer
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const audioCtx = new AudioContextClass();
+        audioContextRef.current = audioCtx;
+        const source = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        source.connect(analyser);
+        analyserRef.current = analyser;
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const updateAudioMeter = () => {
+          if (analyserRef.current) {
+            analyserRef.current.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              sum += dataArray[i];
+            }
+            const average = sum / dataArray.length;
+            const curLevel = Math.min(100, Math.round((average / 128) * 100));
+            setAudioLevel(curLevel);
+
+            // Sample 12 frequency bars for animated equalizer
+            const step = Math.max(1, Math.floor(dataArray.length / 12));
+            const bars: number[] = [];
+            for (let b = 0; b < 12; b++) {
+              const idx = Math.min(dataArray.length - 1, b * step);
+              bars.push(Math.round((dataArray[idx] / 255) * 100));
+            }
+            setFrequencyBars(bars);
+          }
+          animFrameRef.current = requestAnimationFrame(updateAudioMeter);
+        };
+        updateAudioMeter();
+      } catch (audioErr) {
+        console.log("AudioContext visualizer not available:", audioErr);
+      }
+      return stream;
+    } catch (err) {
+      console.log("Camera or microphone permission not granted, running in fallback mode:", err);
+      setCameraActive(false);
+      return null;
     }
+  };
 
+  useEffect(() => {
     setupMedia();
+  }, []);
 
-    // Check SpeechRecognition support
+  // Re-attach camera stream whenever videoRef mounts or interview becomes active
+  useEffect(() => {
+    if (isInterviewActive && videoRef.current && mediaStreamRef.current) {
+      videoRef.current.srcObject = mediaStreamRef.current;
+    }
+  }, [isInterviewActive]);
+
+  // Check SpeechRecognition support and unmount cleanup
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -377,8 +401,8 @@ export default function LiveInterviewPage() {
     }
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       }
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
@@ -505,6 +529,12 @@ export default function LiveInterviewPage() {
       setCurrentPhase(res.current_phase);
       setTargetCompetency(res.primary_competency);
       setCurrentTurn(1);
+
+      // Ensure camera & mic stream is active and attached to the video DOM element
+      if (!mediaStreamRef.current || !mediaStreamRef.current.active) {
+        await setupMedia();
+      }
+
       setIsInterviewActive(true);
 
       setLiveTranscript([
@@ -758,6 +788,19 @@ export default function LiveInterviewPage() {
                 <p>• Speak directly into your microphone or type in the response terminal.</p>
               </div>
 
+              {/* Sensor & Camera Status Indicator */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 rounded-full ${cameraActive ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`}></span>
+                  <span className="text-slate-300 font-medium">
+                    {cameraActive ? "Video Camera & Audio Stream Configured" : "Video Camera in Browser Standby Mode"}
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {cameraActive ? "Sensor Live" : "Will Request Permission"}
+                </span>
+              </div>
+
               <button
                 onClick={handleStartInterview}
                 className="w-full mt-4 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1E3A8A] to-[#0D9488] py-3 text-sm font-bold text-white shadow-lg hover:opacity-95 transition-all cursor-pointer"
@@ -775,7 +818,12 @@ export default function LiveInterviewPage() {
               <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl aspect-4/3 flex items-center justify-center">
                 {/* Live Video Feed Element */}
                 <video
-                  ref={videoRef}
+                  ref={(el) => {
+                    videoRef.current = el;
+                    if (el && mediaStreamRef.current && el.srcObject !== mediaStreamRef.current) {
+                      el.srcObject = mediaStreamRef.current;
+                    }
+                  }}
                   autoPlay
                   playsInline
                   muted
