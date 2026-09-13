@@ -2,66 +2,58 @@
 
 > **Name:** Aarna  
 > **GitHub Handle:** [@aarna605-dot](https://github.com/aarna605-dot)  
-> **Role:** UI/UX Design Lead & Visual Identity Architect  
-> **Primary Subsystems:** UI Design System Iterations, Two-Column Hero Architecture, Aspect-Ratio Media Integrity, AI Assistant Widget Redesign, Auth Flows (`/login`, `/register`)  
+> **Role:** UI/UX Lead & Behavioral Assessment Architect  
+> **Primary Subsystems:** Behavioral CGP (Carryforward Case Inquiries, Live Oral Board), Course Detail Behavioral Integration, UI Design System, Two-Column Hero Architecture, Auth Flows  
 
 ---
 
 ## 1. Summary of Responsibilities
-Lead visual and UI/UX designer for the **iGOT Karmayogi (MoSPI)** platform. Spearheaded initial visual identity explorations, prototyping the Muted Rose design system before aligning with the official Government of India Navy & Slate aesthetic. Architected core layout foundations that remain across the platform: the responsive two-column hero, strict photographic aspect-ratio preservation engine, circular Karmayogi AI assistant launcher, and statistics grid alignment.
+Full-stack and UI/UX design lead for the **iGOT Karmayogi (MoSPI)** platform. Architected the **Behavioral Content Generation Pipeline (CGP)** on `cgp/behav-updated`, encompassing consequential branching case inquiries derived from authentic government statutory notices and a multimodal live oral examination board with real-time video/speech telemetry. Previously established the platform's landing page layout, two-column hero architecture, aspect-ratio preservation engine, and institutional authentication flows.
 
 ---
 
 ## 2. Visible Deliverables (Code & Repository Artifacts)
 
-### 2.1 Design System Iteration & CSS Token Architecture (`frontend/src/app/globals.css`, `65dbe6e`, `4380504`)
-- **Muted Rose Design Prototype (Iteration 1):** Built and mapped custom design tokens (`--color-rose-*`) in Tailwind CSS v4 `@theme inline` as an initial exploration of low-fatigue civil-service palettes.
-- **Continuous Marquee Animation:** Authored 35s continuous linear horizontal ticker (`@keyframes marquee`) with hover-pause and `@media (prefers-reduced-motion: reduce)` accessibility compliance.
-- **Aesthetic Evolution:** Collaborated on transitioning color tokens to the official Government of India Navy (`#1E3A8A`) and Slate standard while preserving all structural layout rules.
+### 2.1 Course-Anchored Behavioral Case Inquiries (`backend/app/modules/behavioural_cgp/`, `4333815`)
+- **Statutory Notice Corpus (`corpus.py`):** Curated authentic government proceedings across DoPT Rule 14 CCS (CCA) disciplinary inquiries, Ministry of Finance GFR 149/151 GeM procurement notices, RTI First Appeals, and UN-NQAF audits.
+- **Carryforward Adaptive Branching (`carryforward_generator.py`, `carryforward_session.py`):** Engineered multi-stage consequential simulation where non-optimal administrative actions branch into regulatory hearings and vigilance inquiries until satisfactorily resolved.
+- **6-Competency Evaluation Framework:** Scored performance across *Decision Making*, *Ethical Judgement*, *Leadership*, *Communication*, *Situational Awareness*, and *Accountability* with level bands (*Exemplary*, *Proficient*, *Needs Attention*) and APAR upskilling recommendations.
+- **Case Inquiry Interface (`CarryforwardAssessmentPage.tsx`, `/behavioural/cases`):** Interactive decision tree exploration, statutory rationale review, consequence breadcrumbs, and competency dossier.
 
-### 2.2 Two-Column Hero Architecture & Photographic Aspect-Ratio Integrity (`frontend/src/app/page.tsx`, `65dbe6e`, `4380504`)
-- **Balanced Layout:** Re-architected landing hero from a single-column block into an asymmetrical two-column layout (institutional badge, headline, and CTAs on the left; framed carousel on the right).
-- **Official Media Assets:** Sourced and integrated official photography into `frontend/public/`: `/karmayogi.jpg`, `/government-meeting.jpg`, and `/ai-daksh.jpg`.
-- **Aspect-Ratio Preservation Engine:** Built framed containers (`bg-white rounded-xl border border-slate-200 shadow-xs p-2 sm:p-2.5`) enforcing `object-contain` and exact native aspect ratios (`657/301`, `673/290`, `716/395`), eliminating distortion and face-cropping in official media.
-- **Interactive Carousel:** Implemented 5s auto-rotation, hover pause-lock (`isPaused`), manual navigation triggers, and slide indicator dots.
+### 2.2 Multimodal Live Oral Examination Board (`LiveInterviewPage.tsx`, `4333815`, `c917a77`)
+- **Course-Grounded AI Interviewer (`interview_service.py`):** Dynamic multi-turn oral examination adapting questions to syllabus themes of selected database courses.
+- **Real-Time Telemetry & Audio Visualizer:** Integrated in-browser webcam monitoring (posture stability, head movement, gaze tracking) and Web Audio API frequency equalizer reflecting speech cadence (WPM), acoustic clarity, and filler frequency.
+- **Stream Lifecycle Safeguard (`c917a77`):** Bound video elements with dynamic callback refs to guarantee reliable camera stream attachment upon board room entry.
+- **Ethical AI Demarcation:** Embedded statutory disclaimers clarifying that observable telemetry reflects neutral physical metrics and does not constitute psychological profiling.
 
-### 2.3 Homepage Statistics Grid & Boundary Alignment (`frontend/src/app/page.tsx`, `65dbe6e`, `4380504`)
-- Streamlined statistics bar directly beneath the hero within `max-w-6xl mx-auto`.
-- Standardized strict left-alignment across all four metrics (`40,000+ Learners`, `100% Accredited Curriculum`, `UN-NQAF Standard`, `Verifiable Certificates`).
-- Aligned grid boundaries flush with hero text (left) and carousel card (right), separated by subtle dividers.
+### 2.3 Course-Level Integration & Global Isolation (`CourseDetailPage.tsx`, `cfdff72`)
+- **Course-Specific Targeting:** Anchored the Behavioral Pipeline exclusively to supported curriculum courses (`[1, 2, 3, 4, 5]`), rendering the **Behavioural Competency Pipeline** card and **AI Oral Board** button only where statutory notices exist.
+- **Clean Navigation Isolation:** Purged sitewide behavioral links from `Navbar.tsx` and removed the global homepage banner from `HomePage.tsx` to maintain clean platform hierarchy.
 
-### 2.4 Karmayogi AI Assistant Widget Redesign (`frontend/src/components/shared/AiAssistantWidget.tsx`, `4380504`)
-- **Circular Launcher:** Redesigned floating trigger from an intrusive rectangular box into an ergonomic circular launcher (`h-14 w-14 rounded-full text-white shadow-lg`).
-- **Civil-Service Rebranding:** Completely purged vendor-specific "LangGraph" engine labels across collapsed and expanded states; rebranded to *"Karmayogi AI - Civil Service Intelligence Assistant"*.
-- Added real-time pulsing online status indicator and styled the chat modal container.
+### 2.4 Automated Test Suite & Backend Routing (`test_behavioural_cgp.py`, `router.py`, `4333815`)
+- Built 12 automated unit tests verifying corpus retrieval, dynamic case generation, carryforward session branching, live interview turns, competency rubrics, and diagnostic reports.
+- Registered `/api/behavioural` router with PyJWT compatibility and `GEMINI_API_KEY`/`GOOGLE_API_KEY` alias resolution in `config.py`.
 
-### 2.5 Top Announcement Ticker & Navigation Flow (`frontend/src/components/shared/Navbar.tsx`, `65dbe6e`, `4380504`)
-- Styled top Mission Karmayogi announcement marquee ticker.
-- Re-architected navigation ordering: `[Logo] ... [About] [Resources] [Help] [Discover] [Sign In] [Register]`.
-- Styled primary authentication CTAs and refined the bilingual language toggle pill.
-
-### 2.6 Authentication Experience Visual Pass (`login/page.tsx`, `register/page.tsx`, `4380504`)
-- Elevated `/register` and `/login` cards with clean rounded borders, subtle elevation, and responsive focus rings.
-- Redesigned role-based customization callout into a distinguished informational box.
-- Delivered through merged **[Pull Request #2](https://github.com/arnavbisht141/iGotKarmayogi/pull/2)** (*"Redesign homepage hero and statistics"*).
+### 2.5 UI Foundations & Landing Architecture (Prior Iterations)
+- **Hero & Carousel (`page.tsx`):** Designed responsive two-column hero with strict photographic aspect-ratio preservation (`657/301`, `673/290`, `716/395`) and left-aligned statistics grid.
+- **Karmayogi AI Widget (`AiAssistantWidget.tsx`):** Rebranded assistant launcher to an ergonomic circular trigger with institutional civil-service styling.
+- **Authentication Flows (`login/page.tsx`, `register/page.tsx`):** Elevated card surfaces and responsive focus ring styling.
 
 ---
 
 ## 3. "Invisible" & Offline Contributions
 
-### 3.1 Civil-Service Visual Research & Aesthetic Benchmarking
-- Benchmarked global public-service platforms (UK Civil Service Learning, Singapore Civil Service College, India's iGOT Karmayogi) to balance public-service solemnity with modern UI ergonomics.
-- Researched low-fatigue background tones to enhance readability during long training sessions.
+### 3.1 Civil-Service Administrative & Statutory Research
+- Analyzed DoPT CCS (CCA) Rules 1965, General Financial Rules (GFR 2017), Collection of Statistics Act 2008, and UN-NQAF guidelines to formulate authentic administrative dilemmas and consequence paths.
 
-### 3.2 Photographic Quality & Framing Guidelines
-- Analyzed Government of India media releases to establish repository-wide image standards, identifying that naive `object-cover` sheared delegate faces and cropped official insignia.
+### 3.2 In-Browser WebRTC & Audio Meter Engineering
+- Designed low-overhead Web Audio analyser pipelines (`fftSize = 64`) to calculate live speech cadence and volume meters without impacting Next.js rendering performance.
 
-### 3.3 WCAG AA/AAA Accessibility Verification
-- Audited contrast ratios across UI elements: verified 11.4:1 contrast for charcoal text on light backgrounds (WCAG AAA) and 4.7:1 for primary action buttons (WCAG AA).
-- Verified keyboard accessibility for carousel controls and the AI assistant launcher.
+### 3.3 Ethical AI Demarcation & Regulatory Alignment
+- Drafted statutory demarcation notices ensuring automated oral board telemetry remains strictly non-diagnostic and aligned with ethical civil-service evaluation norms.
 
-### 3.4 Wireframing & Responsive Prototyping
-- Drafted initial layout wireframes for two-column hero responsiveness, carousel framing, and mobile drawer adaptations.
+### 3.4 WCAG AA/AAA Accessibility Audit
+- Verified 11.4:1 contrast ratios for text readability and keyboard accessibility across interactive decision nodes and media controls.
 
 ---
 
@@ -69,19 +61,20 @@ Lead visual and UI/UX designer for the **iGOT Karmayogi (MoSPI)** platform. Spea
 
 | Date | Activity | Category | Notes / Deliverables |
 |---|---|---|---|
-| `2026-09-06` | Authored hero redesign, image carousel, and statistics alignment | `Code` / `UI` | Commits `65dbe6e`, `4380504` (PR #2 merged into `main`) |
-| `2026-09-06` | Built CSS tokens and continuous marquee animation | `Code` / `UI` | Keyframe animation and tokens in `globals.css` (`65dbe6e`) |
-| `2026-09-06` | Redesigned Karmayogi AI assistant widget & de-branded vendor tags | `Code` / `UI` | Circular launcher, institutional branding (`AiAssistantWidget.tsx`) |
-| `2026-09-06` | Styled login and registration authentication cards | `Code` / `UI` | Elevated card surfaces and focus ring states (`4380504`) |
-| `2026-09-06` | Restyled shared navbar announcement ticker & auth button hierarchy | `Code` / `UI` | Navigation flow reordering and CTAs (`65dbe6e`) |
-| `2026-09-05` | WCAG accessibility audit & contrast ratio calculations | `Design` / `UX` | Validated 11.4:1 text contrast standard |
-| `2026-09-05` | Public-service visual benchmarking & design system prototyping | `Design` | Researched UK CSL, Singapore CSC, and iGOT Karmayogi |
-| `2026-09-05` | Wireframed two-column hero layout and carousel framing specifications | `Design` | Defined native aspect ratios (`657/301`, `673/290`, `716/395`) |
+| `2026-09-13` | Hardened webcam lifecycle with callback ref stream attachment | `Code` / `Fix` | Commit `c917a77` on `cgp/behav-updated` |
+| `2026-09-13` | Isolated behavioral features to designated courses (`CourseDetailPage.tsx`) & cleaned navbar | `Code` / `Refactor` | Commit `cfdff72` on `cgp/behav-updated` |
+| `2026-09-13` | Built 6-competency rubric, physical/speech telemetry dossier, and 12 unit tests | `Code` / `Backend` | Commit `4333815` on `cgp/behav-updated` |
+| `2026-09-12` | Integrated live AI interview board room with Web Audio visualizer and course selection | `Code` / `Full-Stack` | Commit `5d32962` on `cgp/behavioural` |
+| `2026-09-12` | Implemented government notice corpus, carryforward case generator, and `/cases` UI | `Code` / `Feature` | Commit `fd7a037` on `cgp/behavioural` |
+| `2026-09-06` | Sourced official media assets, built two-column hero and aspect-ratio preservation engine | `Code` / `UI` | PR #2 merged into `main` (`65dbe6e`, `4380504`) |
+| `2026-09-06` | Redesigned circular Karmayogi AI assistant launcher and authentication cards | `Code` / `UI` | `AiAssistantWidget.tsx`, `login/page.tsx` (`4380504`) |
+| `2026-09-05` | Researched civil-service UI benchmarks (iGOT, UK CSL) and audited WCAG contrast ratios | `Design` / `Research` | Validated 11.4:1 contrast standards |
 
 ---
 
 ## 5. Notes & Context for Future AI Coding Agents
-- **Active Color Standard:** The platform uses the official Government of India **Navy (`#1E3A8A` / `#1D3557`) and Slate** aesthetic. Do NOT re-apply Muted Rose or introduce generic neon accents.
-- **Strict Photographic Framing:** Never apply unconstrained `object-cover` to official institutional photographs. Always wrap images in framed containers with `object-contain` and explicit native aspect ratios to prevent distortion or clipping.
-- **AI Assistant Branding:** Maintain the circular launcher trigger and institutional title *"Karmayogi AI - Civil Service Intelligence Assistant"*. Do not re-introduce third-party vendor tags (e.g., LangGraph).
-- **Motion Accessibility:** Preserve `.animate-marquee:hover { animation-play-state: paused; }` and `@media (prefers-reduced-motion: reduce)` compliance on any animated ticker components.
+- **Course Isolation Rule:** The Behavioral Competency Pipeline (Case Inquiries & AI Live Interview) is strictly scoped to designated courses (`[1, 2, 3, 4, 5]`). Do NOT add global navbar links or sitewide homepage banners for this feature.
+- **Webcam Mounting Convention:** Always use callback ref binding (`ref={(el) => ...}`) when rendering `<video>` feeds in conditionally mounted board rooms to ensure `srcObject` is assigned reliably across all browser lifecycles.
+- **Statutory Notice Integrity:** Maintain authentic citations (CCS Rule 14, GFR 149/151, UN-NQAF) and ensure consequence branching maintains procedural due process (*Audi Alteram Partem*).
+- **Ethical Disclaimer:** Retain the `observable_signals_disclaimer` on all live interview reports stating that physical telemetry reflects neutral physical metrics rather than psychological or character assessments.
+
