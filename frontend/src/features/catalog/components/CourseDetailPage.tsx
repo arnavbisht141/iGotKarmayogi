@@ -19,6 +19,8 @@ import {
   Scale,
   Sparkles,
   Brain,
+  Play,
+  Award,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -145,6 +147,8 @@ export default function CourseDetailPage() {
 
   const isEnrolled = !!course.enrollment;
   const progressPct = course.enrollment?.progress_percent || 0;
+  const BEHAVIOURAL_SUPPORTED_COURSE_IDS = [1, 2, 3, 4, 5];
+  const hasBehaviouralPipeline = BEHAVIOURAL_SUPPORTED_COURSE_IDS.includes(Number(course.id));
 
   return (
     <div className="min-h-[calc(100vh-68px)] flex flex-col bg-[#F8FAFC] w-full text-slate-900">
@@ -174,6 +178,15 @@ export default function CourseDetailPage() {
             <span className="text-xs font-medium text-slate-600">
               {getDifficultyLabel(course.difficulty)}
             </span>
+            {hasBehaviouralPipeline && (
+              <>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md border bg-teal-50 text-[#0D9488] border-teal-200/80 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3 text-[#0D9488]" />
+                  Oral Board & Case Inquiries
+                </span>
+              </>
+            )}
           </div>
 
           {/* Title */}
@@ -219,14 +232,26 @@ export default function CourseDetailPage() {
           <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Button
-                size="lg"
                 onClick={handleEnrollOrResume}
                 disabled={enrolling}
-                className="h-11 px-6 rounded-lg bg-[#1E3A8A] hover:bg-[#172554] text-white font-medium text-sm shadow-xs transition-colors flex items-center gap-2 cursor-pointer border border-[#1E3A8A]"
+                size="lg"
+                className="navy-teal-gradient text-white font-bold shadow-md rounded-xl px-8 h-12 text-sm border-0 transition-all cursor-pointer hover:opacity-90 hover:scale-105"
               >
-                <PlayCircle className="h-4 w-4" />
-                {isEnrolled ? t("course.resume") : t("course.enrollNow")}
+                {enrolling ? (
+                  t("course.enrolling")
+                ) : isEnrolled ? (
+                  <>
+                    <Play className="h-4 w-4 fill-white mr-2" />
+                    {t("course.resumeCourse")}
+                  </>
+                ) : (
+                  <>
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    {t("course.enrollNow")}
+                  </>
+                )}
               </Button>
+
               {isEnrolled && (
                 <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
                   {progressPct}% {t("course.completed")}
@@ -234,17 +259,31 @@ export default function CourseDetailPage() {
               )}
             </div>
 
-            {course.assessment_id && (
-              <a href={`/assess/${course.assessment_id}`}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 cursor-pointer"
-                >
-                  {t("course.takeAssessment")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
-                </Button>
-              </a>
-            )}
+            <div className="flex items-center gap-2">
+              {course.assessment_id && (
+                <a href={`/assess/${course.assessment_id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 cursor-pointer"
+                  >
+                    {t("course.takeAssessment")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                  </Button>
+                </a>
+              )}
+              {hasBehaviouralPipeline && (
+                <a href={`/behavioural/interview?courseId=${course.id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs rounded-lg border-teal-300 bg-teal-50/60 text-[#0D9488] hover:bg-teal-100/60 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Video className="h-3.5 w-3.5 text-[#0D9488]" />
+                    AI Oral Board
+                  </Button>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -342,39 +381,42 @@ export default function CourseDetailPage() {
               <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden">
                 <CardHeader className="pb-3 border-b border-slate-100">
                   <CardTitle className="text-xs sm:text-sm font-bold text-slate-900">
-                    {t("course.materials")}
+                    {t("course.materialsIncluded")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 space-y-3 text-xs">
+                <CardContent className="p-4 space-y-2.5 text-xs text-slate-600">
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-slate-600">
-                      <Video className="h-3.5 w-3.5 text-amber-600" /> {t("course.videoLectures")}
-                    </span>
-                    <span className="font-bold text-slate-900">{course.counts.videos}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-slate-600">
-                      <FileText className="h-3.5 w-3.5 text-slate-400" /> {t("course.readingModules")}
+                    <span className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      {t("course.readings")}
                     </span>
                     <span className="font-bold text-slate-900">{course.counts.readings}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-slate-600">
-                      <FlaskConical className="h-3.5 w-3.5 text-indigo-600" />{" "}
+                    <span className="flex items-center gap-2">
+                      <Video className="h-4 w-4 text-amber-600" />
+                      {t("course.videos")}
+                    </span>
+                    <span className="font-bold text-slate-900">{course.counts.videos}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <FlaskConical className="h-4 w-4 text-indigo-600" />
                       {t("course.practicalLabs")}
                     </span>
                     <span className="font-bold text-slate-900">{course.counts.labs}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-slate-600">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> {t("course.mcqTest")}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <span className="flex items-center gap-2">
+                      <Award className="h-4 w-4 text-[#0D9488]" />
+                      {t("course.officialCertificate")}
                     </span>
-                    <span className="font-bold text-slate-900">{course.counts.assessments}</span>
+                    <span className="font-bold text-emerald-600">{t("course.accredited")}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Competencies Gained */}
+              {/* Skills Gained */}
               <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden">
                 <CardHeader className="pb-3 border-b border-slate-100">
                   <CardTitle className="text-xs sm:text-sm font-bold text-slate-900">
@@ -396,47 +438,49 @@ export default function CourseDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Civil Service Behavioural Assessment & Competency Pipeline */}
-              <Card className="border-blue-200 bg-gradient-to-br from-blue-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
-                <CardHeader className="pb-2.5 border-b border-blue-100/80 bg-white/70">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xs sm:text-sm font-bold text-[#1E3A8A] flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-[#0D9488]" />
-                      Behavioural Competency Pipeline
-                    </CardTitle>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#1E3A8A]">
-                      Course-Anchored
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 space-y-3 text-xs">
-                  <p className="text-slate-600 leading-relaxed text-[11px]">
-                    Evaluate practical civil service decision-making, ethical judgement, leadership, and oral defense grounded in this course syllabus.
-                  </p>
-                  <div className="space-y-2 pt-1">
-                    <a
-                      href={`/behavioural/cases?courseId=${course.id}`}
-                      className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Scale className="h-3.5 w-3.5 text-[#1E3A8A]" />
-                        Solve Case Inquiries (Consequential MCQs)
+              {/* Civil Service Behavioural Assessment & Competency Pipeline - ONLY for particular courses */}
+              {hasBehaviouralPipeline && (
+                <Card className="border-blue-200 bg-gradient-to-br from-blue-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
+                  <CardHeader className="pb-2.5 border-b border-blue-100/80 bg-white/70">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-[#1E3A8A] flex items-center gap-1.5">
+                        <Sparkles className="h-4 w-4 text-[#0D9488]" />
+                        Behavioural Competency Pipeline
+                      </CardTitle>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#1E3A8A]">
+                        Course-Anchored
                       </span>
-                      <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
-                    </a>
-                    <a
-                      href={`/behavioural/interview?courseId=${course.id}`}
-                      className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Video className="h-3.5 w-3.5 text-[#0D9488]" />
-                        Launch AI Live Interview
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 text-xs">
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      Evaluate practical civil service decision-making, ethical judgement, leadership, and oral defense grounded in this course syllabus.
+                    </p>
+                    <div className="space-y-2 pt-1">
+                      <a
+                        href={`/behavioural/cases?courseId=${course.id}`}
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Scale className="h-3.5 w-3.5 text-[#1E3A8A]" />
+                          Solve Case Inquiries (Consequential MCQs)
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
+                      </a>
+                      <a
+                        href={`/behavioural/interview?courseId=${course.id}`}
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Video className="h-3.5 w-3.5 text-[#0D9488]" />
+                          Launch AI Live Interview
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

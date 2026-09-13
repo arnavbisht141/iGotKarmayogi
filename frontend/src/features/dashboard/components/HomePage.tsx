@@ -23,8 +23,6 @@ import {
   UserCheck,
   Zap,
   BarChart2,
-  Video,
-  Scale,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -284,45 +282,6 @@ export default function HomePage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-
-          {/* Featured: Behavioral Content Generation Pipeline */}
-          <div className="rounded-2xl border border-blue-200/80 bg-gradient-to-r from-slate-900 via-[#0B1E48] to-[#0A324D] p-5 sm:p-6 text-white shadow-sm overflow-hidden relative">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/20 text-teal-300 border border-teal-400/30 text-[11px] font-bold uppercase tracking-wider mb-2.5">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Behavioral CGP • Civil Service Assessment
-                </div>
-                <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                  Adaptive Case Inquiries & AI Live Oral Interview Board
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
-                  Evaluate real-world administrative problem-solving with consequential carryforward branching derived from authentic government notices, or sit for an oral board with live camera analysis across 6 behavioral competencies.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-                <a href="/behavioural/cases" className="w-full sm:w-auto">
-                  <Button
-                    size="sm"
-                    className="w-full sm:w-auto h-10 px-4 rounded-xl bg-white hover:bg-slate-100 text-[#1E3A8A] text-xs font-bold shadow-sm transition-all cursor-pointer border-0 flex items-center justify-center gap-2 hover:scale-105"
-                  >
-                    <Scale className="h-4 w-4 text-[#1E3A8A]" />
-                    Case Inquiries
-                  </Button>
-                </a>
-                <a href="/behavioural/interview" className="w-full sm:w-auto">
-                  <Button
-                    size="sm"
-                    className="w-full sm:w-auto h-10 px-4 rounded-xl navy-teal-gradient hover:opacity-90 text-white text-xs font-bold shadow-sm transition-all cursor-pointer border-0 flex items-center justify-center gap-2 hover:scale-105"
-                  >
-                    <Video className="h-4 w-4 text-white" />
-                    AI Live Interview
-                  </Button>
-                </a>
-              </div>
             </div>
           </div>
 
