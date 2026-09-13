@@ -4,7 +4,11 @@ import datetime
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+try:
+    from jose import JWTError, jwt
+except ImportError:
+    import jwt
+    JWTError = jwt.PyJWTError
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
