@@ -7,9 +7,18 @@ from app.models.models import (
     Assessment, Question, PlannedCourse, LearningHistory
 )
 from app.core.security import get_password_hash
+from app.modules.digital_governance.seed_data import (
+    seed_digital_governance_curriculum,
+    seed_cybersec_challenges,
+)
 
 def seed_database(db: Session):
     # Check if already seeded
+    # Always ensure Digital Governance and Cyber Defense curriculum is seeded
+    seed_digital_governance_curriculum(db)
+    seed_cybersec_challenges(db)
+
+    # Check if already seeded base data
     if db.query(User).first():
         return
 
@@ -619,3 +628,5 @@ Vectorized operations execute in optimized C routines, yielding up to a 100x spe
 
     db.commit()
     print("Database successfully seeded with realistic civil service curriculum and accounts!")
+
+
