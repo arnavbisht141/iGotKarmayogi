@@ -157,6 +157,37 @@ def get_lab_details(
     """
     lab = db.query(TechnicalGeneratedLab).filter(TechnicalGeneratedLab.id == lab_id).first()
     if not lab:
+        # Check if this is a built-in template lab (id >= 1000)
+        if lab_id >= 1000:
+            from app.modules.technical_courses.services.template_service import BUILTIN_LAB_TEMPLATES
+            tmpl_idx = lab_id - 1001
+            if 0 <= tmpl_idx < len(BUILTIN_LAB_TEMPLATES):
+                tmpl = BUILTIN_LAB_TEMPLATES[tmpl_idx]
+                return {
+                    "id": lab_id,
+                    "template_id": tmpl.id,
+                    "title": tmpl.title,
+                    "objective": f"Master {tmpl.skill} in practical public administration data workflows.",
+                    "language": tmpl.language,
+                    "difficulty": tmpl.difficulty,
+                    "status": "validated",
+                    "instructions": tmpl.instructions_template.format(
+                        objective=f"Implement and validate {tmpl.title}",
+                        function_name=tmpl.tags[0] if tmpl.tags else "process_solution"
+                    ),
+                    "starter_code": tmpl.starter_code_template,
+                    "constraints": tmpl.constraints,
+                    "test_cases": [tc.model_dump() for tc in tmpl.test_cases_template],
+                    "expected_behavior": "Return structured outputs satisfying test assertions.",
+                    "solution": {
+                        "id": 9999,
+                        "reference_code": tmpl.solution_template,
+                        "explanation": "Official reference implementation adhering to template test harness."
+                    },
+                    "latest_validation": None,
+                    "validation_history": [],
+                    "created_at": None
+                }
         raise HTTPException(status_code=404, detail="Lab not found")
 
     solution = db.query(TechnicalLabSolution).filter(TechnicalLabSolution.lab_id == lab.id).first()

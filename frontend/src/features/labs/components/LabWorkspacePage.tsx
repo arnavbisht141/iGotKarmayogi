@@ -240,16 +240,16 @@ export default function LabWorkspacePage() {
     setKernelStatus("busy");
     setActiveBottomTab("tests");
 
-    // Gather solution code from IDE mode or from the primary code cell in notebook mode
+    // Gather solution code: exclude scratch test harness cell in notebook mode
     const codeToValidate =
       viewMode === "ide"
         ? ideCode
         : cells
-            .filter((c) => c.type === "code")
+            .filter((c) => c.type === "code" && c.id !== "cell-code-test")
             .map((c) => c.content)
             .join("\n\n");
 
-    addLog("info", "Submitting solution to Docker Sandbox test harness...");
+    addLog("info", `Submitting solution for lab #${lab.id} to Docker Sandbox test harness...`);
 
     try {
       const res = await fetchApi<LabExecutionResult>(
@@ -275,11 +275,27 @@ export default function LabWorkspacePage() {
       } else {
         addLog(
           "error",
-          `⚠️ ${res.passed_tests_count} of ${res.total_tests_count} tests passed. Review failing test cases below.`
+          `⚠️ ${res.passed_tests_count} of ${res.total_tests_count} tests passed in ${res.execution_time_ms}ms. Review results below.`
         );
       }
     } catch (err: any) {
       addLog("error", `Test execution failed: ${err.message}`);
+      setTestResult({
+        lab_id: lab.id,
+        all_passed: false,
+        passed_tests_count: 0,
+        total_tests_count: lab.test_cases?.length || 1,
+        test_results: (lab.test_cases || []).map((tc) => ({
+          name: tc.name,
+          passed: false,
+          error: err.message,
+          duration_ms: 0,
+        })),
+        execution_time_ms: 0,
+        stderr: err.message,
+        exit_code: 1,
+        feedback: `Execution failed: ${err.message}`,
+      });
     } finally {
       setIsExecutingStudent(false);
       setKernelStatus("idle");
@@ -1079,44 +1095,109 @@ export default function LabWorkspacePage() {
                       </Button>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2 bg-slate-900 rounded border border-slate-800">
-                        <span className="font-bold text-white">
-                          Status: {testResult.all_passed ? "PASS (All tests met)" : "FAIL (Assertions unresolved)"}
-                        </span>
-                        <span className="text-slate-400">
-                          {testResult.passed_tests_count} of {testResult.total_tests_count} Passed ({testResult.execution_time_ms}ms)
-                        </span>
-                      </div>
+                    <div className="space-y-3">
+                      {/* Status Summary Banner */}
+                      <div
+                        className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border gap-2 ${
+                          testResult.all_passed
+                            ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
+                            : "bg-rose-950/40 border-rose-500/40 text-rose-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {testResult.all_passed ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+                          ) : (
+                            <AlertCircle className="h-5 w-5 text-rose-400 shrink-0" />
+                          )}
+                          <div>
+                            <span className="font-bold text-white text-sm">
+                              {testResult.all_passed
+                                ? "PASS: All Unit Test Assertions Passed"
+                                : "INCOMPLETE: Some Test Assertions Failed"}
+                            </span>
+                            {testResult.feedback && (
+                              <p className="text-xs text-slate-300 mt-0.5">{testResult.feedback}</p>
+                            )}
+                          </div>
+                        </div>
 
-                      <div className="space-y-1.5">
-                        {testResult.test_results.map((tr, i) => (
-                          <div
-                            key={i}
-                            className={`p-2.5 rounded-lg border flex items-start justify-between ${
-                              tr.passed
-                                ? "bg-emerald-950/30 border-emerald-900/50 text-emerald-300"
-                                : "bg-rose-950/30 border-rose-900/50 text-rose-300"
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                          <Badge
+                            className={`text-xs font-mono font-bold ${
+                              testResult.all_passed
+                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                : "bg-rose-500/20 text-rose-300 border-rose-500/40"
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              {tr.passed ? (
-                                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                              ) : (
-                                <XCircle className="h-4 w-4 text-rose-400 shrink-0" />
-                              )}
-                              <div>
-                                <p className="font-bold text-slate-200">{tr.name}</p>
-                                {tr.error && (
-                                  <p className="text-rose-400 text-[11px] mt-0.5">{tr.error}</p>
+                            {testResult.passed_tests_count} / {testResult.total_tests_count} Passed
+                          </Badge>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {testResult.execution_time_ms}ms
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Stderr / Setup Error Alert */}
+                      {testResult.stderr && !testResult.all_passed && (
+                        <div className="p-3 bg-rose-950/30 border border-rose-800/60 rounded-lg text-xs space-y-1">
+                          <p className="font-bold text-rose-300 flex items-center gap-1">
+                            <XCircle className="h-3.5 w-3.5 text-rose-400" /> Runtime Diagnostics:
+                          </p>
+                          <pre className="text-rose-200/90 whitespace-pre-wrap font-mono text-[11px] overflow-x-auto bg-slate-950/80 p-2 rounded">
+                            {testResult.stderr}
+                          </pre>
+                        </div>
+                      )}
+
+                      {/* Test Case Cards */}
+                      <div className="space-y-1.5">
+                        {testResult.test_results && testResult.test_results.length > 0 ? (
+                          testResult.test_results.map((tr, i) => (
+                            <div
+                              key={i}
+                              className={`p-2.5 rounded-lg border flex items-start justify-between gap-3 ${
+                                tr.passed
+                                  ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-300"
+                                  : "bg-rose-950/20 border-rose-900/40 text-rose-300"
+                              }`}
+                            >
+                              <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                                {tr.passed ? (
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                                ) : (
+                                  <XCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
                                 )}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-bold text-slate-200 truncate">{tr.name}</p>
+                                    <span
+                                      className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                                        tr.passed
+                                          ? "bg-emerald-500/20 text-emerald-400"
+                                          : "bg-rose-500/20 text-rose-400"
+                                      }`}
+                                    >
+                                      {tr.passed ? "Passed" : "Failed"}
+                                    </span>
+                                  </div>
+                                  {tr.error && (
+                                    <p className="text-rose-400 font-mono text-[11px] mt-1 bg-slate-950/60 p-1.5 rounded border border-rose-900/30 whitespace-pre-wrap">
+                                      {tr.error}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
+                              <span className="text-[10px] text-slate-500 font-mono shrink-0">
+                                {tr.duration_ms}ms
+                              </span>
                             </div>
-                            <span className="text-[10px] text-slate-500 font-mono">
-                              {tr.duration_ms}ms
-                            </span>
+                          ))
+                        ) : (
+                          <div className="p-3 text-center text-slate-400 bg-slate-900/60 rounded-lg">
+                            <p>No test assertions recorded for this run.</p>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
                   )}

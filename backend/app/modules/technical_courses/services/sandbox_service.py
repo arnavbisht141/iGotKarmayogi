@@ -14,61 +14,74 @@ from app.modules.technical_courses.schemas import (
 )
 
 
-# Test harness template executed inside the isolated sandbox
 TEST_HARNESS_SCRIPT_TEMPLATE = """# -*- coding: utf-8 -*-
 import sys
 import time
 import json
 import traceback
 
-# 1. Inject candidate solution code
-{solution_code}
-
-# 2. Execution harness
+# 1. Prepare environment and test cases
+test_cases = json.loads({test_cases_json_repr})
 test_results = []
 total_passed = 0
+setup_error = None
 
-test_cases = json.loads({test_cases_json_repr})
+# 2. Execute candidate solution code in globals safely
+raw_code = {solution_code_repr}
+try:
+    exec(compile(raw_code, "<student_code>", "exec"), globals())
+except SyntaxError as se:
+    setup_error = f"SyntaxError: {{se.msg}} (line {{se.lineno}})"
+except Exception as e:
+    setup_error = f"{{type(e).__name__}}: {{str(e)}}"
 
+# 3. Run individual test cases
 for tc in test_cases:
     tc_name = tc.get("name", "unnamed_test")
     start_t = time.perf_counter()
     passed = False
     err_msg = None
     
-    try:
-        # Execute test case logic
-        exec_scope = dict(globals())
-        exec(tc.get("test_code", ""), exec_scope)
-        passed = True
-        total_passed += 1
-    except AssertionError as ae:
+    if setup_error:
         passed = False
-        err_msg = f"AssertionFailed: {{str(ae)}}" if str(ae) else "AssertionFailed: assertion condition evaluated to False"
-    except Exception as e:
-        passed = False
-        err_msg = f"{{type(e).__name__}}: {{str(e)}}"
-    finally:
-        dur_ms = round((time.perf_counter() - start_t) * 1000, 2)
-        test_results.append({{
-            "name": tc_name,
-            "passed": passed,
-            "error": err_msg,
-            "duration_ms": dur_ms
-        }})
+        err_msg = f"Setup Error: {{setup_error}}"
+    else:
+        try:
+            # Execute test case logic with current globals
+            exec_scope = dict(globals())
+            exec(tc.get("test_code", ""), exec_scope)
+            passed = True
+            total_passed += 1
+        except AssertionError as ae:
+            passed = False
+            err_msg = f"AssertionFailed: {{str(ae)}}" if str(ae) else "AssertionFailed: assertion condition evaluated to False"
+        except Exception as e:
+            passed = False
+            err_msg = f"{{type(e).__name__}}: {{str(e)}}"
+            
+    dur_ms = round((time.perf_counter() - start_t) * 1000, 2)
+    test_results.append({{
+        "name": tc_name,
+        "passed": passed,
+        "error": err_msg,
+        "duration_ms": dur_ms
+    }})
 
-# Output structured JSON result on last line
+# Output structured JSON result
 summary = {{
     "total_tests": len(test_cases),
     "passed_tests": total_passed,
-    "all_passed": (total_passed == len(test_cases)) and len(test_cases) > 0,
-    "results": test_results
+    "all_passed": (total_passed == len(test_cases)) and len(test_cases) > 0 and (setup_error is None),
+    "results": test_results,
+    "setup_error": setup_error
 }}
 
 print("---SANDBOX_HARNESS_OUTPUT_START---")
 print(json.dumps(summary))
 print("---SANDBOX_HARNESS_OUTPUT_END---")
 """
+
+
 
 
 class SandboxService:
@@ -205,7 +218,7 @@ class SandboxService:
         """
         tc_dicts = [tc.model_dump() for tc in test_cases]
         harness_code = TEST_HARNESS_SCRIPT_TEMPLATE.format(
-            solution_code=solution_code,
+            solution_code_repr=repr(solution_code),
             test_cases_json_repr=repr(json.dumps(tc_dicts))
         )
 
@@ -249,12 +262,25 @@ class SandboxService:
                         error=r.get("error"),
                         duration_ms=r.get("duration_ms", 0.0)
                     ))
+                
+                if summary_data.get("setup_error"):
+                    error_msg = summary_data.get("setup_error")
             except Exception as parse_err:
                 error_msg = f"Failed to parse sandbox output JSON: {str(parse_err)}"
                 is_valid = False
         else:
             is_valid = False
             error_msg = stderr or stdout or "Execution failed before harness completed."
+
+        # If test_items is still empty (e.g. timeout or unhandled early abort), generate structured failure items
+        if not test_items and test_cases:
+            for tc in test_cases:
+                test_items.append(TestResultItem(
+                    name=tc.name,
+                    passed=False,
+                    error=error_msg or "Test execution aborted before test suite completed.",
+                    duration_ms=0.0
+                ))
 
         return ValidationResultSchema(
             is_valid=is_valid,

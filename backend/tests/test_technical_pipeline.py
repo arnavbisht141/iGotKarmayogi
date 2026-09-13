@@ -404,3 +404,42 @@ def test_api_full_pipeline_end_to_end(client):
     assert lab_details["status"] == "validated"
     assert lab_details["solution"] is not None
     assert lab_details["latest_validation"]["is_valid"] is True
+
+
+def test_api_template_lab_details_and_submission(client):
+    # 1. Get built-in template lab details (ID 1001)
+    resp = client.get("/api/technical-courses/labs/1001")
+    assert resp.status_code == 200
+    lab_data = resp.json()
+    assert lab_data["id"] == 1001
+    assert "FastAPI" in lab_data["title"] or "FastAPI" in lab_data["instructions"] or "process_api_request" in lab_data["starter_code"]
+    assert len(lab_data["test_cases"]) > 0
+
+    # 2. Submit passing code
+    pass_code = """
+def process_api_request(items, query_id=None):
+    if query_id is not None and query_id < 0:
+        raise ValueError("Invalid query_id")
+    if query_id is not None:
+        filtered = [item for item in items if item.get("id") == query_id]
+    else:
+        filtered = list(items)
+    return {"status": "success", "data": filtered, "count": len(filtered)}
+"""
+    exec_resp = client.post("/api/technical-courses/labs/1001/execute", json={"code": pass_code})
+    assert exec_resp.status_code == 200
+    exec_data = exec_resp.json()
+    assert exec_data["all_passed"] is True
+    assert exec_data["passed_tests_count"] == len(lab_data["test_cases"])
+    assert len(exec_data["test_results"]) == len(lab_data["test_cases"])
+
+    # 3. Submit failing code (syntax error)
+    bad_code = "def broken(:\n    pass"
+    fail_resp = client.post("/api/technical-courses/labs/1001/execute", json={"code": bad_code})
+    assert fail_resp.status_code == 200
+    fail_data = fail_resp.json()
+    assert fail_data["all_passed"] is False
+    assert fail_data["passed_tests_count"] == 0
+    assert len(fail_data["test_results"]) == len(lab_data["test_cases"])
+    assert any("SyntaxError" in (tr.get("error") or "") or "Setup Error" in (tr.get("error") or "") for tr in fail_data["test_results"])
+
