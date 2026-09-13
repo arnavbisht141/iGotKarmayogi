@@ -25,6 +25,7 @@ import { fetchApi } from "@/lib/api";
 import { CurrentLesson, ModuleSummary } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import confetti from "canvas-confetti";
+import { LabLauncherBanner } from "@/features/labs/components/LabLauncherBanner";
 
 function LearningPlayerContent() {
   const { courseId } = useParams();
@@ -297,6 +298,11 @@ function LearningPlayerContent() {
                 </p>
               </div>
             </div>
+          )}
+
+          {/* Interactive Lab Launcher Banner if Content Type is Lab */}
+          {currentLesson.content_type === "lab" && (
+            <LabLauncherBanner title={currentLesson.title} />
           )}
 
           {/* Reading / Lab Content Area */}
