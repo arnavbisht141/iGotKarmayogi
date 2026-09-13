@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   Award,
+  Scale,
+  Video,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
@@ -238,6 +240,30 @@ export function Navbar() {
             }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
           </Link>
 
+          {/* ── Case Inquiries (Carryforward MCQs) ── */}
+          <Link href="/behavioural/cases"
+            className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
+              isActive("/behavioural/cases") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+            }`}>
+            <Scale className="h-4 w-4 text-[#1E3A8A]" />
+            Case Inquiries
+            <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+              isActive("/behavioural/cases") ? "opacity-100" : "opacity-0"
+            }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+          </Link>
+
+          {/* ── AI Live Interview ── */}
+          <Link href="/behavioural/interview"
+            className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
+              isActive("/behavioural/interview") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+            }`}>
+            <Video className="h-4 w-4 text-[#0D9488]" />
+            AI Live Interview
+            <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
+              isActive("/behavioural/interview") ? "opacity-100" : "opacity-0"
+            }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+          </Link>
+
           {/* Language Switcher */}
           <button
             type="button"
@@ -426,6 +452,21 @@ export function Navbar() {
               {t("nav.admin")}
             </Link>
           )}
+
+          <Link
+            href="/behavioural/cases"
+            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            ⚖️ Case Inquiries (Carryforward)
+          </Link>
+          <Link
+            href="/behavioural/interview"
+            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            📹 AI Live Interview Board
+          </Link>
 
           {/* Mobile Language Switcher */}
           <div className="pt-2 pb-1">

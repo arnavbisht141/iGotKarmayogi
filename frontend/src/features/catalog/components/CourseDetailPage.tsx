@@ -16,6 +16,9 @@ import {
   Star,
   Building2,
   BookOpen,
+  Scale,
+  Sparkles,
+  Brain,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -389,6 +392,48 @@ export default function CourseDetailPage() {
                         {skill}
                       </span>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Civil Service Behavioural Assessment & Competency Pipeline */}
+              <Card className="border-blue-200 bg-gradient-to-br from-blue-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
+                <CardHeader className="pb-2.5 border-b border-blue-100/80 bg-white/70">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xs sm:text-sm font-bold text-[#1E3A8A] flex items-center gap-1.5">
+                      <Sparkles className="h-4 w-4 text-[#0D9488]" />
+                      Behavioural Competency Pipeline
+                    </CardTitle>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#1E3A8A]">
+                      Course-Anchored
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 space-y-3 text-xs">
+                  <p className="text-slate-600 leading-relaxed text-[11px]">
+                    Evaluate practical civil service decision-making, ethical judgement, leadership, and oral defense grounded in this course syllabus.
+                  </p>
+                  <div className="space-y-2 pt-1">
+                    <a
+                      href={`/behavioural/cases?courseId=${course.id}`}
+                      className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Scale className="h-3.5 w-3.5 text-[#1E3A8A]" />
+                        Solve Case Inquiries (Consequential MCQs)
+                      </span>
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
+                    </a>
+                    <a
+                      href={`/behavioural/interview?courseId=${course.id}`}
+                      className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#1E3A8A] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Video className="h-3.5 w-3.5 text-[#0D9488]" />
+                        Launch AI Live Interview
+                      </span>
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
+                    </a>
                   </div>
                 </CardContent>
               </Card>
