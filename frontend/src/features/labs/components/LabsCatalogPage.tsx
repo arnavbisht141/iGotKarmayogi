@@ -21,7 +21,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchApi } from "@/lib/api";
-import { LabDetail } from "@/lib/types";
+import { LabDetail } from "@/lib/types/labs";
 import { useI18n } from "@/lib/i18n";
 
 export default function LabsCatalogPage() {

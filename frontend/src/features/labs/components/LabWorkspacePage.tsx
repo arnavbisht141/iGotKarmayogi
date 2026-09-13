@@ -43,7 +43,7 @@ import {
   NotebookCell,
   LabExecutionResult,
   CellExecutionResult,
-} from "@/lib/types";
+} from "@/lib/types/labs";
 import { useI18n } from "@/lib/i18n";
 import confetti from "canvas-confetti";
 
