@@ -1293,14 +1293,12 @@ def seed_cybersec_challenges(db: Session):
     from app.modules.digital_governance.services.templates import get_template
 
     challenges_map = [
-        ("01-soc-auth-investigation", "01-soc-auth-investigation", True),
-        ("02-phishing-dfir", "02-phishing-dfir", True),
+        ("01-soc-auth-investigation", "01-soc-auth-investigation", False),
         ("03-compromised-linux-server", "03-compromised-linux-server", False),
         ("04-vulnerable-web-app", "04-vulnerable-web-app", False),
         ("05-threat-hunting-lotl", "05-threat-hunting-lotl", False),
         ("06-pki-token-dispute", "06-pki-token-dispute", False),
         ("07-meghraj-cloud-audit", "07-meghraj-cloud-audit", False),
-        ("08-dpi-apisetu-replay", "08-dpi-apisetu-replay", False),
     ]
 
     for cid, tmpl_key, is_flagship in challenges_map:
@@ -1406,6 +1404,5 @@ def seed_cybersec_challenges(db: Session):
             db.add(challenge)
 
     db.commit()
-    print("All 8 Cybersecurity Sandbox challenges successfully seeded into database!")
-    print("All 8 Cybersecurity Sandbox challenges and templates successfully seeded into database!")
+    print(f"All {len(challenges_map)} Cybersecurity Sandbox challenges successfully seeded into database!")
 

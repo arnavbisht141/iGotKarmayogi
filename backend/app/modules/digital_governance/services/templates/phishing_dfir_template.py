@@ -352,14 +352,14 @@ def __(mo):
     hint_status = mo.callout(
         mo.md(
             "🔒 **Investigation Hints Locked**\n\n"
-            "Hints are locked behind the CyberLab CTFd portal to ensure competitive integrity. Unlock hints in the left portal panel (deducts points from final solve)."
+            "Hints are locked behind the portal to ensure competitive integrity. Unlock hints in the left portal panel (deducts points from final solve)."
         ),
         kind="info",
     )
 
     sidebar_content = mo.vstack(
         [
-            mo.md("## 🎣 CyberLab DFIR Console"),
+            mo.md("## 🎣 DFIR Console"),
             mo.md("**Incident ID**: `__INCIDENT_CODENAME__`"),
             mo.md("**Target Host**: `__TARGET_HOST__`"),
             mo.md("**Classification**: `TLP:AMBER` | Severity: **HIGH**"),
@@ -729,7 +729,7 @@ def __(candidate_flag, hashlib, mo, re):
         flag_feedback = mo.callout(
             mo.md(
                 "🎉 **FLAG VERIFIED CORRECT!**\n\n"
-                "Your recovered Phishing DFIR flag is verified! Now submit this flag in the **Submit Flag** box in the left CyberLab portal pane to register your 150 points and Phishing DFIR competency!"
+                "Your recovered Phishing DFIR flag is verified! Now submit this flag in the **Submit Flag** box in the left portal pane to register your 150 points and Phishing DFIR competency!"
             ),
             kind="success",
         )
@@ -786,11 +786,10 @@ def __(candidate_flag, hashlib, mo, re):
 
 
 @app.cell
-def console_root(mo, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view):
 def console_root(
     mo, sidebar_content, tab1_view, tab2_view, tab3_view, tab4_view, tab5_view
 ):
-    # Pure CyberLab Console Styles & Overrides
+    # Pure Console Styles & Overrides
     styles = mo.Html("""
     <style>
     /* 1. Eliminate Irrelevant Developer Tools */
@@ -813,7 +812,7 @@ def console_root(
         background: #090d16 !important;
         border-right: 1px solid #1e293b !important;
     /* Un-hide all Marimo cells while keeping action toolbar hidden */
-    .marimo-cell:not(:has(.cyberlab-topbar)) {
+    .marimo-cell:not(:has(.console-topbar)) {
         display: block !important;
     }
 
@@ -845,9 +844,9 @@ def console_root(
     }
 
     /* 4. Hide all backend/setup cells above the Console */
-    .marimo-cell:not(:has(.cyberlab-topbar)) {
+    .marimo-cell:not(:has(.console-topbar)) {
     /* 5. Hide all backend/setup cells above the Console, except marimo-sidebar */
-    .marimo-cell:not(:has(.cyberlab-topbar)):not(:has(marimo-sidebar)) {
+    .marimo-cell:not(:has(.console-topbar)):not(:has(marimo-sidebar)) {
         display: none !important;
     }
     .marimo-cell:has(marimo-sidebar) {
@@ -868,7 +867,7 @@ def console_root(
     }
 
     /* 6. Fullscreen / Maximized Console Layout */
-    .marimo-cell:has(.cyberlab-topbar) {
+    .marimo-cell:has(.console-topbar) {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
@@ -881,7 +880,7 @@ def console_root(
         margin: 0 !important;
     }
 
-    .cyberlab-topbar {
+    .console-topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -891,7 +890,7 @@ def console_root(
         padding: 10px 16px;
         margin-bottom: 10px;
     }
-    .cyberlab-topbar .title {
+    .console-topbar .title {
         font-size: 13px;
         font-weight: 700;
         color: #e2e8f0;
@@ -899,7 +898,7 @@ def console_root(
         align-items: center;
         gap: 10px;
     }
-    .cyberlab-topbar .live-badge {
+    .console-topbar .live-badge {
         background: #f59e0b;
         color: #0f172a;
         font-size: 10px;
@@ -908,7 +907,7 @@ def console_root(
         border-radius: 4px;
         letter-spacing: 0.5px;
     }
-    .cyberlab-topbar .fullscreen-btn {
+    .console-topbar .fullscreen-btn {
         background: #1e293b;
         color: #38bdf8;
         border: 1px solid #334155;
@@ -922,7 +921,7 @@ def console_root(
         gap: 6px;
         transition: all 0.2s;
     }
-    .cyberlab-topbar .fullscreen-btn:hover {
+    .console-topbar .fullscreen-btn:hover {
         background: #0284c7;
         color: #ffffff;
         border-color: #0284c7;
@@ -930,9 +929,9 @@ def console_root(
     </style>
     """)
 
-    # Invisible anchor div keeps the .cyberlab-topbar CSS selector working
+    # Invisible anchor div keeps the .console-topbar CSS selector working
     header = mo.Html(
-        '<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>'
+        '<div class="console-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>'
     )
 
     # Top-Level DFIR Analyst Operations Console

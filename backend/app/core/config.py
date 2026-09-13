@@ -30,14 +30,13 @@ class Settings(BaseSettings):
     # LLM keys for LangChain / LangGraph AI Assistant
     # LLM keys for LangChain / LangGraph AI Assistant & Content Generation
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-8b")
     NIM_API_KEY: str = os.getenv("NIM_API_KEY", "")
-    NIM_MODEL: str = os.getenv("NIM_MODEL", "meta/llama-3.1-70b-instruct")
+    NIM_MODEL: str = os.getenv("NIM_MODEL", "meta/llama-3.1-8b-instruct")
     
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",

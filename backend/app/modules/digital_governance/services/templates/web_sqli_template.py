@@ -247,7 +247,7 @@ def __(mo):
 
     sidebar_content = mo.vstack(
         [
-            mo.md("## 🌐 CyberLab AppSec Console"),
+            mo.md("## 🌐 AppSec Console"),
             mo.md("**Incident ID**: `__INCIDENT_CODENAME__`"),
             mo.md("**Target**: `__TARGET_APP__`"),
             mo.md("**Classification**: `OWASP A03:2021` | Severity: **HIGH**"),
@@ -575,7 +575,7 @@ def __(candidate_flag, hashlib, mo, re):
         flag_feedback = mo.callout(
             mo.md(
                 "🎉 **FLAG VERIFIED CORRECT!**\n\n"
-                "Your exfiltrated payroll audit finding is confirmed! Now submit this flag in the left CyberLab portal pane to claim 150 points and Web Application Security competency!"
+                "Your exfiltrated payroll audit finding is confirmed! Now submit this flag in the left portal pane to claim 150 points and Web Application Security competency!"
             ),
             kind="success",
         )
@@ -640,7 +640,7 @@ def console_root(
     }
 
     /* Un-hide all Marimo cells while keeping action toolbar hidden */
-    .marimo-cell:not(:has(.cyberlab-topbar)) {
+    .marimo-cell:not(:has(.console-topbar)) {
         display: block !important;
     }
 
@@ -668,7 +668,7 @@ def console_root(
         display: none !important;
     }
 
-    .marimo-cell:has(.cyberlab-topbar) {
+    .marimo-cell:has(.console-topbar) {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
@@ -681,7 +681,7 @@ def console_root(
         margin: 0 !important;
     }
 
-    .cyberlab-topbar {
+    .console-topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -691,7 +691,7 @@ def console_root(
         padding: 10px 16px;
         margin-bottom: 10px;
     }
-    .cyberlab-topbar .title {
+    .console-topbar .title {
         font-size: 13px;
         font-weight: 700;
         color: #e2e8f0;
@@ -699,7 +699,7 @@ def console_root(
         align-items: center;
         gap: 10px;
     }
-    .cyberlab-topbar .live-badge {
+    .console-topbar .live-badge {
         background: #0284c7;
         color: white;
         font-size: 10px;
@@ -711,9 +711,9 @@ def console_root(
     </style>
     """)
 
-    # Invisible anchor div keeps the .cyberlab-topbar CSS selector working
+    # Invisible anchor div keeps the .console-topbar CSS selector working
     header = mo.Html(
-        '<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>'
+        '<div class="console-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>'
     )
 
     console = mo.ui.tabs(

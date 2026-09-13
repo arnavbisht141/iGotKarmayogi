@@ -294,7 +294,7 @@ def __(mo):
 
     sidebar_content = mo.vstack(
         [
-            mo.md("## 🎯 CyberLab Threat Hunter"),
+            mo.md("## 🎯 Threat Hunter"),
             mo.md("**Operation**: `__INCIDENT_CODENAME__`"),
             mo.md("**Target**: `Finance Workstation Fleet`"),
             mo.md("**Classification**: `TLP:AMBER` | Severity: **HIGH**"),
@@ -579,7 +579,7 @@ def __(candidate_flag, hashlib, mo, re):
         flag_feedback = mo.callout(
             mo.md(
                 "🎉 **FLAG VERIFIED CORRECT!**\n\n"
-                "Your recovered threat hunting flag is verified! Now submit this flag in the **Submit Flag** box in the left CyberLab portal pane to register your 200 points and Threat Hunting competency!"
+                "Your recovered threat hunting flag is verified! Now submit this flag in the **Submit Flag** box in the left portal pane to register your 200 points and Threat Hunting competency!"
             ),
             kind="success",
         )
@@ -641,15 +641,15 @@ def console_root(
     [data-testid="chrome-sidebar"], #app-chrome-sidebar, #app-chrome-panel, .resize-handle { display: none !important; }
     [data-testid="drag-button"], [data-testid="cell-actions-button"], [data-testid="create-cell-button"], [data-testid="run-button"], [data-testid="hide-code-button"], [data-testid="fullscreen-output-button"], [data-testid="expand-output-button"], .hover-actions-parent > .hover-action, .shoulder-right, .cell-actions, .cell-actions-button, .cell-bottom-menu, .add-cell-button { display: none !important; }
     [data-testid="filename-input"], [data-testid="chrome-controls-top-right"], [data-testid="chrome-controls-bottom-right"], [data-testid="chrome-footer"], [data-testid="footer-panel"] { display: none !important; }
-    .marimo-cell:not(:has(.cyberlab-topbar)) { display: none !important; }
+    .marimo-cell:not(:has(.console-topbar)) { display: none !important; }
     .marimo-cell .cm-editor, .marimo-cell .cm-scroller, .marimo-cell .cell-editor, [data-testid="cell-editor"] { display: none !important; height: 0 !important; overflow: hidden !important; }
-    .marimo-cell:has(.cyberlab-topbar) { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 4px !important; }
+    .marimo-cell:has(.console-topbar) { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 4px !important; }
     #App, main, #app-chrome-body, [data-testid="column-container"] { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-    .cyberlab-topbar { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 16px; margin-bottom: 10px; }
-    .cyberlab-topbar .title { font-size: 13px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
+    .console-topbar { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 16px; margin-bottom: 10px; }
+    .console-topbar .title { font-size: 13px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
     </style>
     """)
-    header = mo.Html('<div class="cyberlab-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>')
+    header = mo.Html('<div class="console-topbar" style="display:none !important; height:0; margin:0; padding:0; border:none;"></div>')
     console = mo.ui.tabs(
         {
             "📋 Triage & Hypothesis": header_view,

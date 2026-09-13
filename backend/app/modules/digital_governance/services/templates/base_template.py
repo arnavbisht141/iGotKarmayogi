@@ -110,7 +110,7 @@ class BaseChallengeTemplate(ABC):
             "mitre_techniques": self.mitre_techniques,
             "container": {
                 "type": "marimo",
-                "image": "cyberlab/sandbox:latest",
+                "image": "karmayogi/sandbox:latest",
                 "cpu_limit": "0.5",
                 "memory_limit": "512M",
                 "pids_limit": 100,

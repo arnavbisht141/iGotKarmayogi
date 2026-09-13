@@ -33,11 +33,11 @@ class MultiLLMProvider:
         self.gemini_keys = self._parse_keys("GOOGLE_API_KEY", "GEMINI_API_KEY", "GEMINI_API_KEYS")
         self.openai_keys = self._parse_keys("OPENAI_API_KEY", "OPENAI_API_KEYS")
 
-        # Models & base URLs
-        self.groq_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-        self.nim_model = os.getenv("NIM_MODEL", "meta/llama-3.1-70b-instruct")
+        # Models & base URLs (configured for low-traffic, high-throughput, minimal rate-limiting)
+        self.groq_model = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+        self.nim_model = os.getenv("NIM_MODEL", "meta/llama-3.1-8b-instruct")
         self.nim_base_url = os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
-        self.gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        self.gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-8b")
         self.openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
         # Key rotation indices

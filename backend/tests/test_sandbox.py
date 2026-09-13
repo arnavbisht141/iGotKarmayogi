@@ -127,21 +127,18 @@ class TestCybersecuritySandbox(unittest.IsolatedAsyncioTestCase):
 
     def test_04_database_seeding_and_challenge_listing(self):
         challenges = sandbox_manager.list_challenges(db=self.db)
-        self.assertEqual(len(challenges), 8)
+        self.assertEqual(len(challenges), 6)
 
         ids = [c.id for c in challenges]
         self.assertIn("01-soc-auth-investigation", ids)
-        self.assertIn("02-phishing-dfir", ids)
         self.assertIn("03-compromised-linux-server", ids)
         self.assertIn("04-vulnerable-web-app", ids)
         self.assertIn("05-threat-hunting-lotl", ids)
         self.assertIn("06-pki-token-dispute", ids)
         self.assertIn("07-meghraj-cloud-audit", ids)
-        self.assertIn("08-dpi-apisetu-replay", ids)
 
-        # Flagship checks
         c1 = next(c for c in challenges if c.id == "01-soc-auth-investigation")
-        self.assertTrue(c1.is_flagship)
+        self.assertFalse(c1.is_flagship)
 
         c3 = next(c for c in challenges if c.id == "03-compromised-linux-server")
         self.assertEqual(c3.category, "Incident Response / Linux Forensics")

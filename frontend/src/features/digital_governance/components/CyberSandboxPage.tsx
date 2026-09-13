@@ -15,7 +15,6 @@ import {
   ExternalLink,
   Lock,
   Unlock,
-  Sparkles,
   Clock,
   ChevronRight,
   Layers,
@@ -24,13 +23,9 @@ import {
   Minimize2,
   FileText,
   HelpCircle,
-  X,
   Radio,
   Server,
-  Database,
-  ArrowRight,
   Send,
-  Zap,
 } from "lucide-react";
 import {
   Card,
@@ -93,29 +88,6 @@ interface CompetencyRadar {
   solved_challenges_count: number;
 }
 
-const SAMPLE_TRANSCRIPTS = [
-  {
-    title: "CERT-In Off-Hours Treasury Brute-Force Triage (Module 1)",
-    domain: "Cybersecurity",
-    text: "CERT-In Alert 2026-0912: A critical credential-stuffing attack was detected targeting State Treasury gateway 'TREASURY-GW02'. Windows Security event logs show 85 consecutive Event 4625 failed logins from external IP 185.220.101.42 against user 'admin_finance'. The threat actor gained access, creating Event 4624, followed by Event 4688 Living-off-the-Land execution using certutil.exe to download malicious payloads.",
-  },
-  {
-    title: "Executive Spearphishing & PFMS Invoice Fraud (Module 2)",
-    domain: "DFIR / Phishing",
-    text: "Investigation Report: An urgent phishing email claiming to be a PFMS disbursement voucher settlement was sent to finance officers from a spoofed domain 'pfms-disbursement-update.nic-in.org'. Authentication headers show SPF fail and DMARC fail. Internal DNS query telemetry confirms subsequent beaconing to external C2 domain 'beacon-telemetry-gateway.org'.",
-  },
-  {
-    title: "MeghRaj Sovereign Cloud & Cross-Border Egress Audit (Module 3)",
-    domain: "Government Cloud",
-    text: "MeitY STQC Security Audit: Automated log analysis of State Community Cloud uncovered unauthorized container deployments in non-empaneled foreign cloud regions violating sovereign data localization mandates. Sensitive pension vault S3 buckets were replicated to unapproved overseas regions with non-compliant bucket policies.",
-  },
-  {
-    title: "API Setu Gateway Replay Attack & e-KYC Defense (Module 4)",
-    domain: "DPI / India Stack",
-    text: "Incident Briefing: High-volume replay assault detected against the State e-KYC gateway endpoint '/api/v2/ekyc/verify-aadhaar-otp'. Threat actors intercepted valid citizen requests and generated 25,000 duplicate transactions using identical cryptographic nonces within a 5-minute window.",
-  },
-];
-
 export default function CyberSandboxPage() {
   const [challenges, setChallenges] = useState<ChallengeSummary[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -140,25 +112,11 @@ export default function CyberSandboxPage() {
     solved_challenges_count: 0,
   });
 
-  // Modal State
-  const [showGenModal, setShowGenModal] = useState<boolean>(false);
-  const [transcriptText, setTranscriptText] = useState<string>(
-    SAMPLE_TRANSCRIPTS[0].text,
-  );
-  const [generating, setGenerating] = useState<boolean>(false);
-  const [genResult, setGenResult] = useState<any | null>(null);
-
   // Console UI
   const [fullscreen, setFullscreen] = useState<boolean>(false);
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [unlockingHintId, setUnlockingHintId] = useState<number | null>(null);
   const [remainingSecs, setRemainingSecs] = useState<number>(0);
-
-  const [knowledgeBase, setKnowledgeBase] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"supabase" | "preset" | "custom">(
-    "supabase",
-  );
-  const [generatingTopic, setGeneratingTopic] = useState<string | null>(null);
 
   // Fetch Catalog & Competencies
   const fetchChallenges = async () => {
@@ -179,7 +137,7 @@ export default function CyberSandboxPage() {
             difficulty: "Beginner",
             points: 100,
             duration_minutes: 45,
-            is_flagship: true,
+            is_flagship: false,
             solved: false,
             competency_id: "soc_investigation",
             tags: [
@@ -194,24 +152,6 @@ export default function CyberSandboxPage() {
               "Isolate external brute-force spikes in auth_events.json",
               "Discover compromised off-hours user account",
               "Trace Living-off-the-Land command to recover flag",
-            ],
-          },
-          {
-            id: "02-phishing-dfir",
-            title: "INCIDENT 0202: Executive Spearphish & Invoice Fraud",
-            category: "DFIR / Phishing",
-            difficulty: "Intermediate",
-            points: 150,
-            duration_minutes: 50,
-            is_flagship: true,
-            solved: false,
-            competency_id: "phishing_analysis",
-            tags: ["phishing", "dfir", "email", "dmarc", "spf", "c2"],
-            mitre_techniques: ["T1566.001", "T1071.001"],
-            objectives: [
-              "Inspect raw MIME headers in urgent_invoice.eml for DMARC failure",
-              "Extract attachment hash and check threat intel",
-              "Correlate DNS telemetry in dns_telemetry.json to uncover C2 flag",
             ],
           },
           {
@@ -316,44 +256,12 @@ export default function CyberSandboxPage() {
               "Extract STQC remediation flag",
             ],
           },
-          {
-            id: "08-dpi-apisetu-replay",
-            title: "INCIDENT 0808: Operation Setu (API Setu Defense)",
-            category: "Digital Public Infrastructure (DPI)",
-            difficulty: "Advanced",
-            points: 175,
-            duration_minutes: 50,
-            is_flagship: false,
-            solved: false,
-            competency_id: "dpi_security",
-            tags: ["dpi", "india-stack", "aadhaar", "api-setu", "replay"],
-            mitre_techniques: ["T1557", "T1499"],
-            objectives: [
-              "Detect duplicate cryptographic nonce reuse on e-KYC gateway",
-              "Trace botnet cluster in apisetu_gateway_logs.json",
-              "Recover WAF cryptographic mitigation flag",
-            ],
-          },
         ]);
       }
     } catch (e) {
       console.warn("API unavailable, loading local fallback challenges:", e);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchKnowledgeBase = async () => {
-    try {
-      const res = await fetch(
-        `${API_BASE}/digital-governance/sandbox/knowledge-base`,
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setKnowledgeBase(data);
-      }
-    } catch (e) {
-      console.warn("Could not load knowledge base from Supabase:", e);
     }
   };
 
@@ -374,7 +282,6 @@ export default function CyberSandboxPage() {
   useEffect(() => {
     fetchChallenges();
     fetchCompetencies();
-    fetchKnowledgeBase();
   }, []);
 
   // Timer Tick
@@ -581,99 +488,6 @@ export default function CyberSandboxPage() {
     }
   };
 
-  // Run LLM Pipeline Generation
-  const handleGenerateChallenge = async () => {
-    if (!transcriptText.trim()) return;
-    setGenerating(true);
-    setGenResult(null);
-
-    try {
-      const res = await fetch(
-        `${API_BASE}/digital-governance/sandbox/generate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transcript_text: transcriptText,
-            student_id: "nodal_officer_01",
-          }),
-        },
-      );
-
-      if (res.ok) {
-        const data = await res.json();
-        setGenResult(data);
-        await fetchChallenges();
-      } else {
-        // Heuristic fallback response for instant preview
-        setGenResult({
-          challenge_id: `gen-soc-${Date.now().toString(36)}`,
-          title: "Operation Vajra-Shield: Treasury Authentication Triage",
-          category: "SOC Investigation",
-          difficulty: "Beginner",
-          points: 100,
-          objectives: [
-            "Isolate external brute force spike in Windows Event 4625 logs",
-            "Identify compromised off-hours user account",
-            "Trace Living-off-the-Land command to recover flag",
-          ],
-          scenario_md:
-            "Dynamic challenge compiled from lecture notes using Multi-LLM provider.",
-          extracted_meta: {
-            domain: "Cybersecurity",
-            tags: ["soc", "brute-force", "cert-in", "event-4625"],
-            provider_used: "groq (round-robin)",
-            model_used: "llama-3.3-70b-versatile",
-          },
-        });
-        await fetchChallenges();
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  // Generate directly from live Supabase topic
-  const handleGenerateFromTopic = async (topicName: string) => {
-    setGeneratingTopic(topicName);
-    setGenResult(null);
-    try {
-      const res = await fetch(
-        `${API_BASE}/digital-governance/sandbox/generate-from-topic`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            topic_name: topicName,
-            student_id: "nodal_officer_01",
-          }),
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setGenResult(data);
-        await fetchChallenges();
-      } else {
-        setGenResult({
-          title: `${topicName} Defense Challenge`,
-          category: topicName,
-          points: 130,
-          objectives: [
-            `Investigate ${topicName} telemetry`,
-            "Enforce compliance with GoI mandates",
-          ],
-        });
-        await fetchChallenges();
-      }
-    } catch (e) {
-      console.error("Topic generation failed:", e);
-    } finally {
-      setGeneratingTopic(null);
-    }
-  };
-
   // Format seconds to mm:ss
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -681,14 +495,11 @@ export default function CyberSandboxPage() {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Filter challenges across all 8 modules and domains
+  // Filter challenges across modules and domains
   const filteredChallenges = challenges.filter((c) => {
     if (selectedCategory === "All") return true;
-    if (selectedCategory === "Flagship") return c.is_flagship;
     if (selectedCategory === "SOC")
       return c.category.includes("SOC") || c.tags.includes("soc");
-    if (selectedCategory === "DFIR")
-      return c.category.includes("Phishing") || c.category.includes("DFIR");
     if (selectedCategory === "Linux IR")
       return c.category.includes("Linux") || c.category.includes("Forensics");
     if (selectedCategory === "Web")
@@ -697,8 +508,6 @@ export default function CyberSandboxPage() {
       return c.category.includes("PKI") || c.category.includes("Signature");
     if (selectedCategory === "Cloud")
       return c.category.includes("Cloud") || c.category.includes("MeghRaj");
-    if (selectedCategory === "DPI")
-      return c.category.includes("DPI") || c.category.includes("Public");
     return true;
   });
 
@@ -725,9 +534,9 @@ export default function CyberSandboxPage() {
               <Cpu className="h-3.5 w-3.5 text-emerald-400" />
               Isolated Marimo Sandboxes
             </span>
-            <span className="flex items-center gap-1 text-amber-300">
-              <Sparkles className="h-3.5 w-3.5" />
-              Multi-LLM Token Round-Robin
+            <span className="flex items-center gap-1 text-slate-200">
+              <Key className="h-3.5 w-3.5 text-amber-300" />
+              CERT-In Guidelines Compliant
             </span>
           </div>
         </div>
@@ -757,13 +566,6 @@ export default function CyberSandboxPage() {
 
             {/* Quick Actions & Score Overview */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => setShowGenModal(true)}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-blue-950 font-bold px-4 py-2.5 rounded-lg shadow-md transition-all text-sm"
-              >
-                <Sparkles className="h-4 w-4" />
-                Generate from Transcript
-              </button>
               <Link
                 href="/digital-governance/scenarios"
                 className="flex items-center justify-center gap-2 bg-blue-900/80 hover:bg-blue-800 border border-blue-400/40 text-white font-medium px-4 py-2.5 rounded-lg transition-all text-sm"
@@ -835,29 +637,21 @@ export default function CyberSandboxPage() {
 
               {/* Category Filter Pills */}
               <div className="flex flex-wrap gap-1.5 mb-4 pb-2 border-b border-slate-100">
-                {[
-                  "All",
-                  "Flagship",
-                  "SOC",
-                  "DFIR",
-                  "Linux IR",
-                  "Web",
-                  "PKI",
-                  "Cloud",
-                  "DPI",
-                ].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
-                      selectedCategory === cat
-                        ? "bg-[#1E3A8A] text-white shadow-sm"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                {["All", "SOC", "Linux IR", "Web", "PKI", "Cloud"].map(
+                  (cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
+                        selectedCategory === cat
+                          ? "bg-[#1E3A8A] text-white shadow-sm"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ),
+                )}
               </div>
 
               {/* Challenge List */}
@@ -876,11 +670,6 @@ export default function CyberSandboxPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <div className="flex items-center gap-1.5 mb-1">
-                            {chal.is_flagship && (
-                              <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold px-1.5 py-0.2 rounded tracking-tight">
-                                FLAGSHIP
-                              </span>
-                            )}
                             <span className="bg-slate-100 text-slate-700 text-[10px] font-semibold px-1.5 py-0.2 rounded">
                               {chal.category}
                             </span>
@@ -1191,11 +980,8 @@ export default function CyberSandboxPage() {
                   Select an Investigation Challenge
                 </h3>
                 <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-                  Launch one of the flagship incidents on the left (e.g.{" "}
-                  <strong>Operation NightShift</strong> or{" "}
-                  <strong>Spearphishing DFIR</strong>), or synthesize a custom
-                  challenge from lecture transcripts using our Multi-LLM
-                  compiler.
+                  Select an incident from the left panel to launch your
+                  interactive Marimo analysis workbench.
                 </p>
 
                 <div className="pt-2 flex justify-center gap-3">
@@ -1206,14 +992,7 @@ export default function CyberSandboxPage() {
                     className="bg-[#1E3A8A] hover:bg-blue-900 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all"
                   >
                     <Play className="h-3.5 w-3.5 fill-current" />
-                    Launch Flagship Module 1
-                  </button>
-                  <button
-                    onClick={() => setShowGenModal(true)}
-                    className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
-                  >
-                    <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                    Transcript Pipeline
+                    Launch Incident Module 1
                   </button>
                 </div>
               </div>
@@ -1221,273 +1000,6 @@ export default function CyberSandboxPage() {
           </div>
         </div>
       </div>
-
-      {/* DYNAMIC TRANSCRIPT GENERATION MODAL */}
-      {showGenModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 space-y-4 relative">
-            <button
-              onClick={() => setShowGenModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-[#1E3A8A]">
-                  Multi-LLM Dynamic Challenge Compiler
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Converts lecture notes or video transcripts into randomized
-                  Marimo sandboxes
-                </p>
-              </div>
-            </div>
-
-            {/* Tab Selector */}
-            <div className="flex border-b border-slate-200 gap-2 pb-1">
-              <button
-                type="button"
-                onClick={() => setActiveTab("supabase")}
-                className={`text-xs font-bold pb-2 px-3 border-b-2 transition-colors flex items-center gap-1.5 ${
-                  activeTab === "supabase"
-                    ? "border-[#1E3A8A] text-[#1E3A8A]"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <Database className="h-3.5 w-3.5" />
-                Live Supabase Knowledge Base (5 Pillars)
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("preset")}
-                className={`text-xs font-bold pb-2 px-3 border-b-2 transition-colors flex items-center gap-1.5 ${
-                  activeTab === "preset"
-                    ? "border-[#1E3A8A] text-[#1E3A8A]"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <FileText className="h-3.5 w-3.5" />
-                Lecture Presets
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("custom")}
-                className={`text-xs font-bold pb-2 px-3 border-b-2 transition-colors flex items-center gap-1.5 ${
-                  activeTab === "custom"
-                    ? "border-[#1E3A8A] text-[#1E3A8A]"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <Terminal className="h-3.5 w-3.5" />
-                Custom Transcript
-              </button>
-            </div>
-
-            {/* TAB 1: Live Supabase Knowledge Base */}
-            {activeTab === "supabase" && (
-              <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
-                <p className="text-[11px] text-slate-600">
-                  Select a live digital governance pillar scraped from the
-                  official database. Multi-LLM compiler will synthesize the
-                  telemetry dataset, compute flags, and store the challenge in
-                  the database.
-                </p>
-                <div className="space-y-2">
-                  {(knowledgeBase.length > 0
-                    ? knowledgeBase
-                    : [
-                        {
-                          topic_name: "Cybersecurity",
-                          article_title: "Computer security",
-                          body_snippet:
-                            "Computer security, cybersecurity, or information technology security is the protection of computer systems and networks...",
-                          courses_count: 3,
-                        },
-                        {
-                          topic_name: "Data Privacy",
-                          article_title: "Information privacy",
-                          body_snippet:
-                            "Information privacy is the relationship between the collection and dissemination of data, technology, the public expectation of privacy...",
-                          courses_count: 3,
-                        },
-                        {
-                          topic_name: "Digital Signatures",
-                          article_title: "Digital signature",
-                          body_snippet:
-                            "A digital signature is a mathematical scheme for verifying the authenticity of digital messages or documents...",
-                          courses_count: 3,
-                        },
-                        {
-                          topic_name: "Government Cloud",
-                          article_title: "UK Government G-Cloud / MeghRaj",
-                          body_snippet:
-                            "Government Community Cloud (MeghRaj) provides sovereign data localization and multi-tenant security...",
-                          courses_count: 3,
-                        },
-                        {
-                          topic_name: "Digital Public Infrastructure",
-                          article_title: "Digital public infrastructure",
-                          body_snippet:
-                            "Digital Public Infrastructure (India Stack) includes digital identity (Aadhaar), fast payments (UPI), and consent-based data sharing (API Setu)...",
-                          courses_count: 3,
-                        },
-                      ]
-                  ).map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-lg border border-slate-200 hover:border-[#1E3A8A] hover:bg-blue-50/30 transition-all flex items-start justify-between gap-3"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-[#1E3A8A]">
-                            {item.topic_name}
-                          </span>
-                          <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                            Article: {item.article_title}
-                          </span>
-                          <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">
-                            {item.courses_count || 3} Video Curricula
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-600 line-clamp-2">
-                          {item.body_snippet}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleGenerateFromTopic(item.topic_name)}
-                        disabled={generatingTopic === item.topic_name}
-                        className="shrink-0 bg-[#1E3A8A] hover:bg-blue-900 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors disabled:opacity-50"
-                      >
-                        {generatingTopic === item.topic_name ? (
-                          <>
-                            <RefreshCw className="h-3 w-3 animate-spin" />
-                            Synthesizing...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-3 w-3 text-amber-300" />
-                            Build Sandbox
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: Quick Presets */}
-            {activeTab === "preset" && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 block">
-                  Select Standard Civil-Service Incident Walkthrough:
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-1">
-                  {SAMPLE_TRANSCRIPTS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setTranscriptText(preset.text);
-                        setActiveTab("custom");
-                      }}
-                      className="text-left p-2.5 rounded-lg border border-slate-200 hover:border-[#1E3A8A] hover:bg-blue-50/40 text-xs transition-all"
-                    >
-                      <div className="font-bold text-slate-800 line-clamp-1">
-                        {preset.title}
-                      </div>
-                      <div className="text-[10px] text-slate-500 font-medium">
-                        {preset.domain}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: Custom Input */}
-            {activeTab === "custom" && (
-              <div>
-                <label className="text-xs font-bold text-slate-700 mb-1.5 block">
-                  Paste Custom Video / Walkthrough Transcript:
-                </label>
-                <textarea
-                  rows={5}
-                  value={transcriptText}
-                  onChange={(e) => setTranscriptText(e.target.value)}
-                  placeholder="Paste civil service cybersecurity lecture transcript or CERT-In bulletin here..."
-                  className="w-full text-xs font-mono p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#1E3A8A] focus:outline-none"
-                />
-              </div>
-            )}
-
-            {/* Provider Status Note */}
-            <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 flex items-center justify-between text-[11px] text-slate-600">
-              <span className="flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
-                Round-Robin: Groq $\to$ NIM $\to$ Gemini $\to$ OpenAI $\to$ Rule
-                Engine
-              </span>
-              <span className="font-mono text-emerald-700 font-bold">
-                Resilient Failover
-              </span>
-            </div>
-
-            {/* Generation Results */}
-            {genResult && (
-              <div className="bg-emerald-50 border border-emerald-300 p-3 rounded-lg text-xs space-y-1">
-                <div className="font-bold text-emerald-900 flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Successfully Compiled Challenge: {genResult.title}
-                </div>
-                <div className="text-emerald-800 text-[11px]">
-                  Category: <strong>{genResult.category}</strong> | Points:{" "}
-                  <strong>{genResult.points}</strong>
-                </div>
-                <div className="text-emerald-700 text-[10px]">
-                  Extracted Objectives: {genResult.objectives?.join("; ")}
-                </div>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowGenModal(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={handleGenerateChallenge}
-                disabled={generating || !transcriptText.trim()}
-                className="bg-[#1E3A8A] hover:bg-blue-900 text-white px-4 py-2 text-xs font-bold rounded-lg flex items-center gap-2 shadow-sm transition-colors disabled:opacity-50"
-              >
-                {generating ? (
-                  <>
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                    Extracting & Compiling...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-                    Compile Procedural Challenge
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
