@@ -80,6 +80,7 @@ class GenerateCaseForCourseRequest(BaseModel):
 class CarryforwardSessionStartRequest(BaseModel):
     case_id: Optional[str] = None
     custom_document_id: Optional[str] = None
+    user_id: Optional[int] = None
 
 class CarryforwardAnswerRequest(BaseModel):
     question_id: str
@@ -148,6 +149,7 @@ class InterviewStartRequest(BaseModel):
     course_id: int
     officer_name: Optional[str] = "Officer"
     target_duration_minutes: int = Field(default=30, ge=25, le=35)
+    user_id: Optional[int] = None
 
 class InterviewTurnRequest(BaseModel):
     session_id: str

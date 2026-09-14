@@ -105,12 +105,14 @@ class LiveInterviewSession:
         course_id: int,
         officer_name: str,
         target_duration_minutes: int,
-        course_info_override: Optional[Dict[str, Any]] = None
+        course_info_override: Optional[Dict[str, Any]] = None,
+        user_id: Optional[int] = None
     ):
         self.session_id = session_id
         self.course_id = course_id
         self.officer_name = officer_name
         self.target_duration_minutes = target_duration_minutes
+        self.user_id = user_id
         if course_info_override:
             self.course_info = course_info_override
         else:
@@ -640,7 +642,8 @@ class InterviewSessionManager:
             course_id=req.course_id,
             officer_name=req.officer_name or "Officer",
             target_duration_minutes=req.target_duration_minutes,
-            course_info_override=course_override
+            course_info_override=course_override,
+            user_id=req.user_id
         )
         cls._sessions[session_id] = session
         return session

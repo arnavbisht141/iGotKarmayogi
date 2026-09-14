@@ -614,3 +614,18 @@ class StatEngineMastery(Base):
     mastery_json = Column(Text, nullable=False)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+
+class BehaviouralSessionResult(Base):
+    __tablename__ = "behavioural_session_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(100), unique=True, nullable=False, index=True)
+    session_type = Column(String(20), nullable=False)  # carryforward, interview
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    case_or_course_id = Column(String(100), nullable=True)
+    score = Column(Float, default=0.0)
+    result_json = Column(Text, nullable=False)
+    completed_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")
+

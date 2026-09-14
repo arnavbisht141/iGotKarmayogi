@@ -11,9 +11,10 @@ from ..schemas import (
 from .carryforward_generator import get_case_by_id, get_all_cases
 
 class CarryforwardSession:
-    def __init__(self, session_id: str, case_scenarios: List[CaseScenario]):
+    def __init__(self, session_id: str, case_scenarios: List[CaseScenario], user_id: Optional[int] = None):
         self.session_id = session_id
         self.case_scenarios = case_scenarios
+        self.user_id = user_id
         self.current_case_index = 0
         self.current_question_id: str = case_scenarios[0].root_question_id
         self.decision_trail: List[DecisionNodeLog] = []
@@ -227,7 +228,7 @@ class CarryforwardSessionManager:
     _sessions: Dict[str, CarryforwardSession] = {}
 
     @classmethod
-    def create_session(cls, case_id: Optional[str] = None, custom_case: Optional[CaseScenario] = None) -> CarryforwardSession:
+    def create_session(cls, case_id: Optional[str] = None, custom_case: Optional[CaseScenario] = None, user_id: Optional[int] = None) -> CarryforwardSession:
         session_id = f"cf_sess_{uuid.uuid4().hex[:12]}"
         
         scenarios: List[CaseScenario] = []
@@ -242,7 +243,7 @@ class CarryforwardSessionManager:
         else:
             scenarios = get_all_cases()
 
-        session = CarryforwardSession(session_id=session_id, case_scenarios=scenarios)
+        session = CarryforwardSession(session_id=session_id, case_scenarios=scenarios, user_id=user_id)
         cls._sessions[session_id] = session
         return session
 

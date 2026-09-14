@@ -31,6 +31,7 @@ from .services.carryforward_generator import (
 )
 from .services.carryforward_session import CarryforwardSessionManager
 from .services.interview_service import InterviewSessionManager
+from .services.result_store import save_behavioural_result
 
 router = APIRouter(prefix="/behavioural", tags=["behavioural_cgp"])
 
@@ -129,7 +130,7 @@ def start_carryforward_session(req: Optional[CarryforwardSessionStartRequest] = 
     Initializes an interactive assessment session for carryforward case MCQs.
     """
     case_id = req.case_id if req else None
-    session = CarryforwardSessionManager.create_session(case_id=case_id)
+    session = CarryforwardSessionManager.create_session(case_id=case_id, user_id=req.user_id if req else None)
     
     current_q = session.current_question
     case = session.current_case
@@ -181,11 +182,21 @@ def submit_carryforward_answer(session_id: str, req: CarryforwardAnswerRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/session/{session_id}/summary", response_model=CarryforwardSessionSummary)
-def get_carryforward_session_summary(session_id: str):
+def get_carryforward_session_summary(session_id: str, db: Session = Depends(get_db)):
     session = CarryforwardSessionManager.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    return session.get_summary()
+    summary = session.get_summary()
+    save_behavioural_result(
+        db,
+        session_id=session.session_id,
+        session_type="carryforward",
+        user_id=session.user_id,
+        case_or_course_id=summary.case_id,
+        score=summary.procedural_compliance_score,
+        result_payload=summary.model_dump(),
+    )
+    return summary
 
 # --- AI Live Feed Interview Endpoints ---
 
@@ -234,13 +245,13 @@ def submit_interview_turn(req: InterviewTurnRequest):
     return turn_res
 
 @router.post("/interview/end", response_model=InterviewAnalysisResponse)
-def conclude_interview_by_body(req: InterviewEndRequest):
+def conclude_interview_by_body(req: InterviewEndRequest, db: Session = Depends(get_db)):
     """Concludes the interview when session_id is supplied in the request body."""
-    return conclude_and_analyze_interview(req.session_id)
+    return conclude_and_analyze_interview(req.session_id, db)
 
 
 @router.post("/interview/{session_id}/end", response_model=InterviewAnalysisResponse)
-def conclude_and_analyze_interview(session_id: str):
+def conclude_and_analyze_interview(session_id: str, db: Session = Depends(get_db)):
     """
     Concludes the 25-35 min interview and generates the comprehensive diagnostic scorecard
     evaluating Course Knowledge + 6 Behavioral Competencies.
@@ -248,6 +259,15 @@ def conclude_and_analyze_interview(session_id: str):
     session = InterviewSessionManager.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
-    
+
     analysis = session.generate_analysis()
+    save_behavioural_result(
+        db,
+        session_id=session.session_id,
+        session_type="interview",
+        user_id=session.user_id,
+        case_or_course_id=str(session.course_id),
+        score=analysis.overall_score_percent,
+        result_payload=analysis.model_dump(),
+    )
     return analysis
