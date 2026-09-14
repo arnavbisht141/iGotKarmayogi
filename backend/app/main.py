@@ -5,6 +5,7 @@ from app.core.database import engine, Base, SessionLocal
 from app.core.seed_data import seed_database
 
 # Import routers
+from app.modules.digital_governance.router import router as digital_governance_router
 from app.modules.auth.router import router as auth_router
 from app.modules.onboarding.router import router as onboarding_router
 from app.modules.dashboard.router import router as dashboard_router
@@ -15,7 +16,6 @@ from app.modules.assessments.router import router as assessments_router
 from app.modules.profile.router import router as profile_router
 from app.modules.admin.router import router as admin_router
 from app.agents.router import router as agents_router
-from app.modules.digital_governance.router import router as digital_governance_router
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -43,6 +43,7 @@ app.add_middleware(
 )
 
 # Mount domain routers
+app.include_router(digital_governance_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(onboarding_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
@@ -53,7 +54,6 @@ app.include_router(assessments_router, prefix=settings.API_V1_STR)
 app.include_router(profile_router, prefix=settings.API_V1_STR)
 app.include_router(admin_router, prefix=settings.API_V1_STR)
 app.include_router(agents_router, prefix=settings.API_V1_STR)
-app.include_router(digital_governance_router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 def health_check():
