@@ -17,6 +17,7 @@ from app.modules.admin.router import router as admin_router
 from app.agents.router import router as agents_router
 from app.statistical_engine.api.router import router as stats_engine_router
 from app.modules.behavioural_cgp.router import router as behavioural_router
+from app.modules.technical_courses.router import router as technical_courses_router
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -54,10 +55,20 @@ app.include_router(assessments_router, prefix=settings.API_V1_STR)
 app.include_router(profile_router, prefix=settings.API_V1_STR)
 app.include_router(admin_router, prefix=settings.API_V1_STR)
 app.include_router(agents_router, prefix=settings.API_V1_STR)
+# Statistical Engine & Adaptive Branching Exam
 app.include_router(stats_engine_router, prefix="/api/v1")
 app.include_router(stats_engine_router, prefix="/api")
 app.include_router(stats_engine_router, prefix=settings.API_V1_STR)
+
+# Behavioural Pipeline & AI Live Oral Board
+app.include_router(behavioural_router, prefix="/api/v1")
+app.include_router(behavioural_router, prefix="/api")
 app.include_router(behavioural_router, prefix=settings.API_V1_STR)
+
+# Technical Course Pipeline & Hands-on Labs
+app.include_router(technical_courses_router, prefix="/api/v1")
+app.include_router(technical_courses_router, prefix="/api")
+app.include_router(technical_courses_router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 def health_check():

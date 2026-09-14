@@ -21,6 +21,7 @@ import {
   Brain,
   Play,
   Award,
+  Code2,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -325,6 +326,18 @@ export default function CourseDetailPage() {
                   </Button>
                 </a>
               )}
+              {isTechnicalCourse && (
+                <a href="/labs">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs rounded-lg border-emerald-300 bg-emerald-50/60 text-emerald-800 hover:bg-emerald-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                  >
+                    <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
+                    Hands-on Lab Workspace
+                  </Button>
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -573,18 +586,28 @@ export default function CourseDetailPage() {
                   </CardHeader>
                   <CardContent className="p-4 space-y-3 text-xs">
                     <p className="text-slate-600 leading-relaxed text-[11px]">
-                      Execute vectorized Python data cleaning scripts, Pandas microdata wrangling, and automated validation pipelines in a live execution environment.
+                      Execute vectorized Python data cleaning scripts, Pandas microdata wrangling, and automated validation pipelines in an interactive Jupyter &amp; Marimo sandbox.
                     </p>
                     <div className="space-y-2 pt-1">
                       <a
-                        href={`/labs?courseId=${course.id}`}
-                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-700 hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                        href="/labs/1002"
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 hover:border-emerald-700 hover:shadow-xs transition-all font-semibold text-emerald-900 text-xs group"
                       >
                         <span className="flex items-center gap-2">
                           <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
-                          Launch Hands-on Labs
+                          Launch Pandas Pipeline Lab (#1002)
                         </span>
-                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="h-3.5 w-3.5 text-emerald-700 group-hover:translate-x-0.5 transition-all" />
+                      </a>
+                      <a
+                        href="/labs?tag=pandas"
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-slate-400 hover:shadow-xs transition-all font-semibold text-slate-700 text-xs group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Code2 className="h-3.5 w-3.5 text-slate-500" />
+                          Browse All Technical Labs
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />
                       </a>
                     </div>
                   </CardContent>
