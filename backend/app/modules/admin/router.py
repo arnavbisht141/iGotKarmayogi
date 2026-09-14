@@ -7,6 +7,7 @@ from app.models.models import (
     User, Course, Module, Lesson, Enrollment, Assessment, Question, AssessmentAttempt
 )
 from .schemas import CourseAssignmentRequest, CreateCourseRequest
+from app.agents.recommendation.indexer import index_course
 
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -179,4 +180,21 @@ def create_course(
         "success": True,
         "message": "Course created successfully",
         "course_id": course.id
+    }
+
+@router.post("/courses/{course_id}/reindex")
+def reindex_course(
+    course_id: int,
+    admin_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    try:
+        index_course(db, course_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    return {
+        "success": True,
+        "status": "indexed",
+        "course_id": course_id
     }

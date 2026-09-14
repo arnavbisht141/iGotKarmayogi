@@ -24,4 +24,5 @@ psycopg2-binary>=2.9.9
 supabase>=2.10.0
 numpy>=1.26.0
 pytest>=8.0.0
+pinecone>=5.0.0
 
