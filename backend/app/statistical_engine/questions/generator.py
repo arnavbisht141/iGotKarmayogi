@@ -55,6 +55,48 @@ class QuestionInternalRecord:
         self.chart = chart
         self.seed = seed
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "question_id": self.question_id,
+            "template_id": self.template_id,
+            "skill_id": self.skill_id,
+            "competency_id": self.competency_id,
+            "question_type": self.question_type.value,
+            "difficulty": self.difficulty.value,
+            "prompt": self.prompt,
+            "parameters": self.parameters,
+            "correct_answer": self.correct_answer,
+            "tolerance": self.tolerance,
+            "options_map": {k: list(v) for k, v in self.options_map.items()},
+            "correct_option_id": self.correct_option_id,
+            "explanation": self.explanation,
+            "unit": self.unit,
+            "chart": self.chart.model_dump() if self.chart is not None else None,
+            "seed": self.seed,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "QuestionInternalRecord":
+        from app.statistical_engine.schemas.charts import ChartSpec
+        return cls(
+            question_id=data["question_id"],
+            template_id=data["template_id"],
+            skill_id=data["skill_id"],
+            competency_id=data["competency_id"],
+            question_type=QuestionType(data["question_type"]),
+            difficulty=QuestionDifficulty(data["difficulty"]),
+            prompt=data["prompt"],
+            parameters=data["parameters"],
+            correct_answer=data["correct_answer"],
+            tolerance=data["tolerance"],
+            options_map={k: tuple(v) for k, v in data["options_map"].items()},
+            correct_option_id=data.get("correct_option_id"),
+            explanation=data.get("explanation", ""),
+            unit=data.get("unit", ""),
+            chart=ChartSpec(**data["chart"]) if data.get("chart") else None,
+            seed=data.get("seed"),
+        )
+
 class QuestionGenerator:
     """
     Template-driven parameterized question generator with deterministic execution.

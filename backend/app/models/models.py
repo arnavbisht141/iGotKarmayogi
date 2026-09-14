@@ -563,3 +563,54 @@ class Recommendation(Base):
     user = relationship("User")
     course = relationship("Course")
 
+
+class StatEngineQuestion(Base):
+    __tablename__ = "stat_engine_questions"
+
+    question_id = Column(String(100), primary_key=True)
+    template_id = Column(String(100), nullable=False)
+    skill_id = Column(String(100), nullable=False, index=True)
+    competency_id = Column(String(100), nullable=False)
+    question_type = Column(String(50), nullable=False)
+    difficulty = Column(String(50), nullable=False)
+    prompt = Column(Text, nullable=False)
+    parameters_json = Column(Text, nullable=False)
+    correct_answer_json = Column(Text, nullable=False)
+    tolerance = Column(Float, default=0.0)
+    options_map_json = Column(Text, nullable=False)
+    correct_option_id = Column(String(50), nullable=True)
+    explanation = Column(Text, nullable=True)
+    unit = Column(String(100), nullable=True)
+    chart_json = Column(Text, nullable=True)
+    seed = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class StatEngineAttempt(Base):
+    __tablename__ = "stat_engine_attempts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    attempt_id = Column(String(100), unique=True, nullable=False)
+    user_id = Column(String(100), nullable=False, index=True)
+    question_id = Column(String(100), nullable=False)
+    skill_id = Column(String(100), nullable=False, index=True)
+    submitted_answer = Column(String(255), nullable=True)
+    is_correct = Column(Boolean, default=False)
+    score = Column(Float, default=0.0)
+    misconception_id = Column(String(100), nullable=True)
+    time_taken_seconds = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class StatEngineMastery(Base):
+    __tablename__ = "stat_engine_mastery"
+    __table_args__ = (
+        UniqueConstraint("user_id", "skill_id", name="uq_stat_mastery_user_skill"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    skill_id = Column(String(100), nullable=False)
+    mastery_json = Column(Text, nullable=False)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+

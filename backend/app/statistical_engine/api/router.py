@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
+from app.core.database import get_db
 from app.statistical_engine.core.exceptions import (
     StatisticalEngineException,
     CompetencyNotFoundException,
@@ -19,7 +21,7 @@ from app.statistical_engine.schemas.questions import (
 from app.statistical_engine.stats.price_statistics import price_stats_module
 from app.statistical_engine.charts.generator import chart_generator
 from app.statistical_engine.competency.graph import competency_graph
-from app.statistical_engine.repositories.memory_repositories import learner_repo
+from app.statistical_engine.repositories.sql_repositories import SQLLearnerRepository
 from app.statistical_engine.services.assessment_service import assessment_service
 
 router = APIRouter(tags=["Statistical Competency Engine"])
@@ -53,12 +55,13 @@ def calculate_statistic(req: CalculationRequest):
         )
 
 @router.post("/questions/generate", response_model=QuestionInstance)
-def generate_question_instance(req: QuestionGenerateRequest):
+def generate_question_instance(req: QuestionGenerateRequest, db: Session = Depends(get_db)):
     """
     Generate a standalone parameterized question instance with answer key withheld.
     """
     try:
         return assessment_service.generate_question(
+            db,
             skill_id=req.skill_id,
             difficulty=req.difficulty,
             question_type=req.question_type,
@@ -71,12 +74,13 @@ def generate_question_instance(req: QuestionGenerateRequest):
         )
 
 @router.post("/questions/next", response_model=QuestionInstance)
-def get_next_adaptive_question(req: NextQuestionRequest):
+def get_next_adaptive_question(req: NextQuestionRequest, db: Session = Depends(get_db)):
     """
     Select and generate the next personalized question based on learner mastery and context.
     """
     try:
         return assessment_service.get_next_question(
+            db,
             user_id=req.user_id,
             competency_id=req.competency_id,
             preferred_skill_id=req.preferred_skill_id,
@@ -89,12 +93,13 @@ def get_next_adaptive_question(req: NextQuestionRequest):
         )
 
 @router.post("/questions/submit", response_model=AnswerSubmissionResponse)
-def submit_question_answer(req: SubmitAnswerRequest):
+def submit_question_answer(req: SubmitAnswerRequest, db: Session = Depends(get_db)):
     """
     Server-side deterministic answer evaluation, scoring, mastery update, and branching.
     """
     try:
         return assessment_service.submit_answer(
+            db,
             user_id=req.user_id,
             question_id=req.question_id,
             submitted_answer=req.submitted_answer,
@@ -155,8 +160,8 @@ def get_competency_details(competency_id: str):
         )
 
 @router.get("/users/{user_id}/competencies", response_model=Dict[str, Dict[str, Any]])
-def get_user_competencies(user_id: str):
+def get_user_competencies(user_id: str, db: Session = Depends(get_db)):
     """
     Retrieve learner mastery records across all statistical skills.
     """
-    return learner_repo.get_user_mastery(user_id)
+    return SQLLearnerRepository(db).get_user_mastery(user_id)

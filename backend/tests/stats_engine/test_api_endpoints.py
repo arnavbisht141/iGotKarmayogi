@@ -1,17 +1,52 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from app.core.database import Base, get_db
 from app.main import app
 
-client = TestClient(app)
 
-def test_engine_health_endpoint():
+@pytest.fixture(name="db_session")
+def fixture_db_session():
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture(name="client")
+def fixture_client(db_session):
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
+
+
+def test_engine_health_endpoint(client):
     res = client.get("/api/v1/stats-engine/health")
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "healthy"
     assert data["domain_active"] == "price_statistics"
 
-def test_stats_calculate_endpoint():
+def test_stats_calculate_endpoint(client):
     payload = {
         "operation": "price_relative",
         "inputs": {"current_price": 75.0, "base_price": 50.0}
@@ -23,7 +58,7 @@ def test_stats_calculate_endpoint():
     assert data["result"] == 150.0
     assert data["unit"] == "percent"
 
-def test_stats_calculate_invalid_input():
+def test_stats_calculate_invalid_input(client):
     payload = {
         "operation": "price_relative",
         "inputs": {"current_price": 75.0, "base_price": 0.0}
@@ -33,7 +68,7 @@ def test_stats_calculate_invalid_input():
     err = res.json()
     assert "detail" in err
 
-def test_competencies_endpoints():
+def test_competencies_endpoints(client):
     res = client.get("/api/v1/competencies")
     assert res.status_code == 200
     comps = res.json()
@@ -47,7 +82,7 @@ def test_competencies_endpoints():
     assert res_detail.status_code == 200
     assert res_detail.json()["id"] == "price_statistics"
 
-def test_question_generate_and_submit_lifecycle():
+def test_question_generate_and_submit_lifecycle(client, db_session):
     # 1. Request question generation
     gen_payload = {
         "skill_id": "price.price_relative",
@@ -72,9 +107,9 @@ def test_question_generate_and_submit_lifecycle():
     assert "question_id" in next_q
 
     # 3. Submit an answer to the generated question
-    # We can retrieve internal record to get the exact answer for testing
-    from app.statistical_engine.repositories.memory_repositories import question_repo
-    internal_rec = question_repo.get_instance(q_id)
+    # Retrieve internal record from the DB (persisted by the SQL repo) to get the exact answer for testing
+    from app.statistical_engine.repositories.sql_repositories import SQLQuestionRepository
+    internal_rec = SQLQuestionRepository(db_session).get_instance(q_id)
     assert internal_rec is not None
 
     correct_val = internal_rec.correct_option_id if internal_rec.correct_option_id else internal_rec.correct_answer

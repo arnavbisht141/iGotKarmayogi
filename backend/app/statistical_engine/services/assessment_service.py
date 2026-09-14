@@ -8,10 +8,11 @@ from app.statistical_engine.competency.mastery import mastery_evaluator
 from app.statistical_engine.questions.generator import question_generator, QuestionInternalRecord
 from app.statistical_engine.questions.branching import branching_engine
 from app.statistical_engine.questions.personalization import personalization_engine
-from app.statistical_engine.repositories.memory_repositories import (
-    question_repo,
-    attempt_repo,
-    learner_repo
+from sqlalchemy.orm import Session
+from app.statistical_engine.repositories.sql_repositories import (
+    SQLQuestionRepository,
+    SQLAttemptRepository,
+    SQLLearnerRepository,
 )
 from app.statistical_engine.schemas.questions import (
     QuestionInstance,
@@ -30,11 +31,13 @@ class AssessmentService:
 
     def generate_question(
         self,
+        db: Session,
         skill_id: str,
         difficulty: Optional[QuestionDifficulty] = None,
         question_type: Optional[QuestionType] = None,
         seed: Optional[int] = None
     ) -> QuestionInstance:
+        question_repo = SQLQuestionRepository(db)
         client_instance, internal_record = question_generator.generate_question(
             skill_id=skill_id,
             difficulty=difficulty,
@@ -47,11 +50,13 @@ class AssessmentService:
 
     def get_next_question(
         self,
+        db: Session,
         user_id: str,
         competency_id: str = "price_statistics",
         preferred_skill_id: Optional[str] = None,
         current_difficulty: Optional[QuestionDifficulty] = None
     ) -> QuestionInstance:
+        learner_repo = SQLLearnerRepository(db)
         competency = competency_graph.get_competency(competency_id)
         user_mastery = learner_repo.get_user_mastery(user_id)
 
@@ -62,15 +67,20 @@ class AssessmentService:
             requested_difficulty=current_difficulty
         )
 
-        return self.generate_question(skill_id=target_skill, difficulty=diff)
+        return self.generate_question(db, skill_id=target_skill, difficulty=diff)
 
     def submit_answer(
         self,
+        db: Session,
         user_id: str,
         question_id: str,
         submitted_answer: Union[str, float, int],
         time_taken_seconds: Optional[int] = None
     ) -> AnswerSubmissionResponse:
+        question_repo = SQLQuestionRepository(db)
+        attempt_repo = SQLAttemptRepository(db)
+        learner_repo = SQLLearnerRepository(db)
+
         record = question_repo.get_instance(question_id)
         if not record:
             raise AttemptNotFoundException(question_id)
@@ -162,7 +172,7 @@ class AssessmentService:
         # If next action is to serve a question, generate its ID
         if next_action.type in ("question", "remediation"):
             target_skill = next_action.target_skill_id or record.skill_id
-            next_q = self.generate_question(skill_id=target_skill)
+            next_q = self.generate_question(db, skill_id=target_skill)
             next_action.question_id = next_q.question_id
 
         return AnswerSubmissionResponse(
