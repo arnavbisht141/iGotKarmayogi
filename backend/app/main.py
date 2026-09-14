@@ -5,6 +5,7 @@ from app.core.database import engine, Base, SessionLocal
 from app.core.seed_data import seed_database
 
 # Import routers
+from app.modules.digital_governance.router import router as digital_governance_router
 from app.modules.auth.router import router as auth_router
 from app.modules.onboarding.router import router as onboarding_router
 from app.modules.dashboard.router import router as dashboard_router
@@ -45,6 +46,7 @@ app.add_middleware(
 )
 
 # Mount domain routers
+app.include_router(digital_governance_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(onboarding_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
@@ -69,6 +71,11 @@ app.include_router(behavioural_router, prefix=settings.API_V1_STR)
 app.include_router(technical_courses_router, prefix="/api/v1")
 app.include_router(technical_courses_router, prefix="/api")
 app.include_router(technical_courses_router, prefix=settings.API_V1_STR)
+
+# Digital Governance & Cybersecurity Sandbox
+app.include_router(digital_governance_router, prefix="/api/v1")
+app.include_router(digital_governance_router, prefix="/api")
+app.include_router(digital_governance_router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 def health_check():

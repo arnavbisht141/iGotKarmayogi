@@ -65,27 +65,39 @@
 
 ## 3. Database Schema & Domain Models
 
-All models are centralized in `backend/app/models/models.py`:
+The database models are centralized in `backend/app/models/models.py` and modular packages (`app/modules/technical_courses/`, `app/modules/digital_governance/`).
 
-| Model Name | Table Name | Purpose & Relationships |
+For exhaustive field-by-field documentation, data types, constraints, and Row Level Security (RLS) policies, refer to the [Supabase Schema Documentation](database/supabase-schema.md).
+
+| Model Name | Table Name | Competency Domain & Purpose |
 |---|---|---|
 | `User` | `users` | Core credentials, email, password hash, role (`admin` or `learner`), active status. |
 | `UserProfile` | `user_profiles` | Department, designation, cadre, phone, state, onboarding status, preferences. |
-| `Department` | `departments` | Government departments/ministries (MoSPI, DoPT, ISTM, Finance). |
-| `Course` | `courses` | Course catalog, descriptions, thumbnails, level, duration, provider (MoSPI vs ISTM). |
+| `Department` | `departments` | Government departments/ministries (MoSPI, NeGD, CERT-In, ISTM). |
+| `Course` | `courses` | Course catalog across all 4 competencies (Behavioural, Statistical, Technical, Digital Governance). |
 | `Module` | `modules` | Syllabus sections within a course, ordered by sequence number. |
 | `Lesson` | `lessons` | Atomic units: video URLs, markdown reading material, practice concept checks. |
-| `Skill` | `skills` | Competency taxonomy (e.g., *Survey Sampling*, *National Accounts*, *Inflation Analysis*). |
+| `Skill` | `skills` | Competency taxonomy (e.g., *Index Number Theory, CERT-In DFIR, DPDP Act*). |
 | `CourseSkill` | `course_skills` | Association linking courses to the specific competencies they instill. |
 | `UserSkill` | `user_skills` | Association tracking a learner's acquired competency level. |
 | `Enrollment` | `enrollments` | Tracks learner enrollment, overall completion percentage, status, and dates. |
 | `Progress` | `progress` | Granular per-lesson completion records with timestamps. |
 | `Assessment` | `assessments` | Graded exams linked to courses or modules (passing standard: 70%). |
-| `Question` | `questions` | MCQs with options, correct answer index, explanation, and difficulty rating. |
-| `AssessmentAttempt` | `assessment_attempts` | Full history of quiz submissions, score percentage, passed flag, and answers. |
+| `Question` | `questions` | MCQs with options, IRT parameters ($a, b, c$), explanation, and difficulty. |
+| `AssessmentAttempt` | `assessment_attempts` | Full history of quiz submissions, score percentage, theta estimate $\hat{\theta}$, and SEM. |
 | `PlannedCourse` | `planned_courses` | Future target courses marked by civil servants on their dashboard. |
 | `LearningHistory` | `learning_history` | Historical log of learning sessions, time spent, and streak calculations. |
 | `SearchHistory` | `search_history` | Recent searches recorded for discovery suggestions and trending analytics. |
+| `TechnicalTranscript` | `technical_transcripts` | Raw & cleaned transcripts ingested for technical video coursework. |
+| `TechnicalLearningObjective` | `technical_learning_objectives` | Bloom's taxonomy actionable coding objectives extracted from transcripts. |
+| `TechnicalLabTemplate` | `technical_lab_templates` | Golden human-authored templates for interactive coding labs. |
+| `TechnicalGeneratedLab` | `technical_generated_labs` | Instantiated interactive Jupyter/Marimo coding labs. |
+| `TechnicalLabSolution` | `technical_lab_solutions` | Reference code solutions for automated validation. |
+| `TechnicalLabValidationResult`| `technical_lab_validation_results`| Execution telemetry, exit codes, and stdout/stderr from test runners. |
+| `CyberSandboxTemplate` | `cyber_sandbox_templates` | Blueprints for defensive cyber forensics, incident response, and DPI audits. |
+| `CyberSandboxChallenge`| `cyber_sandbox_challenges` | Procedural & flagship CTF challenges with cryptographic verification flags. |
+| `CyberSandboxSession` | `cyber_sandbox_sessions` | Ephemeral Marimo container runtime allocations assigned per officer. |
+| `UserCyberCompetency` | `user_cyber_competencies` | 5-pillar civil service cyber defense scorecard and national cadre rankings. |
 
 ---
 

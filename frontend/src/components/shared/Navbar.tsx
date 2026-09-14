@@ -15,6 +15,10 @@ import {
   X,
   Award,
   FlaskConical,
+  Brain,
+  Video,
+  LayoutDashboard,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
@@ -46,9 +50,9 @@ export function Navbar() {
     };
   }, []);
 
-  // Track active section via scroll position on homepage
+  // Track active section via scroll position on landing page when unauthenticated
   useEffect(() => {
-    if (pathname !== "/") {
+    if (user || pathname !== "/") {
       setActiveSection("");
       return;
     }
@@ -56,7 +60,6 @@ export function Navbar() {
     const sectionIds = ["hero", "about", "how-it-works", "resources", "help"];
 
     const updateActiveSection = () => {
-      // If a programmatic scroll is currently animating from a user click, don't flicker tabs
       if (isProgrammaticScrollRef.current) return;
 
       const header = document.querySelector("header");
@@ -65,19 +68,16 @@ export function Navbar() {
       const windowHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
 
-      // Bottom of the page: Help is active
       if (scrollY + windowHeight >= docHeight - 60) {
         setActiveSection("help");
         return;
       }
 
-      // Top of the page: Hero is active
       if (scrollY < 80) {
         setActiveSection("hero");
         return;
       }
 
-      // Find section closest to viewport center
       const viewportCenter = scrollY + headerHeight + (windowHeight - headerHeight) / 2;
       let closestId = "hero";
       let minDistance = Infinity;
@@ -102,15 +102,14 @@ export function Navbar() {
     updateActiveSection();
 
     return () => window.removeEventListener("scroll", updateActiveSection);
-  }, [pathname]);
+  }, [pathname, user]);
 
-  // Precision smooth scroll handler for anchor links
+  // Precision smooth scroll handler for anchor links on landing page
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     if (!user && pathname === "/") {
       e.preventDefault();
       e.stopPropagation();
 
-      // Lock active state immediately to avoid tab blinking during the glide
       isProgrammaticScrollRef.current = true;
       setActiveSection(targetId);
 
@@ -140,6 +139,48 @@ export function Navbar() {
     handleAnchorClick(e, targetId);
   };
 
+  // Authenticated Competency Navigation Items
+  const authenticatedNavItems = [
+    {
+      href: "/home",
+      label: t("nav.dashboard") || "Dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      href: "/courses",
+      label: t("nav.courses") || "Courses",
+      icon: BookOpen,
+    },
+    {
+      href: "/behavioural/interview",
+      label: t("nav.oralBoard") || "AI Oral Board",
+      icon: Video,
+      badge: "AI",
+      badgeColor: "bg-teal-50 text-teal-700 border-teal-200",
+    },
+    {
+      href: "/statistical/exam",
+      label: t("nav.adaptiveExam") || "Adaptive Exam",
+      icon: Brain,
+      badge: "CAT",
+      badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    },
+    {
+      href: "/labs",
+      label: t("nav.labs") || "Virtual Labs",
+      icon: FlaskConical,
+      badge: "Interactive",
+      badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
+    },
+    {
+      href: "/digital-governance",
+      label: t("nav.digitalGovernance") || "Cyber Defense",
+      icon: ShieldAlert,
+      badge: "Sandbox",
+      badgeColor: "bg-blue-50 text-[#1E3A8A] border-blue-200",
+    },
+  ];
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/98 backdrop-blur-md shadow-sm" suppressHydrationWarning>
       {/* Main Navigation Bar */}
@@ -154,7 +195,7 @@ export function Navbar() {
               handleAnchorClick(e, "hero");
             }
           }}
-          className="flex items-center gap-3 group cursor-pointer"
+          className="flex items-center gap-3 group cursor-pointer shrink-0"
         >
           <div className="h-9 w-9 rounded-xl navy-teal-gradient flex items-center justify-center text-white shadow-sm">
             <Award className="h-5 w-5" />
@@ -172,110 +213,128 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation & Actions */}
-        <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
-          {/* Institutional Section Navigation Links */}
-          {/* ── Institutional anchor/page links ── */}
-          {["about", "how-it-works", "resources", "help"].map((section) => {
-            const isActiveLink = isActive(`/${section}`) || (pathname === "/" && activeSection === section);
-            const label = section === "about" ? t("nav.about")
-              : section === "how-it-works" ? t("nav.howItWorks")
-              : section === "resources" ? t("nav.resources")
-              : t("nav.help");
-            return (
-              <Link key={section}
-                href={!user && pathname === "/" ? `/#${section}` : `/${section}`}
-                scroll={false} prefetch={false}
-                onClick={(e) => handleAnchorClick(e, section)}
-                className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 cursor-pointer ${
-                  isActiveLink ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+        <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+          {/* Unauthenticated Landing Navigation: About, How it Works, Resources, Help, Courses */}
+          {!user ? (
+            <>
+              {["about", "how-it-works", "resources", "help"].map((section) => {
+                const isActiveLink = isActive(`/${section}`) || (pathname === "/" && activeSection === section);
+                const label = section === "about" ? t("nav.about")
+                  : section === "how-it-works" ? t("nav.howItWorks")
+                  : section === "resources" ? t("nav.resources")
+                  : t("nav.help");
+                return (
+                  <Link
+                    key={section}
+                    href={pathname === "/" ? `/#${section}` : `/${section}`}
+                    scroll={false}
+                    prefetch={false}
+                    onClick={(e) => handleAnchorClick(e, section)}
+                    className={`relative px-2.5 xl:px-3 py-2 text-xs xl:text-sm font-medium transition-all duration-200 cursor-pointer ${
+                      isActiveLink ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+                    }`}
+                  >
+                    {label}
+                    <span
+                      className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3 xl:right-3 h-0.5 rounded-full transition-all duration-300 ${
+                        isActiveLink ? "opacity-100" : "opacity-0"
+                      }`}
+                      style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }}
+                    />
+                  </Link>
+                );
+              })}
+
+              {/* Discover / Courses for Unauthenticated visitors */}
+              <Link
+                href="/courses"
+                className={`relative flex items-center gap-1.5 px-2.5 xl:px-3 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
+                  isActive("/courses") || isActive("/discover") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
                 }`}
               >
-                {label}
-                {/* Bottom-bar active indicator */}
-                <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                  isActiveLink ? "navy-teal-gradient opacity-100" : "opacity-0 bg-[#1E3A8A]"
-                }`} style={isActiveLink ? { background: "linear-gradient(90deg,#1E3A8A,#0D9488)" } : {}} />
+                <Compass className="h-4 w-4" />
+                {t("nav.discover")}
+                <span
+                  className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3 xl:right-3 h-0.5 rounded-full transition-all duration-300 ${
+                    isActive("/courses") || isActive("/discover") ? "opacity-100" : "opacity-0"
+                  }`}
+                  style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }}
+                />
               </Link>
-            );
-          })}
-
-          {/* ── Authenticated user links ── */}
-          {user && (
+            </>
+          ) : (
+            /* Authenticated Navigation: Competencies & Cadre Tools */
             <>
-              {[{ href: "/home", label: "Home" }, { href: "/my-learning", label: t("nav.myLearning") }].map(({ href, label }) => (
-                <Link key={href} href={href}
-                  className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
-                    isActive(href) ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-                  }`}>
-                  {label}
-                  <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                    isActive(href) ? "opacity-100" : "opacity-0"
-                  }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
-                </Link>
-              ))}
+              {authenticatedNavItems.map(({ href, label, icon: Icon, badge, badgeColor }) => {
+                const active = isActive(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`relative flex items-center gap-1.5 px-2 xl:px-2.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
+                      active ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
+                    }`}
+                  >
+                    <Icon className={`h-3.5 w-3.5 ${active ? "text-[#1E3A8A]" : "text-slate-400 group-hover:text-[#1E3A8A]"}`} />
+                    <span>{label}</span>
+                    {badge && (
+                      <span className={`hidden xl:inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border ${badgeColor}`}>
+                        {badge}
+                      </span>
+                    )}
+                    <span
+                      className={`absolute bottom-0 left-2 right-2 h-0.5 rounded-full transition-all duration-300 ${
+                        active ? "opacity-100" : "opacity-0"
+                      }`}
+                      style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }}
+                    />
+                  </Link>
+                );
+              })}
+
               {isAdmin && (
-                <Link href="/admin"
-                  className={`relative px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
+                <Link
+                  href="/admin"
+                  className={`relative px-2 xl:px-2.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
                     isActive("/admin") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-                  }`}>
+                  }`}
+                >
                   {t("nav.admin")}
-                  <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-                    isActive("/admin") ? "opacity-100" : "opacity-0"
-                  }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
+                  <span
+                    className={`absolute bottom-0 left-2 right-2 h-0.5 rounded-full transition-all duration-300 ${
+                      isActive("/admin") ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }}
+                  />
                 </Link>
               )}
             </>
           )}
 
-          {/* ── Discover ── */}
-          <Link href="/discover"
-            className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
-              isActive("/discover") || isActive("/courses") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-            }`}>
-            <Compass className="h-4 w-4" />
-            {t("nav.discover")}
-            <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-              isActive("/discover") || isActive("/courses") ? "opacity-100" : "opacity-0"
-            }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
-          </Link>
-
-          {/* ── Hands-on Labs ── */}
-          <Link href="/labs"
-            className={`relative flex items-center gap-1.5 px-2.5 xl:px-3.5 py-2 text-xs xl:text-sm font-medium transition-all duration-200 ${
-              isActive("/labs") ? "text-[#1E3A8A] font-bold" : "text-slate-600 hover:text-[#1E3A8A]"
-            }`}>
-            <FlaskConical className="h-4 w-4 text-amber-600" />
-            {t("nav.labs") || "Labs"}
-            <span className={`absolute bottom-0 left-2.5 right-2.5 xl:left-3.5 xl:right-3.5 h-0.5 rounded-full transition-all duration-300 ${
-              isActive("/labs") ? "opacity-100" : "opacity-0"
-            }`} style={{ background: "linear-gradient(90deg,#1E3A8A,#0D9488)" }} />
-          </Link>
-
           {/* Language Switcher */}
           <button
             type="button"
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:text-[#1E3A8A] hover:border-[#1E3A8A]/40 hover:bg-blue-50/50 transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:text-[#1E3A8A] hover:border-[#1E3A8A]/40 hover:bg-blue-50/50 transition-all cursor-pointer shrink-0 ml-1"
             title={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}
           >
             <Languages className="h-3.5 w-3.5 text-[#0D9488]" />
             <span>{language === "en" ? "हिन्दी" : "English"}</span>
           </button>
 
-          {/* Auth Actions: Sign In immediately left of Register */}
+          {/* Auth Actions */}
           {user ? (
             <div className="relative ml-2">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2.5 p-1 rounded-full hover:bg-slate-50 border border-slate-200 hover:border-[#1E3A8A]/30 transition-all cursor-pointer group"
               >
-                {/* Gradient ring avatar */}
                 <div className="h-9 w-9 rounded-full p-[2px] navy-teal-gradient shadow-sm">
                   <div className="h-full w-full rounded-full bg-[#0C1B3D] text-white flex items-center justify-center font-extrabold text-xs">
                     {user.full_name?.charAt(0) || "U"}
                   </div>
                 </div>
-                <div className="text-left pr-2">
+                <div className="text-left pr-2 hidden xl:block">
                   <p className="text-xs font-bold text-slate-900 leading-tight">
                     {user.full_name}
                   </p>
@@ -287,7 +346,10 @@ export function Navbar() {
 
               {/* Profile Dropdown */}
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white py-1 shadow-xl z-50" style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)" }}>
+                <div
+                  className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white py-1 shadow-xl z-50"
+                  style={{ boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)" }}
+                >
                   <div className="px-4 py-2 border-b border-slate-100">
                     <p className="text-xs font-semibold text-[#0F172A]">{user.full_name}</p>
                     <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
@@ -299,6 +361,14 @@ export function Navbar() {
                   >
                     <User className="h-3.5 w-3.5 text-slate-400" />
                     {t("nav.profile")}
+                  </Link>
+                  <Link
+                    href="/my-learning"
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-blue-50 hover:text-[#1E3A8A]"
+                  >
+                    <GraduationCap className="h-3.5 w-3.5 text-slate-400" />
+                    {t("nav.myLearning")}
                   </Link>
                   <Link
                     href="/profile?tab=settings"
@@ -360,96 +430,100 @@ export function Navbar() {
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white/98 backdrop-blur-md px-4 pt-3 pb-6 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto shadow-2xl animate-fade-in-up">
-          {user && (
-            <Link
-              href="/home"
-              className="block px-3 py-2.5 rounded-xl text-base font-semibold text-slate-800 hover:bg-blue-50/80 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-          )}
-          <Link
-            href="/discover"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-900 hover:bg-blue-50"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <Compass className="h-4 w-4 text-[#1E3A8A]" />
-            {t("nav.discover")}
-          </Link>
-          <Link
-            href="/labs"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-900 hover:bg-blue-50"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <FlaskConical className="h-4 w-4 text-amber-600" />
-            {t("nav.labs") || "Hands-on Labs"}
-          </Link>
-          <Link
-            href={!user && pathname === "/" ? "/#about" : "/about"}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/about") || (pathname === "/" && activeSection === "about")
-                ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
-                : "text-slate-700 hover:bg-blue-50 border-transparent"
-            }`}
-            onClick={(e) => handleMobileAnchorClick(e, "about")}
-          >
-            {t("nav.about")}
-          </Link>
-          <Link
-            href={!user && pathname === "/" ? "/#how-it-works" : "/how-it-works"}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/how-it-works") || (pathname === "/" && activeSection === "how-it-works")
-                ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
-                : "text-slate-700 hover:bg-blue-50 border-transparent"
-            }`}
-            onClick={(e) => handleMobileAnchorClick(e, "how-it-works")}
-          >
-            {t("nav.howItWorks")}
-          </Link>
-          <Link
-            href={!user && pathname === "/" ? "/#resources" : "/resources"}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/resources") || (pathname === "/" && activeSection === "resources")
-                ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
-                : "text-slate-700 hover:bg-blue-50 border-transparent"
-            }`}
-            onClick={(e) => handleMobileAnchorClick(e, "resources")}
-          >
-            {t("nav.resources")}
-          </Link>
-          <Link
-            href={!user && pathname === "/" ? "/#help" : "/help"}
-            className={`block px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer ${
-              isActive("/help") || (pathname === "/" && activeSection === "help")
-                ? "bg-blue-50 text-[#1E3A8A] font-semibold border-blue-200"
-                : "text-slate-700 hover:bg-blue-50 border-transparent"
-            }`}
-            onClick={(e) => handleMobileAnchorClick(e, "help")}
-          >
-            {t("nav.help")}
-          </Link>
-          {user && (
-            <Link
-              href="/my-learning"
-              className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t("nav.myLearning")}
-            </Link>
-          )}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className="block px-3 py-2 rounded-lg text-base font-medium text-[#1E3A8A] hover:bg-blue-50"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t("nav.admin")}
-            </Link>
+          {user ? (
+            /* Logged-In Mobile Navigation: Competency Verticals */
+            <div className="space-y-1">
+              <div className="px-3 py-2 border-b border-slate-100 mb-2">
+                <p className="text-xs font-bold text-slate-900">{user.full_name}</p>
+                <p className="text-[10px] text-slate-400 capitalize">{user.role}</p>
+              </div>
+
+              {authenticatedNavItems.map(({ href, label, icon: Icon, badge }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                    isActive(href)
+                      ? "bg-blue-50 text-[#1E3A8A]"
+                      : "text-slate-800 hover:bg-slate-50"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className="h-4 w-4 text-[#1E3A8A]" />
+                    <span>{label}</span>
+                  </div>
+                  {badge && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                      {badge}
+                    </span>
+                  )}
+                </Link>
+              ))}
+
+              <Link
+                href="/my-learning"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <GraduationCap className="h-4 w-4 text-slate-500" />
+                <span>{t("nav.myLearning")}</span>
+              </Link>
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-[#1E3A8A] hover:bg-blue-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span>{t("nav.admin")}</span>
+                </Link>
+              )}
+            </div>
+          ) : (
+            /* Landing Page Mobile Navigation */
+            <div className="space-y-1">
+              <Link
+                href="/courses"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-900 hover:bg-blue-50"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Compass className="h-4 w-4 text-[#1E3A8A]" />
+                {t("nav.discover")}
+              </Link>
+              <Link
+                href={pathname === "/" ? "/#about" : "/about"}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50"
+                onClick={(e) => handleMobileAnchorClick(e, "about")}
+              >
+                {t("nav.about")}
+              </Link>
+              <Link
+                href={pathname === "/" ? "/#how-it-works" : "/how-it-works"}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50"
+                onClick={(e) => handleMobileAnchorClick(e, "how-it-works")}
+              >
+                {t("nav.howItWorks")}
+              </Link>
+              <Link
+                href={pathname === "/" ? "/#resources" : "/resources"}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50"
+                onClick={(e) => handleMobileAnchorClick(e, "resources")}
+              >
+                {t("nav.resources")}
+              </Link>
+              <Link
+                href={pathname === "/" ? "/#help" : "/help"}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50"
+                onClick={(e) => handleMobileAnchorClick(e, "help")}
+              >
+                {t("nav.help")}
+              </Link>
+            </div>
           )}
 
           {/* Mobile Language Switcher */}
-          <div className="pt-2 pb-1">
+          <div className="pt-2 pb-1 border-t border-slate-100 mt-2">
             <button
               type="button"
               onClick={() => {
@@ -468,22 +542,30 @@ export function Navbar() {
             </button>
           </div>
 
+          {/* Auth Footer */}
           <div className="pt-3 border-t border-slate-100">
             {user ? (
               <div className="space-y-1">
                 <Link
                   href="/profile"
-                  className="block px-3 py-2 text-sm text-slate-600"
+                  className="block px-3 py-2 text-sm text-slate-600 hover:text-slate-900"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t("nav.profile")}
+                </Link>
+                <Link
+                  href="/profile?tab=settings"
+                  className="block px-3 py-2 text-sm text-slate-600 hover:text-slate-900"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t("nav.settings")}
                 </Link>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     logout();
                   }}
-                  className="w-full text-left px-3 py-2 text-sm text-rose-600 cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
                 >
                   {t("nav.logout")}
                 </button>

@@ -7,8 +7,15 @@ from app.models.models import (
     Assessment, Question, PlannedCourse, LearningHistory
 )
 from app.core.security import get_password_hash
+from app.modules.digital_governance.seed_data import (
+    seed_digital_governance_curriculum,
+    seed_cybersec_challenges,
+)
 
 def seed_database(db: Session):
+    from app.core.database import Base
+    Base.metadata.create_all(bind=db.get_bind())
+
     # 0. Ensure Technical Course Lab Templates are seeded even if curriculum exists
     from app.modules.technical_courses.services.template_service import BUILTIN_LAB_TEMPLATES
     from app.models.models import TechnicalLabTemplate
@@ -33,8 +40,10 @@ def seed_database(db: Session):
             db.merge(tmpl_record)
         db.commit()
 
-    # Check if core curriculum already seeded
+    # Check if already seeded base data
     if db.query(User).first():
+        seed_digital_governance_curriculum(db)
+        seed_cybersec_challenges(db)
         return
 
     print("Seeding iGot Karmayogi database with official civil service curriculum...")
@@ -346,63 +355,20 @@ Vectorized operations execute in compiled C routines, yielding massive performan
     db.add(l3_1_1)
     db.flush()
 
-    # Course 4: Digital Governance
-    c4 = Course(
-        title="Cybersecurity Defense & Digital Public Infrastructure Governance",
-        overview="Critical information infrastructure protection, CERT-In compliance directives, cyber incident response, Treasury Single Account (TSA) controls, and secure Direct Benefit Transfer (DBT) workflows across government platforms.",
-        instructor="Shri V. Ramaswamy, IDAS & CERT-In Directorate",
-        organization="National Critical Information Infrastructure Protection Centre (NCIIPC)",
-        duration_hours=7.0,
-        difficulty="intermediate",
-        source="external",
-        category="Digital Governance",
-        rating=4.91,
-        enrolled_count=2150,
-        is_popular=True,
-        is_new=False
-    )
-    db.add(c4)
-    db.flush()
-
-    m4_1 = Module(course_id=c4.id, title="Module 1: Cyber Defense & PFMS Treasury Controls", description="Critical information infrastructure protection, CERT-In compliance, and TSA integration.", order=1)
-    db.add(m4_1)
-    db.flush()
-
-    l4_1_1 = Lesson(
-        module_id=m4_1.id,
-        title="Lesson 1: Treasury Single Account (TSA) & Cyber Hardening",
-        content_type="reading",
-        duration_minutes=20,
-        content="""# Treasury Single Account (TSA) & Critical Infrastructure Protection
-
-The Treasury Single Account (TSA) administered via PFMS ensures that government scheme funds remain in the Consolidated Fund of India until actual electronic disbursement.
-
-### Cyber Safeguards
-- End-to-end PKI signature validation for all e-bills.
-- Mandatory 2FA and CERT-In compliant logging of system transactions.""",
-        activity_question="What is the primary objective of implementing the Treasury Single Account (TSA) through PFMS?",
-        activity_options_json=json.dumps([
-            "To prevent parking of government funds in bank accounts and ensure just-in-time funding",
-            "To increase paperwork in regional accounting offices",
-            "To delay payments to social benefit recipients",
-            "To replace commercial banks entirely"
-        ]),
-        activity_correct_option=0,
-        activity_explanation="TSA ensures that public funds stay in the Consolidated Fund of India until immediate disbursement, eliminating idle parked balances.",
-        order=1
-    )
-    db.add(l4_1_1)
-    db.flush()
+    # Course 4: Digital Governance (Full Official Curriculum with 5 Modules & 10 Lessons)
+    seed_digital_governance_curriculum(db)
+    c4 = db.query(Course).filter(Course.title == "Digital Governance, Cyber Defense & Public Digital Architecture").first()
 
     # Link Course Skills
     cs_links = [
         (c1.id, skills[0].id),
         (c2.id, skills[1].id),
         (c3.id, skills[2].id),
-        (c4.id, skills[3].id)
     ]
     for cid, sid in cs_links:
         db.add(CourseSkill(course_id=cid, skill_id=sid))
+    if c4:
+        db.add(CourseSkill(course_id=c4.id, skill_id=skills[3].id))
     db.commit()
 
     # 5. Assessments for Courses
@@ -568,5 +534,8 @@ The Treasury Single Account (TSA) administered via PFMS ensures that government 
         )
         db.merge(tmpl_record)
 
+    # 11. Seed Digital Governance Challenges
+    seed_cybersec_challenges(db)
+
     db.commit()
-    print("Database successfully seeded with realistic civil service curriculum, accounts, and technical lab templates!")
+    print("Database successfully seeded with realistic civil service curriculum, accounts, technical lab templates, and digital governance challenges!")
