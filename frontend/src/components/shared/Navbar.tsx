@@ -159,7 +159,7 @@ export function Navbar() {
       badgeColor: "bg-teal-50 text-teal-700 border-teal-200",
     },
     {
-      href: "/statistical/exam",
+      href: "/statistical",
       label: t("nav.adaptiveExam") || "Adaptive Exam",
       icon: Brain,
       badge: "CAT",

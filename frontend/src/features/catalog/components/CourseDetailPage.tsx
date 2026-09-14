@@ -316,7 +316,7 @@ export default function CourseDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs rounded-lg border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 cursor-pointer"
+                    className="text-xs rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 cursor-pointer"
                   >
                     {t("course.takeAssessment")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
                   </Button>
@@ -327,7 +327,7 @@ export default function CourseDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs rounded-lg border-teal-300 bg-teal-50/60 text-[#0D9488] hover:bg-teal-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                    className="text-xs rounded-xl border-teal-300 bg-teal-50/60 text-[#0D9488] hover:bg-teal-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
                   >
                     <Video className="h-3.5 w-3.5 text-[#0D9488]" />
                     AI Oral Board
@@ -339,7 +339,7 @@ export default function CourseDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs rounded-lg border-indigo-300 bg-indigo-50/60 text-[#4338CA] hover:bg-indigo-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                    className="text-xs rounded-xl border-indigo-300 bg-indigo-50/60 text-[#4338CA] hover:bg-indigo-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
                   >
                     <Brain className="h-3.5 w-3.5 text-[#4338CA]" />
                     Adaptive Statistical Exam
@@ -351,7 +351,7 @@ export default function CourseDetailPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs rounded-lg border-emerald-300 bg-emerald-50/60 text-emerald-800 hover:bg-emerald-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                    className="text-xs rounded-xl border-emerald-300 bg-emerald-50/60 text-emerald-800 hover:bg-emerald-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
                   >
                     <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
                     Hands-on Lab Workspace
@@ -364,7 +364,7 @@ export default function CourseDetailPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs rounded-lg border-blue-300 bg-blue-50/60 text-[#1E3A8A] hover:bg-blue-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                      className="text-xs rounded-xl border-blue-300 bg-blue-50/60 text-[#1E3A8A] hover:bg-blue-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
                     >
                       <ShieldAlert className="h-3.5 w-3.5 text-[#1E3A8A]" />
                       Cyber Defense Sandbox
@@ -374,7 +374,7 @@ export default function CourseDetailPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs rounded-lg border-amber-300 bg-amber-50/60 text-amber-800 hover:bg-amber-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                      className="text-xs rounded-xl border-amber-300 bg-amber-50/60 text-amber-800 hover:bg-amber-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
                     >
                       <Scale className="h-3.5 w-3.5 text-amber-700" />
                       Tabletop Scenarios

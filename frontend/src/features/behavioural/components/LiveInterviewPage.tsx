@@ -24,7 +24,8 @@ import {
   TrendingUp,
   UserCheck,
   Brain,
-  MessageSquare
+  MessageSquare,
+  Check
 } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 
@@ -906,53 +907,54 @@ export default function LiveInterviewPage() {
               </div>
 
               {/* 25 to 35 Minute Timer & Pacing Meter Card */}
-              <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3.5 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-[#0D9488]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <Clock className="h-4 w-4 text-[#1E3A8A]" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                       Elapsed Time
                     </span>
                   </div>
-                  <div className="font-mono text-lg font-bold text-white tracking-wider">
+                  <div className="font-mono text-lg font-extrabold text-[#0F172A] tracking-wider">
                     {formatTime(elapsedSeconds)} / {targetDuration}:00
                   </div>
                 </div>
 
                 {/* Progress Bar mapped against target duration */}
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-600 via-teal-500 to-emerald-400 transition-all duration-500"
+                    className="h-full navy-teal-gradient transition-all duration-500 rounded-full"
                     style={{
                       width: `${Math.min(100, Math.round((elapsedSeconds / (targetDuration * 60)) * 100))}%`
                     }}
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
                   <span>Turn {currentTurn} / 6</span>
-                  <span className="text-emerald-400 font-semibold">{currentPhase}</span>
+                  <span className="text-[#0D9488] font-semibold">{currentPhase}</span>
                 </div>
 
                 {pacingAdvice && (
-                  <p className="text-xs text-teal-400 bg-teal-950/40 p-2 rounded border border-teal-800/40">
-                    💡 {pacingAdvice}
-                  </p>
+                  <div className="text-xs text-[#0D9488] bg-teal-50/80 p-2.5 rounded-xl border border-teal-200 flex items-start gap-1.5 font-medium leading-relaxed">
+                    <Sparkles className="h-3.5 w-3.5 text-[#0D9488] shrink-0 mt-0.5" />
+                    <span>{pacingAdvice}</span>
+                  </div>
                 )}
 
                 {/* Quick Fast Forward Buttons for Reviewers/Testers */}
-                <div className="pt-1 flex items-center justify-between border-t border-slate-800/60 text-[10px] text-slate-400">
+                <div className="pt-2 flex items-center justify-between border-t border-slate-100 text-[11px] text-slate-500">
                   <span>Pacing Simulator:</span>
                   <div className="space-x-1.5">
                     <button
                       onClick={() => fastForwardTime(300)}
-                      className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all cursor-pointer text-[10px]"
                     >
                       +5 Mins
                     </button>
                     <button
                       onClick={() => fastForwardTime(600)}
-                      className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all cursor-pointer text-[10px]"
                     >
                       +10 Mins
                     </button>
@@ -964,32 +966,43 @@ export default function LiveInterviewPage() {
             {/* Right 7 Cols: AI Interview Board Inquiry & Officer Response Console */}
             <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
               {/* AI Interviewer Prompt Card */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-xl relative overflow-hidden">
-                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm relative overflow-hidden">
+                <div className="h-1 w-full navy-teal-gradient absolute top-0 inset-x-0" />
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 pt-1">
                   <div className="flex items-center gap-2">
-                    <div className="h-2.5 w-2.5 rounded-full bg-[#0D9488] animate-ping" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    <div className="h-2 w-2 rounded-full bg-[#0D9488] animate-ping" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                       Civil Service Interview Board Member
                     </span>
                   </div>
-                  <span className="rounded bg-blue-950/60 border border-blue-800/50 px-2 py-0.5 text-[10px] font-bold text-blue-300 uppercase">
+                  <span className="rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold text-[#1E3A8A] uppercase">
                     Testing: {targetCompetency}
                   </span>
                 </div>
 
-                <div className="mt-4">
-                  <p className="text-base sm:text-lg font-medium text-white leading-relaxed">
+                <div className="mt-5">
+                  <p className="text-base sm:text-lg font-semibold text-[#0F172A] leading-relaxed">
                     "{currentAiQuestion}"
                   </p>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/60 pt-3">
-                  <span className="italic text-[11px]">
-                    {voiceEnabled ? "🔊 Spoken via Web Speech Audio" : "🔇 Audio muted"}
+                <div className="mt-5 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                  <span className="flex items-center gap-1.5 text-[11px]">
+                    {voiceEnabled ? (
+                      <>
+                        <Volume2 className="h-3.5 w-3.5 text-[#0D9488]" />
+                        <span>Spoken via Web Speech Audio</span>
+                      </>
+                    ) : (
+                      <>
+                        <VolumeX className="h-3.5 w-3.5 text-slate-400" />
+                        <span>Audio muted</span>
+                      </>
+                    )}
                   </span>
                   <button
                     onClick={() => speakAiQuestion(currentAiQuestion)}
-                    className="text-[11px] font-bold text-[#0D9488] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-bold text-[#1E3A8A] hover:text-[#0D9488] flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     Repeat Question
                   </button>
@@ -997,10 +1010,10 @@ export default function LiveInterviewPage() {
               </div>
 
               {/* Officer Live Input Console */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl space-y-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                    <MessageSquare className="h-4 w-4 text-[#0D9488]" />
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <MessageSquare className="h-4 w-4 text-[#1E3A8A]" />
                     Officer's Oral / Text Response
                   </label>
 
@@ -1009,10 +1022,10 @@ export default function LiveInterviewPage() {
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${
                         liveWpm >= 110 && liveWpm <= 150
-                          ? "bg-emerald-950/80 text-emerald-300 border border-emerald-700/40"
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                           : liveWpm > 150
-                          ? "bg-amber-950/80 text-amber-300 border border-amber-700/40"
-                          : "bg-blue-950/80 text-blue-300 border border-blue-700/40"
+                          ? "bg-amber-50 text-amber-800 border border-amber-200"
+                          : "bg-blue-50 text-[#1E3A8A] border border-blue-200"
                       }`}
                     >
                       <Sparkles className="h-2.5 w-2.5" />
@@ -1025,7 +1038,7 @@ export default function LiveInterviewPage() {
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                           isListening
                             ? "bg-red-600 text-white animate-pulse"
-                            : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                         }`}
                       >
                         <Mic className="h-3.5 w-3.5" />
@@ -1037,18 +1050,18 @@ export default function LiveInterviewPage() {
 
                 {/* AI Delivery Feedback Banner from Previous Turn */}
                 {lastTurnFeedback && (
-                  <div className="rounded-xl border border-teal-800/40 bg-teal-950/20 p-2.5 text-xs flex items-start gap-2">
-                    <Sparkles className="h-3.5 w-3.5 text-teal-400 shrink-0 mt-0.5" />
+                  <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3 text-xs flex items-start gap-2">
+                    <Sparkles className="h-3.5 w-3.5 text-[#0D9488] shrink-0 mt-0.5" />
                     <div className="space-y-1">
-                      <span className="font-bold text-teal-400 text-[10px] uppercase tracking-wider block">
+                      <span className="font-bold text-[#0D9488] text-[10px] uppercase tracking-wider block">
                         AI Board Evaluation Note & Behavioral Telemetry
                       </span>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">{lastTurnFeedback}</p>
+                      <p className="text-slate-700 text-[11px] leading-relaxed">{lastTurnFeedback}</p>
                       {lastDetectedCompetencies.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
+                        <div className="flex flex-wrap gap-1 mt-1.5">
                           {lastDetectedCompetencies.map((comp) => (
-                            <span key={comp} className="px-1.5 py-0.2 rounded bg-teal-900/40 border border-teal-700/40 text-[9px] font-bold text-teal-300">
-                              ✓ {comp}
+                            <span key={comp} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-teal-200 text-[10px] font-bold text-[#0D9488] shadow-2xs">
+                              <Check className="h-3 w-3" /> {comp}
                             </span>
                           ))}
                         </div>
@@ -1062,7 +1075,7 @@ export default function LiveInterviewPage() {
                   value={officerInputText}
                   onChange={(e) => setOfficerInputText(e.target.value)}
                   placeholder="Speak into your microphone or articulate your civil-service response here..."
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 p-3.5 text-xs text-white focus:border-blue-500 focus:outline-hidden leading-relaxed"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3.5 text-xs text-slate-900 focus:bg-white focus:border-[#1E3A8A] focus:outline-hidden leading-relaxed"
                 />
 
                 <div className="flex items-center justify-between pt-1">
@@ -1072,7 +1085,7 @@ export default function LiveInterviewPage() {
                   <button
                     disabled={!officerInputText.trim() || isSubmittingTurn}
                     onClick={handleSendResponse}
-                    className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#1E3A8A] to-[#0D9488] px-5 py-2 text-xs font-bold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl navy-teal-gradient px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
                   >
                     {isSubmittingTurn ? "Evaluating Response..." : "Submit Response to Board"}
                     <Send className="h-3.5 w-3.5" />
@@ -1084,69 +1097,69 @@ export default function LiveInterviewPage() {
         ) : analysisReport ? (
           /* End-of-Interview Comprehensive Diagnostic Scorecard */
           <div className="max-w-4xl mx-auto space-y-6">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-8 shadow-2xl">
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
               {/* Top Seal & Official Dossier Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-6 gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-6 gap-4">
                 <div>
-                  <span className="inline-block rounded bg-emerald-950 border border-emerald-700/50 px-2.5 py-1 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  <span className="inline-block rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
                     Official Competency Assessment Dossier
                   </span>
-                  <h2 className="mt-2 text-2xl font-black text-white">
+                  <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                     Oral Board Competency Report
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Candidate: <span className="text-white font-bold">{analysisReport.officer_name}</span> • Curriculum:{" "}
-                    <span className="text-white font-bold">{analysisReport.course_title}</span>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Candidate: <span className="text-slate-900 font-bold">{analysisReport.officer_name}</span> • Curriculum:{" "}
+                    <span className="text-slate-900 font-bold">{analysisReport.course_title}</span>
                   </p>
                 </div>
 
-                <div className="text-right sm:border-l sm:border-slate-800 sm:pl-6">
-                  <div className="text-3xl font-black text-emerald-400">
+                <div className="text-right sm:border-l sm:border-slate-200 sm:pl-6">
+                  <div className="text-3xl font-extrabold text-[#1E3A8A]">
                     {analysisReport.overall_score_percent}%
                   </div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-0.5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mt-0.5">
                     {analysisReport.overall_rating_band}
                   </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-1">
+                  <div className="text-[11px] text-slate-400 font-mono mt-1">
                     Duration: {analysisReport.total_duration_formatted}
                   </div>
                 </div>
               </div>
 
               {/* Executive Summary & Core Pillars */}
-              <div className="mt-6 p-5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 space-y-4">
+              <div className="mt-6 p-5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-4">
                 <div>
-                  <span className="font-bold text-white uppercase tracking-wider text-[11px] block mb-1">
+                  <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px] block mb-1">
                     Overall Board Assessment
                   </span>
                   <p className="leading-relaxed">{analysisReport.overall_assessment || analysisReport.executive_summary}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-800">
-                  <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
-                    <span className="font-bold text-teal-300 text-[11px] block mb-1">Course Understanding</span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-200">
+                  <div className="p-3 rounded-lg bg-white border border-slate-200">
+                    <span className="font-bold text-[#0D9488] text-[11px] block mb-1">Course Understanding</span>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
                       {analysisReport.course_understanding || "Thorough grasp of official circulars and methodology."}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
-                    <span className="font-bold text-blue-300 text-[11px] block mb-1">Communication & Articulation</span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                  <div className="p-3 rounded-lg bg-white border border-slate-200">
+                    <span className="font-bold text-[#1E3A8A] text-[11px] block mb-1">Communication & Articulation</span>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
                       {analysisReport.communication_assessment || "Clear cadence and executive delivery."}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800">
-                    <span className="font-bold text-emerald-300 text-[11px] block mb-1">Decision-Making & Judgment</span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                  <div className="p-3 rounded-lg bg-white border border-slate-200">
+                    <span className="font-bold text-emerald-800 text-[11px] block mb-1">Decision-Making & Judgment</span>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
                       {analysisReport.decision_making_assessment || "Prioritizes natural justice and statutory integrity."}
                     </p>
                   </div>
                 </div>
 
                 {analysisReport.conversation_analysis && (
-                  <div className="pt-3 border-t border-slate-800">
-                    <span className="font-bold text-slate-200 text-[11px] block mb-1">Conversation Flow & Consistency</span>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">{analysisReport.conversation_analysis}</p>
+                  <div className="pt-3 border-t border-slate-200">
+                    <span className="font-bold text-slate-800 text-[11px] block mb-1">Conversation Flow & Consistency</span>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">{analysisReport.conversation_analysis}</p>
                   </div>
                 )}
               </div>
@@ -1154,92 +1167,92 @@ export default function LiveInterviewPage() {
               {/* Video & Speech Observational Analysis Sections */}
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Video & Demeanor Observations */}
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs space-y-2.5">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-teal-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                      <Video className="h-3.5 w-3.5 text-teal-400" />
+                    <span className="font-bold text-[#0D9488] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <Video className="h-3.5 w-3.5 text-[#0D9488]" />
                       Observable Video & Physical Telemetry
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">Camera Sensors</span>
+                    <span className="text-[10px] text-slate-400 font-mono">Camera Sensors</span>
                   </div>
-                  <div className="space-y-1.5 text-[11px] text-slate-300">
-                    <div className="flex justify-between border-b border-slate-800/60 pb-1">
-                      <span className="text-slate-400">Posture Stability:</span>
-                      <span className="font-semibold text-slate-200">
+                  <div className="space-y-1.5 text-[11px] text-slate-700">
+                    <div className="flex justify-between border-b border-slate-200 pb-1">
+                      <span className="text-slate-500">Posture Stability:</span>
+                      <span className="font-semibold text-slate-900">
                         {analysisReport.video_behavioural_observations?.posture_stability || "Upright executive seating maintained"}
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-slate-800/60 pb-1">
-                      <span className="text-slate-400">Head Movement:</span>
-                      <span className="font-semibold text-slate-200">
+                    <div className="flex justify-between border-b border-slate-200 pb-1">
+                      <span className="text-slate-500">Head Movement:</span>
+                      <span className="font-semibold text-slate-900">
                         {analysisReport.video_behavioural_observations?.head_movement_observed || "Controlled, responsive"}
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-slate-800/60 pb-1">
-                      <span className="text-slate-400">Gaze Alignment:</span>
-                      <span className="font-semibold text-teal-300 font-mono">
+                    <div className="flex justify-between border-b border-slate-200 pb-1">
+                      <span className="text-slate-500">Gaze Alignment:</span>
+                      <span className="font-semibold text-[#0D9488] font-mono">
                         {analysisReport.video_behavioural_observations?.gaze_alignment_percent ?? 85}%
                       </span>
                     </div>
                     <div className="flex justify-between pb-1">
-                      <span className="text-slate-400">Excessive Movement / Fidgeting:</span>
-                      <span className="font-semibold text-emerald-300">
+                      <span className="text-slate-500">Excessive Movement / Fidgeting:</span>
+                      <span className="font-semibold text-emerald-700">
                         {analysisReport.video_behavioural_observations?.excessive_movement_fidgeting || "Low (within standard bounds)"}
                       </span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-800/60">
+                  <p className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-200">
                     {analysisReport.video_behavioural_observations?.observable_summary || "Visual orientation and demeanor remained composed throughout."}
                   </p>
                 </div>
 
                 {/* Speech & Acoustic Analysis */}
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs space-y-2.5">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-blue-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                      <Mic className="h-3.5 w-3.5 text-blue-400" />
+                    <span className="font-bold text-[#1E3A8A] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <Mic className="h-3.5 w-3.5 text-[#1E3A8A]" />
                       Speech & Acoustic Analysis
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">Audio Sensors</span>
+                    <span className="text-[10px] text-slate-400 font-mono">Audio Sensors</span>
                   </div>
-                  <div className="space-y-1.5 text-[11px] text-slate-300">
-                    <div className="flex justify-between border-b border-slate-800/60 pb-1">
-                      <span className="text-slate-400">Cadence / Pace:</span>
-                      <span className="font-semibold text-emerald-300 font-mono">
+                  <div className="space-y-1.5 text-[11px] text-slate-700">
+                    <div className="flex justify-between border-b border-slate-200 pb-1">
+                      <span className="text-slate-500">Cadence / Pace:</span>
+                      <span className="font-semibold text-emerald-800 font-mono">
                         {analysisReport.speech_analysis?.average_wpm || analysisReport.telemetry_summary?.average_speaking_wpm || 126} WPM (
                         {analysisReport.speech_analysis?.pace_assessment || "Optimal"})
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-slate-800/60 pb-1">
-                      <span className="text-slate-400">Acoustic Clarity:</span>
-                      <span className="font-semibold text-blue-300">
+                    <div className="flex justify-between border-b border-slate-200 pb-1">
+                      <span className="text-slate-500">Acoustic Clarity:</span>
+                      <span className="font-semibold text-[#1E3A8A]">
                         {analysisReport.speech_analysis?.clarity_rating || "Articulate & Audible"}
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-slate-800/60 pb-1">
-                      <span className="text-slate-400">Pauses & Fillers:</span>
-                      <span className="font-semibold text-slate-200 font-mono">
+                    <div className="flex justify-between border-b border-slate-200 pb-1">
+                      <span className="text-slate-500">Pauses & Fillers:</span>
+                      <span className="font-semibold text-slate-800 font-mono">
                         {analysisReport.speech_analysis?.filler_word_count ?? 2} fillers • {analysisReport.speech_analysis?.pauses_frequency || "Structured pauses"}
                       </span>
                     </div>
                     <div className="flex justify-between pb-1">
-                      <span className="text-slate-400">Delivery Cadence:</span>
-                      <span className="font-semibold text-slate-200">
+                      <span className="text-slate-500">Delivery Cadence:</span>
+                      <span className="font-semibold text-slate-800">
                         {analysisReport.speech_analysis?.delivery_cadence || "Steady, authoritative"}
                       </span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-800/60">
+                  <p className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-200">
                     {analysisReport.speech_analysis?.coherence_assessment || "Arguments followed structured civil service logic."}
                   </p>
                 </div>
               </div>
 
               {/* Scientific & Ethical Demarcation Disclaimer */}
-              <div className="mt-4 rounded-lg bg-slate-900/40 border border-slate-800/80 p-3 text-[11px] text-slate-400 flex items-start gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#0D9488] shrink-0 mt-0.5" />
+              <div className="mt-4 rounded-xl bg-blue-50/50 border border-blue-200/80 p-3 text-[11px] text-slate-600 flex items-start gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#1E3A8A] shrink-0 mt-0.5" />
                 <p>
-                  <span className="font-bold text-slate-300">Statutory Notice: </span>
+                  <span className="font-bold text-[#1E3A8A]">Statutory Notice: </span>
                   {analysisReport.observable_signals_disclaimer ||
                     "Observable behavioral and speech telemetry reflect neutral physical metrics (cadence, head orientation, and acoustic stability) captured in-browser. They do not constitute emotional profiling, psychological diagnosis, or character judgements."}
                 </p>
@@ -1247,45 +1260,45 @@ export default function LiveInterviewPage() {
 
               {/* Multimodal Telemetry Metrics Dossier Card */}
               {analysisReport.telemetry_summary && (
-                <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
-                  <span className="font-bold text-white uppercase tracking-wider text-[11px] block">
+                <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
+                  <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
                     Multimodal Examination & Delivery Telemetry
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-400">Average Speaking Pace</div>
-                      <div className="text-lg font-black text-emerald-400 font-mono mt-0.5">
+                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
+                      <div className="text-[10px] uppercase font-bold text-slate-500">Average Speaking Pace</div>
+                      <div className="text-lg font-black text-emerald-700 font-mono mt-0.5">
                         {analysisReport.telemetry_summary.average_speaking_wpm} <span className="text-xs font-normal">WPM</span>
                       </div>
-                      <div className="text-[9px] text-slate-500">Benchmark: 110-150 WPM</div>
+                      <div className="text-[9px] text-slate-400">Benchmark: 110-150 WPM</div>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-400">Poise & Composure</div>
-                      <div className="text-lg font-black text-teal-400 font-mono mt-0.5">
+                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
+                      <div className="text-[10px] uppercase font-bold text-slate-500">Poise & Composure</div>
+                      <div className="text-lg font-black text-[#0D9488] font-mono mt-0.5">
                         {analysisReport.telemetry_summary.delivery_composure_score}%
                       </div>
-                      <div className="text-[9px] text-slate-500">Executive Demeanor</div>
+                      <div className="text-[9px] text-slate-400">Executive Demeanor</div>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-400">Articulation Fidelity</div>
-                      <div className="text-xs font-bold text-blue-400 mt-2 truncate">
+                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
+                      <div className="text-[10px] uppercase font-bold text-slate-500">Articulation Fidelity</div>
+                      <div className="text-xs font-bold text-[#1E3A8A] mt-2 truncate">
                         {analysisReport.telemetry_summary.speech_clarity_rating}
                       </div>
-                      <div className="text-[9px] text-slate-500">Acoustic Clarity</div>
+                      <div className="text-[9px] text-slate-400">Acoustic Clarity</div>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-400">Pacing Adherence</div>
-                      <div className="text-xs font-bold text-emerald-400 mt-2 truncate">
+                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
+                      <div className="text-[10px] uppercase font-bold text-slate-500">Pacing Adherence</div>
+                      <div className="text-xs font-bold text-emerald-700 mt-2 truncate">
                         {analysisReport.telemetry_summary.pacing_adherence}
                       </div>
-                      <div className="text-[9px] text-slate-500">{analysisReport.total_duration_formatted} Elapsed</div>
+                      <div className="text-[9px] text-slate-400">{analysisReport.total_duration_formatted} Elapsed</div>
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 text-center">
+              <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2 text-center">
                   7-Dimension Competency Radar
                 </h3>
                 <CompetencyRadar scores={analysisReport.competency_scores} />
@@ -1293,7 +1306,7 @@ export default function LiveInterviewPage() {
 
               {/* 7 Competency Breakdown Grid */}
               <div className="mt-8 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                   <Award className="h-4 w-4 text-[#0D9488]" />
                   Evaluated Competencies Breakdown (6 Behavioral + Course Mastery)
                 </h3>
@@ -1302,16 +1315,16 @@ export default function LiveInterviewPage() {
                   {Object.values(analysisReport.competency_scores).map((comp) => (
                     <div
                       key={comp.competency_name}
-                      className="p-4 rounded-xl border border-slate-800 bg-slate-900/60 flex flex-col justify-between"
+                      className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white">{comp.competency_name}</h4>
+                          <h4 className="text-xs font-bold text-slate-900">{comp.competency_name}</h4>
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                               comp.rating_band === "Exemplary"
-                                ? "bg-emerald-950 text-emerald-300 border border-emerald-700/50"
-                                : "bg-blue-950 text-blue-300 border border-blue-700/50"
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                : "bg-blue-50 text-[#1E3A8A] border-blue-200"
                             }`}
                           >
                             {comp.rating_band} ({comp.score_percent}%)
@@ -1319,21 +1332,21 @@ export default function LiveInterviewPage() {
                         </div>
 
                         {/* Visual Bar */}
-                        <div className="mt-2 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="mt-2 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-[#0D9488]"
+                            className="h-full navy-teal-gradient rounded-full"
                             style={{ width: `${comp.score_percent}%` }}
                           />
                         </div>
 
-                        <p className="mt-2.5 text-[11px] text-slate-400 italic">
-                          <span className="font-semibold not-italic text-slate-300">Observed: </span>
+                        <p className="mt-2.5 text-[11px] text-slate-500 italic leading-relaxed">
+                          <span className="font-semibold not-italic text-slate-700">Observed: </span>
                           {comp.key_evidence}
                         </p>
                       </div>
 
-                      <div className="mt-3 pt-2.5 border-t border-slate-800 text-[11px] text-teal-400">
-                        <span className="font-semibold text-slate-300">Recommendation: </span>
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-[#0D9488]">
+                        <span className="font-semibold text-slate-700">Recommendation: </span>
                         {comp.growth_opportunity}
                       </div>
                     </div>
@@ -1342,16 +1355,16 @@ export default function LiveInterviewPage() {
               </div>
 
               {/* Strengths, Areas for Improvement & Recommended Upskilling */}
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-800">
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-2 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                     Key Observed Strengths
                   </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-300">
+                  <ul className="space-y-1.5 text-xs text-slate-600">
                     {analysisReport.core_strengths.map((str, i) => (
                       <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-emerald-400">•</span>
+                        <span className="text-emerald-600">•</span>
                         <span>{str}</span>
                       </li>
                     ))}
@@ -1359,14 +1372,14 @@ export default function LiveInterviewPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800 mb-2 flex items-center gap-1.5">
+                    <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
                     Areas for Improvement
                   </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-300">
+                  <ul className="space-y-1.5 text-xs text-slate-600">
                     {(analysisReport.areas_for_improvement || analysisReport.priority_development_areas).map((area, i) => (
                       <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-amber-400">•</span>
+                        <span className="text-amber-600">•</span>
                         <span>{area}</span>
                       </li>
                     ))}
@@ -1374,14 +1387,14 @@ export default function LiveInterviewPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-teal-400 mb-2 flex items-center gap-1.5">
-                    <TrendingUp className="h-3.5 w-3.5" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D9488] mb-2 flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5 text-[#0D9488]" />
                     Recommended Upskilling
                   </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-300">
+                  <ul className="space-y-1.5 text-xs text-slate-600">
                     {(analysisReport.recommended_upskilling || analysisReport.recommended_apar_actions).map((act, i) => (
                       <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-teal-400">•</span>
+                        <span className="text-[#0D9488]">•</span>
                         <span>{act}</span>
                       </li>
                     ))}
@@ -1390,14 +1403,14 @@ export default function LiveInterviewPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between">
+              <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
                 <button
                   onClick={() => {
                     setIsConcluded(false);
                     setAnalysisReport(null);
                     setIsInterviewActive(false);
                   }}
-                  className="inline-flex items-center gap-2 rounded-lg bg-slate-800 hover:bg-slate-700 px-4 py-2 text-xs font-bold text-white transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-700 transition-all cursor-pointer shadow-xs"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Start New Interview Session
@@ -1405,7 +1418,7 @@ export default function LiveInterviewPage() {
 
                 <button
                   onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#1E3A8A] to-[#0D9488] px-5 py-2 text-xs font-bold text-white shadow-xs hover:opacity-90 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl navy-teal-gradient px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-95 transition-all cursor-pointer"
                 >
                   <Printer className="h-3.5 w-3.5" />
                   Print Official Dossier
@@ -1414,25 +1427,25 @@ export default function LiveInterviewPage() {
             </div>
 
             {/* Transcript Audit Log with Behavioral Tags */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-xl">
-              <h3 className="text-sm font-bold text-white mb-3">Complete Annotated Transcript</h3>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 mb-3">Complete Annotated Transcript</h3>
               <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                 {analysisReport.transcript.map((entry, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-slate-900 border border-slate-800/80 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#0D9488]">{entry.speaker}</span>
+                  <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[#1E3A8A]">{entry.speaker}</span>
                       <div className="flex gap-1">
                         {entry.behavioral_tags.map((tag, tIdx) => (
                           <span
                             key={tIdx}
-                            className="rounded bg-slate-800 px-1.5 py-0.5 text-[9px] font-mono text-slate-400"
+                            className="rounded-md bg-white border border-slate-200 px-1.5 py-0.5 text-[9px] font-mono text-slate-600"
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
                     </div>
-                    <p className="mt-1.5 text-slate-300 leading-relaxed">{entry.content}</p>
+                    <p className="text-slate-700 leading-relaxed">{entry.content}</p>
                   </div>
                 ))}
               </div>

@@ -17,6 +17,7 @@ import {
   Clock,
   Layers,
   BookOpen,
+  X,
 } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 
@@ -1015,26 +1016,28 @@ export default function CarryforwardAssessmentPage() {
                         </div>
 
                         {lastAnswerResult.carryforward_active ? (
-                          <div className="flex items-center justify-between pt-2">
-                            <span className="font-bold text-amber-800">
-                              ⚠️ Next step: Consequential Carryforward MCQ has been triggered.
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                            <span className="font-bold text-amber-800 flex items-center gap-1.5 text-xs">
+                              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                              Next step: Consequential Carryforward Inquiry has been triggered.
                             </span>
                             <button
                               onClick={proceedToNextQuestion}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-amber-700 transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-amber-700 transition-all cursor-pointer"
                             >
                               Address Follow-up Scenario
                               <ArrowRight className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between pt-2">
-                            <span className="font-bold text-emerald-800">
-                              ✅ Case satisfactorily resolved under administrative due process!
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                            <span className="font-bold text-emerald-800 flex items-center gap-1.5 text-xs">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                              Case satisfactorily resolved under administrative due process!
                             </span>
                             <button
                               onClick={proceedToNextQuestion}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1E3A8A] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#1E3A8A]/90 transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 rounded-xl navy-teal-gradient px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-95 transition-all cursor-pointer"
                             >
                               {lastAnswerResult.session_completed ? "View Complete Assessment Summary" : "Advance to Next Case"}
                               <ArrowRight className="h-3.5 w-3.5" />
@@ -1291,8 +1294,9 @@ export default function CarryforwardAssessmentPage() {
               <button
                 onClick={() => setShowDocModal(false)}
                 className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-all cursor-pointer"
+                aria-label="Close document modal"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 

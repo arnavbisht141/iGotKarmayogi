@@ -100,7 +100,7 @@ export default function LabWorkspacePage() {
           {
             id: "cell-intro",
             type: "markdown",
-            content: `### 🧪 ${data.title}\n\n**Objective:** ${data.objective}\n\n${data.instructions || ""}`,
+            content: `### ${data.title}\n\n**Objective:** ${data.objective}\n\n${data.instructions || ""}`,
           },
           {
             id: "cell-code-1",
@@ -265,7 +265,7 @@ export default function LabWorkspacePage() {
       if (res.all_passed) {
         addLog(
           "success",
-          `🎉 ALL ${res.passed_tests_count}/${res.total_tests_count} TEST CASES PASSED in ${res.execution_time_ms}ms!`
+          `ALL ${res.passed_tests_count}/${res.total_tests_count} TEST CASES PASSED in ${res.execution_time_ms}ms!`
         );
         confetti({
           particleCount: 80,
@@ -275,7 +275,7 @@ export default function LabWorkspacePage() {
       } else {
         addLog(
           "error",
-          `⚠️ ${res.passed_tests_count} of ${res.total_tests_count} tests passed in ${res.execution_time_ms}ms. Review results below.`
+          `${res.passed_tests_count} of ${res.total_tests_count} tests passed in ${res.execution_time_ms}ms. Review results below.`
         );
       }
     } catch (err: any) {
@@ -458,22 +458,22 @@ export default function LabWorkspacePage() {
             onClick={() => setViewMode("marimo")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               viewMode === "marimo"
-                ? "bg-emerald-800 text-white shadow-xs"
+                ? "bg-[#0D9488] text-white shadow-xs"
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+            <Sparkles className="h-3.5 w-3.5 text-teal-300" />
             <span>Marimo Extension</span>
           </button>
           <button
             onClick={() => setViewMode("ide")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               viewMode === "ide"
-                ? "bg-purple-800 text-white shadow-xs"
+                ? "bg-[#1E3A8A] text-white shadow-xs"
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            <SplitSquareVertical className="h-3.5 w-3.5 text-purple-400" />
+            <SplitSquareVertical className="h-3.5 w-3.5 text-teal-300" />
             <span>Split IDE</span>
           </button>
         </div>
@@ -502,7 +502,7 @@ export default function LabWorkspacePage() {
             title="Download Marimo Reactive App (.py)"
             className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
           >
-            <Download className="h-3.5 w-3.5 text-emerald-400" />
+            <Download className="h-3.5 w-3.5 text-teal-300" />
             <span className="hidden sm:inline">Marimo .py</span>
           </button>
 
@@ -520,7 +520,7 @@ export default function LabWorkspacePage() {
             size="sm"
             onClick={handleSubmitLab}
             disabled={isExecutingStudent}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 cursor-pointer shadow-xs"
+            className="navy-teal-gradient text-white text-xs font-bold px-4 rounded-xl cursor-pointer shadow-xs hover:opacity-95 transition-all"
           >
             <ShieldCheck className="h-3.5 w-3.5 mr-1" />
             {isExecutingStudent ? "Testing..." : "Submit Lab"}

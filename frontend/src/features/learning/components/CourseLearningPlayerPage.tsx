@@ -128,7 +128,7 @@ function LearningPlayerContent() {
   if (loading && !currentLesson) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-amber-600 animate-spin" />
+        <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-[#1E3A8A] animate-spin" />
       </div>
     );
   }
@@ -177,7 +177,7 @@ function LearningPlayerContent() {
               <span>Overall Progress</span>
               <span>{courseMeta?.progress_percent}%</span>
             </div>
-            <Progress value={courseMeta?.progress_percent} indicatorClassName="bg-amber-600" />
+            <Progress value={courseMeta?.progress_percent} indicatorClassName="navy-teal-gradient" />
           </div>
         </div>
 
@@ -213,7 +213,7 @@ function LearningPlayerContent() {
                         {l.completed ? (
                           <CheckCircle2
                             className={`h-4 w-4 shrink-0 ${
-                              isCurrent ? "text-amber-400" : "text-emerald-600"
+                              isCurrent ? "text-teal-300" : "text-emerald-600"
                             }`}
                           />
                         ) : (
@@ -244,13 +244,13 @@ function LearningPlayerContent() {
             <div className="pt-4 border-t border-slate-100">
               <a
                 href={`/assess/${courseMeta.assessment_id}`}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 hover:bg-amber-100 text-xs font-bold transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-blue-50/70 border border-blue-200 text-[#1E3A8A] hover:bg-blue-100/70 text-xs font-bold transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-amber-700" />
+                  <Award className="h-4 w-4 text-[#1E3A8A]" />
                   Official Assessment
                 </span>
-                <ChevronRight className="h-4 w-4 text-amber-700" />
+                <ChevronRight className="h-4 w-4 text-[#1E3A8A]" />
               </a>
             </div>
           )}
@@ -262,7 +262,7 @@ function LearningPlayerContent() {
         {/* Lesson Header */}
         <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#0D9488] uppercase tracking-wider">
               {currentLesson.module_title}
             </span>
             <h1 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">
@@ -289,7 +289,7 @@ function LearningPlayerContent() {
             <div className="rounded-2xl overflow-hidden bg-slate-950 shadow-md aspect-video relative flex items-center justify-center text-white">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
               <div className="relative text-center p-6 space-y-3 z-10">
-                <div className="h-16 w-16 rounded-full bg-amber-600/90 text-white flex items-center justify-center mx-auto shadow-lg hover:scale-105 transition-transform cursor-pointer">
+                <div className="h-16 w-16 rounded-full navy-teal-gradient text-white flex items-center justify-center mx-auto shadow-lg hover:scale-105 transition-transform cursor-pointer">
                   <PlayCircle className="h-10 w-10" />
                 </div>
                 <h4 className="text-base font-bold">{currentLesson.title}</h4>
@@ -312,10 +312,10 @@ function LearningPlayerContent() {
 
           {/* IN-LESSON PRACTICE ACTIVITY */}
           {currentLesson.activity && currentLesson.activity.has_activity && (
-            <Card className="border-amber-200 bg-amber-50/40 shadow-xs">
-              <CardHeader className="pb-3 border-b border-amber-100">
+            <Card className="border-blue-200 bg-blue-50/30 shadow-xs">
+              <CardHeader className="pb-3 border-b border-blue-100">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-700" />
+                  <Sparkles className="h-4 w-4 text-[#1E3A8A]" />
                   <CardTitle className="text-sm font-bold text-slate-900">
                     {t("learn.practice")}
                   </CardTitle>
@@ -349,7 +349,7 @@ function LearningPlayerContent() {
                         <span
                           className={`h-5 w-5 rounded-full text-[10px] font-bold flex items-center justify-center ${
                             isSelected
-                              ? "bg-amber-500 text-slate-950"
+                              ? "bg-teal-500 text-white"
                               : "bg-slate-100 text-slate-600"
                           }`}
                         >
@@ -391,7 +391,7 @@ function LearningPlayerContent() {
                     size="sm"
                     onClick={handleValidateActivity}
                     disabled={selectedActivityOption === null || activityChecking}
-                    className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold"
+                    className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold rounded-xl"
                   >
                     {activityChecking ? "Checking..." : t("learn.checkAnswer")}
                   </Button>
@@ -411,7 +411,7 @@ function LearningPlayerContent() {
                   loadPlayerData(currentLesson.prev_lesson_id);
                 }
               }}
-              className="text-xs"
+              className="text-xs rounded-xl"
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> {t("learn.previous")}
             </Button>
@@ -419,7 +419,7 @@ function LearningPlayerContent() {
             <Button
               size="sm"
               onClick={handleCompleteAndNext}
-              className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-5 cursor-pointer"
+              className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold px-5 cursor-pointer rounded-xl"
             >
               {currentLesson.is_last_lesson
                 ? t("learn.takeAssessment")
@@ -438,7 +438,7 @@ export default function CourseLearningPlayerPage() {
     <Suspense
       fallback={
         <div className="min-h-[80vh] flex items-center justify-center">
-          <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-amber-600 animate-spin" />
+          <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-[#1E3A8A] animate-spin" />
         </div>
       }
     >

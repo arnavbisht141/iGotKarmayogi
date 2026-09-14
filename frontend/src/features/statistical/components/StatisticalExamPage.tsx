@@ -71,6 +71,7 @@ export default function StatisticalExamPage() {
   const [submitting, setSubmitting] = useState(false);
   const [question, setQuestion] = useState<QuestionInstance | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [numericAnswer, setNumericAnswer] = useState<string>("");
   const [result, setResult] = useState<AnswerSubmissionResponse | null>(null);
   const [timeTaken, setTimeTaken] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -98,6 +99,7 @@ export default function StatisticalExamPage() {
     setLoading(true);
     setResult(null);
     setSelectedOption(null);
+    setNumericAnswer("");
     setTimeTaken(0);
 
     try {
@@ -149,7 +151,9 @@ export default function StatisticalExamPage() {
   }, []);
 
   const handleSubmit = async () => {
-    if (!selectedOption || !question || submitting) return;
+    const isNumericType = question?.type === "numeric" || !question?.options || question.options.length === 0;
+    const answerToSubmit = isNumericType ? numericAnswer.trim() : selectedOption;
+    if (!answerToSubmit || !question || submitting) return;
     setSubmitting(true);
 
     try {
@@ -158,7 +162,7 @@ export default function StatisticalExamPage() {
         body: JSON.stringify({
           user_id: userId,
           question_id: question.question_id,
-          submitted_answer: selectedOption,
+          submitted_answer: answerToSubmit,
           time_taken_seconds: timeTaken
         })
       });
@@ -242,15 +246,19 @@ export default function StatisticalExamPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs text-slate-500">
+              <a href="/statistical" className="hover:text-[#1E3A8A] flex items-center gap-1 font-semibold text-[#1E3A8A]">
+                Statistical Hub
+              </a>
+              <span>/</span>
               <a href={`/courses/${courseId}`} className="hover:text-[#1E3A8A] flex items-center gap-1 font-medium">
                 <BookOpen className="h-3.5 w-3.5" />
                 Course Details
               </a>
               <span>/</span>
-              <span className="text-slate-800 font-semibold">Statistical Competency Engine</span>
+              <span className="text-slate-800 font-semibold">Adaptive Engine</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
-              <Brain className="h-6 w-6 text-[#4338CA]" />
+              <Brain className="h-6 w-6 text-[#1E3A8A]" />
               Adaptive Examination Environment
             </h1>
             <p className="text-xs text-slate-500">
@@ -264,7 +272,7 @@ export default function StatisticalExamPage() {
               <Clock className="h-4 w-4 text-slate-500" />
               <span className="font-mono font-bold text-slate-800">{formatTime(timeTaken)}</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-[#4338CA]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-[#B45309]">
               <Sparkles className="h-4 w-4" />
               <span className="font-bold">Streak: {streak}</span>
             </div>
@@ -288,16 +296,16 @@ export default function StatisticalExamPage() {
               <div
                 key={skillId}
                 className={`p-3.5 rounded-xl border bg-white shadow-2xs transition-all ${
-                  question?.skill_id === skillId ? "border-indigo-400 ring-2 ring-indigo-100" : "border-slate-200"
+                  question?.skill_id === skillId ? "border-[#1E3A8A] ring-2 ring-blue-100" : "border-slate-200"
                 }`}
               >
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-bold text-slate-800">{label}</span>
-                  <span className="font-mono font-bold text-indigo-600">{pct}%</span>
+                  <span className="font-mono font-bold text-[#1E3A8A]">{pct}%</span>
                 </div>
                 <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                   <div
-                    className="bg-indigo-600 h-full rounded-full transition-all duration-500"
+                    className="navy-teal-gradient h-full rounded-full transition-all duration-500"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -309,7 +317,7 @@ export default function StatisticalExamPage() {
         {/* Main Question Workspace */}
         {loading ? (
           <Card className="border-slate-200 bg-white p-12 text-center rounded-2xl">
-            <div className="h-10 w-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
+            <div className="h-10 w-10 border-4 border-slate-200 border-t-[#1E3A8A] rounded-full animate-spin mx-auto mb-4" />
             <p className="text-sm font-semibold text-slate-700">Synthesizing Next Adaptive Question...</p>
             <p className="text-xs text-slate-400 mt-1">Calibrating parameters to your current skill mastery level</p>
           </Card>
@@ -341,7 +349,7 @@ export default function StatisticalExamPage() {
               {question.data && Object.keys(question.data).length > 0 && (
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                   <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <BarChart3 className="h-3.5 w-3.5 text-indigo-600" />
+                    <BarChart3 className="h-3.5 w-3.5 text-[#1E3A8A]" />
                     Problem Parameters & Empirical Microdata
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
@@ -355,40 +363,59 @@ export default function StatisticalExamPage() {
                 </div>
               )}
 
-              {/* Multiple Choice Options */}
-              <div className="space-y-3 pt-2">
-                <label className="text-xs font-bold text-slate-700 block">Select the correct mathematical result:</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {question.options.map((opt) => {
-                    const isSelected = selectedOption === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        disabled={!!result || submitting}
-                        onClick={() => setSelectedOption(opt.id)}
-                        className={`flex items-center gap-3.5 p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                          isSelected
-                            ? "border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-200"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                        } ${result ? "cursor-default" : ""}`}
-                      >
-                        <span
-                          className={`h-7 w-7 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 ${
+              {/* Multiple Choice Options or Numeric Input */}
+              {question.options && question.options.length > 0 ? (
+                <div className="space-y-3 pt-2">
+                  <label className="text-xs font-bold text-slate-700 block">Select the correct mathematical result:</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {question.options.map((opt) => {
+                      const isSelected = selectedOption === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          disabled={!!result || submitting}
+                          onClick={() => setSelectedOption(opt.id)}
+                          className={`flex items-center gap-3.5 p-4 rounded-xl border text-left transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-indigo-600 text-white"
-                              : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
-                          }`}
+                              ? "border-[#1E3A8A] bg-blue-50/70 shadow-sm ring-2 ring-blue-200"
+                              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                          } ${result ? "cursor-default" : ""}`}
                         >
-                          {opt.id}
-                        </span>
-                        <span className="font-mono font-semibold text-slate-900 text-sm">
-                          {opt.text}
-                        </span>
-                      </button>
-                    );
-                  })}
+                          <span
+                            className={`h-7 w-7 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 ${
+                              isSelected
+                                ? "bg-[#1E3A8A] text-white"
+                                : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
+                            }`}
+                          >
+                            {opt.id}
+                          </span>
+                          <span className="font-mono font-semibold text-slate-900 text-sm">
+                            {opt.text}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-3 pt-2">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Enter your calculated numerical result:
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-md">
+                    <input
+                      type="number"
+                      step="any"
+                      disabled={!!result || submitting}
+                      value={numericAnswer}
+                      onChange={(e) => setNumericAnswer(e.target.value)}
+                      placeholder="e.g. 120.75"
+                      className="h-11 px-4 rounded-xl border border-slate-300 text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-[#1E3A8A] bg-white w-full"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Result & Pedagogical Feedback Panel */}
               {result && (
@@ -434,8 +461,8 @@ export default function StatisticalExamPage() {
                   )}
 
                   {result.mastery_update && (
-                    <div className="text-[11px] font-semibold text-indigo-900 flex items-center gap-2 pt-1">
-                      <Activity className="h-3.5 w-3.5 text-indigo-600" />
+                    <div className="text-[11px] font-semibold text-[#1E3A8A] flex items-center gap-2 pt-1">
+                      <Activity className="h-3.5 w-3.5 text-[#1E3A8A]" />
                       <span>
                         Mastery updated: {Math.round(result.mastery_update.previous_mastery * 100)}% →{" "}
                         {Math.round(result.mastery_update.new_mastery * 100)}%
@@ -460,15 +487,20 @@ export default function StatisticalExamPage() {
                 {!result ? (
                   <Button
                     onClick={handleSubmit}
-                    disabled={!selectedOption || submitting}
-                    className="w-full sm:w-auto text-xs font-bold rounded-xl px-6 h-10 bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer transition-all shadow-sm"
+                    disabled={
+                      submitting ||
+                      (question.options && question.options.length > 0
+                        ? !selectedOption
+                        : !numericAnswer.trim())
+                    }
+                    className="w-full sm:w-auto text-xs font-bold rounded-xl px-6 h-10 navy-teal-gradient text-white hover:opacity-95 cursor-pointer transition-all shadow-sm"
                   >
                     {submitting ? "Evaluating Result..." : "Submit Answer"}
                   </Button>
                 ) : (
                   <Button
                     onClick={() => fetchNextQuestion(result.next_recommended_skill)}
-                    className="w-full sm:w-auto text-xs font-bold rounded-xl px-6 h-10 bg-[#1E3A8A] text-white hover:bg-blue-900 cursor-pointer transition-all shadow-sm flex items-center gap-1.5"
+                    className="w-full sm:w-auto text-xs font-bold rounded-xl px-6 h-10 navy-teal-gradient text-white hover:opacity-95 cursor-pointer transition-all shadow-sm flex items-center gap-1.5"
                   >
                     <span>Next Adaptive Question</span>
                     <ArrowRight className="h-3.5 w-3.5" />

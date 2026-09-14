@@ -399,7 +399,7 @@ export default function CyberSandboxPage() {
         // Fallback flag check
         if (flagInput.toLowerCase().includes("flag{")) {
           setFlagMessage({
-            text: "🎯 FLAG ACCEPTED! Threat successfully mitigated and points awarded.",
+            text: "FLAG ACCEPTED! Threat successfully mitigated and points awarded.",
             success: true,
           });
           setActiveSession({ ...activeSession, solved: true });
@@ -420,7 +420,7 @@ export default function CyberSandboxPage() {
           }));
         } else {
           setFlagMessage({
-            text: "❌ INCORRECT FLAG. Ensure flag begins with 'FLAG{' and check telemetry logs.",
+            text: "INCORRECT FLAG. Ensure flag begins with 'FLAG{' and check telemetry logs.",
             success: false,
           });
         }
@@ -594,20 +594,21 @@ export default function CyberSandboxPage() {
       </div>
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-b from-[#1E3A8A] to-[#172554] text-white py-8 px-4 sm:px-6 lg:px-8 shadow-md">
-        <div className="max-w-7xl mx-auto">
+      <div className="hero-gradient relative overflow-hidden text-white py-8 px-4 sm:px-6 lg:px-8 shadow-md">
+        <div className="absolute inset-0 hero-mesh opacity-40 pointer-events-none" />
+        <div className="relative z-10 max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 bg-blue-900/60 border border-blue-400/30 rounded-full px-3 py-1 text-xs text-blue-200 mb-3">
-                <Terminal className="h-3.5 w-3.5 text-amber-400" />
+              <div className="inline-flex items-center gap-2 glass-light border border-white/20 rounded-full px-3 py-1 text-xs text-teal-300 font-bold uppercase tracking-wider mb-3">
+                <Terminal className="h-3.5 w-3.5 text-teal-300" />
                 <span>
-                  CTF Incident Response Range & Interactive Notebook Sandboxes
+                  CTF Incident Response Range &amp; Interactive Notebook Sandboxes
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                Cyber Defense & Tabletop Sandboxes
+                Cyber Defense &amp; Tabletop Sandboxes
               </h1>
-              <p className="mt-2 text-slate-200 max-w-2xl text-sm sm:text-base leading-relaxed">
+              <p className="mt-2 text-white/80 max-w-2xl text-sm sm:text-base leading-relaxed font-normal">
                 Investigate real-world critical infrastructure incidents in
                 isolated Python Marimo environments. Analyze forensic logs,
                 verify cryptographic signatures, mitigate supply chain breaches,
@@ -619,9 +620,9 @@ export default function CyberSandboxPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/digital-governance/scenarios"
-                className="flex items-center justify-center gap-2 bg-blue-900/80 hover:bg-blue-800 border border-blue-400/40 text-white font-medium px-4 py-2.5 rounded-lg transition-all text-sm"
+                className="flex items-center justify-center gap-2 glass-light hover:bg-white/20 border border-white/20 text-white font-bold px-5 py-2.5 rounded-xl transition-all text-xs"
               >
-                <Layers className="h-4 w-4 text-amber-400" />
+                <Layers className="h-4 w-4 text-teal-300" />
                 Crisis Scenarios
               </Link>
             </div>

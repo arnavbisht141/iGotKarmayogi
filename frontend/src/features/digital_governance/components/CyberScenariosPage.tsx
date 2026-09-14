@@ -256,14 +256,14 @@ export default function CyberScenariosPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleResetSession}
-                className="text-xs font-semibold"
+                className="text-xs font-semibold rounded-xl"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" /> Choose Another Scenario
               </Button>
               <Button
                 size="sm"
                 onClick={() => handleStartScenario(summary.scenario_id)}
-                className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-5 shadow-xs"
+                className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold px-5 shadow-xs rounded-xl"
               >
                 Retake Simulation
               </Button>
@@ -471,7 +471,7 @@ export default function CyberScenariosPage() {
           </CardContent>
 
           <CardFooter className="flex items-center justify-between border-t border-slate-100 p-4 bg-slate-50/30">
-            <Button variant="outline" size="sm" onClick={handleResetSession} className="text-xs">
+            <Button variant="outline" size="sm" onClick={handleResetSession} className="text-xs rounded-xl">
               Abort Simulation
             </Button>
 
@@ -480,7 +480,7 @@ export default function CyberScenariosPage() {
                 size="sm"
                 disabled={!selectedOptionId || submitting}
                 onClick={handleSubmitDecision}
-                className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-6 shadow-xs cursor-pointer disabled:opacity-50"
+                className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold px-6 shadow-xs cursor-pointer disabled:opacity-50 rounded-xl"
               >
                 {submitting ? "Evaluating..." : "Commit Operational Action"}
               </Button>
@@ -488,7 +488,7 @@ export default function CyberScenariosPage() {
               <Button
                 size="sm"
                 onClick={() => setSummary(lastDecisionResult.session_summary)}
-                className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold px-6 shadow-xs cursor-pointer"
+                className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold px-6 shadow-xs cursor-pointer rounded-xl"
               >
                 View Final Executive Debrief <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
@@ -496,7 +496,7 @@ export default function CyberScenariosPage() {
               <Button
                 size="sm"
                 onClick={handleAdvanceToNext}
-                className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-6 shadow-xs cursor-pointer"
+                className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold px-6 shadow-xs cursor-pointer rounded-xl"
               >
                 Advance to Next Stage <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
@@ -509,53 +509,59 @@ export default function CyberScenariosPage() {
 
   // ── VIEW 1: SCENARIO SELECTION DIRECTORY ──────────────────────────────────
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 space-y-8">
-      {/* Header Banner */}
-      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
-          <Building2 className="h-4 w-4" />
-          <span>National e-Governance Division (NeGD) & CERT-In Accredited</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Digital Governance Incident Tabletop Simulations
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-              Multi-stage branching operational exercises designed for Indian civil servants. Make high-stakes
-              decisions under statutory mandates including the IT Act 2000, CERT-In 6-hour directions, DPDP Act 2023,
-              CCA PKI rules, and MeghRaj Cloud sovereignty frameworks.
-            </p>
+    <div className="min-h-[calc(100vh-65px)] bg-slate-50 flex flex-col w-full">
+      {/* Header Banner - Full Edge-to-Edge */}
+      <section className="hero-gradient text-white py-10 sm:py-12 relative overflow-hidden shadow-md border-b border-blue-900/40 w-full">
+        <div className="hero-mesh" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-teal-300 uppercase tracking-wider">
+            <Building2 className="h-4 w-4" />
+            <span>National e-Governance Division (NeGD) & CERT-In Accredited</span>
           </div>
-          <Link href="/courses">
-            <Button variant="outline" size="sm" className="text-xs shrink-0">
-              <BookOpen className="h-3.5 w-3.5 mr-1" /> View Official Curriculum
-            </Button>
-          </Link>
-        </div>
 
-        {/* Domain Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
-          <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-wide">Pillars:</span>
-          {domains.map((dom) => {
-            const isSelected = selectedDomain === dom;
-            return (
-              <button
-                key={dom}
-                type="button"
-                onClick={() => setSelectedDomain(dom)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-[#1E3A8A] text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {dom}
-              </button>
-            );
-          })}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Digital Governance Incident Tabletop Simulations
+              </h1>
+              <p className="text-xs sm:text-sm text-white/80 mt-1 max-w-2xl leading-relaxed">
+                Multi-stage branching operational exercises designed for Indian civil servants. Make high-stakes
+                decisions under statutory mandates including the IT Act 2000, CERT-In 6-hour directions, DPDP Act 2023,
+                CCA PKI rules, and MeghRaj Cloud sovereignty frameworks.
+              </p>
+            </div>
+            <Link href="/courses">
+              <Button size="sm" className="glass-light hover:bg-white/20 border border-white/20 text-white font-semibold text-xs shrink-0 rounded-xl">
+                <BookOpen className="h-3.5 w-3.5 mr-1 text-teal-300" /> View Official Curriculum
+              </Button>
+            </Link>
+          </div>
         </div>
+      </section>
+
+      {/* Main Content: Filter & Scenarios */}
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+
+      {/* Domain Filter Pills Card */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold text-slate-500 mr-1 uppercase tracking-wide">Pillars:</span>
+        {domains.map((dom) => {
+          const isSelected = selectedDomain === dom;
+          return (
+            <button
+              key={dom}
+              type="button"
+              onClick={() => setSelectedDomain(dom)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                isSelected
+                  ? "navy-teal-gradient text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {dom}
+            </button>
+          );
+        })}
       </div>
 
       {/* Scenarios Grid */}
@@ -607,7 +613,7 @@ export default function CyberScenariosPage() {
               <CardFooter className="border-t border-slate-100 pt-3 bg-slate-50/50">
                 <Button
                   onClick={() => handleStartScenario(scenario.id)}
-                  className="w-full bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold shadow-xs cursor-pointer"
+                  className="w-full navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold shadow-xs cursor-pointer rounded-xl"
                 >
                   Launch Tabletop Simulation <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
@@ -617,5 +623,6 @@ export default function CyberScenariosPage() {
         })}
       </div>
     </div>
+  </div>
   );
 }
