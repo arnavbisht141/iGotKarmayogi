@@ -630,3 +630,17 @@ class BehaviouralSessionResult(Base):
 
     user = relationship("User")
 
+
+class EvidenceCompetencyMapping(Base):
+    __tablename__ = "evidence_competency_mapping"
+    __table_args__ = (
+        UniqueConstraint("source_system", "source_key", name="uq_evidence_mapping_source"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_system = Column(String(50), nullable=False)  # stat_engine_skill, stat_engine_competency, behavioural_competency
+    source_key = Column(String(255), nullable=False)
+    competency_id = Column(Integer, ForeignKey("competencies.id", ondelete="CASCADE"), nullable=False)
+
+    competency = relationship("Competency")
+

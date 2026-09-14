@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.models import CompetencyDomain, Competency
+from app.models.models import CompetencyDomain, Competency, EvidenceCompetencyMapping
 
 DOMAINS = [
     ("statistical", "Statistical Competencies", "Survey design, sampling, national accounts, and official statistics methodology."),
@@ -49,6 +49,8 @@ COMPETENCIES = {
         ("behavioural_ethics", "Ethics"),
         ("behavioural_decision_making", "Decision Making"),
         ("behavioural_change_management", "Change Management"),
+        ("behavioural_situational_awareness", "Situational Awareness"),
+        ("behavioural_accountability", "Accountability"),
     ],
 }
 
@@ -64,4 +66,58 @@ def seed_competency_taxonomy(db: Session) -> None:
         db.flush()
         for comp_code, comp_name in COMPETENCIES[code]:
             db.add(Competency(domain_id=domain.id, code=comp_code, name=comp_name, max_level=5))
+    db.commit()
+
+
+STAT_ENGINE_SKILL_TO_COMPETENCY_CODE = {
+    "price.price_relative": "statistical_price_statistics",
+    "price.cpi.weighted_price_relatives": "statistical_price_statistics",
+    "price.fisher_index": "statistical_price_statistics",
+    "price.inflation_rate": "statistical_price_statistics",
+    "price.laspeyres_index": "statistical_price_statistics",
+    "price.real_vs_nominal": "statistical_price_statistics",
+}
+
+STAT_ENGINE_COMPETENCY_TO_COMPETENCY_CODE = {
+    "price_statistics": "statistical_price_statistics",
+}
+
+BEHAVIOURAL_NAME_TO_COMPETENCY_CODE = {
+    "Leadership": "behavioural_leadership",
+    "Communication": "behavioural_communication",
+    "Project Management": "behavioural_project_management",
+    "Ethics": "behavioural_ethics",
+    "Decision Making": "behavioural_decision_making",
+    "Change Management": "behavioural_change_management",
+    "Ethical Judgement": "behavioural_ethics",  # carryforward's name for the same dimension interview calls "Ethics"
+    "Situational Awareness": "behavioural_situational_awareness",
+    "Accountability": "behavioural_accountability",
+    # "Course Knowledge" is intentionally absent: it's interview-specific, not a taxonomy competency.
+}
+
+
+def seed_evidence_mapping(db: Session) -> None:
+    """Seeds evidence_competency_mapping rows bridging stat_engine/behavioural string
+    identifiers to real competencies.id rows. Idempotent. Requires seed_competency_taxonomy
+    to have already run (reads Competency rows by code)."""
+    def _upsert(source_system: str, source_key: str, competency_code: str) -> None:
+        existing = db.query(EvidenceCompetencyMapping).filter_by(
+            source_system=source_system, source_key=source_key
+        ).first()
+        if existing:
+            return
+        competency = db.query(Competency).filter_by(code=competency_code).first()
+        if not competency:
+            return  # taxonomy not seeded yet or code typo; skip rather than crash startup
+        db.add(EvidenceCompetencyMapping(
+            source_system=source_system, source_key=source_key, competency_id=competency.id
+        ))
+
+    for skill_id, code in STAT_ENGINE_SKILL_TO_COMPETENCY_CODE.items():
+        _upsert("stat_engine_skill", skill_id, code)
+    for comp_id, code in STAT_ENGINE_COMPETENCY_TO_COMPETENCY_CODE.items():
+        _upsert("stat_engine_competency", comp_id, code)
+    for name, code in BEHAVIOURAL_NAME_TO_COMPETENCY_CODE.items():
+        _upsert("behavioural_competency", name, code)
+
     db.commit()
