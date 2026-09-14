@@ -55,6 +55,7 @@ app.include_router(profile_router, prefix=settings.API_V1_STR)
 app.include_router(admin_router, prefix=settings.API_V1_STR)
 app.include_router(agents_router, prefix=settings.API_V1_STR)
 app.include_router(stats_engine_router, prefix="/api/v1")
+app.include_router(stats_engine_router, prefix="/api")
 app.include_router(stats_engine_router, prefix=settings.API_V1_STR)
 app.include_router(behavioural_router, prefix=settings.API_V1_STR)
 

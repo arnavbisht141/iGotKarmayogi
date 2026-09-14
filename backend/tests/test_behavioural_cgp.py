@@ -130,11 +130,11 @@ def test_api_carryforward_session_endpoints():
     assert sum_data["procedural_compliance_score"] == 100.0
 
 def test_live_interview_session_and_analysis():
-    # Start interview for Course 1 (NSS Surveys)
+    # Start interview for Course 1 (Civil Service Ethics)
     req = InterviewStartRequest(course_id=1, officer_name="Sharma", target_duration_minutes=30)
     session = InterviewSessionManager.start_interview(req)
     assert session.session_id is not None
-    assert session.course_info["title"] == "Fundamentals of National Sample Surveys (NSS)"
+    assert session.course_info["title"] == "Civil Service Conduct, Administrative Ethics & Interpersonal Leadership"
     assert len(session.transcript) == 1
 
     # Turn 1: Officer answers
@@ -281,12 +281,12 @@ def test_get_courses_with_case_mappings():
     res = client.get("/api/behavioural/courses")
     assert res.status_code == 200
     courses = res.json()
-    assert len(courses) >= 5
-    nss_course = next((c for c in courses if c["course_id"] == 1), None)
-    assert nss_course is not None
-    assert "National Sample Surveys" in nss_course["title"]
-    assert len(nss_course["mapped_notices"]) > 0
-    assert nss_course["case_count"] >= 1
+    assert len(courses) >= 4
+    ethics_course = next((c for c in courses if c["course_id"] == 1), None)
+    assert ethics_course is not None
+    assert "Civil Service Conduct" in ethics_course["title"]
+    assert len(ethics_course["mapped_notices"]) > 0
+    assert ethics_course["case_count"] >= 1
 
 
 def test_filter_cases_by_course_id():
@@ -307,7 +307,7 @@ def test_filter_cases_by_course_id():
 
 
 def test_generate_course_anchored_case():
-    # Dynamically generate a new case for Course 4 (PFMS)
+    # Dynamically generate a new case for Course 4 (Cybersecurity Defense & DPI Governance)
     res = client.post("/api/behavioural/courses/4/generate-case", json={
         "course_id": 4,
         "custom_notice_text": "Ministry of Finance Directive on Treasury Single Account (TSA) fund parking and GeM bidding adherence under GFR 149."
@@ -315,7 +315,7 @@ def test_generate_course_anchored_case():
     assert res.status_code == 200
     case_data = res.json()
     assert case_data["course_id"] == 4
-    assert "Digital Governance" in case_data["course_title"]
+    assert "Cybersecurity" in case_data["course_title"] or "Governance" in case_data["course_title"]
     assert "q_root" in case_data["questions"]
     root_q = case_data["questions"]["q_root"]
     assert len(root_q["options"]) >= 2
@@ -326,7 +326,7 @@ def test_generate_course_anchored_case():
 
 
 def test_live_interview_with_dynamic_database_course():
-    # Test starting live interview grounded in Course 4 (Digital Governance & PFMS)
+    # Test starting live interview grounded in Course 4 (Digital Governance & Cybersecurity)
     res_start = client.post("/api/behavioural/interview/start", json={
         "course_id": 4,
         "officer_name": "Sharma",
@@ -334,7 +334,7 @@ def test_live_interview_with_dynamic_database_course():
     })
     assert res_start.status_code == 200
     data = res_start.json()
-    assert "PFMS" in data["course_title"] or "Digital Governance" in data["course_title"]
+    assert "Cybersecurity" in data["course_title"] or "Governance" in data["course_title"]
     assert "initial_ai_question" in data
     assert len(data["initial_ai_question"]) > 20
     session_id = data["session_id"]

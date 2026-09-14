@@ -15,23 +15,22 @@ from .notice_extractor import NoticeExtractor
 from app.core.config import settings
 
 COURSE_NOTICE_MAPPING: Dict[int, str] = {
-    1: "doc_mospi_nqaf_audit_notice",
-    2: "doc_dopt_rule14_proceeding",
-    3: "doc_rti_first_appeal_proceeding",
+    1: "doc_dopt_rule14_proceeding",
+    2: "doc_mospi_nqaf_audit_notice",
+    3: "doc_mospi_data_governance_directive",
     4: "doc_gfr_gem_procurement_notice",
-    5: "doc_mospi_data_governance_directive",
 }
 
 # Pre-seeded authentic branching case scenarios
 PRE_SEEDED_CASES: List[CaseScenario] = [
-    # Case 1: CCS Rule 14 Disciplinary Inquiry (Course 2: CPI & Price Index)
+    # Case 1: CCS Rule 14 Disciplinary Inquiry (Course 1: Civil Service Conduct & Ethics)
     CaseScenario(
         id="case_ccs_rule14_inquiry",
         title="Disciplinary Inquiry Proceeding under Rule 14 CCS (CCA) Rules",
         category="Disciplinary Proceedings & Natural Justice",
-        course_id=2,
-        course_title="Compilation of Consumer Price Index (CPI) & Inflation Metrics",
-        course_organization="Central Statistics Office (CSO)",
+        course_id=1,
+        course_title="Civil Service Conduct, Administrative Ethics & Interpersonal Leadership",
+        course_organization="Department of Personnel & Training (DoPT)",
         document_id="doc_dopt_rule14_proceeding",
         document_title="Departmental Inquiry Proceeding under Rule 14 of CCS (CCA) Rules, 1965",
         document_type="Departmental Proceeding",

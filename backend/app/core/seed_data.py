@@ -26,15 +26,12 @@ def seed_database(db: Session):
     db.add_all(depts)
     db.commit()
 
-    # 2. Skills
+    # 2. Skills (4 Core Competency Verticals)
     skills_data = [
-        ("Sample Survey Design & Sampling Techniques", "Statistical Methodology"),
-        ("Consumer Price Index (CPI) & Inflation Analysis", "Economic Statistics"),
-        ("Official Statistics Quality Framework (NQAF)", "Data Governance"),
-        ("National Accounts Statistics & GDP Estimation", "Economic Statistics"),
-        ("Digital Governance & PFMS Public Finance", "Public Administration"),
-        ("Python & R for Public Sector Data Analytics", "Data Science"),
-        ("Administrative Law & Official Procedures", "Civil Service Ethics")
+        ("Civil Service Conduct Rules & Administrative Ethics", "Behavioural Competency"),
+        ("Consumer Price Index (CPI) & Inflation Analysis", "Statistical Competency"),
+        ("Data Cleaning, Wrangling & Python Automation", "Technical Competency"),
+        ("Cybersecurity Defense & Digital Public Infrastructure", "Digital Governance")
     ]
     skills = []
     for name, cat in skills_data:
@@ -128,128 +125,92 @@ def seed_database(db: Session):
     db.add(new_profile)
     db.commit()
 
-    # 4. Courses
-    # Course 1: NSS Surveys
+    # 4. Courses (4 Core Competency Verticals)
+    # Course 1: Behavioural Competency
     c1 = Course(
-        title="Fundamentals of National Sample Surveys (NSS)",
-        overview="Master the methodological framework of large-scale socio-economic surveys conducted by India's National Sample Survey Office (NSSO). Covers multi-stage stratified sampling, field schedules, non-sampling error minimization, and computer-assisted personal interviewing (CAPI).",
-        instructor="Prof. M. R. Saluja & Smt. Ananya Sen, ISS",
-        organization="National Sample Survey Office (NSSO)",
-        duration_hours=6.5,
+        title="Civil Service Conduct, Administrative Ethics & Interpersonal Leadership",
+        overview="Master statutory administrative ethics, CCS (Conduct) Rules 1964, Rule 14 disciplinary inquiries, natural justice doctrines, public grievance redressal, high-stakes stakeholder negotiation, and oral civil service defense.",
+        instructor="Smt. Rashmi Verma, IAS (Retd.) & Shri P. K. Basu",
+        organization="Department of Personnel & Training (DoPT)",
+        duration_hours=6.0,
         difficulty="intermediate",
         source="internal",
-        category="Sample Surveys",
-        rating=4.9,
-        enrolled_count=1420,
+        category="Behavioural",
+        rating=4.92,
+        enrolled_count=1850,
         is_popular=True,
-        is_new=False
+        is_new=True
     )
     db.add(c1)
     db.flush()
 
-    # Course 1 Modules and Lessons
-    m1_1 = Module(course_id=c1.id, title="Module 1: Sampling Design & Frame Construction", description="Principles of probability proportional to size (PPS) sampling in rural and urban frames.", order=1)
-    m1_2 = Module(course_id=c1.id, title="Module 2: Field Schedules & CAPI Execution", description="Administering household schedule 1.0 and enterprise survey instruments digitally.", order=2)
-    m1_3 = Module(course_id=c1.id, title="Module 3: Multiplier Generation & Estimation", description="Deriving pooled estimates and standard errors across state and central samples.", order=3)
+    m1_1 = Module(course_id=c1.id, title="Module 1: Statutory Code of Conduct & Ethics", description="CCS (Conduct) Rules 1964, integrity standards, and avoidance of conflict of interest.", order=1)
+    m1_2 = Module(course_id=c1.id, title="Module 2: Quasi-Judicial Inquiries & Natural Justice", description="Conducting departmental proceedings under Rule 14 CCS (CCA) Rules.", order=2)
+    m1_3 = Module(course_id=c1.id, title="Module 3: Administrative Negotiation & Public Leadership", description="High-pressure public communication, grievance redressal, and crisis leadership.", order=3)
     db.add_all([m1_1, m1_2, m1_3])
     db.flush()
 
     l1_1_1 = Lesson(
         module_id=m1_1.id,
-        title="Lesson 1: Structure of the First Stage Units (FSUs)",
+        title="Lesson 1: Statutory Framework of CCS (Conduct) Rules, 1964",
         content_type="reading",
         duration_minutes=20,
-        content="""# Structure of First Stage Units (FSUs) in NSS Surveys
+        content="""# Statutory Framework of CCS (Conduct) Rules, 1964
 
-The National Sample Survey typically adopts a **stratified two-stage design**:
+Every civil servant in the Government of India is governed by the statutory provisions of the **Central Civil Services (Conduct) Rules, 1964**:
 
-1. **First Stage Units (FSUs)**:
-   - In the rural sector: Census villages (Panchayat wards in Kerala).
-   - In the urban sector: Urban Frame Survey (UFS) blocks.
-   
-2. **Second Stage Units (SSUs)**:
-   - Households or enterprises selected systematically with random start.
+1. **Rule 3 — General Principles of Integrity**:
+   - Maintain absolute integrity, devotion to duty, and do nothing unbecoming of a Government servant.
+   - Uphold supremacy of the Constitution and democratic values.
+   - Defend impartiality, political neutrality, and fairness in administrative decision-making.
 
-### Stratification Criteria
-Rural strata are formed within each district based on population density and geographical contiguity. Urban strata are delineated according to town population categories (Class I, II, III).
+2. **Rule 3C — Prohibition of Sexual Harassment**:
+   - Prevention of Sexual Harassment of Women at Workplace (POSH Act) compliance.
 
-### Probability Proportional to Size (PPS)
-FSUs are allocated circular systematically with probability proportional to size (PPSWR/PPSWOR), where size corresponds to village population or census household count.
-
-> **Key Rule for Field Investigators**: An FSU cannot be substituted without prior written authorization from the Deputy Director of the Regional Office.""",
-        activity_question="In rural NSS surveys, what is typically designated as the First Stage Unit (FSU)?",
+> **Doctrine**: Discretionary administrative powers must be exercised strictly within statutory limits, guided by public interest without personal or pecuniary bias.""",
+        activity_question="Under Rule 3 of the CCS (Conduct) Rules, what is the paramount obligation of an administrative officer?",
         activity_options_json=json.dumps([
-            "A census village",
-            "An individual agricultural household",
-            "A whole administrative district",
-            "A block development office"
+            "To maintain absolute integrity, devotion to duty, and political neutrality",
+            "To obey verbal instructions from non-official acquaintances",
+            "To maximize fee collections arbitrarily",
+            "To bypass statutory tender processes"
         ]),
         activity_correct_option=0,
-        activity_explanation="In rural sector surveys of the NSSO, the First Stage Unit (FSU) is universally defined as the census village (or panchayat ward in select states).",
+        activity_explanation="Rule 3(1) mandates absolute integrity, dedication to duty, and conduct worthy of an officer of the State.",
         order=1
     )
 
     l1_1_2 = Lesson(
-        module_id=m1_1.id,
-        title="Lesson 2: Hamlet-Group and Sub-Block Formation",
+        module_id=m1_2.id,
+        title="Lesson 2: Principles of Natural Justice (Audi Alteram Partem)",
         content_type="video",
         duration_minutes=25,
         video_url="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-        content="""# Hamlet-Group and Sub-Block Formation Rules
+        content="""# Audi Alteram Partem in Departmental Proceedings
 
-When an FSU is very large in terms of present population (usually exceeding 1,200 persons or 300 households), administering a total listing becomes cost-prohibitive.
+In any quasi-judicial proceeding governed by Rule 14 of CCS (CCA) Rules, 1965:
 
-### Delineation Procedures
-1. Divide the FSU into an equal number of hamlet-groups (hg) or sub-blocks (sb) of approximately equal population size.
-2. Ensure each hamlet-group has distinct, permanent natural boundaries (roads, water channels, railway lines).
-3. Select two hamlet-groups for sample listing:
-   - **hg 1**: Hamlet group with highest concentration of vulnerable/target population (selected purposively).
-   - **hg 2**: Selected randomly from the remaining hamlet groups with equal probability.
-
-This dual-selection design safeguards representation of target socio-economic strata while preserving unbiased estimation.""",
-        activity_question="When is hamlet-group (hg) formation mandatory in a rural NSS sample village?",
+1. **Right to Notice**:
+   - Form 1 charge-sheet containing definite articles of charge, statement of imputations, and list of documents/witnesses.
+2. **Right of Inspection**:
+   - Under Rule 14(11), the Charged Officer must be permitted full physical or certified digital access to listed documentary evidence.
+3. **Impartial Inquiring Authority**:
+   - The IA acts as an independent quasi-judicial evaluator, not a prosecutor.""",
+        activity_question="What does the doctrine of Audi Alteram Partem require during a Rule 14 inquiry?",
         activity_options_json=json.dumps([
-            "Whenever the village exceeds 1,200 population or ~300 households",
-            "Only when requested by the village Sarpanch",
-            "Only if the village has no electricity",
-            "In every single sample village regardless of population"
+            "Granting fair hearing and opportunity to inspect evidence and cross-examine witnesses",
+            "Allowing the prosecution to hide confidential witness statements",
+            "Ordering immediate punishment without recording evidence",
+            "Conducting ex-parte hearings without notice"
         ]),
         activity_correct_option=0,
-        activity_explanation="Per NSS field manual standards, hamlet-group formation is mandatory when the current village population exceeds approximately 1,200 persons or 300 households.",
+        activity_explanation="Audi Alteram Partem guarantees no person shall be condemned unheard, requiring evidence disclosure and right of defense.",
         order=2
     )
-
-    l1_2_1 = Lesson(
-        module_id=m1_2.id,
-        title="Lesson 3: Digitized CAPI Data Validation Checks",
-        content_type="lab",
-        duration_minutes=30,
-        content="""# Digital CAPI Data Validation & Range Checks
-
-With the transition to tablet-based CAPI (Computer-Assisted Personal Interviewing), real-time validation prevents inconsistencies at the point of data capture.
-
-### Essential Consistency Checks
-- **Age vs. Education Grade**: An individual under 14 cannot have an advanced post-graduate degree recorded.
-- **Consumption Expenditure Balance**: Total monthly per-capita expenditure (MPCE) must cross-validate with food and non-food sub-aggregates within ±2%.
-- **Land Possessed vs. Land Cultivated**: Land cultivated cannot exceed land possessed without corresponding leased-in land entries.
-
-Field Supervisors must execute the digital integrity audit script before transmitting batches to the state server.""",
-        activity_question="What is the primary benefit of CAPI over traditional paper schedules in NSS surveys?",
-        activity_options_json=json.dumps([
-            "Immediate automated logical validation and elimination of data entry backlogs",
-            "Eliminating the need to train field investigators",
-            "Allowing investigators to skip household visits",
-            "Permitting non-random household replacements"
-        ]),
-        activity_correct_option=0,
-        activity_explanation="CAPI eliminates physical paper transit delays, automates routing logic, and performs immediate validation checks right at the respondent's doorstep.",
-        order=1
-    )
-
-    db.add_all([l1_1_1, l1_1_2, l1_2_1])
+    db.add_all([l1_1_1, l1_1_2])
     db.flush()
 
-    # Course 2: Consumer Price Index (CPI)
+    # Course 2: Statistical Competency
     c2 = Course(
         title="Compilation of Consumer Price Index (CPI) & Inflation Metrics",
         overview="Comprehensive practical guide to the compilation of All India Consumer Price Index (Rural, Urban, Combined). Learn item basket weighting, Laspeyres index formulation, geometric mean of price relatives, treatment of seasonal goods, and house rent imputation.",
@@ -258,11 +219,11 @@ Field Supervisors must execute the digital integrity audit script before transmi
         duration_hours=5.0,
         difficulty="advanced",
         source="internal",
-        category="Price Statistics",
-        rating=4.85,
-        enrolled_count=980,
+        category="Statistical",
+        rating=4.88,
+        enrolled_count=1420,
         is_popular=True,
-        is_new=True
+        is_new=False
     )
     db.add(c2)
     db.flush()
@@ -304,67 +265,74 @@ At the market level, price quotations for a specific item across multiple select
     db.add(l2_1_1)
     db.flush()
 
-    # Course 3: Data Quality Framework
+    # Course 3: Technical Competency
     c3 = Course(
-        title="Data Quality Frameworks & Official Statistics in India",
-        overview="Aligning Indian official statistics with the United Nations National Quality Assurance Framework (UN-NQAF). Study the 19 principles of statistical integrity, confidentiality safeguards, revision policies, and metadata standards.",
-        instructor="Dr. G. C. Manna",
-        organization="National Statistical Systems Training Academy (NSSTA)",
-        duration_hours=4.0,
-        difficulty="beginner",
+        title="Python and Data Cleaning Pipelines for Public Policy",
+        overview="Modern automated data cleaning and reproducible data processing for civil service analysts using Pandas, NumPy, and Statsmodels. Automate messy survey ingestion, missing data imputation, schema validation, and pipeline orchestration.",
+        instructor="Dr. Tanvi Grover & Prof. Rajesh Sen",
+        organization="MoSPI Data Lab",
+        duration_hours=8.0,
+        difficulty="intermediate",
         source="internal",
-        category="Data Governance",
-        rating=4.75,
-        enrolled_count=640,
-        is_popular=False,
+        category="Technical",
+        rating=4.95,
+        enrolled_count=1680,
+        is_popular=True,
         is_new=True
     )
     db.add(c3)
     db.flush()
 
-    m3_1 = Module(course_id=c3.id, title="Module 1: Principles of Official Statistics", description="Institutional environment, objectivity, and confidentiality.", order=1)
+    m3_1 = Module(course_id=c3.id, title="Module 1: Data Wrangling & Cleaning with Pandas", description="Cleaning messy survey sheets, missing data imputation, and microdata wrangling.", order=1)
     db.add(m3_1)
     db.flush()
 
     l3_1_1 = Lesson(
         module_id=m3_1.id,
-        title="Lesson 1: UN Fundamental Principles of Official Statistics",
-        content_type="reading",
-        duration_minutes=15,
-        content="""# UN Fundamental Principles of Official Statistics
+        title="Lesson 1: Vectorized Data Wrangling on Survey Microdata",
+        content_type="lab",
+        duration_minutes=35,
+        content="""# Vectorized Data Wrangling with Pandas
 
-Adopted by the United Nations General Assembly in 2014, these ten principles form the bedrock of official statistical systems:
+When processing large-scale public policy microdata, traditional Python `for` loops cause severe execution bottlenecks.
 
-1. **Relevance, Impartiality, and Equal Access**: Official statistics must represent public goods available to all citizens simultaneously.
-2. **Professional Standards and Ethics**: Concepts and procedures must adhere purely to scientific statistical discipline without political intervention.
-3. **Accountability and Transparency**: Presentation of sources and methods to facilitate interpretation.
-4. **Prevention of Misuse**: The statistical agency has the duty to comment on erroneous interpretation.
-5. **Confidentiality**: Individual data collected for statistical compilation must remain strictly confidential and never used for non-statistical purposes.""",
-        activity_question="Under the UN Fundamental Principles, can census or survey response data of an individual be shared for law enforcement or taxation?",
+```python
+import pandas as pd
+import numpy as np
+
+# Load survey microdata
+df = pd.read_csv("survey_microdata.csv")
+
+# Vectorized weighted calculation
+df["weighted_val"] = df["val"] * df["weight"] / 100
+```
+
+Vectorized operations execute in compiled C routines, yielding massive performance speedups over iterative loops.""",
+        activity_question="Why should vectorized methods be preferred over row-by-row for-loops in Pandas?",
         activity_options_json=json.dumps([
-            "No, individual survey records are strictly confidential and protected by law",
-            "Yes, if requested by local police",
-            "Yes, provided the respondent paid tax",
-            "Yes, after 1 year has elapsed"
+            "Vectorized calculations run in compiled C routines and are orders of magnitude faster",
+            "Because for-loops are deprecated in Python 3.12",
+            "Because vectorized methods use less hard disk space",
+            "Because Pandas does not support for-loops"
         ]),
         activity_correct_option=0,
-        activity_explanation="Principle 5 mandates absolute confidentiality: data collected by statistical agencies for compilation must remain strictly confidential and never used for investigation or taxation.",
+        activity_explanation="Pandas vectorization delegates calculations to compiled NumPy C routines without Python interpreter loop overhead.",
         order=1
     )
     db.add(l3_1_1)
     db.flush()
 
-    # Course 4: External Course (ISTM / DoPT)
+    # Course 4: Digital Governance
     c4 = Course(
-        title="Digital Governance & Public Financial Management System (PFMS)",
-        overview="Direct Benefit Transfer (DBT), treasury integration, electronic bill processing, and expenditure tracking through PFMS. Authorized course accredited by ISTM for all central government employees.",
-        instructor="Shri V. Ramaswamy, IDAS",
-        organization="Institute of Secretariat Training & Management (ISTM)",
+        title="Cybersecurity Defense & Digital Public Infrastructure Governance",
+        overview="Critical information infrastructure protection, CERT-In compliance directives, cyber incident response, Treasury Single Account (TSA) controls, and secure Direct Benefit Transfer (DBT) workflows across government platforms.",
+        instructor="Shri V. Ramaswamy, IDAS & CERT-In Directorate",
+        organization="National Critical Information Infrastructure Protection Centre (NCIIPC)",
         duration_hours=7.0,
         difficulty="intermediate",
-        source="external",  # External training catalog source
-        category="Public Administration",
-        rating=4.92,
+        source="external",
+        category="Digital Governance",
+        rating=4.91,
         enrolled_count=2150,
         is_popular=True,
         is_new=False
@@ -372,23 +340,22 @@ Adopted by the United Nations General Assembly in 2014, these ten principles for
     db.add(c4)
     db.flush()
 
-    m4_1 = Module(course_id=c4.id, title="Module 1: PFMS Architecture & DBT Portals", description="Integration between state treasuries, central ministries, and NPCI Aadhaar payment bridge.", order=1)
+    m4_1 = Module(course_id=c4.id, title="Module 1: Cyber Defense & PFMS Treasury Controls", description="Critical information infrastructure protection, CERT-In compliance, and TSA integration.", order=1)
     db.add(m4_1)
     db.flush()
 
     l4_1_1 = Lesson(
         module_id=m4_1.id,
-        title="Lesson 1: Treasury Single Account (TSA) Mechanism",
+        title="Lesson 1: Treasury Single Account (TSA) & Cyber Hardening",
         content_type="reading",
         duration_minutes=20,
-        content="""# The Treasury Single Account (TSA) and Just-in-Time Funding
+        content="""# Treasury Single Account (TSA) & Critical Infrastructure Protection
 
-The Treasury Single Account (TSA) system administered via PFMS ensures that government funds remain in the Consolidated Fund of India until the exact moment of payment to the ultimate vendor or beneficiary.
+The Treasury Single Account (TSA) administered via PFMS ensures that government scheme funds remain in the Consolidated Fund of India until actual electronic disbursement.
 
-### Key Features
-- Eliminates parking of unspent budgetary allocations in commercial bank accounts.
-- Daily sweeping of balances to RBI.
-- Real-time visibility into program expenditures for Central Sector Schemes.""",
+### Cyber Safeguards
+- End-to-end PKI signature validation for all e-bills.
+- Mandatory 2FA and CERT-In compliant logging of system transactions.""",
         activity_question="What is the primary objective of implementing the Treasury Single Account (TSA) through PFMS?",
         activity_options_json=json.dumps([
             "To prevent parking of government funds in bank accounts and ensure just-in-time funding",
@@ -403,86 +370,23 @@ The Treasury Single Account (TSA) system administered via PFMS ensures that gove
     db.add(l4_1_1)
     db.flush()
 
-    # Course 5: Python for Policy Analysis
-    c5 = Course(
-        title="Python and Statistical Computing for Public Policy",
-        overview="Modern data analysis for official statisticians using Pandas, NumPy, and Statsmodels. Automate data cleaning, compute econometric models, and generate reproducible policy briefs.",
-        instructor="Dr. Tanvi Grover",
-        organization="MoSPI Data Lab",
-        duration_hours=8.0,
-        difficulty="intermediate",
-        source="internal",
-        category="Data Science",
-        rating=4.95,
-        enrolled_count=1680,
-        is_popular=True,
-        is_new=True
-    )
-    db.add(c5)
-    db.flush()
-
-    m5_1 = Module(course_id=c5.id, title="Module 1: Data Wrangling with Pandas", description="Cleaning messy ministerial Excel sheets and CSV survey microdata.", order=1)
-    db.add(m5_1)
-    db.flush()
-
-    l5_1_1 = Lesson(
-        module_id=m5_1.id,
-        title="Lesson 1: Vectorized Operations on NSS Microdata",
-        content_type="lab",
-        duration_minutes=35,
-        content="""# Vectorized Operations on Microdata using Pandas
-
-When processing millions of NSS household observations, traditional Python `for` loops cause severe execution bottlenecks.
-
-```python
-import pandas as pd
-import numpy as np
-
-# Load NSS round microdata
-df = pd.read_csv("nss_78th_round_microdata.csv")
-
-# Vectorized weighted expenditure computation
-df["weighted_mpce"] = df["mpce"] * df["multiplier"] / 100
-
-# Aggregating by state and sector
-state_summary = df.groupby(["state_code", "sector"]).apply(
-    lambda x: np.average(x["mpce"], weights=x["multiplier"])
-).reset_index(name="mean_mpce")
-```
-
-Vectorized operations execute in optimized C routines, yielding up to a 100x speedup over iterative loops.""",
-        activity_question="Why should vectorized methods be preferred over row-by-row for-loops in Pandas when processing large survey datasets?",
-        activity_options_json=json.dumps([
-            "Vectorized calculations run in compiled C routines and are orders of magnitude faster",
-            "Because for-loops are deprecated in Python 3.12",
-            "Because vectorized methods use less hard disk space",
-            "Because Pandas does not support for-loops"
-        ]),
-        activity_correct_option=0,
-        activity_explanation="Pandas vectorization delegates calculations to internal compiled NumPy C code, executing operations across whole memory blocks without Python interpreter overhead.",
-        order=1
-    )
-    db.add(l5_1_1)
-    db.flush()
-
     # Link Course Skills
     cs_links = [
         (c1.id, skills[0].id),
         (c2.id, skills[1].id),
         (c3.id, skills[2].id),
-        (c4.id, skills[4].id),
-        (c5.id, skills[5].id)
+        (c4.id, skills[3].id)
     ]
     for cid, sid in cs_links:
         db.add(CourseSkill(course_id=cid, skill_id=sid))
     db.commit()
 
     # 5. Assessments for Courses
-    # Assessment 1 for Course 1
+    # Assessment 1 for Course 1 (Behavioural)
     a1 = Assessment(
         course_id=c1.id,
-        title="Comprehensive Competency Assessment: National Sample Surveys",
-        description="Official certification examination testing sampling design, stratification rigor, hamlet-group formation, and CAPI field validation procedures.",
+        title="Certification Exam: Civil Service Conduct & Administrative Ethics",
+        description="Official certification examination testing statutory integrity standards, CCS (Conduct) Rules 1964, natural justice principles, and Rule 14 inquiry procedures.",
         time_limit_minutes=25,
         pass_threshold_percent=70.0
     )
@@ -491,57 +395,58 @@ Vectorized operations execute in optimized C routines, yielding up to a 100x spe
 
     q1_1 = Question(
         assessment_id=a1.id,
-        text="In a two-stage stratified sampling design used in NSS rural rounds, what represents the First Stage Unit (FSU)?",
+        text="Under Rule 14(11) of the CCS (CCA) Rules 1965, what right does the Charged Officer have regarding documentary evidence?",
         options_json=json.dumps([
-            "A census village / revenue village",
-            "An individual agricultural household",
-            "A block development administrative zone",
-            "A district statistical office"
+            "Absolute right to inspect and receive certified copies of listed prosecution documents",
+            "No right to inspect documents until final judgment",
+            "Only verbal summary by the Presenting Officer",
+            "Inspection permitted only after prosecution concludes witnesses"
         ]),
         correct_option_index=0,
-        explanation="Census villages serve as the standard FSUs in the rural frame of NSS surveys.",
+        explanation="Rule 14(11) guarantees the statutory right of the Charged Officer to inspect listed documents to prepare their defense.",
         order=1
     )
     q1_2 = Question(
         assessment_id=a1.id,
-        text="When is hamlet-group (hg) formation compulsory in a sample village during NSS field execution?",
+        text="What is the consequence if an Inquiring Authority proceeds ex-parte after a formal application alleging bias has been filed?",
         options_json=json.dumps([
-            "When current village population is approx. 1,200 or more (or 300+ households)",
-            "Only if there are more than 5 distinct castes",
-            "Whenever the field supervisor forgets paper schedules",
-            "In every sample village without exception"
+            "Proceedings are fatally vitiated for violating Audi Alteram Partem and will be quashed",
+            "The inquiry is accelerated lawfully",
+            "The officer automatically forfeits defense rights",
+            "The Inquiring Authority receives special commendation"
         ]),
         correct_option_index=0,
-        explanation="NSS field manual prescribes hamlet group division when population reaches or exceeds 1,200 persons or 300 households.",
+        explanation="Per established DoPT guidelines and judicial precedents, the IA must stay proceedings until the Disciplinary Authority decides the bias petition.",
         order=2
     )
     q1_3 = Question(
         assessment_id=a1.id,
-        text="What is the primary objective of Computer-Assisted Personal Interviewing (CAPI) in NSSO?",
+        text="Under Rule 3 of CCS (Conduct) Rules, which duty is expressly mandated for every civil servant?",
         options_json=json.dumps([
-            "Eliminate data-entry backlogs and enforce automated real-time logical validation",
-            "Permit investigators to complete surveys without respondent interaction",
-            "Reduce the total sample size by half",
-            "Eliminate the need for statistical multipliers"
+            "To maintain absolute integrity, devotion to duty, and do nothing unbecoming of a Government servant",
+            "To prioritize personal commercial interests over official tasks",
+            "To disclose classified statistical releases prematurely",
+            "To accept costly gifts from contracting vendors"
         ]),
         correct_option_index=0,
-        explanation="CAPI captures responses digitally on tablets, enforcing validation constraints at the point of capture and removing post-survey data entry delays.",
+        explanation="Rule 3(1) is the core ethical obligation binding all central government employees.",
         order=3
     )
     q1_4 = Question(
         assessment_id=a1.id,
-        text="Which sampling selection method is used when allocating FSUs to account for population size differentials?",
+        text="When can a disciplinary authority dispense with a departmental inquiry before imposing major penalties?",
         options_json=json.dumps([
-            "Probability Proportional to Size with Replacement / Without Replacement (PPS)",
-            "Simple Random Sampling with Equal Probability (SRSWOR)",
-            "Convenience Snowball Sampling",
-            "Voluntary Respondent Selection"
+            "Only under exceptional conditions covered strictly under Article 311(2) second proviso of the Constitution",
+            "Whenever the inquiry would take more than one week",
+            "If the accused officer submits a written denial",
+            "At the arbitrary verbal instruction of an administrative head"
         ]),
         correct_option_index=0,
-        explanation="PPS (Probability Proportional to Size) selection gives larger population units a proportionally higher likelihood of inclusion, optimizing efficiency.",
+        explanation="Article 311(2) proviso strictly delineates the rare constitutional exceptions (e.g. state security or impracticability).",
         order=4
     )
     db.add_all([q1_1, q1_2, q1_3, q1_4])
+    db.flush()
 
     # Assessment 2 for Course 2
     a2 = Assessment(

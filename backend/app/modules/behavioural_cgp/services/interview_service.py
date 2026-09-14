@@ -73,10 +73,10 @@ PHASES = [
 # Course curriculum seed profiles for the interviewer
 COURSE_CONTEXTS: Dict[int, Dict[str, Any]] = {
     1: {
-        "title": "Fundamentals of National Sample Surveys (NSS)",
-        "organization": "National Sample Survey Office (NSSO)",
-        "key_themes": ["Two-stage stratified design", "FSU selection (PPS)", "Hamlet-group formation", "CAPI validation"],
-        "initial_question": "Good morning, Officer. Welcome to this oral competency examination for the National Sample Survey framework. To begin: in rural rounds, under what exact conditions is hamlet-group formation legally mandatory, and what sampling risks emerge if an investigator substitutes a hamlet without prior written authorization?"
+        "title": "Civil Service Conduct, Administrative Ethics & Interpersonal Leadership",
+        "organization": "Department of Personnel & Training (DoPT)",
+        "key_themes": ["CCS (Conduct) Rules 1964", "Rule 14 Quasi-Judicial Inquiries", "Audi Alteram Partem", "Public Grievance Resolution"],
+        "initial_question": "Good morning, Officer. Welcome to your oral competency examination on Civil Service Conduct and Administrative Ethics. To begin: as an Inquiring Authority under Rule 14 of CCS (CCA) Rules, how do you uphold the doctrine of natural justice when high-pressure ministerial directives demand immediate ex-parte conclusion against a subordinate?"
     },
     2: {
         "title": "Compilation of Consumer Price Index (CPI) & Inflation Metrics",
@@ -85,22 +85,16 @@ COURSE_CONTEXTS: Dict[int, Dict[str, Any]] = {
         "initial_question": "Welcome, Officer. Let us assess your mastery of official inflation compilation. Could you explain the mathematical justification for utilizing the Jevons Geometric Mean at the elementary quotation level, and how you would handle an abrupt disappearance of a staple commodity from urban market price quotations?"
     },
     3: {
-        "title": "Data Quality Frameworks & Official Statistics in India",
-        "organization": "National Statistical Systems Training Academy (NSSTA)",
-        "key_themes": ["UN-NQAF 19 Principles", "Confidentiality Principle 5", "Data release policy", "Public integrity"],
-        "initial_question": "Good morning, Officer. Under the UN National Quality Assurance Framework (UN-NQAF) and the Collection of Statistics Act, how do you resolve an urgent administrative directive demanding the release of identifiable survey records to another ministry for law enforcement purposes?"
-    },
-    4: {
-        "title": "Digital Governance & Public Financial Management System (PFMS)",
-        "organization": "Institute of Secretariat Training & Management (ISTM)",
-        "key_themes": ["Treasury Single Account (TSA)", "Just-in-Time funding", "Direct Benefit Transfer (DBT)", "GFR 2017"],
-        "initial_question": "Officer, in implementing the Treasury Single Account (TSA) under PFMS, what mechanisms prevent regional implementing agencies from parking unspent central scheme funds in commercial bank accounts, and how would you handle non-compliance from state treasuries?"
-    },
-    5: {
-        "title": "Python and Statistical Computing for Public Policy",
+        "title": "Python and Data Cleaning Pipelines for Public Policy",
         "organization": "MoSPI Data Lab",
         "key_themes": ["Pandas vectorization", "Reproducible pipelines", "Microdata wrangling", "Data governance"],
-        "initial_question": "Welcome, Officer. In processing millions of household observations from NSS microdata, why are vectorized Pandas operations mandatory over iterative Python loops, and how do you ensure the reproducibility and auditability of data cleaning transformations?"
+        "initial_question": "Welcome, Officer. In processing millions of household observations from survey microdata, why are vectorized Pandas operations mandatory over iterative Python loops, and how do you ensure the reproducibility and auditability of data cleaning transformations?"
+    },
+    4: {
+        "title": "Cybersecurity Defense & Digital Public Infrastructure Governance",
+        "organization": "National Critical Information Infrastructure Protection Centre (NCIIPC)",
+        "key_themes": ["Treasury Single Account (TSA)", "CERT-In compliance", "Direct Benefit Transfer (DBT)", "Critical infrastructure defense"],
+        "initial_question": "Officer, in implementing the Treasury Single Account (TSA) under PFMS, what mechanisms prevent regional implementing agencies from parking unspent central scheme funds in commercial bank accounts, and how would you handle a severe cyber breach targeting state payment gateways?"
     }
 }
 

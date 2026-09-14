@@ -147,8 +147,11 @@ export default function CourseDetailPage() {
 
   const isEnrolled = !!course.enrollment;
   const progressPct = course.enrollment?.progress_percent || 0;
-  const BEHAVIOURAL_SUPPORTED_COURSE_IDS = [1, 2, 3, 4, 5];
-  const hasBehaviouralPipeline = BEHAVIOURAL_SUPPORTED_COURSE_IDS.includes(Number(course.id));
+  const courseIdNum = Number(course.id);
+  const isBehaviouralCourse = courseIdNum === 1 || course.category?.toLowerCase() === "behavioural";
+  const isStatisticalCourse = courseIdNum === 2 || course.category?.toLowerCase() === "statistical" || course.category?.toLowerCase().includes("price");
+  const isTechnicalCourse = courseIdNum === 3 || course.category?.toLowerCase() === "technical" || course.category?.toLowerCase().includes("data science");
+  const isDigitalGovCourse = courseIdNum === 4 || course.category?.toLowerCase() === "digital governance" || course.category?.toLowerCase().includes("public administration");
 
   return (
     <div className="min-h-[calc(100vh-68px)] flex flex-col bg-[#F8FAFC] w-full text-slate-900">
@@ -178,12 +181,39 @@ export default function CourseDetailPage() {
             <span className="text-xs font-medium text-slate-600">
               {getDifficultyLabel(course.difficulty)}
             </span>
-            {hasBehaviouralPipeline && (
+            {isBehaviouralCourse && (
               <>
                 <span className="text-xs text-slate-400">•</span>
                 <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md border bg-teal-50 text-[#0D9488] border-teal-200/80 flex items-center gap-1">
                   <Sparkles className="h-3 w-3 text-[#0D9488]" />
                   Oral Board & Case Inquiries
+                </span>
+              </>
+            )}
+            {isStatisticalCourse && (
+              <>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md border bg-indigo-50 text-[#4338CA] border-indigo-200/80 flex items-center gap-1">
+                  <Brain className="h-3 w-3 text-[#4338CA]" />
+                  Adaptive Exam Engine
+                </span>
+              </>
+            )}
+            {isTechnicalCourse && (
+              <>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md border bg-emerald-50 text-emerald-800 border-emerald-200/80 flex items-center gap-1">
+                  <FlaskConical className="h-3 w-3 text-emerald-700" />
+                  Hands-on Labs
+                </span>
+              </>
+            )}
+            {isDigitalGovCourse && (
+              <>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-md border bg-sky-50 text-sky-800 border-sky-200/80 flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3 text-sky-700" />
+                  Cyber Defense Sandbox
                 </span>
               </>
             )}
@@ -259,7 +289,7 @@ export default function CourseDetailPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {course.assessment_id && (
                 <a href={`/assess/${course.assessment_id}`}>
                   <Button
@@ -271,15 +301,27 @@ export default function CourseDetailPage() {
                   </Button>
                 </a>
               )}
-              {hasBehaviouralPipeline && (
+              {isBehaviouralCourse && (
                 <a href={`/behavioural/interview?courseId=${course.id}`}>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs rounded-lg border-teal-300 bg-teal-50/60 text-[#0D9488] hover:bg-teal-100/60 cursor-pointer flex items-center gap-1.5"
+                    className="text-xs rounded-lg border-teal-300 bg-teal-50/60 text-[#0D9488] hover:bg-teal-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
                   >
                     <Video className="h-3.5 w-3.5 text-[#0D9488]" />
                     AI Oral Board
+                  </Button>
+                </a>
+              )}
+              {isStatisticalCourse && (
+                <a href={`/statistical/exam?courseId=${course.id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs rounded-lg border-indigo-300 bg-indigo-50/60 text-[#4338CA] hover:bg-indigo-100/60 cursor-pointer flex items-center gap-1.5 font-semibold"
+                  >
+                    <Brain className="h-3.5 w-3.5 text-[#4338CA]" />
+                    Adaptive Statistical Exam
                   </Button>
                 </a>
               )}
@@ -311,59 +353,58 @@ export default function CourseDetailPage() {
                     return (
                       <div
                         key={mod.id}
-                        className="border border-slate-200 rounded-lg overflow-hidden transition-all"
+                        className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs"
                       >
                         <button
                           onClick={() => toggleModule(mod.id)}
-                          className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between text-left transition-colors cursor-pointer"
+                          className="w-full flex items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/70 transition-colors text-left cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <span className="h-6 w-6 rounded-full bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center">
+                            <span className="h-6 w-6 rounded-full bg-[#1E3A8A]/10 text-[#1E3A8A] font-bold text-xs flex items-center justify-center">
                               {idx + 1}
                             </span>
                             <div>
                               <h4 className="text-xs sm:text-sm font-bold text-slate-900">
                                 {mod.title}
                               </h4>
-                              <p className="text-[11px] text-slate-500">
-                                {mod.lessons.length} {t("course.lessons")} • {mod.description}
-                              </p>
+                              {mod.description && (
+                                <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                                  {mod.description}
+                                </p>
+                              )}
                             </div>
                           </div>
                           {isExpanded ? (
-                            <ChevronDown className="h-4 w-4 text-slate-500" />
+                            <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                           ) : (
-                            <ChevronRight className="h-4 w-4 text-slate-500" />
+                            <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
                           )}
                         </button>
 
-                        {isExpanded && (
-                          <div className="divide-y divide-slate-100 bg-white px-4 py-1">
+                        {isExpanded && mod.lessons && (
+                          <div className="p-2 divide-y divide-slate-100 bg-white">
                             {mod.lessons.map((lesson) => (
                               <div
                                 key={lesson.id}
-                                className="py-2.5 flex items-center justify-between text-xs hover:bg-slate-50/60 rounded px-2"
+                                className="flex items-center justify-between py-2.5 px-3 hover:bg-slate-50 rounded-lg text-xs group"
                               >
                                 <div className="flex items-center gap-2.5">
+                                  {lesson.content_type === "reading" && (
+                                    <FileText className="h-3.5 w-3.5 text-blue-600" />
+                                  )}
                                   {lesson.content_type === "video" && (
                                     <Video className="h-3.5 w-3.5 text-amber-600" />
                                   )}
                                   {lesson.content_type === "lab" && (
                                     <FlaskConical className="h-3.5 w-3.5 text-indigo-600" />
                                   )}
-                                  {lesson.content_type === "reading" && (
-                                    <FileText className="h-3.5 w-3.5 text-slate-400" />
-                                  )}
-                                  <span className="font-medium text-slate-800">{lesson.title}</span>
+                                  <span className="text-slate-700 font-medium group-hover:text-[#1E3A8A] transition-colors">
+                                    {lesson.title}
+                                  </span>
                                 </div>
-                                <div className="flex items-center gap-3 text-slate-500">
-                                  {lesson.has_activity && (
-                                    <span className="text-[10px] bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded border border-slate-200">
-                                      {t("course.includesPractice")}
-                                    </span>
-                                  )}
-                                  <span>{lesson.duration_minutes}m</span>
-                                </div>
+                                <span className="text-slate-400 text-[11px]">
+                                  {lesson.duration_minutes} mins
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -424,8 +465,8 @@ export default function CourseDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
-                  <div className="flex flex-wrap gap-1.5">
-                    {course.skills_gained.map((skill, idx) => (
+                  <div className="flex flex-wrap gap-2">
+                    {(course.skills_gained || []).map((skill: string, idx: number) => (
                       <span
                         key={idx}
                         className="text-[11px] font-medium bg-amber-50 text-amber-900 border border-amber-200/80 px-2.5 py-1 rounded-md flex items-center gap-1.5"
@@ -438,8 +479,8 @@ export default function CourseDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Civil Service Behavioural Assessment & Competency Pipeline - ONLY for particular courses */}
-              {hasBehaviouralPipeline && (
+              {/* 1. Behavioural Competency Pipeline - Course 1 */}
+              {isBehaviouralCourse && (
                 <Card className="border-blue-200 bg-gradient-to-br from-blue-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
                   <CardHeader className="pb-2.5 border-b border-blue-100/80 bg-white/70">
                     <div className="flex items-center justify-between">
@@ -448,13 +489,13 @@ export default function CourseDetailPage() {
                         Behavioural Competency Pipeline
                       </CardTitle>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#1E3A8A]">
-                        Course-Anchored
+                        Live Multimodal
                       </span>
                     </div>
                   </CardHeader>
                   <CardContent className="p-4 space-y-3 text-xs">
                     <p className="text-slate-600 leading-relaxed text-[11px]">
-                      Evaluate practical civil service decision-making, ethical judgement, leadership, and oral defense grounded in this course syllabus.
+                      Evaluate practical civil service decision-making, ethical judgement, leadership, and oral defense grounded in statutory conduct rules.
                     </p>
                     <div className="space-y-2 pt-1">
                       <a
@@ -476,6 +517,108 @@ export default function CourseDetailPage() {
                           Launch AI Live Interview
                         </span>
                         <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all" />
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 2. Statistical Competency Engine - Course 2 */}
+              {isStatisticalCourse && (
+                <Card className="border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
+                  <CardHeader className="pb-2.5 border-b border-indigo-100/80 bg-white/70">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-[#312E81] flex items-center gap-1.5">
+                        <Brain className="h-4 w-4 text-[#4338CA]" />
+                        Statistical Competency Engine
+                      </CardTitle>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-[#4338CA]">
+                        Adaptive Branching
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 text-xs">
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      Engage with parameterized inflation calculation problems, modified Laspeyres aggregation, Jevons geometric means, and real-time mastery tracking.
+                    </p>
+                    <div className="space-y-2 pt-1">
+                      <a
+                        href={`/statistical/exam?courseId=${course.id}`}
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-[#4338CA] hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Brain className="h-3.5 w-3.5 text-[#4338CA]" />
+                          Take Adaptive Statistical Exam
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#4338CA] group-hover:translate-x-0.5 transition-all" />
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 3. Technical Competency Pipeline - Course 3 */}
+              {isTechnicalCourse && (
+                <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
+                  <CardHeader className="pb-2.5 border-b border-emerald-100/80 bg-white/70">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-emerald-900 flex items-center gap-1.5">
+                        <FlaskConical className="h-4 w-4 text-emerald-700" />
+                        Technical Competency Pipeline
+                      </CardTitle>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        Interactive Labs
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 text-xs">
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      Execute vectorized Python data cleaning scripts, Pandas microdata wrangling, and automated validation pipelines in a live execution environment.
+                    </p>
+                    <div className="space-y-2 pt-1">
+                      <a
+                        href={`/labs?courseId=${course.id}`}
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-emerald-700 hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
+                          Launch Hands-on Labs
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all" />
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 4. Digital Governance Sandbox - Course 4 */}
+              {isDigitalGovCourse && (
+                <Card className="border-sky-200 bg-gradient-to-br from-sky-50/60 to-slate-50 shadow-2xs rounded-xl overflow-hidden border">
+                  <CardHeader className="pb-2.5 border-b border-sky-100/80 bg-white/70">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xs sm:text-sm font-bold text-sky-950 flex items-center gap-1.5">
+                        <ShieldCheck className="h-4 w-4 text-sky-700" />
+                        Digital Governance Sandbox
+                      </CardTitle>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">
+                        Cyber Sandbox
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 text-xs">
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      Simulate critical public financial management workflows, CERT-In compliance incident responses, and treasury controls under active attack scenarios.
+                    </p>
+                    <div className="space-y-2 pt-1">
+                      <a
+                        href={`/digital-governance/sandbox?courseId=${course.id}`}
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-sky-700 hover:shadow-xs transition-all font-semibold text-slate-800 text-xs group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <ShieldCheck className="h-3.5 w-3.5 text-sky-700" />
+                          Launch Cyber Defense Sandbox
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all" />
                       </a>
                     </div>
                   </CardContent>
