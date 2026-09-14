@@ -9,7 +9,31 @@ from app.models.models import (
 from app.core.security import get_password_hash
 
 def seed_database(db: Session):
-    # Check if already seeded
+    # 0. Ensure Technical Course Lab Templates are seeded even if curriculum exists
+    from app.modules.technical_courses.services.template_service import BUILTIN_LAB_TEMPLATES
+    from app.models.models import TechnicalLabTemplate
+    
+    if not db.query(TechnicalLabTemplate).first():
+        for t in BUILTIN_LAB_TEMPLATES:
+            tc_json = json.dumps([tc.model_dump() for tc in t.test_cases_template])
+            tmpl_record = TechnicalLabTemplate(
+                id=t.id,
+                title=t.title,
+                skill=t.skill,
+                language=t.language,
+                difficulty=t.difficulty,
+                lab_type=t.lab_type,
+                tags_json=json.dumps(t.tags),
+                instructions_template=t.instructions_template,
+                starter_code_template=t.starter_code_template,
+                solution_template=t.solution_template,
+                constraints_json=json.dumps(t.constraints),
+                test_cases_template_json=tc_json
+            )
+            db.merge(tmpl_record)
+        db.commit()
+
+    # Check if core curriculum already seeded
     if db.query(User).first():
         return
 
