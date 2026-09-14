@@ -533,3 +533,33 @@ class UserCompetencyScore(Base):
     user = relationship("User")
     competency = relationship("Competency")
 
+
+class GapAnalysis(Base):
+    __tablename__ = "gap_analyses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    domain_id = Column(Integer, ForeignKey("competency_domains.id", ondelete="CASCADE"), nullable=False)
+    target_level = Column(Float, nullable=False)
+    current_level = Column(Float, nullable=False)
+    gap = Column(Float, nullable=False)
+    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User")
+    domain = relationship("CompetencyDomain")
+
+
+class Recommendation(Base):
+    __tablename__ = "recommendations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    reason = Column(Text, nullable=False)
+    score = Column(Float, default=0.0)
+    status = Column(String(20), default="pending")  # pending, enrolled, dismissed
+    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User")
+    course = relationship("Course")
+
