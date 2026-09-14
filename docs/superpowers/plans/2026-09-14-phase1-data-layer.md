@@ -524,7 +524,7 @@ This is the biggest task in the phase: it replaces the three in-memory repositor
 - Modify: `backend/app/statistical_engine/api/router.py` (add `db: Session = Depends(get_db)` to each endpoint that calls `assessment_service` or `learner_repo`, pass `db` through)
 - Delete: nothing — `backend/app/statistical_engine/repositories/memory_repositories.py` keeps its ABCs (still useful as the interface contract, and the in-memory classes stay as a documented fallback/test double) but its module-level singletons (`question_repo`, `attempt_repo`, `learner_repo`) are no longer imported anywhere after this task.
 - Test: `backend/tests/stats_engine/test_sql_repositories.py`
-- Modify: `backend/tests/stats_engine/test_api_endpoints.py` and `backend/tests/stats_engine/test_branching_and_mastery.py` (add the `db_session` fixture + override, same pattern as `test_technical_pipeline.py`)
+- Modify: `backend/tests/stats_engine/test_api_endpoints.py` only (add the `db_session`/`client` fixtures, same pattern as `test_technical_pipeline.py`) — `backend/tests/stats_engine/test_branching_and_mastery.py` tests `mastery_evaluator`/`branching_engine` directly with no DB, HTTP client, or `assessment_service` involvement, so it needs no change for this task.
 
 **Interfaces:**
 - Consumes: `QuestionInternalRecord` from `backend/app/statistical_engine/questions/generator.py:20`.
@@ -914,9 +914,9 @@ In `backend/app/statistical_engine/api/router.py`:
 - Replace `from app.statistical_engine.repositories.memory_repositories import learner_repo` with `from app.statistical_engine.repositories.sql_repositories import SQLLearnerRepository`.
 - Add `db: Session = Depends(get_db)` as a parameter to every endpoint function that currently calls `assessment_service.*` or `learner_repo.*`, and pass `db` through (e.g. `assessment_service.generate_question(db, skill_id=..., ...)`); replace `learner_repo.get_user_mastery(user_id)` at line 162 with `SQLLearnerRepository(db).get_user_mastery(user_id)`.
 
-- [ ] **Step 9: Update existing stats_engine tests to use the DB fixture**
+- [ ] **Step 9: Update `test_api_endpoints.py` to use the DB fixture**
 
-In both `backend/tests/stats_engine/test_api_endpoints.py` and `backend/tests/stats_engine/test_branching_and_mastery.py`, add these two fixtures (matching `backend/tests/test_technical_pipeline.py:1-54` exactly) and replace the module-level `client = TestClient(app)` with the `client` fixture in every test function's parameters:
+In `backend/tests/stats_engine/test_api_endpoints.py` only, add these two fixtures (matching `backend/tests/test_technical_pipeline.py:1-54` exactly) and replace the module-level `client = TestClient(app)` with the `client` fixture in every test function's parameters:
 
 ```python
 import pytest
