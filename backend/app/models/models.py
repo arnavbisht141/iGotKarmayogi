@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Boolean, Float, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -502,4 +502,34 @@ class Competency(Base):
 
     domain = relationship("CompetencyDomain", back_populates="competencies")
 
+
+class CompetencyProfile(Base):
+    __tablename__ = "competency_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    statistical_score = Column(Float, default=0.0)
+    technical_score = Column(Float, default=0.0)
+    digital_governance_score = Column(Float, default=0.0)
+    behavioural_score = Column(Float, default=0.0)
+    last_computed_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")
+
+
+class UserCompetencyScore(Base):
+    __tablename__ = "user_competency_scores"
+    __table_args__ = (
+        UniqueConstraint("user_id", "competency_id", name="uq_user_competency"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    competency_id = Column(Integer, ForeignKey("competencies.id", ondelete="CASCADE"), nullable=False)
+    level = Column(Float, default=0.0)  # 0-5
+    evidence_source = Column(String(50), default="self_declared")  # self_declared, assessment, inferred
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")
+    competency = relationship("Competency")
 
