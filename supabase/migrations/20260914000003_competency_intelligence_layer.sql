@@ -146,3 +146,8 @@ CREATE TABLE IF NOT EXISTS public.behavioural_session_results (
 
 CREATE INDEX IF NOT EXISTS idx_behavioural_session_results_session_id ON public.behavioural_session_results(session_id);
 CREATE INDEX IF NOT EXISTS idx_behavioural_session_results_user_id ON public.behavioural_session_results(user_id);
+
+-- 11. Bridge column: link legacy user_skills rows to the competency taxonomy (nullable, backward-compatible)
+ALTER TABLE public.user_skills ADD COLUMN IF NOT EXISTS competency_id INTEGER REFERENCES public.competencies(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_user_skills_competency_id ON public.user_skills(competency_id);

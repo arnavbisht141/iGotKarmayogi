@@ -595,7 +595,7 @@ class InterviewSessionManager:
     _sessions: Dict[str, LiveInterviewSession] = {}
 
     @classmethod
-    def start_interview(cls, req: InterviewStartRequest, db: Optional[Session] = None) -> LiveInterviewSession:
+    def start_interview(cls, req: InterviewStartRequest, db: Optional[Session] = None, user_id: Optional[int] = None) -> LiveInterviewSession:
         session_id = f"interview_{uuid.uuid4().hex[:12]}"
 
         course_override = None
@@ -643,7 +643,7 @@ class InterviewSessionManager:
             officer_name=req.officer_name or "Officer",
             target_duration_minutes=req.target_duration_minutes,
             course_info_override=course_override,
-            user_id=req.user_id
+            user_id=user_id
         )
         cls._sessions[session_id] = session
         return session

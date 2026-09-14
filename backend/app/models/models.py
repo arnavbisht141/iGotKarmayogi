@@ -160,6 +160,7 @@ class UserSkill(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     skill_id = Column(Integer, ForeignKey("skills.id", ondelete="CASCADE"), nullable=False)
     source_course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    competency_id = Column(Integer, ForeignKey("competencies.id", ondelete="SET NULL"), nullable=True)
     acquired_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="skills")

@@ -2,7 +2,8 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.models.models import Course
+from app.core.security import get_current_user
+from app.models.models import Course, User
 from .schemas import (
     GovernmentDocument,
     CaseScenario,
@@ -125,12 +126,18 @@ def generate_custom_case(req: CaseGenerationRequest):
 # --- Interactive Carryforward Session Runner Endpoints ---
 
 @router.post("/session/start")
-def start_carryforward_session(req: Optional[CarryforwardSessionStartRequest] = None):
+def start_carryforward_session(
+    req: Optional[CarryforwardSessionStartRequest] = None,
+    current_user: Optional[User] = Depends(get_current_user)
+):
     """
     Initializes an interactive assessment session for carryforward case MCQs.
     """
     case_id = req.case_id if req else None
-    session = CarryforwardSessionManager.create_session(case_id=case_id, user_id=req.user_id if req else None)
+    session = CarryforwardSessionManager.create_session(
+        case_id=case_id,
+        user_id=current_user.id if current_user else None
+    )
     
     current_q = session.current_question
     case = session.current_case
@@ -187,25 +194,32 @@ def get_carryforward_session_summary(session_id: str, db: Session = Depends(get_
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     summary = session.get_summary()
-    save_behavioural_result(
-        db,
-        session_id=session.session_id,
-        session_type="carryforward",
-        user_id=session.user_id,
-        case_or_course_id=summary.case_id,
-        score=summary.procedural_compliance_score,
-        result_payload=summary.model_dump(),
-    )
+    if session.session_completed:
+        save_behavioural_result(
+            db,
+            session_id=session.session_id,
+            session_type="carryforward",
+            user_id=session.user_id,
+            case_or_course_id=summary.case_id,
+            score=summary.procedural_compliance_score,
+            result_payload=summary.model_dump(),
+        )
     return summary
 
 # --- AI Live Feed Interview Endpoints ---
 
 @router.post("/interview/start")
-def start_live_interview(req: InterviewStartRequest, db: Session = Depends(get_db)):
+def start_live_interview(
+    req: InterviewStartRequest,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
+):
     """
     Initiates a live AI oral competency interview dynamically grounded in the specified course syllabus and notices.
     """
-    session = InterviewSessionManager.start_interview(req, db=db)
+    session = InterviewSessionManager.start_interview(
+        req, db=db, user_id=current_user.id if current_user else None
+    )
     first_q = session.transcript[0].content
     return {
         "session_id": session.session_id,

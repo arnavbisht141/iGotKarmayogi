@@ -1,5 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from app.core.database import Base, get_db
+from app.core.seed_data import seed_database
+from app.core.seed_competencies import seed_competency_taxonomy
 from app.main import app
 from app.modules.behavioural_cgp.services.corpus import get_all_documents, get_document_by_id
 from app.modules.behavioural_cgp.services.carryforward_generator import (
@@ -11,7 +18,41 @@ from app.modules.behavioural_cgp.services.carryforward_session import Carryforwa
 from app.modules.behavioural_cgp.services.interview_service import InterviewSessionManager
 from app.modules.behavioural_cgp.schemas import CaseGenerationRequest, InterviewStartRequest
 
-client = TestClient(app)
+
+@pytest.fixture(name="db_session")
+def fixture_db_session():
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    db = TestingSessionLocal()
+    try:
+        # These tests exercise course-backed endpoints (courses, case-course mappings,
+        # course-anchored generation), so the isolated in-memory DB needs the same seed
+        # data the real app loads on startup.
+        seed_database(db)
+        seed_competency_taxonomy(db)
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture(name="client")
+def fixture_client(db_session):
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
 
 def test_corpus_retrieval():
     docs = get_all_documents()
@@ -30,7 +71,7 @@ def test_corpus_retrieval():
     assert "CCS (CCA) Rules" in doc.statutory_reference
     assert len(doc.key_stakeholders) > 0
 
-def test_api_corpus_endpoints():
+def test_api_corpus_endpoints(client):
     response = client.get("/api/behavioural/corpus")
     assert response.status_code == 200
     data = response.json()
@@ -103,7 +144,7 @@ def test_carryforward_branching_workflow():
     assert len(summary.strengths) > 0
     assert len(summary.recommended_upskilling) > 0
 
-def test_api_carryforward_session_endpoints():
+def test_api_carryforward_session_endpoints(client):
     # Start via API
     start_res = client.post("/api/behavioural/session/start", json={"case_id": "case_gfr_gem_procurement"})
     assert start_res.status_code == 200
@@ -234,7 +275,7 @@ def test_nqaf_carryforward_and_generated_case_session():
     assert gen_res.next_question is not None
 
 
-def test_api_live_interview_flow():
+def test_api_live_interview_flow(client):
     # Start interview API
     res = client.post("/api/behavioural/interview/start", json={
         "course_id": 2,
@@ -277,7 +318,7 @@ def test_api_live_interview_flow():
     assert report["telemetry_summary"]["delivery_composure_score"] >= 80.0
 
 
-def test_get_courses_with_case_mappings():
+def test_get_courses_with_case_mappings(client):
     res = client.get("/api/behavioural/courses")
     assert res.status_code == 200
     courses = res.json()
@@ -289,7 +330,7 @@ def test_get_courses_with_case_mappings():
     assert ethics_course["case_count"] >= 1
 
 
-def test_filter_cases_by_course_id():
+def test_filter_cases_by_course_id(client):
     # Filter for Course 1 (NSS)
     res_course1 = client.get("/api/behavioural/cases?course_id=1")
     assert res_course1.status_code == 200
@@ -306,7 +347,7 @@ def test_filter_cases_by_course_id():
     assert cases_direct[0]["course_id"] == 1
 
 
-def test_generate_course_anchored_case():
+def test_generate_course_anchored_case(client):
     # Dynamically generate a new case for Course 4 (Cybersecurity Defense & DPI Governance)
     res = client.post("/api/behavioural/courses/4/generate-case", json={
         "course_id": 4,
@@ -325,7 +366,7 @@ def test_generate_course_anchored_case():
     assert branch_opts[0]["next_question_id"] in case_data["questions"]
 
 
-def test_live_interview_with_dynamic_database_course():
+def test_live_interview_with_dynamic_database_course(client):
     # Test starting live interview grounded in Course 4 (Digital Governance & Cybersecurity)
     res_start = client.post("/api/behavioural/interview/start", json={
         "course_id": 4,
