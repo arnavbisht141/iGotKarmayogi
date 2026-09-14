@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
 from app.core.seed_data import seed_database
+from app.core.seed_competencies import seed_competency_taxonomy
 
 # Import routers
 from app.modules.digital_governance.router import router as digital_governance_router
@@ -27,6 +28,7 @@ Base.metadata.create_all(bind=engine)
 db = SessionLocal()
 try:
     seed_database(db)
+    seed_competency_taxonomy(db)
 finally:
     db.close()
 

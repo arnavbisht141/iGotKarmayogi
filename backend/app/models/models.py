@@ -479,3 +479,27 @@ class UserCyberCompetency(Base):
     user = relationship("User", back_populates="cyber_competency")
 
 
+class CompetencyDomain(Base):
+    __tablename__ = "competency_domains"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(50), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+
+    competencies = relationship("Competency", back_populates="domain", cascade="all, delete-orphan")
+
+
+class Competency(Base):
+    __tablename__ = "competencies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    domain_id = Column(Integer, ForeignKey("competency_domains.id", ondelete="CASCADE"), nullable=False)
+    code = Column(String(100), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    max_level = Column(Integer, default=5)
+
+    domain = relationship("CompetencyDomain", back_populates="competencies")
+
+
