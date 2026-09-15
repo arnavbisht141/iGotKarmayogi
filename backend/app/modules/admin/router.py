@@ -110,50 +110,74 @@ def get_admin_overview(
     admin_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    total_users = db.query(User).count()
-    total_courses = db.query(Course).count()
-    total_enrollments = db.query(Enrollment).count()
-    completed_enrollments = db.query(Enrollment).filter(Enrollment.status == "completed").count()
-    total_attempts = db.query(AssessmentAttempt).count()
-    passed_attempts = db.query(AssessmentAttempt).filter(AssessmentAttempt.passed == True).count()
+    from collections import defaultdict
+    from app.models.models import UserProfile
+
+    # Load each table once and group in Python: per-row queries cost a network round trip each on hosted Postgres.
+    users = db.query(User).all()
+    courses = db.query(Course).all()
+    enrollments = db.query(Enrollment).all()
+    all_attempts = db.query(AssessmentAttempt).all()
+    questions = db.query(Question).all()
+    profiles = {p.user_id: p for p in db.query(UserProfile).all()}
+    assessment_by_course = {a.course_id: a for a in db.query(Assessment).all()}
+    assessment_titles = {a.id: a.title for a in assessment_by_course.values()}
+    course_by_id = {c.id: c for c in courses}
+
+    enrollments_by_user = defaultdict(list)
+    enrollments_by_course = defaultdict(list)
+    for e in enrollments:
+        enrollments_by_user[e.user_id].append(e)
+        enrollments_by_course[e.course_id].append(e)
+    attempts_by_assessment = defaultdict(list)
+    for a in all_attempts:
+        attempts_by_assessment[a.assessment_id].append(a)
+
+    total_users = len(users)
+    total_courses = len(courses)
+    total_enrollments = len(enrollments)
+    completed_enrollments = sum(1 for e in enrollments if e.status == "completed")
+    total_attempts = len(all_attempts)
+    passed_attempts = sum(1 for a in all_attempts if a.passed)
 
     # User List with their courses and progress
-    users = db.query(User).all()
     user_list = []
     for u in users:
-        enrs = db.query(Enrollment).filter(Enrollment.user_id == u.id).all()
+        enrs = enrollments_by_user[u.id]
+        profile = profiles.get(u.id)
         user_list.append({
             "id": u.id,
             "email": u.email,
             "full_name": u.full_name,
             "role": u.role,
-            "designation": u.profile.designation if u.profile else "Not onboarded",
-            "department": u.profile.department if u.profile else "N/A",
-            "onboarding_completed": u.profile.onboarding_completed if u.profile else False,
+            "designation": profile.designation if profile else "Not onboarded",
+            "department": profile.department if profile else "N/A",
+            "onboarding_completed": profile.onboarding_completed if profile else False,
             "enrolled_courses_count": len(enrs),
             "completed_courses_count": sum(1 for e in enrs if e.status == "completed"),
             "courses": [
                 {
-                    "course_id": e.course.id,
-                    "title": e.course.title,
+                    "course_id": e.course_id,
+                    "title": course_by_id[e.course_id].title,
                     "status": e.status,
                     "progress_percent": e.progress_percent
                 }
-                for e in enrs if e.course
+                for e in enrs if e.course_id in course_by_id
             ]
         })
 
     # Course Analytics
-    courses = db.query(Course).all()
     course_analytics = []
     for c in courses:
-        enr_count = db.query(Enrollment).filter(Enrollment.course_id == c.id).count()
-        comp_count = db.query(Enrollment).filter(Enrollment.course_id == c.id, Enrollment.status == "completed").count()
-        
+        course_enrollments = enrollments_by_course[c.id]
+        enr_count = len(course_enrollments)
+        comp_count = sum(1 for e in course_enrollments if e.status == "completed")
+
         # Assessment pass rate
         ass_pass_rate = 0.0
-        if c.assessment:
-            attempts = db.query(AssessmentAttempt).filter(AssessmentAttempt.assessment_id == c.assessment.id).all()
+        assessment = assessment_by_course.get(c.id)
+        if assessment:
+            attempts = attempts_by_assessment[assessment.id]
             if attempts:
                 passed = sum(1 for a in attempts if a.passed)
                 ass_pass_rate = round((passed / len(attempts)) * 100, 1)
@@ -170,10 +194,9 @@ def get_admin_overview(
         })
 
     # Question Difficulty Analysis (identifying where learners struggle)
-    questions = db.query(Question).all()
     question_stats = []
     for q in questions:
-        attempts = db.query(AssessmentAttempt).filter(AssessmentAttempt.assessment_id == q.assessment_id).all()
+        attempts = attempts_by_assessment[q.assessment_id]
         if attempts:
             total = len(attempts)
             correct = 0
@@ -187,7 +210,7 @@ def get_admin_overview(
             accuracy = round((correct / max(total, 1)) * 100, 1)
             question_stats.append({
                 "question_id": q.id,
-                "assessment_title": q.assessment.title,
+                "assessment_title": assessment_titles.get(q.assessment_id, ""),
                 "question_text": q.text[:80] + ("..." if len(q.text) > 80 else ""),
                 "accuracy_percent": accuracy,
                 "difficulty_tag": "High Error Rate" if accuracy < 50 else ("Moderate" if accuracy < 80 else "Well Understood")
