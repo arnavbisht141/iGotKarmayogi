@@ -40,6 +40,14 @@ def _vector_rerank(pinecone_index, gap_description: str, candidate_ids: List[int
         return candidate_ids
 
 
+def template_rationale(course: Course, gap_description: str) -> str:
+    """Offline rationale used when no LLM is configured or the LLM call fails."""
+    skills = [cs.skill.name for cs in (course.course_skills or []) if cs.skill]
+    focus = f" in {' and '.join(skills[:2])}" if skills else ""
+    level = course.difficulty or "self-paced"
+    return f"This {level} course ({course.duration_hours or 0:g} hours) builds skills{focus} to help you {gap_description}."
+
+
 def _write_rationale(llm_client, gap_description: str, courses: List[Course]) -> dict:
     """Returns {course_id: rationale_text}. Falls back to a templated rationale
     per course if the LLM call fails."""
@@ -65,11 +73,11 @@ def _write_rationale(llm_client, gap_description: str, courses: List[Course]) ->
             if course_id in valid_ids and isinstance(value, str) and value.strip():
                 rationales[course_id] = value.strip()
         for c in courses:
-            rationales.setdefault(c.id, f"Recommended to help you {gap_description}.")
+            rationales.setdefault(c.id, template_rationale(c, gap_description))
         return rationales
     except Exception as e:
         logger.warning("LLM rationale generation failed, using templated fallback: %s", e)
-        return {c.id: f"Recommended to help you {gap_description}." for c in courses}
+        return {c.id: template_rationale(c, gap_description) for c in courses}
 
 
 def get_llm_client():
@@ -143,7 +151,7 @@ def generate_recommendations(
             continue
 
         rationales = _write_rationale(llm_client, gap_description, ranked_courses) if llm_client is not None else {
-            c.id: f"Recommended to help you {gap_description}." for c in ranked_courses
+            c.id: template_rationale(c, gap_description) for c in ranked_courses
         }
 
         for rank, course in enumerate(ranked_courses):
