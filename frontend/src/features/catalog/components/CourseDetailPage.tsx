@@ -168,18 +168,6 @@ export default function CourseDetailPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           {/* Eyebrow & Badges */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
-                course.source === "external"
-                  ? "bg-amber-50 text-amber-900 border-amber-200/80"
-                  : "bg-blue-50 text-[#1E3A8A] border-blue-200/80"
-              }`}
-            >
-              {course.source === "external"
-                ? t("discover.externalBadge")
-                : t("discover.internalBadge")}
-            </span>
-            <span className="text-xs text-slate-400">•</span>
             <span className="text-xs font-medium text-slate-600">
               {t(`category.${course.category}`) !==
               `category.${course.category}`

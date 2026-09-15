@@ -305,13 +305,6 @@ function DiscoverContent() {
                   <div className="p-6 flex flex-col flex-1">
                     {/* Top metadata */}
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                        course.source === "external"
-                          ? "bg-amber-50 text-amber-800 border-amber-200"
-                          : "bg-blue-50 text-[#1E3A8A] border-blue-200"
-                      }`}>
-                        {course.source === "external" ? t("discover.externalBadge") : t("discover.internalBadge")}
-                      </span>
                       <span className="flex items-center gap-1 text-xs text-slate-400 font-medium">
                         <Clock className="h-3.5 w-3.5 text-slate-300" />
                         {course.duration_hours} {t("discover.hours")}

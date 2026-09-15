@@ -308,13 +308,6 @@ export default function HomePage() {
                   className={`border-slate-200 bg-white flex flex-col justify-between card-hover-lift rounded-2xl overflow-hidden border-l-4 ${getDifficultyStyle(c.difficulty)}`}>
                   <div className="p-4">
                     <div className="flex items-center justify-between gap-2 mb-2.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        c.source === "external"
-                          ? "bg-amber-50 text-amber-800 border-amber-200"
-                          : "bg-blue-50 text-[#1E3A8A] border-blue-200"
-                      }`}>
-                        {c.source === "external" ? t("discover.externalBadge") : t("discover.internalBadge")}
-                      </span>
                       <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
                         <Clock className="h-3 w-3" />{c.duration_hours}h
                       </span>
