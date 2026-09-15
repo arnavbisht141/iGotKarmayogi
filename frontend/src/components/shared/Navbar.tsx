@@ -26,6 +26,8 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { PracticeMenu, PRIMARY_NAV_HREFS } from "@/components/shared/PracticeMenu";
+import { CompetencyMenu } from "@/components/shared/CompetencyMenu";
+import { DOMAINS, DOMAIN_ACCENT_CLASS, DOMAIN_ORDER } from "@/features/competency/domains";
 
 export function Navbar() {
   const { user, logout, isAdmin } = useAuth();
@@ -279,6 +281,7 @@ export function Navbar() {
             /* Authenticated Navigation: Competencies & Cadre Tools */
             <>
               {authenticatedNavItems.filter((item) => PRIMARY_NAV_HREFS.includes(item.href)).map(({ href, label, icon: Icon, badge, badgeColor }) => {
+                if (href === "/competency") return <CompetencyMenu key={href} pathname={pathname ?? ""} />;
                 const active = isActive(href);
                 return (
                   <Link
@@ -457,8 +460,8 @@ export function Navbar() {
               </div>
 
               {authenticatedNavItems.map(({ href, label, icon: Icon, badge }) => (
+                <React.Fragment key={href}>
                 <Link
-                  key={href}
                   href={href}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                     isActive(href)
@@ -477,6 +480,24 @@ export function Navbar() {
                     </span>
                   )}
                 </Link>
+                {href === "/competency" && (
+                  <div className="ml-6 space-y-0.5 border-l border-slate-100 pl-3">
+                    {DOMAIN_ORDER.map((code) => (
+                      <Link
+                        key={code}
+                        href={`/competency/${code}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm ${
+                          pathname === `/competency/${code}` ? "bg-blue-50 font-semibold text-[#1E3A8A]" : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className={`size-2 rounded-full ${DOMAIN_ACCENT_CLASS[code]}`} aria-hidden="true" />
+                        {DOMAINS[code].label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                </React.Fragment>
               ))}
 
               <Link

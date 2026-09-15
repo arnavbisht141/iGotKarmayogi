@@ -85,6 +85,24 @@ export const DOMAIN_ACCENT_CLASS: Record<DomainCode, string> = {
   behavioural: "bg-[#eda100]",
 };
 
+export type GapTone = "good" | "warning" | "serious";
+
+export function gapStatus(gap: number | null | undefined): { label: string; tone: GapTone } | null {
+  if (gap === null || gap === undefined) return null;
+  if (gap <= 0) return { label: "Target met", tone: "good" };
+  if (gap <= 1) return { label: "Close to target", tone: "warning" };
+  return { label: "Priority gap", tone: "serious" };
+}
+
+export const PRACTICE_DESCRIPTIONS: Record<string, string> = {
+  "/statistical": "An adaptive exam that adjusts to each answer",
+  "/labs": "Hands-on notebooks with automatic test checks",
+  "/digital-governance/sandbox": "Investigate simulated cyber incidents",
+  "/digital-governance/scenarios": "Work through governance crisis decisions",
+  "/behavioural/interview": "A spoken interview with an AI board member",
+  "/behavioural/cases": "Decisions based on real government notices",
+};
+
 export function levelLabel(level: number): string {
   if (level >= 4.5) return "Expert";
   if (level >= 3.5) return "Advanced";
