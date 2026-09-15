@@ -330,11 +330,9 @@ def __(mo):
         # 5. Spawn isolated Marimo run process (app mode: code hidden, analysis console visible)
         python_bin = sys.executable
         is_win = sys.platform == "win32"
-        venv_marimo = REPO_ROOT / "backend" / "venv" / ("Scripts" if is_win else "bin") / ("marimo.exe" if is_win else "marimo")
-        if venv_marimo.exists():
-            marimo_bin = str(venv_marimo)
-        else:
-            marimo_bin = shutil.which("marimo") or ""
+        bin_dir, exe = ("Scripts", "marimo.exe") if is_win else ("bin", "marimo")
+        candidates = [REPO_ROOT / "backend" / "venv" / bin_dir / exe, REPO_ROOT / ".venv" / bin_dir / exe]
+        marimo_bin = next((str(c) for c in candidates if c.exists()), None) or shutil.which("marimo") or ""
 
         if marimo_bin and os.path.exists(marimo_bin):
             cmd = [
@@ -380,6 +378,7 @@ def __(mo):
             env["HOME"] = os.path.expanduser("~")
 
         proc = None
+        bound = False
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -388,16 +387,27 @@ def __(mo):
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
-            # Wait up to 4 seconds for Marimo to bind to assigned_port
-            for _ in range(40):
+            # A cold Marimo start can take several seconds, so wait up to 15 seconds for the port.
+            for _ in range(150):
                 if proc.returncode is not None:
                     break
                 await asyncio.sleep(0.1)
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     if s.connect_ex(("127.0.0.1", assigned_port)) == 0:
+                        bound = True
                         break
         except Exception as e:
-            logger.warning(f"Could not spawn marimo process directly: {e}. Fallback to simulated console.")
+            logger.warning(f"Could not spawn marimo process: {e}")
+
+        if not bound:
+            # Returning a URL nothing listens on leaves the learner staring at a dead console.
+            if proc is not None and proc.returncode is None:
+                proc.terminate()
+            shutil.rmtree(scratch_dir, ignore_errors=True)
+            raise RuntimeError(
+                "The Marimo analyst console could not start on the server. "
+                "Install marimo in the backend's Python environment (pip install -r backend/requirements.txt) and try again."
+            )
 
         session = ActiveSession(
             session_id=session_id,

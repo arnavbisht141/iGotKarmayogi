@@ -96,6 +96,7 @@ export default function CyberSandboxPage() {
   );
   const [loading, setLoading] = useState<boolean>(true);
   const [startingSession, setStartingSession] = useState<boolean>(false);
+  const [startError, setStartError] = useState<string | null>(null);
   const [flagInput, setFlagInput] = useState<string>("");
   const [submittingFlag, setSubmittingFlag] = useState<boolean>(false);
   const [flagMessage, setFlagMessage] = useState<{
@@ -302,6 +303,7 @@ export default function CyberSandboxPage() {
   // Start Session
   const handleStartSession = async (chalId: string) => {
     setStartingSession(true);
+    setStartError(null);
     setFlagMessage(null);
     setFlagInput("");
     try {
@@ -318,32 +320,15 @@ export default function CyberSandboxPage() {
         setActiveSession(sess);
         setRemainingSecs(sess.remaining_seconds || 2700);
       } else {
-        // Fallback simulation session
-        const target = challenges.find((c) => c.id === chalId) || challenges[0];
-        setActiveSession({
-          session_id: `sim_${Date.now().toString(36)}`,
-          challenge_id: target.id,
-          title: target.title,
-          category: target.category,
-          difficulty: target.difficulty,
-          points: target.points,
-          expires_at: new Date(Date.now() + 45 * 60000).toISOString(),
-          remaining_seconds: 2700,
-          status: "running",
-          assigned_port: 8085,
-          marimo_url: "http://127.0.0.1:8085",
-          hints: [
-            { id: 1, penalty: 15, unlocked: false },
-            { id: 2, penalty: 25, unlocked: false },
-          ],
-          scenario_md: `### Emergency Briefing: ${target.title}\nAnalyze telemetry in the Marimo console, find the indicator of compromise, and submit the flag.`,
-          objectives: target.objectives,
-          solved: false,
-        });
-        setRemainingSecs(2700);
+        // A simulated session pointed the console at a port nothing listens on; tell the learner instead.
+        const body = await res.json().catch(() => null);
+        setStartError(
+          (body?.detail || "The analyst console could not be started.").replace(/^Failed to start sandbox session:\s*/, ""),
+        );
       }
     } catch (e) {
       console.error("Start session error:", e);
+      setStartError("Could not reach the sandbox service. Check that the backend is running and try again.");
     } finally {
       setStartingSession(false);
     }
@@ -793,6 +778,12 @@ export default function CyberSandboxPage() {
                   );
                 })}
               </div>
+              {startError && (
+                <div role="alert" className="mt-3 flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs text-rose-900">
+                  <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <p className="text-pretty">{startError}</p>
+                </div>
+              )}
             </div>
           </div>
 
