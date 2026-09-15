@@ -9,6 +9,13 @@ function buildUrl(endpoint: string): string {
   return `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 }
 
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let errorDetail = "An unexpected server error occurred";
@@ -18,7 +25,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
     } catch {
       errorDetail = response.statusText || errorDetail;
     }
-    throw new Error(typeof errorDetail === "string" ? errorDetail : JSON.stringify(errorDetail));
+    throw new ApiError(typeof errorDetail === "string" ? errorDetail : JSON.stringify(errorDetail), response.status);
   }
   return response.json();
 }
