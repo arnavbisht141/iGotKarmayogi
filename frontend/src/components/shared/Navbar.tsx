@@ -288,9 +288,9 @@ export function Navbar() {
                     }`}
                   >
                     <Icon className={`h-3.5 w-3.5 ${active ? "text-[#1E3A8A]" : "text-slate-400 group-hover:text-[#1E3A8A]"}`} />
-                    <span>{label}</span>
+                    <span className="whitespace-nowrap">{label}</span>
                     {badge && (
-                      <span className={`hidden xl:inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border ${badgeColor}`}>
+                      <span className={`hidden 2xl:inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border ${badgeColor}`}>
                         {badge}
                       </span>
                     )}

@@ -119,8 +119,8 @@ export default function CompetencyOverviewPage() {
                       {levelLabel(current)}
                       {gap ? (gap.gap > 0 ? ` · ${gap.gap.toFixed(1)} below target` : " · target met") : ""}
                     </p>
-                    <ButtonLink href={`/competency/${code}`} variant="outline" size="sm" className="w-full">
-                      Explore {meta.label.toLowerCase()}
+                    <ButtonLink href={`/competency/${code}`} variant="outline" size="sm" className="w-full" aria-label={`View ${meta.label} competency details`}>
+                      View details
                       <ArrowRight className="size-4" aria-hidden="true" />
                     </ButtonLink>
                   </CardContent>

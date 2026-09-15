@@ -65,11 +65,11 @@ def _write_rationale(llm_client, gap_description: str, courses: List[Course]) ->
             if course_id in valid_ids and isinstance(value, str) and value.strip():
                 rationales[course_id] = value.strip()
         for c in courses:
-            rationales.setdefault(c.id, f"Recommended to help close your {gap_description} gap.")
+            rationales.setdefault(c.id, f"Recommended to help you {gap_description}.")
         return rationales
     except Exception as e:
         logger.warning("LLM rationale generation failed, using templated fallback: %s", e)
-        return {c.id: f"Recommended to help close your {gap_description} gap." for c in courses}
+        return {c.id: f"Recommended to help you {gap_description}." for c in courses}
 
 
 def get_llm_client():
@@ -143,7 +143,7 @@ def generate_recommendations(
             continue
 
         rationales = _write_rationale(llm_client, gap_description, ranked_courses) if llm_client is not None else {
-            c.id: f"Recommended to help close your {gap_description} gap." for c in ranked_courses
+            c.id: f"Recommended to help you {gap_description}." for c in ranked_courses
         }
 
         for rank, course in enumerate(ranked_courses):
