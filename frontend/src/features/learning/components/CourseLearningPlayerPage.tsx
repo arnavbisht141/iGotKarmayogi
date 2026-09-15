@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useRef, useState, Suspense } from "react";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   CheckCircle2,
   Circle,
@@ -25,6 +25,9 @@ import { fetchApi } from "@/lib/api";
 import { CurrentLesson, ModuleSummary } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import confetti from "canvas-confetti";
+import { LabLauncherBanner } from "@/features/labs/components/LabLauncherBanner";
+import { LessonVideo } from "@/features/learning/components/LessonVideo";
+import { LessonMarkdown } from "@/features/learning/components/LessonMarkdown";
 
 function LearningPlayerContent() {
   const { courseId } = useParams();
@@ -33,11 +36,15 @@ function LearningPlayerContent() {
   const { t } = useI18n();
 
   const lessonQueryId = searchParams?.get("lessonId");
+  const pathname = usePathname();
+  const mainRef = useRef<HTMLElement>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const [courseMeta, setCourseMeta] = useState<any>(null);
   const [modulesTree, setModulesTree] = useState<ModuleSummary[]>([]);
   const [currentLesson, setCurrentLesson] = useState<CurrentLesson | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mobileSyllabusOpen, setMobileSyllabusOpen] = useState(false);
 
   // In-lesson Activity Practice state
   const [selectedActivityOption, setSelectedActivityOption] = useState<number | null>(null);
@@ -72,9 +79,17 @@ function LearningPlayerContent() {
     }
   }, [courseId, lessonQueryId]);
 
+  // Keep the lesson in the URL so reload, back/forward and shared links land on the same lesson.
   const handleSelectLesson = (lessonId: number) => {
-    loadPlayerData(lessonId);
+    setMobileSyllabusOpen(false);
+    setActionError(null);
+    router.push(`${pathname}?lessonId=${lessonId}`);
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [currentLesson?.id]);
 
   const handleValidateActivity = async () => {
     if (!currentLesson || selectedActivityOption === null) return;
@@ -94,7 +109,7 @@ function LearningPlayerContent() {
         });
       }
     } catch (err: any) {
-      alert("Failed to validate practice answer");
+      setActionError("Your practice answer could not be checked. Try again.");
     } finally {
       setActivityChecking(false);
     }
@@ -115,17 +130,17 @@ function LearningPlayerContent() {
           router.push(`/progress`);
         }
       } else if (currentLesson.next_lesson_id) {
-        loadPlayerData(currentLesson.next_lesson_id);
+        handleSelectLesson(currentLesson.next_lesson_id);
       }
     } catch (err: any) {
-      alert("Failed to update lesson progress");
+      setActionError("Lesson progress could not be saved. Check your connection and try again.");
     }
   };
 
   if (loading && !currentLesson) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-amber-600 animate-spin" />
+        <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-[#1E3A8A] animate-spin" />
       </div>
     );
   }
@@ -140,8 +155,25 @@ function LearningPlayerContent() {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-65px)] bg-slate-50">
+      {/* Mobile Syllabus Toggle Bar */}
+      <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-2xs">
+        <div className="flex items-center gap-2 min-w-0">
+          <BookOpen className="h-4 w-4 text-[#1E3A8A] shrink-0" />
+          <span className="text-xs font-bold text-slate-900 truncate">
+            {currentLesson.module_title}: {currentLesson.title}
+          </span>
+        </div>
+        <button
+          onClick={() => setMobileSyllabusOpen(!mobileSyllabusOpen)}
+          className="text-xs font-bold text-[#1E3A8A] hover:text-[#172554] flex items-center gap-1 shrink-0 ml-2 px-2.5 py-1 rounded-lg bg-blue-50/80 border border-blue-200/80 cursor-pointer transition-colors"
+        >
+          {mobileSyllabusOpen ? "Hide Syllabus" : "View Syllabus"}
+          <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${mobileSyllabusOpen ? "rotate-90" : ""}`} />
+        </button>
+      </div>
+
       {/* Collapsible Left Course Syllabus Sidebar */}
-      <aside className="w-full lg:w-80 border-r border-slate-200 bg-white flex flex-col shrink-0">
+      <aside className={`${mobileSyllabusOpen ? "flex" : "hidden"} lg:flex w-full lg:w-80 border-r border-slate-200 bg-white flex-col shrink-0 transition-all duration-300`}>
         <div className="p-4 border-b border-slate-200 bg-slate-50/50">
           <a
             href={`/courses/${courseId}`}
@@ -157,7 +189,7 @@ function LearningPlayerContent() {
               <span>Overall Progress</span>
               <span>{courseMeta?.progress_percent}%</span>
             </div>
-            <Progress value={courseMeta?.progress_percent} indicatorClassName="bg-amber-600" />
+            <Progress value={courseMeta?.progress_percent} indicatorClassName="navy-teal-gradient" />
           </div>
         </div>
 
@@ -183,7 +215,7 @@ function LearningPlayerContent() {
                       onClick={() => handleSelectLesson(l.id)}
                       className={`w-full flex items-center justify-between p-2 rounded-lg text-left text-xs transition-colors cursor-pointer ${
                         isCurrent
-                          ? "bg-slate-900 text-white font-semibold shadow-xs"
+                          ? "bg-[#1E3A8A] text-white font-semibold shadow-xs"
                           : l.completed
                           ? "text-slate-700 hover:bg-slate-100 bg-slate-50/80"
                           : "text-slate-600 hover:bg-slate-100"
@@ -193,7 +225,7 @@ function LearningPlayerContent() {
                         {l.completed ? (
                           <CheckCircle2
                             className={`h-4 w-4 shrink-0 ${
-                              isCurrent ? "text-amber-400" : "text-emerald-600"
+                              isCurrent ? "text-teal-300" : "text-emerald-600"
                             }`}
                           />
                         ) : (
@@ -224,13 +256,13 @@ function LearningPlayerContent() {
             <div className="pt-4 border-t border-slate-100">
               <a
                 href={`/assess/${courseMeta.assessment_id}`}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 hover:bg-amber-100 text-xs font-bold transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-blue-50/70 border border-blue-200 text-[#1E3A8A] hover:bg-blue-100/70 text-xs font-bold transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-amber-700" />
+                  <Award className="h-4 w-4 text-[#1E3A8A]" />
                   Official Assessment
                 </span>
-                <ChevronRight className="h-4 w-4 text-amber-700" />
+                <ChevronRight className="h-4 w-4 text-[#1E3A8A]" />
               </a>
             </div>
           )}
@@ -238,14 +270,18 @@ function LearningPlayerContent() {
       </aside>
 
       {/* Main Content Stage */}
-      <main className="flex-1 flex flex-col overflow-y-auto">
+      <main
+        ref={mainRef}
+        aria-busy={loading}
+        className={`flex-1 flex flex-col overflow-y-auto transition-opacity ${loading ? "opacity-50 pointer-events-none" : ""}`}
+      >
         {/* Lesson Header */}
-        <div className="px-6 py-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#0D9488] uppercase tracking-wider">
               {currentLesson.module_title}
             </span>
-            <h1 className="text-xl font-bold text-slate-900 mt-0.5">
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">
               {currentLesson.title}
             </h1>
           </div>
@@ -255,42 +291,36 @@ function LearningPlayerContent() {
               {currentLesson.content_type} • {currentLesson.duration_minutes} Minutes
             </Badge>
             {currentLesson.completed && (
-              <Badge variant="success" className="text-xs">
-                Completed ✓
+              <Badge variant="success" className="text-xs inline-flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Completed
               </Badge>
             )}
           </div>
         </div>
 
         {/* Lesson Body Content */}
-        <div className="flex-1 max-w-4xl w-full mx-auto p-6 sm:p-8 space-y-8">
+        <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* Simulated Video Player if Content Type is Video */}
-          {currentLesson.content_type === "video" && (
-            <div className="rounded-2xl overflow-hidden bg-slate-950 shadow-md aspect-video relative flex items-center justify-center text-white">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-              <div className="relative text-center p-6 space-y-3 z-10">
-                <div className="h-16 w-16 rounded-full bg-amber-600/90 text-white flex items-center justify-center mx-auto shadow-lg hover:scale-105 transition-transform cursor-pointer">
-                  <PlayCircle className="h-10 w-10" />
-                </div>
-                <h4 className="text-base font-bold">{currentLesson.title}</h4>
-                <p className="text-xs text-slate-300">
-                  Interactive Video Lecture • National Statistical Systems Training Academy (NSSTA)
-                </p>
-              </div>
-            </div>
+          {(currentLesson.content_type === "video" || currentLesson.video_url) && (
+            <LessonVideo title={currentLesson.title} videoUrl={currentLesson.video_url} />
+          )}
+
+          {/* Interactive Lab Launcher Banner if Content Type is Lab */}
+          {currentLesson.content_type === "lab" && (
+            <LabLauncherBanner title={currentLesson.title} />
           )}
 
           {/* Reading / Lab Content Area */}
-          <div className="prose prose-slate max-w-none bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs leading-relaxed text-slate-800 text-sm whitespace-pre-wrap">
-            {currentLesson.content}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+            <LessonMarkdown content={currentLesson.content} title={currentLesson.title} />
           </div>
 
           {/* IN-LESSON PRACTICE ACTIVITY */}
           {currentLesson.activity && currentLesson.activity.has_activity && (
-            <Card className="border-amber-200 bg-amber-50/40 shadow-xs">
-              <CardHeader className="pb-3 border-b border-amber-100">
+            <Card className="border-blue-200 bg-blue-50/30 shadow-xs">
+              <CardHeader className="pb-3 border-b border-blue-100">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-700" />
+                  <Sparkles className="h-4 w-4 text-[#1E3A8A]" />
                   <CardTitle className="text-sm font-bold text-slate-900">
                     {t("learn.practice")}
                   </CardTitle>
@@ -317,14 +347,14 @@ function LearningPlayerContent() {
                         }}
                         className={`w-full p-3 rounded-xl border text-left text-xs font-medium transition-all cursor-pointer flex items-center gap-3 ${
                           isSelected
-                            ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                            ? "bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-xs"
                             : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
                         <span
                           className={`h-5 w-5 rounded-full text-[10px] font-bold flex items-center justify-center ${
                             isSelected
-                              ? "bg-amber-500 text-slate-950"
+                              ? "bg-teal-500 text-white"
                               : "bg-slate-100 text-slate-600"
                           }`}
                         >
@@ -366,13 +396,20 @@ function LearningPlayerContent() {
                     size="sm"
                     onClick={handleValidateActivity}
                     disabled={selectedActivityOption === null || activityChecking}
-                    className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold"
+                    className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold rounded-xl"
                   >
                     {activityChecking ? "Checking..." : t("learn.checkAnswer")}
                   </Button>
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {actionError && (
+            <div role="alert" className="flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs text-rose-900">
+              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <p className="text-pretty">{actionError}</p>
+            </div>
           )}
 
           {/* Navigation Controls Bar */}
@@ -383,10 +420,10 @@ function LearningPlayerContent() {
               disabled={!currentLesson.prev_lesson_id}
               onClick={() => {
                 if (currentLesson.prev_lesson_id) {
-                  loadPlayerData(currentLesson.prev_lesson_id);
+                  handleSelectLesson(currentLesson.prev_lesson_id);
                 }
               }}
-              className="text-xs"
+              className="text-xs rounded-xl"
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> {t("learn.previous")}
             </Button>
@@ -394,7 +431,7 @@ function LearningPlayerContent() {
             <Button
               size="sm"
               onClick={handleCompleteAndNext}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5"
+              className="navy-teal-gradient hover:opacity-95 text-white text-xs font-semibold px-5 cursor-pointer rounded-xl"
             >
               {currentLesson.is_last_lesson
                 ? t("learn.takeAssessment")
@@ -413,7 +450,7 @@ export default function CourseLearningPlayerPage() {
     <Suspense
       fallback={
         <div className="min-h-[80vh] flex items-center justify-center">
-          <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-amber-600 animate-spin" />
+          <div className="h-8 w-8 rounded-full border-4 border-slate-200 border-t-[#1E3A8A] animate-spin" />
         </div>
       }
     >

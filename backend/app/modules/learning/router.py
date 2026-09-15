@@ -2,7 +2,7 @@ import json
 import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from app.core.database import get_db
 from app.core.security import get_current_active_user
 from app.models.models import (
@@ -20,7 +20,15 @@ def get_course_player(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    course = db.query(Course).filter(Course.id == course_id).first()
+    course = (
+        db.query(Course)
+        .options(
+            selectinload(Course.modules).selectinload(Module.lessons),
+            selectinload(Course.assessment),
+        )
+        .filter(Course.id == course_id)
+        .first()
+    )
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
 
@@ -79,22 +87,19 @@ def get_course_player(
             "total_lessons": len(m_lessons)
         })
 
-    # Determine target lesson
-    target_lesson = None
-    if lesson_id:
-        target_lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
-    elif enrollment.last_lesson_id:
-        target_lesson = db.query(Lesson).filter(Lesson.id == enrollment.last_lesson_id).first()
-    
-    if not target_lesson and all_lessons:
-        target_lesson = db.query(Lesson).filter(Lesson.id == all_lessons[0]["id"]).first()
+    # Determine target lesson from the already loaded course tree (each extra query costs a hosted-DB round trip)
+    lessons_by_id = {l.id: l for m in course.modules for l in m.lessons}
+    target_lesson = (
+        lessons_by_id.get(lesson_id)
+        or lessons_by_id.get(enrollment.last_lesson_id)
+        or (lessons_by_id.get(all_lessons[0]["id"]) if all_lessons else None)
+    )
 
     if not target_lesson:
         raise HTTPException(status_code=404, detail="No lesson content available in this course")
 
-    # Update last viewed lesson
+    # Update last viewed lesson (committed after the response is built: committing now would expire the eager loads)
     enrollment.last_lesson_id = target_lesson.id
-    db.commit()
 
     # Determine prev and next lessons
     prev_lesson_id = None
@@ -116,15 +121,12 @@ def get_course_player(
             activity_options = []
 
     # Check if target lesson activity is completed
-    target_progress = db.query(Progress).filter(
-        Progress.enrollment_id == enrollment.id,
-        Progress.lesson_id == target_lesson.id
-    ).first()
+    target_progress = next((p for p in progress_records if p.lesson_id == target_lesson.id), None)
 
     total_lessons_count = len(all_lessons)
     overall_progress_pct = round((len(completed_lesson_ids) / max(total_lessons_count, 1)) * 100, 1)
 
-    return {
+    response = {
         "course": {
             "id": course.id,
             "title": course.title,
@@ -154,6 +156,8 @@ def get_course_player(
             "is_last_lesson": next_lesson_id is None
         }
     }
+    db.commit()
+    return response
 
 @router.post("/lesson/{lesson_id}/complete")
 def mark_lesson_complete(
@@ -242,9 +246,17 @@ def check_activity_answer(
                 Progress.enrollment_id == enrollment.id,
                 Progress.lesson_id == lesson.id
             ).first()
-            if prog:
-                prog.activity_completed = True
-                db.commit()
+            if not prog:
+                # Learners usually answer the practice question before marking the lesson complete.
+                prog = Progress(
+                    enrollment_id=enrollment.id,
+                    module_id=lesson.module_id,
+                    lesson_id=lesson.id,
+                    completed=False
+                )
+                db.add(prog)
+            prog.activity_completed = True
+            db.commit()
 
     return {
         "is_correct": is_correct,

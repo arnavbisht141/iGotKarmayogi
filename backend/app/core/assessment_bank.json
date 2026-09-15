@@ -1,0 +1,3623 @@
+{
+  "Fundamentals of National Sample Surveys (NSS)": [
+    {
+      "question": "In the NSS two‑stage design, which unit serves as the first stage unit (FSU) in rural areas?",
+      "options": [
+        "Households selected systematically",
+        "Census villages (or Panchayat wards in Kerala)",
+        "Urban Frame Survey (UFS) blocks",
+        "Enterprises selected with random start"
+      ],
+      "correct_index": 1,
+      "explanation": "In the rural sector the FSU is the census village (or Panchayat ward in Kerala)."
+    },
+    {
+      "question": "How are urban strata defined for the NSS sampling design?",
+      "options": [
+        "By geographic contiguity of wards",
+        "By number of households per block",
+        "By town population categories (Class I, II, III)",
+        "By district population density"
+      ],
+      "correct_index": 2,
+      "explanation": "Urban strata are delineated according to town population categories (Class I, II, III)."
+    },
+    {
+      "question": "Which of the following best describes the principle used to allocate FSUs in the NSS sample?",
+      "options": [
+        "Probability proportional to size (PPS) with systematic circular allocation",
+        "Quota sampling based on district size",
+        "Simple random sampling of villages",
+        "Stratified random sampling without size weighting"
+      ],
+      "correct_index": 0,
+      "explanation": "FSUs are allocated using probability proportional to size (PPS) with systematic circular allocation."
+    },
+    {
+      "question": "When an FSU exceeds 1,200 persons or 300 households, what is the first step in handling it?",
+      "options": [
+        "Divide the FSU into equal hamlet‑groups or sub‑blocks of approximately equal population",
+        "Replace the FSU with a smaller neighboring unit",
+        "Apply a simple random sample of households across the whole FSU",
+        "Select all households for a complete listing"
+      ],
+      "correct_index": 0,
+      "explanation": "Large FSUs are divided into hamlet‑groups or sub‑blocks of roughly equal population."
+    },
+    {
+      "question": "What criterion must each hamlet‑group satisfy when formed from a large FSU?",
+      "options": [
+        "It must have distinct, permanent natural boundaries such as roads or water channels",
+        "It must be the smallest administrative unit in the district",
+        "It must contain exactly 100 households",
+        "It must be selected purposively for vulnerable populations"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material requires each hamlet‑group to have distinct, permanent natural boundaries."
+    },
+    {
+      "question": "In the dual‑selection design for hamlet‑groups, how is the second hamlet‑group (hg 2) chosen?",
+      "options": [
+        "Systematically with a fixed interval",
+        "By the field investigator’s discretion",
+        "Purposely based on highest income households",
+        "Randomly from the remaining hamlet‑groups with equal probability"
+      ],
+      "correct_index": 3,
+      "explanation": "hg 2 is selected randomly from the remaining hamlet‑groups with equal probability."
+    },
+    {
+      "question": "Why does the NSS methodology include a purposively selected hamlet‑group (hg 1) in large FSUs?",
+      "options": [
+        "To reduce the overall sample size",
+        "To ensure representation of vulnerable or target populations",
+        "To simplify the listing process",
+        "To comply with urban stratification rules"
+      ],
+      "correct_index": 1,
+      "explanation": "hg 1 is chosen purposively to capture the highest concentration of vulnerable/target population, safeguarding representation."
+    },
+    {
+      "question": "Which of the following is a prohibited action for a field investigator regarding FSUs?",
+      "options": [
+        "Applying CAPI validation checks",
+        "Substituting an FSU without written authorization from the Deputy Director",
+        "Using systematic sampling for SSUs",
+        "Listing all households in a hamlet‑group"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material explicitly states that an FSU cannot be substituted without prior written authorization from the Deputy Director."
+    },
+    {
+      "question": "During CAPI data entry, which age‑education combination would trigger a validation error?",
+      "options": [
+        "A 30‑year‑old with a high school certificate",
+        "An individual aged 13 recorded with a post‑graduate degree",
+        "A 40‑year‑old with no schooling",
+        "A 25‑year‑old with primary school education"
+      ],
+      "correct_index": 1,
+      "explanation": "The CAPI validation rule states that anyone under 14 cannot have an advanced post‑graduate degree."
+    },
+    {
+      "question": "If the total monthly per‑capita expenditure (MPCE) is ₹2,000, what range is acceptable for the sum of food and non‑food sub‑aggregates according to the CAPI checks?",
+      "options": [
+        "Exactly ₹2,000",
+        "Any value above ₹2,000",
+        "₹1,960 to ₹2,040",
+        "₹1,800 to ₹2,200"
+      ],
+      "correct_index": 2,
+      "explanation": "The MPCE must cross‑validate with sub‑aggregates within ±2%, i.e., ₹2,000 ± 2% = ₹1,960‑₹2,040."
+    },
+    {
+      "question": "Which scenario would violate the land‑possession versus land‑cultivation validation rule in CAPI?",
+      "options": [
+        "Cultivated land reported as 5 hectares while possessed land is 3 hectares with no leased‑in land entry",
+        "Possessed land 10 hectares and cultivated land 8 hectares",
+        "Cultivated land 2 hectares, possessed land 2 hectares, leased‑in land 1 hectare",
+        "Possessed land 4 hectares, cultivated land 4 hectares"
+      ],
+      "correct_index": 0,
+      "explanation": "The rule forbids cultivated land exceeding possessed land unless leased‑in land is recorded; the first option violates this."
+    },
+    {
+      "question": "What is the role of the field supervisor before transmitting CAPI data batches to the state server?",
+      "options": [
+        "Replace any missing FSUs with alternatives",
+        "Randomly select a subset of households for re‑interview",
+        "Convert tablet data to paper forms",
+        "Execute the digital integrity audit script"
+      ],
+      "correct_index": 3,
+      "explanation": "Field supervisors must run the digital integrity audit script before data transmission."
+    },
+    {
+      "question": "In the rural stratification process, which two criteria are used to form strata within a district?",
+      "options": [
+        "Urban class and industrial presence",
+        "Average household income and literacy rate",
+        "Number of hamlet‑groups and road density",
+        "Population density and geographical contiguity"
+      ],
+      "correct_index": 3,
+      "explanation": "Rural strata are formed based on population density and geographical contiguity."
+    },
+    {
+      "question": "Which sampling method is used to select households or enterprises within a selected SSU?",
+      "options": [
+        "Cluster sampling of entire villages",
+        "Systematic selection with a random start",
+        "Simple random sampling without replacement",
+        "Quota sampling based on occupation"
+      ],
+      "correct_index": 1,
+      "explanation": "SSUs are selected systematically with a random start."
+    },
+    {
+      "question": "If an FSU in Kerala is a Panchayat ward with 1,500 residents, what is the required next step according to the NSS protocol?",
+      "options": [
+        "Replace it with a smaller FSU after authorization",
+        "Divide it into hamlet‑groups of roughly equal size before listing",
+        "Treat it as a single unit for complete listing",
+        "Exclude it from the sample due to size"
+      ],
+      "correct_index": 1,
+      "explanation": "Since the population exceeds 1,200 persons, the FSU must be divided into hamlet‑groups of approximately equal size."
+    }
+  ],
+  "Compilation of Consumer Price Index (CPI) & Inflation Metrics": [
+    {
+      "question": "In the Modified Laspeyres formula, which term captures the relative price change of an item?",
+      "options": [
+        "Base year index",
+        "W_i",
+        "P_{i,t} / P_{i,0}",
+        "P_{i,0}"
+      ],
+      "correct_index": 2,
+      "explanation": "The ratio P_{i,t} / P_{i,0} measures how the current price compares with the base‑year price."
+    },
+    {
+      "question": "The expenditure weights (W_i) used in India’s CPI are derived from:",
+      "options": [
+        "Producer price index",
+        "Retail sales data",
+        "Current period consumption survey",
+        "Consumer Expenditure Survey"
+      ],
+      "correct_index": 3,
+      "explanation": "Weights are taken from the Consumer Expenditure Survey (CES)."
+    },
+    {
+      "question": "What is the base year for the official All‑India CPI?",
+      "options": [
+        "2015",
+        "2012",
+        "2020",
+        "2010"
+      ],
+      "correct_index": 1,
+      "explanation": "The CPI is quoted with Base 2012 = 100."
+    },
+    {
+      "question": "Why is the geometric mean preferred over the arithmetic mean for aggregating shop‑level prices?",
+      "options": [
+        "It reflects the median price",
+        "It gives higher index values",
+        "It is easier to compute",
+        "It eliminates upward substitution bias"
+      ],
+      "correct_index": 3,
+      "explanation": "Using the geometric mean (Jevons index) prevents upward substitution bias."
+    },
+    {
+      "question": "The Jevons index is another name for:",
+      "options": [
+        "Arithmetic mean of prices",
+        "Chain‑linked index",
+        "Geometric mean of price relatives",
+        "Modified Laspeyres"
+      ],
+      "correct_index": 2,
+      "explanation": "Jevons index refers to the geometric mean of price relatives used at the market level."
+    },
+    {
+      "question": "An item has weight W_i = 0.05, base price 100 and current price 110. What is its contribution to the CPI index I?",
+      "options": [
+        "0.0055",
+        "0.055",
+        "0.55",
+        "5.5"
+      ],
+      "correct_index": 1,
+      "explanation": "Contribution = 0.05 × (110/100) = 0.05 × 1.1 = 0.055."
+    },
+    {
+      "question": "Which of the following is NOT a purpose of imputation in CPI compilation?",
+      "options": [
+        "Estimating prices for unobserved items",
+        "Capturing price changes of newly introduced items",
+        "Adjusting for seasonal vegetables",
+        "Assigning prices to disappearing items"
+      ],
+      "correct_index": 1,
+      "explanation": "Imputation deals with disappearing or seasonal items, not with newly introduced items."
+    },
+    {
+      "question": "Seasonal vegetables are handled in the CPI basket by:",
+      "options": [
+        "Using the last observed price throughout the year",
+        "Imputing a price based on non‑seasonal months",
+        "Excluding them from the basket",
+        "Applying a fixed weight of zero"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material mentions imputation for seasonal vegetables, i.e., estimating a price when they are not available."
+    },
+    {
+      "question": "If every price ratio P_{i,t}/P_{i,0} equals 1, the Modified Laspeyres index I will be:",
+      "options": [
+        "Equal to 100",
+        "Equal to the sum of weights",
+        "Equal to the number of items",
+        "Equal to zero"
+      ],
+      "correct_index": 1,
+      "explanation": "With a ratio of 1, each term reduces to its weight; the sum of normalized weights equals 1 (or 100 after scaling)."
+    },
+    {
+      "question": "Which bias is specifically mitigated by using the Jevons (geometric mean) aggregation at the market level?",
+      "options": [
+        "Upward substitution bias",
+        "Downward substitution bias",
+        "Non‑response bias",
+        "Sampling bias"
+      ],
+      "correct_index": 0,
+      "explanation": "The geometric mean prevents upward substitution bias, as highlighted in the course material."
+    }
+  ],
+  "Data Quality Frameworks & Official Statistics in India": [
+    {
+      "question": "What is the primary purpose of the UN Fundamental Principles of Official Statistics as described in the course?",
+      "options": [
+        "To dictate the exact methodology for every statistical survey worldwide",
+        "To replace national statistical laws with a single global law",
+        "To provide a legal framework for data collection by private firms",
+        "To establish a set of standards that ensure official statistics serve the public good"
+      ],
+      "correct_index": 3,
+      "explanation": "The ten UN principles form the bedrock of official statistical systems, ensuring they serve public interests."
+    },
+    {
+      "question": "According to Principle 1, official statistics must be \"public goods available to all citizens simultaneously.\" Which element is NOT part of this principle?",
+      "options": [
+        "Relevance",
+        "Impartiality",
+        "Equal Access",
+        "Profitability"
+      ],
+      "correct_index": 3,
+      "explanation": "Principle 1 lists relevance, impartiality and equal access; profitability is not mentioned."
+    },
+    {
+      "question": "Principle 2 emphasizes \"Professional Standards and Ethics.\" Which of the following best reflects this principle?",
+      "options": [
+        "Data collection can be outsourced without regard to professional standards",
+        "Statisticians should prioritize speed over methodological rigor",
+        "Statistical methods may be altered to match government policy goals",
+        "Statistical concepts and procedures must follow scientific discipline without political interference"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material defines Principle 2 as adherence to scientific statistical discipline without political intervention."
+    },
+    {
+      "question": "Under Principle 3, \"Accountability and Transparency,\" what is expected of statistical agencies?",
+      "options": [
+        "Publishing sources and methods so users can interpret the data correctly",
+        "Allowing political leaders to edit the presentation of results",
+        "Only releasing summary tables to avoid revealing raw data",
+        "Keeping all methodological details confidential to protect trade secrets"
+      ],
+      "correct_index": 0,
+      "explanation": "Principle 3 calls for presentation of sources and methods to facilitate interpretation, i.e., transparency."
+    },
+    {
+      "question": "Which action fulfills the duty described in Principle 4, \"Prevention of Misuse\"?",
+      "options": [
+        "Allowing third‑party analysts to publish without review",
+        "Ignoring media reports that misinterpret data",
+        "Restricting public access to statistical releases",
+        "Providing comments that correct erroneous interpretations of official statistics"
+      ],
+      "correct_index": 3,
+      "explanation": "The principle states the agency must comment on erroneous interpretation to prevent misuse."
+    },
+    {
+      "question": "What does Principle 5 require regarding individual data collected for statistical purposes?",
+      "options": [
+        "It can be shared with other government departments for policy making",
+        "It should be published in anonymised form within a week of collection",
+        "It may be sold to private research firms under strict contracts",
+        "It must remain strictly confidential and never be used for non‑statistical purposes"
+      ],
+      "correct_index": 3,
+      "explanation": "Principle 5 explicitly mandates strict confidentiality and prohibition of non‑statistical use."
+    },
+    {
+      "question": "In the context of the course, a \"confidentiality safeguard\" most directly refers to:",
+      "options": [
+        "A policy that requires all data to be released within 30 days",
+        "A public dashboard that displays all raw survey responses",
+        "A legal clause that allows data sharing with international agencies",
+        "Technical and procedural measures that keep individual responses private"
+      ],
+      "correct_index": 3,
+      "explanation": "Confidentiality safeguards are described as measures ensuring individual data remain strictly confidential."
+    },
+    {
+      "question": "Which of the following best describes the statistical agency’s role in preventing misuse of data, as per the UN principles?",
+      "options": [
+        "Actively commenting on and correcting erroneous interpretations",
+        "Issuing press releases that summarize findings without detail",
+        "Delegating interpretation responsibilities to external consultants",
+        "Limiting data releases to senior government officials only"
+      ],
+      "correct_index": 0,
+      "explanation": "Principle 4 assigns the agency the duty to comment on erroneous interpretation to prevent misuse."
+    },
+    {
+      "question": "Aligning India’s official statistics with the UN‑NQAF primarily aims to:",
+      "options": [
+        "Standardise data collection tools across all Indian states",
+        "Guarantee that all Indian data are publicly available without restriction",
+        "Ensure Indian statistics meet internationally recognised quality and integrity standards",
+        "Replace all existing Indian statistical laws with UN legislation"
+      ],
+      "correct_index": 2,
+      "explanation": "The course description states the alignment is to match Indian statistics with the UN‑NQAF quality framework."
+    },
+    {
+      "question": "When the UN principle mentions \"public goods\" in relation to official statistics, it means that:",
+      "options": [
+        "Only academic researchers should have access to detailed datasets",
+        "Statistical outputs must be freely accessible to every citizen at the same time",
+        "Statistics should be sold to generate revenue for the statistical agency",
+        "Data should be used primarily for commercial advertising"
+      ],
+      "correct_index": 1,
+      "explanation": "Principle 1 defines public goods as statistics available to all citizens simultaneously."
+    }
+  ],
+  "Digital Governance & Public Financial Management System (PFMS)": [
+    {
+      "question": "What is the primary purpose of the Treasury Single Account (TSA) as described in the PFMS module?",
+      "options": [
+        "To keep government funds in the Consolidated Fund of India until the exact moment of payment",
+        "To provide short‑term loans to vendors",
+        "To allow each ministry to maintain its own separate bank account",
+        "To invest surplus balances in market securities"
+      ],
+      "correct_index": 0,
+      "explanation": "The TSA system ensures funds remain in the Consolidated Fund of India until the exact moment of payment to the vendor or beneficiary."
+    },
+    {
+      "question": "How does PFMS handle unspent budgetary allocations?",
+      "options": [
+        "By transferring them to state treasuries",
+        "By converting them into cash reserves",
+        "By daily sweeping of balances to the RBI",
+        "By parking them in commercial bank accounts"
+      ],
+      "correct_index": 2,
+      "explanation": "A key feature listed is the daily sweeping of balances to the RBI, which eliminates parking of unspent allocations in commercial banks."
+    },
+    {
+      "question": "Which system provides the integration between state treasuries, central ministries, and the NPCI Aadhaar payment bridge?",
+      "options": [
+        "Reserve Bank of India (RBI)",
+        "Ministry of Finance",
+        "National Payments Corporation of India (NPCI)",
+        "PFMS"
+      ],
+      "correct_index": 3,
+      "explanation": "The module introduction describes PFMS as the platform that integrates state treasuries, central ministries, and the NPCI Aadhaar payment bridge."
+    },
+    {
+      "question": "Real‑time visibility into program expenditures through PFMS is available for which type of schemes?",
+      "options": [
+        "State Sector Schemes",
+        "International aid programmes",
+        "Public‑Private Partnership projects",
+        "Central Sector Schemes"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material explicitly mentions real‑time visibility into program expenditures for Central Sector Schemes."
+    },
+    {
+      "question": "In the context of the Treasury Single Account, \"Just‑in‑Time Funding\" means:",
+      "options": [
+        "Funds are allocated months before they are needed",
+        "Funds are held in an escrow account until audit approval",
+        "Funds are released only at the moment a payment is made",
+        "Funds are pre‑funded to vendors in advance of service delivery"
+      ],
+      "correct_index": 2,
+      "explanation": "The TSA mechanism ensures that funds stay in the Consolidated Fund until the exact moment of payment, which is the definition of Just‑in‑Time Funding."
+    },
+    {
+      "question": "Which of the following is NOT listed as a key feature of the Treasury Single Account (TSA)?",
+      "options": [
+        "Allows ministries to maintain separate bank accounts",
+        "Eliminates parking of unspent budgetary allocations in commercial bank accounts",
+        "Provides real‑time visibility into program expenditures",
+        "Daily sweeping of balances to the RBI"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material lists the first, second, and fourth options as features; maintaining separate ministry accounts contradicts the TSA’s purpose."
+    },
+    {
+      "question": "Before a payment is made, where do government funds reside according to the PFMS architecture?",
+      "options": [
+        "Commercial bank accounts of individual ministries",
+        "A special account at the RBI",
+        "State treasury accounts",
+        "The Consolidated Fund of India"
+      ],
+      "correct_index": 3,
+      "explanation": "The TSA system administered via PFMS keeps funds in the Consolidated Fund of India until the exact moment of payment."
+    },
+    {
+      "question": "The integration of DBT portals with PFMS primarily facilitates:",
+      "options": [
+        "Delayed release of funds until year‑end",
+        "Manual cheque issuance by ministries",
+        "Direct cash transfers to beneficiaries",
+        "Offline payment processing through paper vouchers"
+      ],
+      "correct_index": 2,
+      "explanation": "The course title lists Direct Benefit Transfer (DBT) as a component of PFMS, indicating that PFMS enables direct cash transfers to beneficiaries."
+    },
+    {
+      "question": "Which entity administers the Treasury Single Account system?",
+      "options": [
+        "National Payments Corporation of India (NPCI)",
+        "Reserve Bank of India (RBI)",
+        "PFMS",
+        "Ministry of Home Affairs"
+      ],
+      "correct_index": 2,
+      "explanation": "The Treasury Single Account system is administered via PFMS."
+    },
+    {
+      "question": "Daily sweeping of balances to the RBI helps achieve which objective?",
+      "options": [
+        "Reduce idle cash parked in commercial banks",
+        "Provide short‑term loans to the private sector",
+        "Increase interest earnings on idle cash",
+        "Enable foreign exchange trading for the government"
+      ],
+      "correct_index": 0,
+      "explanation": "One of the key features of TSA is the daily sweeping of balances to the RBI, which eliminates parking of unspent allocations in commercial banks."
+    }
+  ],
+  "Python and Statistical Computing for Public Policy": [
+    {
+      "question": "Why are traditional Python `for` loops discouraged when processing millions of NSS household observations?",
+      "options": [
+        "They cannot read CSV files directly.",
+        "They produce inaccurate weighted averages.",
+        "They automatically convert numeric columns to strings.",
+        "They cause severe execution bottlenecks compared to vectorized operations."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material states that `for` loops cause severe execution bottlenecks, whereas vectorized operations run in optimized C routines."
+    },
+    {
+      "question": "Which library provides the vectorized operations used for the weighted expenditure computation?",
+      "options": [
+        "SciPy",
+        "Seaborn",
+        "Pandas",
+        "Matplotlib"
+      ],
+      "correct_index": 2,
+      "explanation": "The code uses `pd.read_csv` and creates a new column with `df[\"weighted_mpce\"]`, which are Pandas vectorized operations."
+    },
+    {
+      "question": "In the line `df[\"weighted_mpce\"] = df[\"mpce\"] * df[\"multiplier\"] / 100`, what is the purpose of dividing by 100?",
+      "options": [
+        "To change the unit from rupees to thousands of rupees.",
+        "To normalize the MPCE values to a 0‑1 scale.",
+        "To convert the multiplier from a percentage to a proportion.",
+        "To correct a data entry error in the CSV file."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material shows the weighted computation as `mpce * multiplier / 100`, implying the multiplier is expressed as a percentage that must be scaled down."
+    },
+    {
+      "question": "Which column serves as the weight in the `np.average` call within the groupby aggregation?",
+      "options": [
+        "\"mpce\"",
+        "\"multiplier\"",
+        "\"sector\"",
+        "\"state_code\""
+      ],
+      "correct_index": 1,
+      "explanation": "The lambda uses `np.average(x[\"mpce\"], weights=x[\"multiplier\"])`, so `multiplier` is the weight column."
+    },
+    {
+      "question": "What does the `reset_index(name=\"mean_mpce\")` method achieve after the groupby‑apply operation?",
+      "options": [
+        "It merges the result back into the original DataFrame.",
+        "It drops duplicate rows from the result.",
+        "It converts the grouped index into columns and names the aggregated column \"mean_mpce\".",
+        "It sorts the DataFrame by the mean MPCE values."
+      ],
+      "correct_index": 2,
+      "explanation": "`reset_index(name=\"mean_mpce\")` turns the MultiIndex (state_code, sector) into regular columns and labels the computed series as \"mean_mpce\"."
+    },
+    {
+      "question": "Which function is used to compute the weighted mean of MPCE within each state‑sector group?",
+      "options": [
+        "`np.mean` without weights",
+        "`pd.Series.median`",
+        "`np.average` with a weights argument",
+        "`df.mean()` after filtering"
+      ],
+      "correct_index": 2,
+      "explanation": "The lambda calls `np.average(x[\"mpce\"], weights=x[\"multiplier\"])`, which calculates a weighted mean."
+    },
+    {
+      "question": "What type of file is being read by `pd.read_csv(\"nss_78th_round_microdata.csv\")`?",
+      "options": [
+        "An Excel workbook (.xlsx)",
+        "A JSON file",
+        "A comma‑separated values (CSV) file",
+        "A Stata .dta file"
+      ],
+      "correct_index": 2,
+      "explanation": "`pd.read_csv` is explicitly used to load a CSV file, as indicated by the filename extension."
+    },
+    {
+      "question": ", how much faster can vectorized operations be compared to iterative loops?",
+      "options": [
+        "Around 10% faster",
+        "They have the same speed",
+        "Up to 100 times faster",
+        "Approximately 2 times faster"
+      ],
+      "correct_index": 2,
+      "explanation": "Vectorized operations yield \"up to a 100x speedup\" over iterative loops."
+    },
+    {
+      "question": "What does the `groupby([\"state_code\", \"sector\"])` call produce before the `apply` function is executed?",
+      "options": [
+        "A pivot table with state codes as rows.",
+        "A GroupBy object that groups rows by state and sector.",
+        "A flattened DataFrame sorted by state and sector.",
+        "A Series containing unique state‑sector pairs."
+      ],
+      "correct_index": 1,
+      "explanation": "`groupby` creates a GroupBy object based on the specified columns, which is then processed by `apply`."
+    },
+    {
+      "question": "Which of the following best describes the role of the `lambda` function in the aggregation step?",
+      "options": [
+        "It converts the DataFrame to a NumPy array.",
+        "It renames the columns of the DataFrame.",
+        "It computes the weighted average of MPCE for each group.",
+        "It filters out rows with missing multipliers."
+      ],
+      "correct_index": 2,
+      "explanation": "The lambda receives each group `x` and returns `np.average` of `mpce` weighted by `multiplier`, i.e., the weighted average per group."
+    }
+  ],
+  "National Accounts Statistics & GDP Compilation": [
+    {
+      "question": "Which of the following components is NOT part of the income approach to GDP?",
+      "options": [
+        "Net exports",
+        "Mixed income",
+        "Compensation of employees",
+        "Operating surplus"
+      ],
+      "correct_index": 0,
+      "explanation": "Net exports belong to the expenditure approach, while the other three items are components of the income approach."
+    },
+    {
+      "question": "If GVA at basic prices remains unchanged but product taxes increase, what happens to GDP?",
+      "options": [
+        "GDP rises by the amount of the tax increase",
+        "GDP stays the same",
+        "GDP rises only if product subsidies also increase",
+        "GDP falls by the amount of the tax increase"
+      ],
+      "correct_index": 0,
+      "explanation": "GDP equals GVA at basic prices plus product taxes minus product subsidies; therefore, higher product taxes raise GDP when GVA is constant."
+    },
+    {
+      "question": "Which statement best describes the relationship between the three approaches to measuring GDP?",
+      "options": [
+        "Statistical discrepancies are errors that invalidate the estimates.",
+        "The production approach always gives a higher value than the income approach.",
+        "In principle they should yield the same total, with differences appearing as statistical discrepancies.",
+        "The expenditure approach excludes net exports."
+      ],
+      "correct_index": 2,
+      "explanation": "All three approaches give the same total in principle, with practical differences recorded as statistical discrepancies."
+    },
+    {
+      "question": "Which sector‑wise measure is used to show the contribution of agriculture, industry and services to growth?",
+      "options": [
+        "Sector‑wise consumer price index",
+        "Sector‑wise net exports",
+        "Sector‑wise GVA",
+        "Sector‑wise GDP at market prices"
+      ],
+      "correct_index": 2,
+      "explanation": "Sector‑wise GVA shows the contribution of agriculture, industry and services to growth."
+    },
+    {
+      "question": "When are the First Advance Estimates of annual GDP released?",
+      "options": [
+        "Late March, after the first quarter data",
+        "Early January, before the fiscal year ends",
+        "Mid‑December, after the fiscal year ends",
+        "End of May, alongside the fourth quarter estimate"
+      ],
+      "correct_index": 1,
+      "explanation": "According to the release calendar, First Advance Estimates are released in early January, before the fiscal year ends."
+    },
+    {
+      "question": "What triggers the revision of GDP estimates after the First Advance Estimates?",
+      "options": [
+        "Annual inflation adjustments",
+        "Availability of fuller data such as the Annual Survey of Industries",
+        "Changes in international exchange rates",
+        "Seasonal adjustments for agriculture"
+      ],
+      "correct_index": 1,
+      "explanation": "Revisions occur as fuller data, like the Annual Survey of Industries, become available."
+    },
+    {
+      "question": "Why does India periodically revise its base year for national accounts?",
+      "options": [
+        "To adjust for inflation in the GDP deflator",
+        "To update the structure of the economy, incorporate new data sources, and improve methodology",
+        "To reflect changes in the consumer price index only",
+        "To align with the fiscal year of the central government"
+      ],
+      "correct_index": 1,
+      "explanation": "Base revisions are undertaken to update the economy’s structure, incorporate new data sources, and refine methodology."
+    },
+    {
+      "question": "Which of the following best defines GVA at basic prices?",
+      "options": [
+        "Compensation of employees plus operating surplus",
+        "Output minus intermediate consumption, valued before product taxes",
+        "Final consumption expenditure plus net exports",
+        "Total output including taxes and subsidies"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material defines GVA at basic prices as output minus intermediate consumption, valued before product taxes."
+    },
+    {
+      "question": "If product subsidies increase while GVA and product taxes stay constant, what is the effect on GDP?",
+      "options": [
+        "GDP falls by the amount of the subsidy increase",
+        "GDP rises only if product taxes also increase",
+        "GDP remains unchanged",
+        "GDP rises by the amount of the subsidy increase"
+      ],
+      "correct_index": 0,
+      "explanation": "GDP equals GVA plus product taxes minus product subsidies; higher subsidies reduce GDP when other components are unchanged."
+    },
+    {
+      "question": "Which component is common to both the production and income approaches?",
+      "options": [
+        "Capital formation",
+        "Final consumption expenditure",
+        "Value added of enterprises",
+        "Net exports"
+      ],
+      "correct_index": 2,
+      "explanation": "Value added (GVA) is summed in the production approach and appears as operating surplus and mixed income in the income approach, linking the two."
+    },
+    {
+      "question": "During which month are the Provisional Estimates of GDP released?",
+      "options": [
+        "January, as the First Advance Estimates",
+        "December, after the fiscal year ends",
+        "May, together with the fourth quarter estimate",
+        "July, as mid‑year estimates"
+      ],
+      "correct_index": 2,
+      "explanation": "Provisional Estimates are released at the end of May alongside the fourth quarter estimate."
+    },
+    {
+      "question": "What is the primary purpose of compiling back‑series after a base year revision?",
+      "options": [
+        "To adjust for inflation in the new base year",
+        "To incorporate new tax policies retroactively",
+        "To align with international GDP standards",
+        "To keep growth rates comparable over time"
+      ],
+      "correct_index": 3,
+      "explanation": "Back‑series are compiled so that growth rates remain comparable over time, as indicated in the course material."
+    },
+    {
+      "question": "Which of the following is a component of the expenditure approach to GDP?",
+      "options": [
+        "Mixed income",
+        "Capital formation",
+        "Operating surplus",
+        "Compensation of employees"
+      ],
+      "correct_index": 1,
+      "explanation": "Capital formation is listed as part of the expenditure approach, whereas the other options belong to the income approach."
+    },
+    {
+      "question": "If a country's intermediate consumption rises faster than its output, what happens to GVA at basic prices?",
+      "options": [
+        "GVA is unaffected as it only depends on final consumption",
+        "GVA rises because intermediate consumption is added to output",
+        "GVA stays the same because taxes offset the change",
+        "GVA declines because output minus intermediate consumption falls"
+      ],
+      "correct_index": 3,
+      "explanation": "GVA is calculated as output minus intermediate consumption; higher intermediate consumption relative to output reduces GVA."
+    },
+    {
+      "question": "Which of the following best explains why statistical discrepancies arise between the three GDP approaches?",
+      "options": [
+        "They result from ignoring product taxes in the income approach",
+        "One approach is mathematically incorrect",
+        "Statistical discrepancies are intentional adjustments for inflation",
+        "Differences in data sources and timing cause practical mismatches"
+      ],
+      "correct_index": 3,
+      "explanation": "Statistical discrepancies appear due to practical differences in data, even though the approaches should match in principle."
+    }
+  ],
+  "Periodic Labour Force Survey (PLFS): Concepts & Estimation": [
+    {
+      "question": "What reference period does the usual status use?",
+      "options": [
+        "30 days",
+        "7 days",
+        "365 days",
+        "90 days"
+      ],
+      "correct_index": 2,
+      "explanation": "Usual status uses a reference period of 365 days."
+    },
+    {
+      "question": "Which status combines principal status with subsidiary status (ps+ss)?",
+      "options": [
+        "Unemployment status",
+        "Usual status",
+        "Employment status",
+        "Current weekly status"
+      ],
+      "correct_index": 1,
+      "explanation": "Usual status is defined as the combination of principal status and subsidiary status (ps+ss)."
+    },
+    {
+      "question": "Current weekly status (CWS) is most suitable for which type of PLFS estimate?",
+      "options": [
+        "Monthly agricultural estimates",
+        "Annual rural estimates",
+        "Quarterly urban estimates",
+        "Decennial census"
+      ],
+      "correct_index": 2,
+      "explanation": "CWS captures short‑term changes, making it appropriate for quarterly urban estimates."
+    },
+    {
+      "question": "The Labour Force Participation Rate (LFPR) is the share of the population that is…",
+      "options": [
+        "unemployed only",
+        "not in labour force",
+        "employed or seeking work",
+        "employed only"
+      ],
+      "correct_index": 2,
+      "explanation": "LFPR is defined as the share of the population that is either employed or looking for work."
+    },
+    {
+      "question": "The Worker Population Ratio (WPR) measures…",
+      "options": [
+        "share of population unemployed",
+        "share of population employed",
+        "share of households with workers",
+        "share of labour force employed"
+      ],
+      "correct_index": 1,
+      "explanation": "WPR is the share of the total population that is employed."
+    },
+    {
+      "question": "The Unemployment Rate (UR) is the share of…",
+      "options": [
+        "labour force that is unemployed",
+        "people not seeking work",
+        "employed persons",
+        "population that is unemployed"
+      ],
+      "correct_index": 0,
+      "explanation": "UR is defined as the proportion of the labour force that is unemployed."
+    },
+    {
+      "question": "In the urban rotational panel, how many times is each selected household visited?",
+      "options": [
+        "Five times",
+        "Four times",
+        "Two times",
+        "Once"
+      ],
+      "correct_index": 1,
+      "explanation": "Each urban household is visited once initially and then three revisits, totaling four visits."
+    },
+    {
+      "question": "What is the purpose of overlap between quarters in the urban rotational panel?",
+      "options": [
+        "Reduces survey cost",
+        "Increases sample size",
+        "Improves precision of change estimates",
+        "Eliminates need for weights"
+      ],
+      "correct_index": 2,
+      "explanation": "Overlap between quarters improves the precision of estimates of change."
+    },
+    {
+      "question": "How often are rural households visited under PLFS?",
+      "options": [
+        "Four times quarterly",
+        "Every month",
+        "Once in the annual schedule",
+        "Twice per year"
+      ],
+      "correct_index": 2,
+      "explanation": "Rural households are visited only once in the annual schedule."
+    },
+    {
+      "question": "Survey weights (multipliers) in PLFS are used to…",
+      "options": [
+        "Scale sample observations to population totals",
+        "Convert CWS to usual status",
+        "Eliminate sampling error",
+        "Adjust for non‑response only"
+      ],
+      "correct_index": 0,
+      "explanation": "Weights scale the observed sample data up to represent total population figures."
+    },
+    {
+      "question": "Why should estimates for small domains be interpreted with care?",
+      "options": [
+        "They are always biased",
+        "They do not use weights",
+        "They are not published",
+        "They carry wide sampling errors"
+      ],
+      "correct_index": 3,
+      "explanation": "Small‑domain estimates tend to have large sampling errors, requiring cautious interpretation."
+    },
+    {
+      "question": "Quarterly bulletins report urban indicators using which status?",
+      "options": [
+        "Monthly status",
+        "Current weekly status",
+        "Annual status",
+        "Usual status"
+      ],
+      "correct_index": 1,
+      "explanation": "Urban indicators in quarterly bulletins are presented in current weekly status."
+    },
+    {
+      "question": "Which of the following is NOT a reference period mentioned in the PLFS course material?",
+      "options": [
+        "Annual",
+        "365 days",
+        "7 days",
+        "30 days"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material only refers to 365‑day (usual status) and 7‑day (CWS) periods; 30 days is not mentioned."
+    },
+    {
+      "question": "The combination of principal status and subsidiary status is denoted as…",
+      "options": [
+        "ps+ss",
+        "LFPR",
+        "UR",
+        "CWS"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material abbreviates the combination of principal and subsidiary status as ps+ss."
+    },
+    {
+      "question": "Which indicator would you use to assess the proportion of the labour force that is not working but looking for a job?",
+      "options": [
+        "Unemployment Rate",
+        "Labour Force Participation Rate",
+        "Employment‑to‑Population Ratio",
+        "Worker Population Ratio"
+      ],
+      "correct_index": 0,
+      "explanation": "The Unemployment Rate measures the share of the labour force that is unemployed (i.e., not working but seeking work)."
+    }
+  ],
+  "SDG Indicators & the National Indicator Framework": [
+    {
+      "question": "Which body maintains the global indicator framework for tracking SDG progress?",
+      "options": [
+        "World Bank",
+        "UNESCO",
+        "International Monetary Fund",
+        "UN Statistical Commission"
+      ],
+      "correct_index": 3,
+      "explanation": "The global indicator framework is maintained by the UN Statistical Commission."
+    },
+    {
+      "question": "How many targets are included in the 2030 Agenda?",
+      "options": [
+        "169",
+        "17",
+        "200",
+        "150"
+      ],
+      "correct_index": 0,
+      "explanation": "The 2030 Agenda comprises 17 goals and 169 targets."
+    },
+    {
+      "question": "Which elements are included in the metadata for each SDG indicator?",
+      "options": [
+        "Only the collection date",
+        "Only the definition",
+        "Definition, computation method, and data sources",
+        "Only the data source"
+      ],
+      "correct_index": 2,
+      "explanation": "Indicator metadata describes its definition, how it is computed, and the data sources used."
+    },
+    {
+      "question": "Which ministry developed India's National Indicator Framework (NIF)?",
+      "options": [
+        "Ministry of Finance",
+        "Ministry of Education",
+        "Ministry of Statistics and Programme Implementation (MoSPI)",
+        "Ministry of Health and Family Welfare"
+      ],
+      "correct_index": 2,
+      "explanation": "MoSPI developed the NIF to monitor SDG progress with national data."
+    },
+    {
+      "question": "NIF indicators primarily draw on which types of data sources?",
+      "options": [
+        "Surveys, censuses, and administrative records",
+        "Only private sector data",
+        "Only satellite imagery",
+        "Only household surveys"
+      ],
+      "correct_index": 0,
+      "explanation": "NIF indicators use surveys, censuses, and administrative records across ministries."
+    },
+    {
+      "question": "What is a key purpose of disaggregating SDG indicators?",
+      "options": [
+        "To simplify reporting formats",
+        "To align indicators with GDP growth",
+        "To reveal gaps that aggregates can hide",
+        "To reduce the required sample size"
+      ],
+      "correct_index": 2,
+      "explanation": "Disaggregation helps uncover disparities that are masked when only aggregate values are reported."
+    },
+    {
+      "question": "Which dimensions are recommended for disaggregating SDG indicators where relevant?",
+      "options": [
+        "Sex, age, location, income, and disability",
+        "Only sex",
+        "Only income",
+        "Only geographic region"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material lists sex, age, location, income and disability as the relevant disaggregation dimensions."
+    },
+    {
+      "question": "A common challenge when disaggregating data is:",
+      "options": [
+        "Loss of data accuracy",
+        "Indicators becoming irrelevant",
+        "Needing larger samples or linked administrative data",
+        "Metadata becoming unnecessary"
+      ],
+      "correct_index": 2,
+      "explanation": "Disaggregation often requires larger samples or linked administrative data."
+    },
+    {
+      "question": "Administrative records can be used to fill gaps in which type of data collection?",
+      "options": [
+        "Surveys",
+        "Satellite imagery",
+        "Social media monitoring",
+        "Crowdsourced platforms"
+      ],
+      "correct_index": 0,
+      "explanation": "Administrative records such as health or education systems can fill survey gaps."
+    },
+    {
+      "question": "Before using administrative data for an SDG indicator, which aspects must be assessed?",
+      "options": [
+        "Coverage, definitions, and timeliness",
+        "Color scheme of the database",
+        "Number of pages in the report",
+        "Brand of the software used"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material highlights that coverage, definitions and timeliness need assessment before using administrative data."
+    },
+    {
+      "question": "Documenting the checks performed on administrative data in what supports trust in the indicator?",
+      "options": [
+        "Press releases",
+        "Metadata",
+        "Social media posts",
+        "Budget documents"
+      ],
+      "correct_index": 1,
+      "explanation": "Documenting these checks in metadata supports trust in the indicator."
+    },
+    {
+      "question": "Year‑on‑year trends for each SDG goal are presented in which NIF product?",
+      "options": [
+        "Census tables",
+        "Policy briefs",
+        "Budget statements",
+        "Progress reports"
+      ],
+      "correct_index": 3,
+      "explanation": "NIF progress reports give year‑on‑year trends for each goal."
+    },
+    {
+      "question": "Which of the following is NOT a component of indicator metadata?",
+      "options": [
+        "Political party affiliation",
+        "Definition",
+        "Data source",
+        "Computation method"
+      ],
+      "correct_index": 0,
+      "explanation": "Metadata includes definition, computation method and data source; political party affiliation is unrelated."
+    },
+    {
+      "question": "The global indicator framework is used to monitor progress of which agenda?",
+      "options": [
+        "2015 Paris Agreement",
+        "2022 Trade Agenda",
+        "2025 Climate Agenda",
+        "2030 Agenda"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material links the global indicator framework to the 2030 Agenda for Sustainable Development."
+    },
+    {
+      "question": "Disaggregating an indicator by disability most likely helps to:",
+      "options": [
+        "Automatically increase sample size",
+        "Eliminate the need for metadata",
+        "Reduce data collection cost",
+        "Identify marginalized groups"
+      ],
+      "correct_index": 3,
+      "explanation": "Disaggregation by disability reveals the status of a vulnerable group that could be hidden in aggregates."
+    }
+  ],
+  "Index of Industrial Production (IIP) & Industrial Statistics": [
+    {
+      "question": "Which three sectors are covered by the Index of Industrial Production (IIP)?",
+      "options": [
+        "Mining, Agriculture, Services",
+        "Mining, Manufacturing, Electricity",
+        "Manufacturing, Construction, Retail",
+        "Mining, Manufacturing, Consumer Goods"
+      ],
+      "correct_index": 1,
+      "explanation": "The IIP is published for mining, manufacturing and electricity."
+    },
+    {
+      "question": "In the use‑based classification of the IIP, which category would a new automobile be placed under?",
+      "options": [
+        "Infrastructure goods",
+        "Capital goods",
+        "Consumer durable goods",
+        "Intermediate goods"
+      ],
+      "correct_index": 2,
+      "explanation": "Automobiles are long‑lasting items for personal use, fitting the consumer durable goods category as per the use‑based classification."
+    },
+    {
+      "question": "What is the base year for the current series of the IIP?",
+      "options": [
+        "2010‑11",
+        "2011‑12",
+        "2012‑13",
+        "2009‑10"
+      ],
+      "correct_index": 1,
+      "explanation": "The current IIP series uses 2011‑12 as its base year."
+    },
+    {
+      "question": "The IIP is calculated using a Laspeyres type index. Which statement best describes this method?",
+      "options": [
+        "Weights are updated each month to reflect current prices.",
+        "Weights are based on international benchmarks.",
+        "Weights are derived from the previous month’s output.",
+        "Weights are fixed from the base year and do not change over time."
+      ],
+      "correct_index": 3,
+      "explanation": "A Laspeyres index uses fixed weights from the base year, as indicated in the course material."
+    },
+    {
+      "question": "Why might a fixed‑base Laspeyres index become less representative over time?",
+      "options": [
+        "Because it incorporates seasonal adjustments.",
+        "Because the base‑year weights become outdated as the economy structure changes.",
+        "Because it uses real‑time data from factories.",
+        "Because it excludes the mining sector."
+      ],
+      "correct_index": 1,
+      "explanation": "A fixed base ages as the economy changes, making the index less representative."
+    },
+    {
+      "question": "Which of the following best explains the purpose of item weights in the IIP?",
+      "options": [
+        "To equalize the contribution of all sectors.",
+        "To forecast future production levels.",
+        "To adjust for inflation across months.",
+        "To reflect the relative importance of items in the base year."
+      ],
+      "correct_index": 3,
+      "explanation": "Item weights are designed to reflect the relative importance of items in the base year."
+    },
+    {
+      "question": "The Annual Survey of Industries (ASI) includes factories registered under which sections of the Factories Act, 1948?",
+      "options": [
+        "Sections 5 and 6",
+        "Sections 2m(i) and 2m(ii)",
+        "Sections 1 and 2",
+        "Sections 3a and 3b"
+      ],
+      "correct_index": 1,
+      "explanation": "ASI covers factories registered under Sections 2m(i) and 2m(ii) of the Factories Act, 1948."
+    },
+    {
+      "question": "Which type of data does the ASI provide that is directly used to revise national accounts estimates for manufacturing?",
+      "options": [
+        "Consumer price indices",
+        "Foreign direct investment flows",
+        "Output, inputs, employment and capital",
+        "Export tariffs"
+      ],
+      "correct_index": 2,
+      "explanation": "ASI provides detailed data on output, inputs, employment and capital, which are used to revise national accounts for manufacturing."
+    },
+    {
+      "question": "When interpreting a monthly IIP release, a year‑on‑year (YoY) growth rate compares:",
+      "options": [
+        "The current quarter with the previous quarter.",
+        "The current month with the previous month.",
+        "The current year’s average with the previous year’s average.",
+        "The current month with the same month last year."
+      ],
+      "correct_index": 3,
+      "explanation": "YoY growth compares a month with the same month of the previous year, removing seasonality."
+    },
+    {
+      "question": "Why are quick IIP estimates often revised in later releases?",
+      "options": [
+        "Because the index formula is altered monthly.",
+        "Because seasonal factors are re‑estimated.",
+        "Because more factories submit their data over time.",
+        "Because the base year is changed."
+      ],
+      "correct_index": 2,
+      "explanation": "Quick estimates are revised as more factories report."
+    },
+    {
+      "question": "A strong base‑effect in IIP growth rates occurs when:",
+      "options": [
+        "The previous year’s comparable month was unusually weak or strong.",
+        "The current month’s production is unusually high.",
+        "Seasonal adjustments are omitted.",
+        "The base year weights are updated."
+      ],
+      "correct_index": 0,
+      "explanation": "Base effects arise when the previous year’s level was unusually weak or strong, influencing growth rate swings."
+    },
+    {
+      "question": "If the IIP shows a 5% YoY increase in manufacturing for March, which of the following is a correct interpretation?",
+      "options": [
+        "Manufacturing output in March this year is 5% higher than the annual average of the previous year.",
+        "Manufacturing output in March this year is 5% higher than in March last year.",
+        "Manufacturing output in March this year is 5% higher than the base year level.",
+        "Manufacturing output in March this year is 5% higher than in February last year."
+      ],
+      "correct_index": 1,
+      "explanation": "YoY compares the same month across years; thus, March this year versus March last year."
+    },
+    {
+      "question": "Which classification would best group cement under the IIP’s use‑based categories?",
+      "options": [
+        "Capital goods",
+        "Consumer non‑durable",
+        "Infrastructure/construction",
+        "Intermediate goods"
+      ],
+      "correct_index": 2,
+      "explanation": "Cement is primarily used for infrastructure and construction, matching that use‑based category."
+    },
+    {
+      "question": "What is a key advantage of using a fixed‑base Laspeyres index for month‑to‑month IIP comparisons?",
+      "options": [
+        "It eliminates the need for weighting items.",
+        "It ensures consistency in comparisons over time.",
+        "It incorporates real‑time price changes.",
+        "It automatically adjusts for changes in industrial structure."
+      ],
+      "correct_index": 1,
+      "explanation": "A fixed base makes month‑to‑month comparisons consistent."
+    },
+    {
+      "question": "Which of the following statements about the IIP’s sectoral classification is FALSE?",
+      "options": [
+        "Mining is excluded from the IIP.",
+        "Manufacturing is included in the IIP.",
+        "Electricity is one of the three sectors covered.",
+        "The IIP reports data separately for each sector."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material lists mining as one of the three sectors; therefore, stating it is excluded is false."
+    }
+  ],
+  "R for Survey Data Analysis": [
+    {
+      "question": "Which function in the R survey package is used to declare the sampling design?",
+      "options": [
+        "svydesign()",
+        "svymean()",
+        "svyby()",
+        "svytotal()"
+      ],
+      "correct_index": 0,
+      "explanation": "Svydesign() declares cluster identifiers, strata and weights."
+    },
+    {
+      "question": "Which of the following is NOT a component that svydesign() can specify?",
+      "options": [
+        "Weights",
+        "Cluster identifiers",
+        "P‑values",
+        "Strata"
+      ],
+      "correct_index": 2,
+      "explanation": "svydesign() declares clusters, strata and weights; p‑values are not a design component."
+    },
+    {
+      "question": "Ignoring clustering and stratification in analysis typically leads to:",
+      "options": [
+        "Biased point estimates",
+        "Unchanged standard errors",
+        "Overstated standard errors",
+        "Understated standard errors"
+      ],
+      "correct_index": 3,
+      "explanation": "Ignoring clustering and stratification usually understates standard errors."
+    },
+    {
+      "question": "Which function computes weighted means with design‑based standard errors?",
+      "options": [
+        "svymean()",
+        "svyby()",
+        "svyglm()",
+        "svytotal()"
+      ],
+      "correct_index": 0,
+      "explanation": "svymean() is described as computing weighted means with design‑based SEs."
+    },
+    {
+      "question": "To obtain estimates for each level of a categorical variable (e.g., state), which function is appropriate?",
+      "options": [
+        "svymean()",
+        "svyby()",
+        "svyrepdesign()",
+        "svytotal()"
+      ],
+      "correct_index": 1,
+      "explanation": "svyby() produces estimates for sub‑groups such as states or sectors."
+    },
+    {
+      "question": "When reporting a design‑based estimate, you must always include:",
+      "options": [
+        "Standard error",
+        "P‑value",
+        "Data dictionary",
+        "Sample size"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material instructs to report the standard error or confidence interval with every estimate."
+    },
+    {
+      "question": "Replicate weight methods estimate variance by:",
+      "options": [
+        "Ignoring weights",
+        "Analytically deriving formulas",
+        "Using only the first weight",
+        "Re‑computing estimates on resampled weights"
+      ],
+      "correct_index": 3,
+      "explanation": "Replicate weight methods such as jackknife and bootstrap estimate variance by re‑computing estimates on resampled weights."
+    },
+    {
+      "question": "Which of the following is a replicate weight method?",
+      "options": [
+        "Jackknife",
+        "Simple random sampling",
+        "Post‑stratification",
+        "Stratified sampling"
+      ],
+      "correct_index": 0,
+      "explanation": "Jackknife is listed as a replicate weight method alongside bootstrap."
+    },
+    {
+      "question": "A key advantage of replicate weights is that they allow variance estimation for:",
+      "options": [
+        "Complex statistics without deriving formulas",
+        "Categorical variables only",
+        "Simple statistics only",
+        "Missing data"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material says replicate weights allow variance estimation for complex statistics without deriving formulas."
+    },
+    {
+      "question": "Some published microdata provide replicate weights instead of design variables primarily to:",
+      "options": [
+        "Protect confidentiality",
+        "Improve accuracy",
+        "Speed up computation",
+        "Reduce file size"
+      ],
+      "correct_index": 0,
+      "explanation": "Replicate weights are provided instead of design variables to protect confidentiality."
+    },
+    {
+      "question": "A relative standard error (RSE) above a chosen threshold indicates:",
+      "options": [
+        "A precise estimate",
+        "An unreliable estimate",
+        "A large sample size",
+        "A high mean"
+      ],
+      "correct_index": 1,
+      "explanation": "An RSE above a threshold signals an unreliable estimate."
+    },
+    {
+      "question": "Confidence intervals are used to:",
+      "options": [
+        "Calculate weights",
+        "Replace point estimates",
+        "Test hypotheses",
+        "Communicate plausible range"
+      ],
+      "correct_index": 3,
+      "explanation": "Confidence intervals communicate the plausible range of the population value."
+    },
+    {
+      "question": ", estimates that fail reliability rules should be:",
+      "options": [
+        "Transformed to log scale",
+        "Suppressed or flagged",
+        "Corrected manually",
+        "Published without comment"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material advises to suppress or flag estimates that fail reliability rules."
+    },
+    {
+      "question": "Which function would you use to compute a weighted total with design‑based standard errors?",
+      "options": [
+        "svymean()",
+        "svyglm()",
+        "svytotal()",
+        "svyby()"
+      ],
+      "correct_index": 2,
+      "explanation": "svytotal() computes weighted totals with design‑based SEs."
+    },
+    {
+      "question": "The svyby() function is most useful when you need:",
+      "options": [
+        "Data cleaning",
+        "Overall mean",
+        "Variance replication",
+        "Subgroup estimates"
+      ],
+      "correct_index": 3,
+      "explanation": "svyby() produces estimates for sub‑groups such as states or sectors."
+    }
+  ],
+  "GIS & Geospatial Analysis for Statistics": [
+    {
+      "question": "Which data model is most appropriate for representing district boundaries?",
+      "options": [
+        "Points",
+        "Polygons",
+        "Raster grid",
+        "Lines"
+      ],
+      "correct_index": 1,
+      "explanation": "Vector data represent features such as district boundaries as polygons."
+    },
+    {
+      "question": "To map night‑time lights intensity, which data model should you choose?",
+      "options": [
+        "Raster grid",
+        "Attribute table",
+        "Vector points",
+        "Vector lines"
+      ],
+      "correct_index": 0,
+      "explanation": "Night‑time lights are a continuous surface and the course material says raster data represent continuous surfaces as grids of cells."
+    },
+    {
+      "question": "When linking survey points to administrative areas, which type of spatial join is typically used?",
+      "options": [
+        "Line‑in‑polygon join",
+        "Polygon‑in‑point join",
+        "Raster overlay join",
+        "Point‑in‑polygon join"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material describes a spatial join that attaches attributes based on location, e.g., assigning survey points to districts, which is a point‑in‑polygon join."
+    },
+    {
+      "question": "Before performing a spatial join, what must be true about the layers involved?",
+      "options": [
+        "They must share the same CRS",
+        "They must be stored in the same file format",
+        "They must be at the same map scale",
+        "They must have the same attribute names"
+      ],
+      "correct_index": 0,
+      "explanation": "Layers must share a CRS before spatial operations, otherwise features will not align."
+    },
+    {
+      "question": "GPS coordinates are most commonly expressed in which coordinate reference system?",
+      "options": [
+        "WGS 84 (EPSG:4326)",
+        "OSGB36",
+        "GDA94",
+        "NAD83"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material explicitly states that GPS coordinates are commonly in WGS 84 (EPSG:4326)."
+    },
+    {
+      "question": "Why should choropleth maps display rates or ratios instead of raw counts?",
+      "options": [
+        "Rates require fewer map classes",
+        "Rates avoid misinterpretation caused by large area sizes",
+        "Raw counts are not supported by GIS software",
+        "Raw counts are easier to compute"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material advises that choropleth maps should show rates or ratios because large areas dominate raw totals, leading to misinterpretation."
+    },
+    {
+      "question": "What problem can arise if boundary polygons overlap when doing a point‑in‑polygon join?",
+      "options": [
+        "Reduced memory usage",
+        "No impact on the join result",
+        "Faster processing time",
+        "Duplicate attribute assignment to a point"
+      ],
+      "correct_index": 3,
+      "explanation": "Point‑in‑polygon joins require clean, non‑overlapping boundary polygons; overlapping polygons can cause ambiguous (duplicate) assignments."
+    },
+    {
+      "question": "Which map element is essential for interpreting the data shown on a choropleth map?",
+      "options": [
+        "Grid lines",
+        "North arrow",
+        "Legend",
+        "Scale bar"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material lists that a legend must be included on every map to help interpret the visualized data."
+    },
+    {
+      "question": "You have a raster of temperature and a vector layer of city points. Which operation assigns the temperature value to each city?",
+      "options": [
+        "Spatial join",
+        "Raster extraction",
+        "Raster reclassification",
+        "Buffer analysis"
+      ],
+      "correct_index": 1,
+      "explanation": "Assigning raster cell values to point locations is done through raster extraction, which aligns with the course material’s distinction between vector and raster data."
+    },
+    {
+      "question": "Which classification choice can most dramatically change the visual story of a choropleth map?",
+      "options": [
+        "Color hue",
+        "Map projection",
+        "Data source citation",
+        "Number of classes"
+      ],
+      "correct_index": 3,
+      "explanation": "The classification method and number of classes change the visual story of a choropleth map."
+    },
+    {
+      "question": "In GIS terminology, what does a \"continuous surface\" refer to?",
+      "options": [
+        "A set of non‑overlapping polygons",
+        "A list of coordinate pairs",
+        "Discrete features like roads",
+        "A grid of cells representing varying values"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material defines raster data as representing continuous surfaces as grids of cells."
+    },
+    {
+      "question": "Why is it important to validate a sample of records after a spatial join?",
+      "options": [
+        "To improve rendering speed",
+        "To confirm spatial alignment accuracy",
+        "To ensure attribute names match",
+        "To reduce file size"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material advises always validating a sample of joined records against known locations to ensure correct spatial alignment."
+    },
+    {
+      "question": "Which CRS is identified by the EPSG code 4326?",
+      "options": [
+        "NAD27",
+        "ETRS89",
+        "GDA2020",
+        "WGS 84"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material links EPSG:4326 with WGS 84, the common GPS coordinate system."
+    },
+    {
+      "question": "If you perform a spatial join between layers that use different CRSs, what is the most likely result?",
+      "options": [
+        "Automatic CRS conversion",
+        "Misaligned features",
+        "Loss of attribute data",
+        "Perfectly aligned features"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material warns that layers must share a CRS before spatial operations; otherwise features will not align."
+    },
+    {
+      "question": "Which vector geometry type best represents a network of rivers?",
+      "options": [
+        "Line",
+        "Point",
+        "Raster",
+        "Polygon"
+      ],
+      "correct_index": 0,
+      "explanation": "Rivers are linear features, and the course material lists lines as one of the vector representations (points, lines, polygons)."
+    }
+  ],
+  "Cloud Computing & Data Engineering on Government Cloud": [
+    {
+      "question": "In the IaaS model, which components is the user responsible for managing?",
+      "options": [
+        "Operating system and applications",
+        "Managed runtime environment",
+        "Virtual machines and storage only",
+        "Complete application delivered over the internet"
+      ],
+      "correct_index": 0,
+      "explanation": "In IaaS the user manages the operating system and applications while the provider supplies virtual machines and storage."
+    },
+    {
+      "question": "Which layer does the cloud provider manage in a PaaS offering?",
+      "options": [
+        "User applications and data",
+        "Managed runtime environment",
+        "Operating system only",
+        "Network hardware"
+      ],
+      "correct_index": 1,
+      "explanation": ", PaaS provides a managed runtime, leaving the user to manage only the application and data."
+    },
+    {
+      "question": "Software as a Service (SaaS) delivers which of the following to the user?",
+      "options": [
+        "Virtual machines and storage",
+        "A complete application accessed over the internet",
+        "Managed runtime platform",
+        "Infrastructure provisioning tools"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material defines SaaS as providing a complete application used over the internet."
+    },
+    {
+      "question": "Which ministry leads the MeghRaj (GI Cloud) initiative?",
+      "options": [
+        "NITI Aayog",
+        "Ministry of Home Affairs",
+        "Ministry of Electronics and Information Technology (MeitY)",
+        "Ministry of Finance"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material identifies MeitY as the ministry that leads the MeghRaj initiative."
+    },
+    {
+      "question": "Under the shared responsibility model, who is responsible for securing the cloud platform itself?",
+      "options": [
+        "The cloud service provider",
+        "The government department",
+        "Both the department and provider equally",
+        "A third‑party auditor"
+      ],
+      "correct_index": 0,
+      "explanation": "The provider secures the cloud platform while the department secures its data and configurations."
+    },
+    {
+      "question": "In the shared responsibility model, which items are the department’s security responsibilities?",
+      "options": [
+        "Physical data center security",
+        "Data, identities and configuration",
+        "Network backbone encryption",
+        "Cloud platform infrastructure"
+      ],
+      "correct_index": 1,
+      "explanation": ", the department secures its data, identities and configuration under the shared responsibility model."
+    },
+    {
+      "question": "Government departments obtain cloud services through which type of providers?",
+      "options": [
+        "Only open‑source platforms",
+        "Any commercial vendor",
+        "In‑house private clouds",
+        "Empanelled cloud service providers"
+      ],
+      "correct_index": 3,
+      "explanation": "Departments procure services from empanelled cloud service providers."
+    },
+    {
+      "question": "Which of the following is NOT a standard step in an ETL pipeline for statistical production?",
+      "options": [
+        "Transform",
+        "Visualize",
+        "Load",
+        "Extract"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material describes ETL as consisting of extract, transform, and load steps; visualization is outside the ETL scope."
+    },
+    {
+      "question": "What is a key principle regarding raw data in an ETL pipeline?",
+      "options": [
+        "It can be deleted after validation",
+        "It must be encrypted before loading",
+        "It should be overwritten after transformation",
+        "It should be kept immutable"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material emphasizes keeping raw data immutable so any transformation can be re‑run."
+    },
+    {
+      "question": "When an automated validation check detects a missing value, the pipeline should:",
+      "options": [
+        "Ignore the record silently",
+        "Stop the pipeline or quarantine the record",
+        "Automatically fill the missing value",
+        "Log the issue and continue"
+      ],
+      "correct_index": 1,
+      "explanation": "Failed checks should stop the pipeline or quarantine records, not pass silently."
+    },
+    {
+      "question": "Where should validation rules be stored to ensure proper management?",
+      "options": [
+        "On a shared network drive",
+        "In a local spreadsheet",
+        "In a printed manual",
+        "In version control alongside pipeline code"
+      ],
+      "correct_index": 3,
+      "explanation": "Validation rules belong in version control alongside the pipeline code."
+    },
+    {
+      "question": "An example of an \"out‑of‑range\" code in validation checks would be:",
+      "options": [
+        "A correctly coded entry",
+        "A duplicate record",
+        "A code that falls outside the defined set",
+        "A missing value"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material lists out‑of‑range codes as a type of issue caught by automated validation checks."
+    },
+    {
+      "question": "Which characteristic is essential for each step of an ETL pipeline?",
+      "options": [
+        "Ad‑hoc processing",
+        "One‑time run only",
+        "Automated, logged, and repeatable",
+        "Manual execution"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material requires that each ETL step be automated, logged, and repeatable."
+    },
+    {
+      "question": "In the shared responsibility model, which of the following is NOT a department responsibility?",
+      "options": [
+        "Managing identities",
+        "Securing the underlying cloud infrastructure",
+        "Securing its data",
+        "Configuring the cloud platform"
+      ],
+      "correct_index": 1,
+      "explanation": "The provider secures the cloud platform; the department does not manage the underlying infrastructure security."
+    },
+    {
+      "question": "Which cloud service model gives the user the greatest control over the underlying infrastructure?",
+      "options": [
+        "IaaS",
+        "None of the above",
+        "PaaS",
+        "SaaS"
+      ],
+      "correct_index": 0,
+      "explanation": "IaaS provides virtual machines and storage, allowing the user to manage the operating system and applications, thus offering the most control."
+    }
+  ],
+  "Data Privacy & the DPDP Act, 2023 for Statistical Offices": [
+    {
+      "question": "Under the Digital Personal Data Protection Act, 2023, who is identified as the Data Principal?",
+      "options": [
+        "The individual",
+        "The government agency",
+        "The data fiduciary",
+        "The Data Protection Board of India"
+      ],
+      "correct_index": 0,
+      "explanation": "The Act defines the individual as the Data Principal, i.e., the person whose personal data are being processed."
+    },
+    {
+      "question": "Which entity determines the purpose and means of processing personal data under the DPDP Act?",
+      "options": [
+        "Data Processor",
+        "Data Principal",
+        "Data Fiduciary",
+        "Data Protection Board of India"
+      ],
+      "correct_index": 2,
+      "explanation": "The Act designates the Data Fiduciary as the party that decides why and how personal data are processed."
+    },
+    {
+      "question": "Which of the following is NOT a required element of valid consent under the DPDP Act?",
+      "options": [
+        "Specific",
+        "Informed",
+        "Conditional",
+        "Free"
+      ],
+      "correct_index": 2,
+      "explanation": "Consent must be unconditional; a conditional consent would violate the requirement for it to be free, specific, informed, and unambiguous."
+    },
+    {
+      "question": "Which body adjudicates non‑compliance with the Digital Personal Data Protection Act, 2023?",
+      "options": [
+        "Ministry of Statistics and Programme Implementation",
+        "Data Protection Board of India",
+        "Supreme Court of India",
+        "Data Fiduciary"
+      ],
+      "correct_index": 1,
+      "explanation": "The Data Protection Board of India is the statutory authority that hears and decides cases of non‑compliance with the Act."
+    },
+    {
+      "question": "The Collection of Statistics Act, 2008 protects which type of information?",
+      "options": [
+        "Classified national security data",
+        "Academic research data",
+        "Personal data collected for statistical purposes",
+        "Commercial trade secrets"
+      ],
+      "correct_index": 2,
+      "explanation": "The Act specifically safeguards information gathered for statistical purposes, ensuring it is not disclosed in a way that identifies respondents."
+    },
+    {
+      "question": "Why is statutory confidentiality considered a precondition for truthful responses in surveys?",
+      "options": [
+        "It complies with international trade agreements",
+        "It enables data sharing with private firms",
+        "It encourages respondents to provide accurate information",
+        "It reduces the cost of data collection"
+      ],
+      "correct_index": 2,
+      "explanation": "When respondents trust that their individual returns will remain confidential, they are more likely to answer honestly."
+    },
+    {
+      "question": "Which disclosure control technique involves removing cells with very low counts from a published table?",
+      "options": [
+        "Adding noise",
+        "Data swapping",
+        "Coarsening categories",
+        "Suppressing small cells"
+      ],
+      "correct_index": 3,
+      "explanation": "Suppressing small cells is a standard method to prevent identification of individuals in tabular data."
+    },
+    {
+      "question": "Coarsening categories is an example of which broader approach to protect privacy in statistical releases?",
+      "options": [
+        "Data retention",
+        "Data minimisation",
+        "Statistical disclosure control",
+        "Data encryption"
+      ],
+      "correct_index": 2,
+      "explanation": "Coarsening categories reduces detail in variables, which is a statistical disclosure control method."
+    },
+    {
+      "question": "Adding random variation to data values before release is known as:",
+      "options": [
+        "Data aggregation",
+        "Data anonymisation",
+        "Data masking",
+        "Noise addition"
+      ],
+      "correct_index": 3,
+      "explanation": "Noise addition deliberately perturbs data to protect confidentiality while preserving overall statistical properties."
+    },
+    {
+      "question": "k‑anonymity requires each record to be indistinguishable from at least how many other records on identifying variables?",
+      "options": [
+        "2k records total",
+        "k+1 other records",
+        "k‑1 other records",
+        "k records total"
+      ],
+      "correct_index": 2,
+      "explanation": "By definition, k‑anonymity means each record shares its identifying attributes with at least k‑1 other records, forming a group of k indistinguishable records."
+    },
+    {
+      "question": "Before releasing anonymised microdata, what assessment must be performed?",
+      "options": [
+        "Data cleaning",
+        "Disclosure risk assessment",
+        "Data compression",
+        "Data archiving"
+      ],
+      "correct_index": 1,
+      "explanation": "Even after anonymisation, a disclosure risk assessment is required to ensure that re‑identification risks remain acceptably low."
+    },
+    {
+      "question": "Using personal health data collected for a health survey to publish employment statistics would violate which principle?",
+      "options": [
+        "Data minimisation",
+        "Storage limitation",
+        "Accountability",
+        "Purpose limitation"
+      ],
+      "correct_index": 3,
+      "explanation": "Processing data for a purpose other than the one for which it was collected breaches the purpose‑limitation requirement."
+    },
+    {
+      "question": "Which description best captures the meaning of \"unconditional\" consent under the DPDP Act?",
+      "options": [
+        "Consent given only if certain conditions are met",
+        "Consent that is conditional on payment",
+        "Consent given without any conditions attached",
+        "Consent that is time‑limited"
+      ],
+      "correct_index": 2,
+      "explanation": "Unconditional consent means the data subject agrees to processing without any attached conditions."
+    },
+    {
+      "question": "The primary function of the Data Protection Board of India is to:",
+      "options": [
+        "Issue statistical standards",
+        "Adjudicate non‑compliance with the DPDP Act",
+        "Provide technical support to data fiduciaries",
+        "Collect personal data from citizens"
+      ],
+      "correct_index": 1,
+      "explanation": "The Board’s statutory role is to hear and decide cases of non‑compliance with the DPDP Act."
+    },
+    {
+      "question": "A breach of statutory confidentiality under the Collection of Statistics Act most directly leads to:",
+      "options": [
+        "Loss of public trust and lower response rates",
+        "Imprisonment of the data collector",
+        "Automatic monetary fines",
+        "Mandatory deletion of all collected data"
+      ],
+      "correct_index": 0,
+      "explanation": "When confidentiality is breached, respondents lose confidence, which reduces their willingness to provide truthful data in future surveys."
+    }
+  ],
+  "Digital Signatures, eSign & PKI in Government Workflows": [
+    {
+      "question": "What component is used to create a digital signature?",
+      "options": [
+        "Private key",
+        "Public key",
+        "Hash",
+        "Certificate"
+      ],
+      "correct_index": 0,
+      "explanation": "A digital signature is created with the signer’s private key, as stated in the module on public and private keys."
+    },
+    {
+      "question": "Which element is used to verify a digital signature?",
+      "options": [
+        "Private key",
+        "Public key",
+        "Hash",
+        "Certificate"
+      ],
+      "correct_index": 1,
+      "explanation": "Verification of a digital signature is performed with the corresponding public key."
+    },
+    {
+      "question": "What happens to the hash if the document is altered after signing?",
+      "options": [
+        "Disappears",
+        "Becomes encrypted",
+        "Remains the same",
+        "Changes"
+      ],
+      "correct_index": 3,
+      "explanation": "Any change to the document changes its hash, breaking the signature."
+    },
+    {
+      "question": "Under which law are electronic signatures given legal recognition in India?",
+      "options": [
+        "Right to Information Act",
+        "IT Act, 2000",
+        "Digital India Act",
+        "Companies Act, 2013"
+      ],
+      "correct_index": 1,
+      "explanation": "The IT Act, 2000 provides legal recognition to electronic signatures."
+    },
+    {
+      "question": "What does an eSign service primarily use to authenticate the signer?",
+      "options": [
+        "PAN card",
+        "Aadhaar e‑KYC",
+        "Fingerprint scanner",
+        "OTP to mobile"
+      ],
+      "correct_index": 1,
+      "explanation": "eSign uses Aadhaar e‑KYC to authenticate the signer."
+    },
+    {
+      "question": "Which of the following is NOT required when using Aadhaar‑based eSign?",
+      "options": [
+        "Consent to sign",
+        "Internet connection",
+        "Physical token with digital certificate",
+        "Aadhaar number"
+      ],
+      "correct_index": 2,
+      "explanation": "eSign removes the need for a physical token holding a digital signature certificate."
+    },
+    {
+      "question": "During verification, which two aspects are checked?",
+      "options": [
+        "Document size and font",
+        "Network speed",
+        "Signer’s age and gender",
+        "Hash integrity and certificate revocation status"
+      ],
+      "correct_index": 3,
+      "explanation": "Verification checks that the document is unchanged (hash) and that the certificate is valid and not revoked."
+    },
+    {
+      "question": "A “broken signature” indicates which of the following?",
+      "options": [
+        "Tampering or changed file",
+        "Expired certificate",
+        "Successful signing",
+        "User logged out"
+      ],
+      "correct_index": 0,
+      "explanation": "A broken signature signals that the document has been tampered with or altered after signing."
+    },
+    {
+      "question": "What is the purpose of keeping an audit trail of signing events?",
+      "options": [
+        "To speed up verification",
+        "For accountability",
+        "To increase file size",
+        "To encrypt the document"
+      ],
+      "correct_index": 1,
+      "explanation": "An audit trail provides accountability for signing activities."
+    },
+    {
+      "question": "Which statement best describes a digital signature certificate?",
+      "options": [
+        "It generates the hash",
+        "It encrypts the document",
+        "It binds a public key to the holder’s identity",
+        "It stores the private key"
+      ],
+      "correct_index": 2,
+      "explanation": "A digital signature certificate binds a public key to the identity of its holder."
+    },
+    {
+      "question": "If a signer’s private key is compromised, which security principle is violated?",
+      "options": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Non-repudiation"
+      ],
+      "correct_index": 3,
+      "explanation": "The private key ensures non‑repudiation; its compromise undermines that guarantee."
+    },
+    {
+      "question": "Which component ensures that a public key truly belongs to the claimed individual?",
+      "options": [
+        "Digital signature",
+        "Hash function",
+        "Certificate Authority",
+        "Timestamp"
+      ],
+      "correct_index": 2,
+      "explanation": "A Certificate Authority issues certificates that bind a public key to an identity."
+    },
+    {
+      "question": "In the eSign workflow, after the document is signed, who can verify the signature?",
+      "options": [
+        "Any recipient",
+        "Only the signer",
+        "Only the issuing CA",
+        "Only the government portal"
+      ],
+      "correct_index": 0,
+      "explanation": "The signed document can be verified by any recipient."
+    },
+    {
+      "question": "Which of the following best explains why a hash is used before signing?",
+      "options": [
+        "To encrypt the document",
+        "To reduce file size",
+        "To store the private key",
+        "To create a unique fixed‑length representation"
+      ],
+      "correct_index": 3,
+      "explanation": "A hash provides a unique, fixed‑length digest of the document that is signed."
+    },
+    {
+      "question": "What is the role of the Controller of Certifying Authorities (CCA) regarding digital signatures?",
+      "options": [
+        "Provides internet connectivity",
+        "Licenses Certifying Authorities",
+        "Issues Aadhaar numbers",
+        "Generates private keys"
+      ],
+      "correct_index": 1,
+      "explanation": "The CCA licenses Certifying Authorities that issue digital signature certificates."
+    }
+  ],
+  "Cybersecurity Essentials for Government Data Systems": [
+    {
+      "question": "Which characteristic most often signals a phishing email?",
+      "options": [
+        "Includes large attachments",
+        "Uses formal corporate branding",
+        "Creates a sense of urgency",
+        "Contains perfect grammar"
+      ],
+      "correct_index": 2,
+      "explanation": "Phishing messages create urgency and ask you to click links, open attachments or share credentials."
+    },
+    {
+      "question": "Before clicking a link in an email, you should:",
+      "options": [
+        "Click it to see where it leads",
+        "Hover over it to view the actual URL",
+        "Ignore the email entirely",
+        "Forward the email to a colleague"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material advises to hover over links before clicking to verify the destination."
+    },
+    {
+      "question": "If you receive a suspicious email, the recommended action is to:",
+      "options": [
+        "Reply asking for clarification",
+        "Report it to the security team",
+        "Forward it to all staff",
+        "Delete it silently"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material instructs to report suspicious messages rather than deleting them silently."
+    },
+    {
+      "question": "The principle of least privilege ensures that a user:",
+      "options": [
+        "Can only access data they personally own",
+        "Has access to all system functions",
+        "Has no access to any system",
+        "Has only the access needed for their role"
+      ],
+      "correct_index": 3,
+      "explanation": "Least privilege gives each user only the access needed for their role."
+    },
+    {
+      "question": "Multi‑factor authentication primarily protects against:",
+      "options": [
+        "Hardware failures",
+        "Network latency",
+        "Stolen passwords",
+        "User fatigue"
+      ],
+      "correct_index": 2,
+      "explanation": "Multi‑factor authentication blocks most attacks that rely on stolen passwords."
+    },
+    {
+      "question": "When an employee’s role changes, you should:",
+      "options": [
+        "Add new rights without removing old ones",
+        "Leave all existing access unchanged",
+        "Review and promptly remove unnecessary access",
+        "Ignore the role change"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material recommends reviewing and removing access promptly when roles change."
+    },
+    {
+      "question": "The ‘2’ in the 3‑2‑1 backup rule refers to:",
+      "options": [
+        "Two offsite locations",
+        "Two different types of media",
+        "Two copies of data",
+        "Two backup schedules per year"
+      ],
+      "correct_index": 1,
+      "explanation": "The rule specifies 2 different types of media for storing the three copies."
+    },
+    {
+      "question": "Which element of the 3‑2‑1 rule specifically defends against ransomware that encrypts connected storage?",
+      "options": [
+        "Having one copy offsite or offline",
+        "Keeping three copies of data",
+        "Testing restores regularly",
+        "Using two different media types"
+      ],
+      "correct_index": 0,
+      "explanation": "Offline backups protect against ransomware that encrypts connected storage."
+    },
+    {
+      "question": "How often should an organisation test its ability to restore data from backups?",
+      "options": [
+        "Only after a breach",
+        "Once a year",
+        "Regularly",
+        "Never"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material advises testing restoring from backups regularly."
+    },
+    {
+      "question": "CERT‑In directions (April 2022) require specified cyber incidents to be reported within:",
+      "options": [
+        "12 hours",
+        "48 hours",
+        "6 hours",
+        "24 hours"
+      ],
+      "correct_index": 2,
+      "explanation": "Incidents must be reported within 6 hours of noticing them."
+    },
+    {
+      "question": "During a cyber‑incident investigation, which action is prohibited before evidence is collected?",
+      "options": [
+        "Escalating to the incident response team",
+        "Documenting the incident",
+        "Wiping affected systems",
+        "Preserving logs and evidence"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material warns not to wipe affected systems before investigation."
+    },
+    {
+      "question": "Which of the following is NOT a recommended immediate step in incident response?",
+      "options": [
+        "Preserve logs",
+        "Follow the organisation’s response plan",
+        "Immediately shut down the entire network",
+        "Report the incident within 6 hours"
+      ],
+      "correct_index": 2,
+      "explanation": "Shutting down the entire network is not listed as a recommended step; the course material emphasizes preserving logs and following the response plan."
+    },
+    {
+      "question": "In backup terminology, an “offline” copy means:",
+      "options": [
+        "Stored on a cloud service",
+        "Not connected to any network",
+        "Encrypted with a password",
+        "Compressed to save space"
+      ],
+      "correct_index": 1,
+      "explanation": "Offline backups are those not connected to the network, protecting against ransomware."
+    },
+    {
+      "question": "A typical request found in a phishing email is to:",
+      "options": [
+        "Order new hardware",
+        "Request vacation days",
+        "Share login credentials",
+        "Schedule a meeting"
+      ],
+      "correct_index": 2,
+      "explanation": "Phishing messages often ask you to share credentials."
+    },
+    {
+      "question": "How does multi‑factor authentication reduce risk compared with password‑only login?",
+      "options": [
+        "It speeds up the login process",
+        "It requires a second verification factor, such as a token",
+        "It eliminates the need for passwords",
+        "It blocks all possible cyber attacks"
+      ],
+      "correct_index": 1,
+      "explanation": "MFA adds a second factor (e.g., a token) that blocks attacks relying on stolen passwords."
+    }
+  ],
+  "Project Management for Large-Scale Surveys": [
+    {
+      "question": "What is the primary purpose of a work breakdown structure (WBS) in survey project planning?",
+      "options": [
+        "To create a timeline of critical activities",
+        "To assign budget codes to each department",
+        "To list all project risks and their owners",
+        "To decompose the project into deliverables and work packages covering 100 % of the scope"
+      ],
+      "correct_index": 3,
+      "explanation": "A WBS decomposes the project into deliverables and work packages and must cover 100 % of the scope and nothing outside it."
+    },
+    {
+      "question": "Which three elements must be defined for every work package in a WBS?",
+      "options": [
+        "Owner, estimate, completion criterion",
+        "Owner, budget, risk level",
+        "Estimate, schedule, quality standard",
+        "Completion criterion, stakeholder list, communication plan"
+      ],
+      "correct_index": 0,
+      "explanation": "Each work package should have an owner, an estimate, and a completion criterion."
+    },
+    {
+      "question": "If an activity on the critical path is delayed by two days, what is the impact on the overall project schedule?",
+      "options": [
+        "Float on non‑critical activities will absorb the delay",
+        "The whole project’s finish date is delayed by two days",
+        "The project budget will automatically increase",
+        "Only that activity’s finish date is pushed back"
+      ],
+      "correct_index": 1,
+      "explanation": "The critical path determines the earliest finish date, so any delay on it delays the entire project."
+    },
+    {
+      "question": "What does ‘float’ mean for activities that are off the critical path?",
+      "options": [
+        "They have zero slack and cannot be delayed",
+        "They indicate a risk of cost overrun",
+        "They are automatically moved onto the critical path",
+        "They can absorb small delays without affecting the project end date"
+      ],
+      "correct_index": 3,
+      "explanation": "Activities off the critical path have float that absorbs small delays."
+    },
+    {
+      "question": "How is the critical path identified in a survey project schedule?",
+      "options": [
+        "By finding the longest sequence of dependent activities",
+        "By choosing activities with the greatest risk probability",
+        "By listing activities with the most resources assigned",
+        "By selecting the sequence with the highest cost"
+      ],
+      "correct_index": 0,
+      "explanation": "The critical path is defined as the longest sequence of dependent activities."
+    },
+    {
+      "question": "Which items are recorded for each risk in a risk register?",
+      "options": [
+        "Likelihood, impact, owner, response",
+        "Impact, probability, vendor, contingency fund",
+        "Owner, duration, resource allocation, status",
+        "Budget, schedule, stakeholder, mitigation cost"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material lists likelihood, impact, owner, and response as the fields in a risk register."
+    },
+    {
+      "question": "Which of the following is NOT listed as a common survey risk in the course material material?",
+      "options": [
+        "Budget surplus",
+        "Non‑response",
+        "Delayed enumerator recruitment",
+        "Device failures"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material mentions delayed enumerator recruitment, device failures, and non‑response as common risks; a budget surplus is not."
+    },
+    {
+      "question": "How often should the risk register be reviewed according to the course guidelines?",
+      "options": [
+        "At every progress meeting",
+        "Monthly, regardless of project activity",
+        "Annually, after project completion",
+        "Only at the start of the project"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material advises reviewing the risk register at every progress meeting."
+    },
+    {
+      "question": "When monitoring field progress, which quality indicators should be tracked in addition to simple counts?",
+      "options": [
+        "Interview duration and item non‑response",
+        "Total budget spent",
+        "Number of enumerators hired",
+        "Geographic distance covered"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material emphasizes monitoring quality indicators such as interview duration and item non‑response, not just counts."
+    },
+    {
+      "question": "What is the recommended timing for intervening in districts that are lagging behind schedule?",
+      "options": [
+        "Postpone intervention until the next survey cycle",
+        "Ignore the lag and focus on on‑track districts",
+        "Wait until the round is finished and then reassess",
+        "Act early, before the end of the round"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material advises acting early on lagging districts rather than waiting for the end of the round."
+    },
+    {
+      "question": "Which tool does the course material suggest for daily tracking of completed survey units?",
+      "options": [
+        "Paper logbooks kept by field supervisors",
+        "Dashboards from data collection devices",
+        "Spreadsheets emailed to the project manager",
+        "Weekly email summary reports"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material recommends tracking completed units daily using dashboards from data collection devices."
+    },
+    {
+      "question": "At what level does a work breakdown structure decompose a survey project?",
+      "options": [
+        "Into risk categories and mitigation plans",
+        "Into individual tasks only",
+        "Into deliverables and work packages",
+        "Into budget line items and cost centers"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material defines a WBS as decomposing the project into deliverables and work packages."
+    },
+    {
+      "question": "Who is responsible for ensuring that a work package’s estimate and completion criterion are defined?",
+      "options": [
+        "The data analyst team",
+        "The external vendor",
+        "The project sponsor alone",
+        "The work package owner"
+      ],
+      "correct_index": 3,
+      "explanation": "Each work package should have an owner who is responsible for its estimate and completion criterion."
+    },
+    {
+      "question": "Adding a task that falls outside the defined project scope to the WBS would:",
+      "options": [
+        "Improve flexibility and adaptability",
+        "Reduce overall project risk",
+        "Violate the principle that a good WBS covers only the scope",
+        "Create additional float for the schedule"
+      ],
+      "correct_index": 2,
+      "explanation": "A good WBS must cover 100 % of the scope and nothing outside it; adding out‑of‑scope work violates this principle."
+    },
+    {
+      "question": "Which element directly determines the earliest possible finish date of the survey project?",
+      "options": [
+        "The budget allocation",
+        "The risk register",
+        "The total number of work packages",
+        "The critical path"
+      ],
+      "correct_index": 3,
+      "explanation": "The critical path, being the longest sequence of dependent activities, determines the earliest finish date."
+    }
+  ],
+  "Change Management & Decision Making in Public Organisations": [
+    {
+      "question": "Which of the following steps is *first* in a structured decision‑making process?",
+      "options": [
+        "Define the decision, objectives and options",
+        "Record the rationale for later review",
+        "Compare options against criteria",
+        "Gather all possible evidence"
+      ],
+      "correct_index": 0,
+      "explanation": "Structured decision making begins by defining the decision, objectives and options before evaluating evidence."
+    },
+    {
+      "question": "When using structured decision making, why is it important to record the rationale?",
+      "options": [
+        "Because it reduces the time needed for the decision",
+        "To impress senior management",
+        "So the decision can be reviewed later",
+        "To satisfy legal documentation requirements"
+      ],
+      "correct_index": 2,
+      "explanation": "Recording the rationale allows the decision to be reviewed later."
+    },
+    {
+      "question": "Which criterion is *not* mentioned in the course material as a typical explicit criterion for comparing options?",
+      "options": [
+        "Cost",
+        "Timeliness",
+        "Scalability",
+        "Quality"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material lists cost, quality and timeliness as explicit criteria; scalability is not mentioned."
+    },
+    {
+      "question": "Confirmation bias causes people to:",
+      "options": [
+        "Give equal weight to all evidence",
+        "Prefer evidence that supports their existing beliefs",
+        "Seek out contradictory evidence first",
+        "Ignore all evidence and rely on intuition"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material defines confirmation bias as favouring evidence that supports what one already believes."
+    },
+    {
+      "question": "Which technique is recommended to reduce confirmation bias?",
+      "options": [
+        "Relying on senior leadership opinion",
+        "Limiting stakeholder input",
+        "Increasing the number of meetings",
+        "Seeking disconfirming evidence and independent review"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material suggests that seeking disconfirming evidence and independent review reduces bias."
+    },
+    {
+      "question": "A pre‑mortem is best described as:",
+      "options": [
+        "A statistical analysis of risk probabilities",
+        "A post‑implementation audit of outcomes",
+        "Asking what could make a decision fail before it is taken",
+        "Reviewing past decisions after they have succeeded"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material defines a pre‑mortem as asking what could make a decision fail before it is taken."
+    },
+    {
+      "question": "According to Kotter’s model, the first step in creating change is:",
+      "options": [
+        "Generating short‑term wins",
+        "Creating a sense of urgency",
+        "Forming a guiding coalition",
+        "Communicating a vision"
+      ],
+      "correct_index": 1,
+      "explanation": "Kotter’s model begins by creating a sense of urgency."
+    },
+    {
+      "question": "A clear vision in change management should primarily explain:",
+      "options": [
+        "How to implement the change step‑by‑step",
+        "Who will be responsible for each task",
+        "Why the change matters",
+        "The budget allocated for the change"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material says a clear vision explains why the change matters, such as faster and more granular statistics."
+    },
+    {
+      "question": "Early visible wins are important because they:",
+      "options": [
+        "Build momentum for the change effort",
+        "Allow the team to skip later stages of Kotter’s model",
+        "Eliminate the need for stakeholder engagement",
+        "Reduce the overall cost of the project"
+      ],
+      "correct_index": 0,
+      "explanation": "Early visible wins build momentum."
+    },
+    {
+      "question": "When mapping stakeholders, the two dimensions to consider are:",
+      "options": [
+        "Influence and impact of the change on them",
+        "Age and years of service",
+        "Geographic location and seniority",
+        "Education level and technical skill"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material advises mapping stakeholders by their influence and how much the change affects them."
+    },
+    {
+      "question": "In the context of changing data collection methods, the course material recommends involving which group early?",
+      "options": [
+        "External consultants",
+        "IT department exclusively",
+        "Senior executives only",
+        "Field staff"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material explicitly says to involve field staff early when changing data collection methods."
+    },
+    {
+      "question": ", the most effective way to address resistance is:",
+      "options": [
+        "Listening to concerns, not just issuing instructions",
+        "Increasing punitive measures",
+        "Ignoring the resistance until it fades",
+        "Mandating compliance through policy"
+      ],
+      "correct_index": 0,
+      "explanation": "Addressing resistance by listening to concerns, not only by issuing instructions, is effective."
+    },
+    {
+      "question": "Which of the following is a *cognitive* bias, not a procedural step?",
+      "options": [
+        "Cost‑benefit comparison",
+        "Confirmation bias",
+        "Pre‑mortem analysis",
+        "Stakeholder mapping"
+      ],
+      "correct_index": 1,
+      "explanation": "Confirmation bias is a cognitive bias; the other options are procedural tools mentioned in the course material."
+    },
+    {
+      "question": "If a decision‑making team only looks for evidence that supports their preferred option, they are likely exhibiting:",
+      "options": [
+        "Overconfidence bias",
+        "Availability heuristic",
+        "Confirmation bias",
+        "Anchoring bias"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material defines confirmation bias as favouring evidence that supports existing beliefs."
+    },
+    {
+      "question": "Which activity directly helps to make the decision process *transparent* for later review?",
+      "options": [
+        "Holding a single informal discussion",
+        "Relying on memory of the meeting",
+        "Skipping documentation to save time",
+        "Recording the rationale"
+      ],
+      "correct_index": 3,
+      "explanation": "Recording the rationale ensures the decision can be reviewed later, providing transparency."
+    }
+  ],
+  "SQL for Official Statistics Databases": [
+    {
+      "question": "What is the primary purpose of the GROUP BY clause in SQL?",
+      "options": [
+        "Filters rows before aggregation",
+        "Creates indexes automatically",
+        "Orders rows within each group",
+        "Collapses rows into groups so aggregates can be computed per group"
+      ],
+      "correct_index": 3,
+      "explanation": "GROUP BY collapses rows into groups so aggregates like SUM and COUNT can be computed per group."
+    },
+    {
+      "question": "Which clause filters groups after aggregation has been performed?",
+      "options": [
+        "WHERE",
+        "HAVING",
+        "GROUP BY",
+        "ORDER BY"
+      ],
+      "correct_index": 1,
+      "explanation": "HAVING filters groups after aggregation, whereas WHERE filters rows before grouping."
+    },
+    {
+      "question": "How should a weighted total be calculated in SQL?",
+      "options": [
+        "SUM(value) / SUM(weight)",
+        "SUM(value) * SUM(weight)",
+        "AVG(value * weight)",
+        "SUM(value * weight)"
+      ],
+      "correct_index": 3,
+      "explanation": "Weighted totals are computed as SUM(value * weight), not as a simple SUM of the value column."
+    },
+    {
+      "question": "When linking household‑level and person‑level files by household_id, which join retains only persons that have a matching household record?",
+      "options": [
+        "RIGHT JOIN",
+        "INNER JOIN",
+        "FULL OUTER JOIN",
+        "LEFT JOIN"
+      ],
+      "correct_index": 1,
+      "explanation": "An INNER JOIN keeps only matching records, as described for joining household and person files."
+    },
+    {
+      "question": "Which join type keeps all records from the left (household) table regardless of matches in the right (person) table?",
+      "options": [
+        "NATURAL JOIN",
+        "LEFT JOIN",
+        "INNER JOIN",
+        "CROSS JOIN"
+      ],
+      "correct_index": 1,
+      "explanation": "A LEFT JOIN keeps all rows from the left table and adds matching rows from the right."
+    },
+    {
+      "question": "What simple check helps detect duplicate keys after performing a join?",
+      "options": [
+        "Run SELECT DISTINCT on the result",
+        "Use GROUP BY on the join column",
+        "Compare row counts before and after the join",
+        "Check column data types"
+      ],
+      "correct_index": 2,
+      "explanation": "The course material advises always checking row counts before and after a join to catch duplicate keys."
+    },
+    {
+      "question": "What is a key advantage of a window function over a regular aggregate function?",
+      "options": [
+        "It groups rows into partitions only",
+        "It computes values across related rows without collapsing them",
+        "It filters rows before aggregation",
+        "It automatically creates indexes"
+      ],
+      "correct_index": 1,
+      "explanation": "Window functions compute values across related rows without collapsing the result set, unlike regular aggregates."
+    },
+    {
+      "question": "In a window function, which clause defines the groups (partitions) over which the function operates?",
+      "options": [
+        "HAVING",
+        "ORDER BY",
+        "PARTITION BY",
+        "WHERE"
+      ],
+      "correct_index": 2,
+      "explanation": "PARTITION BY defines the groups for a window function."
+    },
+    {
+      "question": "Within a window function, which clause determines the order of rows inside each partition?",
+      "options": [
+        "ORDER BY",
+        "GROUP BY",
+        "LIMIT",
+        "PARTITION BY"
+      ],
+      "correct_index": 0,
+      "explanation": "ORDER BY defines the order of rows within each partition for window calculations."
+    },
+    {
+      "question": "Which of the following is a typical application of window functions in official statistics?",
+      "options": [
+        "Deleting duplicate rows",
+        "Creating primary keys",
+        "Enforcing referential integrity",
+        "Ranking districts"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material lists ranking districts as a useful use of window functions."
+    },
+    {
+      "question": "Which action directly improves query speed when filtering on a specific column?",
+      "options": [
+        "Adding a GROUP BY clause",
+        "Using SELECT *",
+        "Creating an index on that column",
+        "Adding a HAVING clause"
+      ],
+      "correct_index": 2,
+      "explanation": "Indexes speed up lookups on columns used in filters and joins, according to the performance section."
+    },
+    {
+      "question": "How does selecting only needed columns affect query performance?",
+      "options": [
+        "It prevents the use of indexes",
+        "It reduces the amount of data transferred",
+        "It forces a full table scan",
+        "It increases CPU usage"
+      ],
+      "correct_index": 1,
+      "explanation": "Selecting only needed columns reduces data transferred, which improves performance."
+    },
+    {
+      "question": "Which command displays the execution plan that the database will use for a query?",
+      "options": [
+        "COMMIT",
+        "EXPLAIN",
+        "SELECT",
+        "INSERT"
+      ],
+      "correct_index": 1,
+      "explanation": "EXPLAIN shows how the database plans to execute a query."
+    },
+    {
+      "question": "To calculate month‑on‑month change for a variable, which SQL feature is most appropriate?",
+      "options": [
+        "Subquery with COUNT",
+        "GROUP BY month only",
+        "Using HAVING",
+        "Window function with PARTITION BY month and ORDER BY month"
+      ],
+      "correct_index": 3,
+      "explanation": "Window functions are useful for computing month‑on‑month change, using PARTITION BY and ORDER BY."
+    },
+    {
+      "question": "Which statement about WHERE and HAVING is true?",
+      "options": [
+        "WHERE can be used after GROUP BY",
+        "HAVING replaces the need for WHERE",
+        "WHERE filters rows before grouping; HAVING filters groups after aggregation",
+        "HAVING filters rows before grouping"
+      ],
+      "correct_index": 2,
+      "explanation": "WHERE filters rows before grouping, while HAVING filters groups after aggregation."
+    }
+  ],
+  "Agricultural Statistics & Crop Estimation Surveys": [
+    {
+      "question": "How is crop production primarily estimated according to the provided course material?",
+      "options": [
+        "Number of farmers multiplied by total harvest.",
+        "Area under the crop multiplied by average yield.",
+        "Average yield per farmer multiplied by total crop area.",
+        "Total cultivated land divided by average yield."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material explicitly states that 'Crop production is estimated as area under the crop multiplied by average yield.'"
+    },
+    {
+      "question": "Which of the following is a primary source for obtaining area estimates for crop production?",
+      "options": [
+        "The Agriculture Census conducted every five years.",
+        "Crop cutting experiments under General Crop Estimation Surveys.",
+        "Land records and the Timely Reporting Scheme.",
+        "Direct surveys of individual farmers' reported acreage."
+      ],
+      "correct_index": 2,
+      "explanation": "The text specifies that 'Area estimates come from land records and schemes such as the Timely Reporting Scheme.'"
+    },
+    {
+      "question": "In a crop cutting experiment, what is the main reason for randomly locating a plot of fixed size in a selected field?",
+      "options": [
+        "To simplify the process of combining yields with survey weights.",
+        "To ensure the experiment can be easily replicated by other researchers.",
+        "To avoid bias that would result from choosing the best or worst part of a field.",
+        "To minimize the total area required for the experiment across multiple fields."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material states, 'Random plot location avoids bias from choosing the best or worst part of a field.'"
+    },
+    {
+      "question": "How is crop yield primarily estimated according to the course material?",
+      "options": [
+        "By analyzing changes in net area sown from land use statistics.",
+        "Through crop cutting experiments under General Crop Estimation Surveys.",
+        "By multiplying production estimates by the area under the crop.",
+        "From structural data collected during the agriculture census."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material clearly states, 'Yield is estimated from crop cutting experiments under the General Crop Estimation Surveys.'"
+    },
+    {
+      "question": "What do changes in 'net area sown' primarily indicate, according to the land use classification section?",
+      "options": [
+        "The total number of operational holdings in a region.",
+        "An early signal of agricultural stress or expansion.",
+        "The average yield obtained from crop cutting experiments.",
+        "The consistency of land classification across different states."
+      ],
+      "correct_index": 1,
+      "explanation": "The text highlights that 'Changes in net area sown are an early signal of agricultural stress or expansion.'"
+    },
+    {
+      "question": "What type of data does the agriculture census primarily collect?",
+      "options": [
+        "Estimates of crop area and yield for specific crops.",
+        "Structural data on the number and area of operational holdings.",
+        "Data on the average size of plots used in crop cutting experiments.",
+        "Detailed information on land use classification categories."
+      ],
+      "correct_index": 1,
+      "explanation": "The agriculture census 'collects structural data on the number and area of operational holdings.'"
+    },
+    {
+      "question": "How do holding size classes, collected by the agriculture census, primarily inform policy?",
+      "options": [
+        "They inform policy specifically for small and marginal farmers.",
+        "They are used to calculate the overall crop production estimates.",
+        "They classify reporting area into categories like forests and current fallows.",
+        "They help in determining the optimal location for crop cutting experiments."
+      ],
+      "correct_index": 0,
+      "explanation": "The text states, 'Holding size classes inform policy for small and marginal farmers.'"
+    },
+    {
+      "question": "How is crop production primarily estimated according to the provided information?",
+      "options": [
+        "Sum of yields from all crop cutting experiments.",
+        "Total number of farmers multiplied by average yield per farmer.",
+        "Area under the crop multiplied by average yield.",
+        "Net area sown divided by current fallows."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material explicitly states that crop production is estimated as the area under the crop multiplied by its average yield."
+    },
+    {
+      "question": "Which of the following is a primary source for obtaining crop area estimates?",
+      "options": [
+        "Land records and the Timely Reporting Scheme.",
+        "Data on operational holdings.",
+        "The agriculture census conducted every five years.",
+        "Crop cutting experiments."
+      ],
+      "correct_index": 0,
+      "explanation": "The text specifies that area estimates come from land records and schemes such as the Timely Reporting Scheme."
+    },
+    {
+      "question": "What is the main reason for randomly locating a plot of fixed size in a selected field during a crop cutting experiment?",
+      "options": [
+        "To determine the optimal size for future crop cutting experiments.",
+        "To ensure the experiment is conducted quickly and efficiently.",
+        "To avoid bias that might arise from selecting the best or worst parts of a field.",
+        "To allow for easy comparison of yields across different crop types."
+      ],
+      "correct_index": 2,
+      "explanation": "Random plot location avoids bias from choosing the best or worst part of a field, ensuring a more representative yield estimate."
+    },
+    {
+      "question": "How is crop yield primarily estimated according to the provided information?",
+      "options": [
+        "By classifying reporting area into categories like net area sown.",
+        "Using data from the Timely Reporting Scheme.",
+        "From the number and area of operational holdings.",
+        "Through crop cutting experiments under General Crop Estimation Surveys."
+      ],
+      "correct_index": 3,
+      "explanation": "The text clearly states that yield is estimated from crop cutting experiments conducted under the General Crop Estimation Surveys."
+    },
+    {
+      "question": "What do changes in 'net area sown' primarily indicate according to the land use classification section?",
+      "options": [
+        "The average size of operational holdings.",
+        "An early signal of agricultural stress or expansion.",
+        "The frequency of crop cutting experiments conducted.",
+        "The total area covered by forests in a region."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material explicitly mentions that changes in net area sown are an early signal of agricultural stress or expansion."
+    },
+    {
+      "question": "What is the primary purpose of collecting data on 'holding size classes' in the agriculture census?",
+      "options": [
+        "To determine the total crop production for a given year.",
+        "To classify reporting area into categories like forests.",
+        "To identify fields for crop cutting experiments.",
+        "To inform policy for small and marginal farmers."
+      ],
+      "correct_index": 3,
+      "explanation": "The text states that holding size classes inform policy specifically for small and marginal farmers."
+    },
+    {
+      "question": "Which of the following correctly describes how crop production is estimated and the primary sources for its components?",
+      "options": [
+        "Crop production is estimated by averaging the area under the crop and the yield, with yield data primarily from the Timely Reporting Scheme.",
+        "Crop production is estimated by summing the area under the crop and the average yield, with both components derived from the agriculture census.",
+        "Crop production is estimated solely based on land use classification, particularly changes in net area sown.",
+        "Crop production is estimated by multiplying the area under the crop by the average yield, where area estimates come from land records and yield from crop cutting experiments."
+      ],
+      "correct_index": 3,
+      "explanation": "Crop production is estimated as the area under the crop multiplied by the average yield. Area estimates are sourced from land records and schemes like the Timely Reporting Scheme, while yield is estimated from crop cutting experiments."
+    },
+    {
+      "question": "What is the primary reason for randomly locating a plot of fixed size in a selected field during a crop cutting experiment?",
+      "options": [
+        "To ensure the experiment can be easily replicated by other surveyors.",
+        "To classify the land use category of the selected field accurately.",
+        "To avoid bias that would result from choosing the best or worst part of a field.",
+        "To simplify the calculation of survey weights when combining yields."
+      ],
+      "correct_index": 2,
+      "explanation": "Random plot location in crop cutting experiments is crucial to avoid bias, ensuring that the yield estimate is not skewed by intentionally selecting only the most productive or least productive parts of a field."
+    }
+  ],
+  "Machine Learning for Official Statistics": [
+    {
+      "question": "According to the \"Automated Classification\" module, what is the primary method recommended for coding free-text survey responses to classifications like NIC and NCO?",
+      "options": [
+        "Unsupervised clustering algorithms to identify patterns.",
+        "Rule-based systems that match keywords to codes.",
+        "Manual coding by a large team of expert statisticians.",
+        "Supervised text classifiers trained on previously coded records."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material states that 'Supervised text classifiers trained on previously coded records can suggest codes automatically' for industry and occupation text."
+    },
+    {
+      "question": "When an automated text classifier makes predictions with low confidence, what is the recommended course of action?",
+      "options": [
+        "Retrain the model immediately with new data.",
+        "Route these predictions to expert coders for review.",
+        "Discard these responses from the analysis.",
+        "Automatically assign a default or 'unknown' code."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material advises that 'Low-confidence predictions should be routed to expert coders for review.'"
+    },
+    {
+      "question": "To prevent data leakage during model validation, at what stage should data be split into training, validation, and test sets?",
+      "options": [
+        "During the process of hyperparameter optimization.",
+        "After initial model training but before hyperparameter tuning.",
+        "Only for the final test set, after the model is fully developed.",
+        "Before any model fitting."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material explicitly states, 'Split data into training, validation and test sets before any model fitting.'"
+    },
+    {
+      "question": "What is the primary negative consequence of data leakage in machine learning model development, as described in the \"Validation without leakage\" section?",
+      "options": [
+        "Reducing the model's complexity.",
+        "Improving the model's generalization to unseen data.",
+        "Slowing down the model training process.",
+        "Inflating accuracy metrics."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material defines data leakage as occurring 'when information from the test set influences training, inflating accuracy.'"
+    },
+    {
+      "question": "Why is it crucial to report machine learning model performance 'per class' rather than solely relying on overall accuracy, especially in official statistics?",
+      "options": [
+        "To ensure that rare codes or categories are adequately represented and handled.",
+        "To reduce the computational resources required for evaluation.",
+        "To simplify the comparison of different models.",
+        "To prevent the model from overfitting to the training data."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material emphasizes, 'Report performance per class, not only overall accuracy, because rare codes matter.'"
+    },
+    {
+      "question": "What is the fundamental purpose of nowcasting in the context of official statistics, as outlined in the course material?",
+      "options": [
+        "To estimate the current state of an indicator before official data are released.",
+        "To predict future economic trends several years in advance.",
+        "To replace traditional survey methods with real-time data collection.",
+        "To correct historical errors in previously published official statistics."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material defines nowcasting as estimating 'the current state of an indicator before official data are released.'"
+    },
+    {
+      "question": "When using alternative data sources for nowcasting, what critical step must be taken to ensure responsible application?",
+      "options": [
+        "Nowcasts must be benchmarked against official releases and clearly labelled as experimental.",
+        "Only publicly available and open-source alternative data should be used.",
+        "Alternative data must always be collected directly by official statistical agencies.",
+        "The nowcasting model must achieve perfect accuracy before deployment."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material states, 'Nowcasts must be benchmarked against official releases and clearly labelled as experimental.'"
+    },
+    {
+      "question": "To address potential biases that models might reproduce from historical training data, what specific action is recommended before deploying a machine learning model?",
+      "options": [
+        "Check error rates across different demographic or regional groups.",
+        "Remove all features that could potentially be linked to sensitive attributes.",
+        "Ensure the training data is perfectly balanced across all categories.",
+        "Only use models that are inherently bias-free by design."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material advises to 'Check error rates across groups such as regions or sex before deployment' to address biases."
+    },
+    {
+      "question": ", what is the primary method used for automatically coding free-text survey responses to classifications like NIC and NCO?",
+      "options": [
+        "Rule-based systems with predefined keywords.",
+        "Supervised text classifiers trained on previously coded records.",
+        "Unsupervised clustering algorithms.",
+        "Manual coding by expert statisticians."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material states that 'Supervised text classifiers trained on previously coded records can suggest codes automatically' for coding industry and occupation text."
+    },
+    {
+      "question": "When an automated text classifier makes low-confidence predictions for survey responses, what action is recommended?",
+      "options": [
+        "Retrain the model immediately with new data.",
+        "Route them to expert coders for review.",
+        "Discard the responses to avoid errors.",
+        "Automatically assign the most probable code."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material explicitly advises that 'Low-confidence predictions should be routed to expert coders for review' to ensure accuracy."
+    },
+    {
+      "question": "What is the primary risk associated with 'data leakage' during model validation?",
+      "options": [
+        "The model becomes too complex and overfits the training data.",
+        "The model fails to generalize to new, unseen data.",
+        "Information from the test set influences training, leading to inflated accuracy.",
+        "It causes the training process to be significantly slower."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material defines data leakage as occurring 'when information from the test set influences training, inflating accuracy'."
+    },
+    {
+      "question": "To prevent data leakage, when should data be split into training, validation, and test sets?",
+      "options": [
+        "Before any model fitting.",
+        "After initial model fitting and hyperparameter tuning.",
+        "During the feature engineering phase.",
+        "Only for the final evaluation of the model."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material clearly states the importance of splitting data 'before any model fitting' to prevent data leakage."
+    },
+    {
+      "question": "Why does the course material recommend reporting performance 'per class' rather than only overall accuracy for automated classification?",
+      "options": [
+        "Rare codes matter, and their performance might be obscured by overall accuracy.",
+        "It provides a clearer picture of model bias across different demographic groups.",
+        "Per-class reporting is a standard practice for all machine learning models.",
+        "Overall accuracy is computationally more expensive to calculate."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material emphasizes, 'Report performance per class, not only overall accuracy, because rare codes matter,' highlighting the importance of granular evaluation."
+    },
+    {
+      "question": "What is the primary purpose of nowcasting, as defined in the context of official statistics?",
+      "options": [
+        "To predict future trends of an indicator several years in advance.",
+        "To forecast the impact of policy changes on economic indicators.",
+        "To correct historical official data for errors and inconsistencies.",
+        "To estimate the current state of an indicator before official data are released."
+      ],
+      "correct_index": 3,
+      "explanation": "Nowcasting is defined as estimating 'the current state of an indicator before official data are released' using timely proxies."
+    },
+    {
+      "question": "What is a mandatory requirement for nowcasts generated using alternative data, as specified in the course material?",
+      "options": [
+        "They should be integrated directly into official statistical publications without distinction.",
+        "They must be benchmarked against official releases and clearly labelled as experimental.",
+        "They must always achieve higher accuracy than official releases.",
+        "They should only use traditional survey data, not alternative sources."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material mandates that 'Nowcasts must be benchmarked against official releases and clearly labelled as experimental' to ensure transparency and reliability."
+    }
+  ],
+  "Leadership for Statistical Teams": [
+    {
+      "question": "According to the \"Situational leadership\" module, what is the primary principle guiding effective leadership?",
+      "options": [
+        "Providing consistent direction to all team members to ensure uniformity.",
+        "Adapting the balance of direction and support to each person's competence and commitment.",
+        "Focusing solely on the commitment level of team members when assigning tasks.",
+        "Delegating all tasks to experienced supervisors to free up leadership time."
+      ],
+      "correct_index": 1,
+      "explanation": "Situational leadership emphasizes adjusting leadership style based on individual team members' competence and commitment, balancing direction and support accordingly."
+    },
+    {
+      "question": "A team leader is managing a new enumerator and an experienced supervisor. According to the principles of situational leadership, how should the leader adapt their approach?",
+      "options": [
+        "Give clear direction to both individuals to ensure consistency in task execution.",
+        "Offer extensive support to both the new enumerator and the experienced supervisor.",
+        "Delegate tasks to both the new enumerator and the experienced supervisor equally.",
+        "Provide clear direction to the new enumerator and delegate tasks to the experienced supervisor."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material states a new enumerator may need clear direction, while an experienced supervisor benefits from delegation, illustrating the adaptive nature of situational leadership."
+    },
+    {
+      "question": "When practicing effective delegation, what should a leader delegate in addition to the task itself?",
+      "options": [
+        "The responsibility for reporting all progress daily.",
+        "The outcome and the authority.",
+        "The leader's personal accountability for the task's success.",
+        "Only the specific steps required to complete the task."
+      ],
+      "correct_index": 1,
+      "explanation": "Effective delegation involves delegating not just the task, but also the desired outcome and the necessary authority to achieve it."
+    },
+    {
+      "question": "Which of the following is a key benefit of effective delegation for leaders and their teams?",
+      "options": [
+        "It ensures that leaders maintain full control over all operational details.",
+        "It reduces the need for any checkpoints or progress updates.",
+        "It develops people and frees leaders for decisions only they can take.",
+        "It allows leaders to supervise every step of a task more closely."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material explicitly states that delegation develops people and frees leaders to focus on decisions that only they are authorized to make."
+    },
+    {
+      "question": "To make feedback useful, what should it primarily focus on?",
+      "options": [
+        "The individual's personality traits.",
+        "A comprehensive review during annual appraisals.",
+        "Specific behaviour and its impact.",
+        "General observations about team dynamics."
+      ],
+      "correct_index": 2,
+      "explanation": "Useful feedback is described as focusing on specific behavior and its impact, rather than personal characteristics."
+    },
+    {
+      "question": "Why is timely feedback emphasized as more effective than feedback saved for annual appraisals?",
+      "options": [
+        "It prevents any need for follow-up conversations.",
+        "Timely feedback is easier to act on.",
+        "Annual appraisals are generally ineffective for performance improvement.",
+        "It reduces the overall volume of feedback given throughout the year."
+      ],
+      "correct_index": 1,
+      "explanation": "The course material states that 'Timely feedback is easier to act on than feedback saved for annual appraisals,' highlighting its immediate utility."
+    },
+    {
+      "question": "According to the \"Accountability without blame\" section, how do clear roles, such as those defined by a RACI chart, contribute to accountability?",
+      "options": [
+        "They encourage leaders to supervise every step of a task.",
+        "They assign blame quickly to individuals for problems.",
+        "They eliminate the need for any process examination when errors occur.",
+        "They show who is responsible, accountable, consulted, and informed."
+      ],
+      "correct_index": 3,
+      "explanation": "Clear roles, exemplified by a RACI chart, show who is responsible, accountable, consulted, and informed, thereby clarifying accountability."
+    },
+    {
+      "question": "In a culture of accountability without blame, what is the recommended first step when errors occur?",
+      "options": [
+        "Immediately identify the individual responsible for the error.",
+        "Document the error for discussion during annual appraisals.",
+        "Examine the process first to prevent recurrence.",
+        "Implement stricter supervision for all team members."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material advises that 'When errors occur, examine the process first to prevent recurrence,' emphasizing a systemic approach over individual blame."
+    },
+    {
+      "question": "What is the fundamental principle of situational leadership?",
+      "options": [
+        "Adapting the balance of direction and support to each person's competence and commitment.",
+        "Prioritizing delegation for all tasks to empower the team fully.",
+        "Maintaining a consistent leadership style for all team members to ensure fairness.",
+        "Providing clear direction to all team members, regardless of their experience level."
+      ],
+      "correct_index": 0,
+      "explanation": "Situational leadership is defined by adapting the balance of direction and support to each person's competence and commitment, ensuring tailored guidance."
+    },
+    {
+      "question": "When practicing effective delegation, what should a leader primarily delegate?",
+      "options": [
+        "Every single step of the process to ensure quality control.",
+        "The outcome and the authority to achieve it.",
+        "Only the specific tasks that need to be completed.",
+        "Responsibility for a task without granting the necessary authority."
+      ],
+      "correct_index": 1,
+      "explanation": "Effective delegation involves delegating the outcome and the authority, not just the task, empowering the individual to achieve the desired result."
+    },
+    {
+      "question": "What is a key benefit of effective delegation for leaders?",
+      "options": [
+        "It frees leaders to focus on decisions only they can take.",
+        "It allows leaders to supervise every step of a project closely.",
+        "It ensures all team members are over-managed, preventing errors.",
+        "It eliminates the need for any checkpoints or progress reviews."
+      ],
+      "correct_index": 0,
+      "explanation": "Delegation develops people and frees leaders for decisions only they can take, optimizing the leader's time and strategic focus."
+    },
+    {
+      "question": "To be most useful, feedback should focus on what aspect?",
+      "options": [
+        "Feedback saved exclusively for annual appraisals.",
+        "The individual's personality traits and character.",
+        "Specific behaviour and its impact.",
+        "General observations about overall performance."
+      ],
+      "correct_index": 2,
+      "explanation": "Useful feedback describes specific behaviour and its impact, making it actionable and avoiding personal attacks."
+    },
+    {
+      "question": "What makes feedback easier for the recipient to act on?",
+      "options": [
+        "It is delivered without inviting the other person's view.",
+        "It is given in a timely manner.",
+        "It focuses on personality traits rather than actions.",
+        "It is saved for annual performance reviews."
+      ],
+      "correct_index": 1,
+      "explanation": "Timely feedback is easier to act on than feedback saved for annual appraisals, allowing for immediate adjustments and learning."
+    },
+    {
+      "question": "When errors occur, what is the recommended first step for building accountability without blame?",
+      "options": [
+        "Examine the process first to prevent recurrence.",
+        "Wait for the annual appraisal to address the issue comprehensively.",
+        "Implement stricter supervision for all team members to avoid future mistakes.",
+        "Identify the individual responsible for the error immediately."
+      ],
+      "correct_index": 0,
+      "explanation": "When errors occur, the recommended approach for accountability without blame is to examine the process first to prevent recurrence, focusing on systemic improvements."
+    },
+    {
+      "question": "How does psychological safety contribute to building accountability within a team?",
+      "options": [
+        "It ensures that errors are never made by team members.",
+        "It encourages early reporting of problems.",
+        "It focuses on assigning blame quickly to maintain order.",
+        "It eliminates the need for clear roles and responsibilities."
+      ],
+      "correct_index": 1,
+      "explanation": "Psychological safety encourages early reporting of problems, which is crucial for addressing issues proactively and fostering a culture of learning and accountability."
+    }
+  ],
+  "Communicating Statistics to Policymakers and the Public": [
+    {
+      "question": "According to the guidance for 'Lead with the key finding,' what information should be presented in the very first line for busy decision makers?",
+      "options": [
+        "The main finding of the statistical analysis.",
+        "Two or three pieces of supporting evidence.",
+        "Technical details and methodological explanations.",
+        "A comprehensive background of the data collection process."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material explicitly states, 'Busy decision makers read the first line; state the main finding there.'"
+    },
+    {
+      "question": "When explaining uncertainty, what approach is recommended for communicating revisions or confidence intervals to the public?",
+      "options": [
+        "Explain what a revision or confidence interval means in plain language.",
+        "Simply report the numerical range of the confidence interval.",
+        "Focus on the point estimate and minimize discussion of error margins.",
+        "Only mention uncertainty if differences are statistically significant."
+      ],
+      "correct_index": 0,
+      "explanation": "The guidance advises to 'Explain in plain language what a revision or confidence interval means' to ensure clear understanding."
+    },
+    {
+      "question": "What three key pieces of information must be included in the opening paragraph of a statistical press release?",
+      "options": [
+        "What was measured, the reference period, and the headline number.",
+        "A comprehensive list of all data points, a summary of the analysis, and a conclusion.",
+        "Contact information for media inquiries, future release dates, and data limitations.",
+        "Detailed methodology, policy implications, and historical trends."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material states, 'State what was measured, the reference period and the headline number in the opening paragraph' of a press release."
+    },
+    {
+      "question": "When preparing a one-page note for briefing senior officials, what three essential components should it contain?",
+      "options": [
+        "Personal recommendations, a detailed budget, and a project timeline.",
+        "The finding, why it matters, and the available options.",
+        "A historical overview of the data, a list of all assumptions, and a disclaimer.",
+        "Comprehensive data tables, detailed methodological notes, and a bibliography."
+      ],
+      "correct_index": 1,
+      "explanation": "The guidance specifies to 'Prepare a one-page note with the finding, why it matters and the options' for senior briefings."
+    },
+    {
+      "question": "Where should technical details related to statistical results be placed to ensure clear messaging for decision makers?",
+      "options": [
+        "In the first line of the communication.",
+        "As footnotes on every page.",
+        "Moved to annexes or metadata.",
+        "Integrated throughout the main body of the report."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material advises to 'Move technical detail to annexes or metadata' to keep the main message clear for busy decision makers."
+    },
+    {
+      "question": "When reporting statistical results, what specific action should be avoided regarding small differences?",
+      "options": [
+        "Using pre-announced release calendars.",
+        "Overstating small differences that are within sampling error.",
+        "Explaining confidence intervals in plain language.",
+        "Reporting point estimates without ranges."
+      ],
+      "correct_index": 1,
+      "explanation": "The guidance explicitly states, 'Avoid overstating small differences that are within sampling error' to maintain accuracy in communication."
+    },
+    {
+      "question": "What is the primary purpose of using pre-announced release calendars for statistical data?",
+      "options": [
+        "To reduce the workload for statistical producers.",
+        "To allow for last-minute adjustments to the data.",
+        "To ensure all users get data at the same time.",
+        "To prioritize access for specific government departments."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material states, 'Use pre-announced release calendars so all users get data at the same time,' promoting equitable access."
+    },
+    {
+      "question": "A crucial part of preparing to brief senior officials involves anticipating what?",
+      "options": [
+        "Opportunities to introduce new research topics.",
+        "The need for a comprehensive historical data review.",
+        "The exact policy decisions they will make.",
+        "Likely questions and having supporting numbers ready."
+      ],
+      "correct_index": 3,
+      "explanation": "The guidance advises to 'Anticipate likely questions and have the supporting numbers ready' to ensure an effective and responsive briefing."
+    },
+    {
+      "question": "To ensure busy decision-makers grasp the most crucial information immediately from a statistical report, where should the main finding be placed?",
+      "options": [
+        "After presenting all supporting evidence.",
+        "Within the methodology annex.",
+        "In the first line of the report.",
+        "In a dedicated executive summary section."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material emphasizes that busy decision makers read the first line, so the main finding should be stated there to ensure immediate comprehension."
+    },
+    {
+      "question": "After stating a key finding, a statistician needs to provide adequate support. According to best practices for clear messages, how many pieces of evidence should typically support the headline finding?",
+      "options": [
+        "One comprehensive piece.",
+        "Only if specifically requested by the audience.",
+        "As many as possible to be thorough.",
+        "Two or three distinct pieces."
+      ],
+      "correct_index": 3,
+      "explanation": "The guidance explicitly states to support the headline with two or three pieces of evidence, providing sufficient but not overwhelming detail."
+    },
+    {
+      "question": "A statistical report contains complex methodological explanations. To maintain clarity for the main audience while still providing full transparency, where should technical details be placed?",
+      "options": [
+        "In the concluding summary paragraph.",
+        "In annexes or metadata sections.",
+        "Interspersed throughout the main body of the report.",
+        "Omitted entirely to avoid confusion."
+      ],
+      "correct_index": 1,
+      "explanation": "To keep the main message clear for the primary audience, technical details should be moved to annexes or metadata."
+    },
+    {
+      "question": "A new survey result shows a point estimate. How should a statistician effectively communicate the uncertainty associated with this point estimate to the public?",
+      "options": [
+        "By stating that all results are subject to some error without further detail.",
+        "By only reporting the point estimate and assuming understanding.",
+        "By providing raw data for users to calculate their own uncertainty.",
+        "By reporting ranges or margins of error alongside the point estimate."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material advises reporting ranges or margins of error alongside point estimates and explaining them in plain language to communicate uncertainty effectively."
+    },
+    {
+      "question": "A recent statistical analysis reveals a very small difference between two groups, which falls within the calculated sampling error. What action should the statistician take when communicating this finding?",
+      "options": [
+        "Omit the finding entirely to prevent misinterpretation.",
+        "Present the difference without mentioning sampling error.",
+        "Avoid overstating the small difference.",
+        "Highlight the small difference as a significant trend."
+      ],
+      "correct_index": 2,
+      "explanation": "The course material explicitly warns against overstating small differences that are within sampling error, promoting accurate and responsible communication."
+    },
+    {
+      "question": "A government agency is preparing a press release for newly released economic data. Which three key pieces of information must be included in the opening paragraph of this statistical press release?",
+      "options": [
+        "A detailed explanation of all findings, limitations, and policy recommendations.",
+        "The names of the statisticians, the data sources, and a disclaimer.",
+        "What was measured, the reference period, and the headline number.",
+        "The methodology used, the data collection period, and future projections."
+      ],
+      "correct_index": 2,
+      "explanation": "The opening paragraph of a press release must state what was measured, the reference period, and the headline number."
+    },
+    {
+      "question": "A national statistical office wants to ensure that all users, including the public and media, have equal and timely access to new data releases. What mechanism should the office utilize to achieve this goal?",
+      "options": [
+        "Release data on an ad-hoc basis as soon as it's ready.",
+        "Use pre-announced release calendars.",
+        "Publish data exclusively on a secure, password-protected portal.",
+        "Distribute data only to registered media outlets first."
+      ],
+      "correct_index": 1,
+      "explanation": "Using pre-announced release calendars ensures that all users get data at the same time, promoting fairness and transparency."
+    }
+  ],
+  "Ethics, Integrity & Professional Independence in Official Statistics": [
+    {
+      "question": "Which of the following areas is explicitly covered by the UN Fundamental Principles of Official Statistics?",
+      "options": [
+        "Political lobbying, policy advocacy, and media engagement.",
+        "Relevance, impartiality, and international cooperation.",
+        "Budget allocation, staff training, and technological infrastructure.",
+        "Data storage, cybersecurity, and public relations."
+      ],
+      "correct_index": 1,
+      "explanation": "The UN Fundamental Principles cover relevance, impartiality, professional standards, confidentiality, and international cooperation."
+    },
+    {
+      "question": "An official statistician is preparing to release key economic indicators. A senior government official requests a delay in the release because the results are not politically favorable. According to the principle of professional independence, what should the statistician do?",
+      "options": [
+        "Seek approval from an external political body before proceeding with the release.",
+        "Alter the content of the statistics to present a more favorable outlook.",
+        "Delay the release and consult with the senior official to understand their concerns.",
+        "Release the statistics as planned, regardless of political implications."
+      ],
+      "correct_index": 3,
+      "explanation": "The principle of professional independence dictates that statistics must be released regardless of whether results are politically welcome, with timing decided on professional grounds."
+    },
+    {
+      "question": "A statistician receives a direct request from a non-statistical department to slightly alter the methodology used for a report, which would change the final results without any statistical justification. What is the immediate first step the statistician should take?",
+      "options": [
+        "Document the request, including details of who made it and when.",
+        "Publicly disclose the pressure received to ensure transparency.",
+        "Proceed with the alteration if it seems minor and doesn't significantly impact the overall message.",
+        "Immediately refuse the request and cease communication with the department."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material explicitly states that if asked to alter or delay results without statistical justification, the first step is to document the request."
+    },
+    {
+      "question": "In the context of official statistics, when does a conflict of interest primarily arise?",
+      "options": [
+        "When personal interests could potentially influence an individual's official duties.",
+        "When statistical results contradict public opinion or media narratives.",
+        "When an organization faces budget cuts that impact statistical operations.",
+        "When an individual has a disagreement with a colleague over statistical methodology."
+      ],
+      "correct_index": 0,
+      "explanation": "A conflict of interest is defined as arising when personal interests could influence official duties."
+    },
+    {
+      "question": "An official statistician discovers they hold shares in a company that will be significantly impacted by market-sensitive data they are currently compiling for an official release. What is the most appropriate action for the statistician to take?",
+      "options": [
+        "Continue working on the data but ensure strict confidentiality to avoid suspicion.",
+        "Sell the shares immediately to eliminate the conflict before the data is released.",
+        "Inform only their immediate supervisor about the situation without taking further action.",
+        "Declare the potential conflict early and step back from decisions related to that specific data."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material advises that individuals should declare potential conflicts early and step back from related decisions to manage conflicts of interest effectively."
+    },
+    {
+      "question": "What is the primary benefit of upholding professional independence in official statistics?",
+      "options": [
+        "It gives users confidence in the numbers and the statistical system.",
+        "It ensures that statistical agencies receive adequate funding from the government.",
+        "It allows statisticians to work without any external oversight or accountability.",
+        "It guarantees that all statistical releases will always be politically popular."
+      ],
+      "correct_index": 0,
+      "explanation": "The course material explicitly states that professional independence is what gives users confidence in the numbers."
+    },
+    {
+      "question": "After documenting a request to alter statistical results without justification, what is the next recommended step for an official statistician?",
+      "options": [
+        "Directly confront the individual who made the request and demand a retraction.",
+        "Publicly announce the pressure received to ensure transparency.",
+        "Immediately resign from the position due to ethical concerns.",
+        "Escalate the issue through the proper channels described in the organization's code of conduct."
+      ],
+      "correct_index": 3,
+      "explanation": "The course material advises that after documenting a request to alter or delay results without statistical justification, the next step is to escalate through the proper channels described in the organization's code of conduct."
+    },
+    {
+      "question": "In what year were the UN Fundamental Principles of Official Statistics endorsed by the UN General Assembly?",
+      "options": [
+        "2014",
+        "2004",
+        "1994",
+        "2024"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material explicitly states that the UN Fundamental Principles of Official Statistics were endorsed by the UN General Assembly in 2014."
+    },
+    {
+      "question": "The UN Fundamental Principles of Official Statistics were endorsed by which body and in what year?",
+      "options": [
+        "UN Statistical Commission in 2004",
+        "UN Security Council in 2010",
+        "International Statistical Institute in 2018",
+        "UN General Assembly in 2014"
+      ],
+      "correct_index": 3,
+      "explanation": "The course material explicitly states that the UN Fundamental Principles were 'endorsed by the UN General Assembly in 2014'."
+    },
+    {
+      "question": "According to the principle of professional independence, decisions regarding which aspects of statistical releases should be made on professional grounds?",
+      "options": [
+        "Methods, timing, and content",
+        "Budget allocation and resource management",
+        "Political implications and public perception",
+        "Staff recruitment and training programs"
+      ],
+      "correct_index": 0,
+      "explanation": "The text specifies that 'Methods, timing and content of statistical releases should be decided on professional grounds' as part of professional independence."
+    },
+    {
+      "question": "If an official statistician is asked to alter or delay results without statistical justification, what is the immediate first step they should take?",
+      "options": [
+        "Publicly disclose the pressure on social media",
+        "Immediately refuse the request and cease work",
+        "Alter the results slightly to find a compromise",
+        "Document the request"
+      ],
+      "correct_index": 3,
+      "explanation": "The guidance for 'Responding to pressure on results' states, 'If asked to alter or delay results without statistical justification, document the request'."
+    },
+    {
+      "question": "A conflict of interest is defined as a situation where:",
+      "options": [
+        "Personal interests could influence official duties",
+        "Two statisticians disagree on a methodological approach",
+        "A statistician holds a different political view than the government",
+        "A statistical agency receives funding from multiple sources"
+      ],
+      "correct_index": 0,
+      "explanation": "The course material clearly defines a conflict of interest as arising 'when personal interests could influence official duties'."
+    },
+    {
+      "question": "What is the primary benefit of professional independence in official statistics?",
+      "options": [
+        "It gives users confidence in the numbers",
+        "It reduces the need for international collaboration",
+        "It ensures faster data collection processes",
+        "It allows statisticians to work in isolation from external input"
+      ],
+      "correct_index": 0,
+      "explanation": "The text states that 'Independence is what gives users confidence in the numbers', highlighting its crucial role."
+    },
+    {
+      "question": "Which of the following areas are explicitly covered by the UN Fundamental Principles of Official Statistics?",
+      "options": [
+        "Political advocacy, public relations strategies, and policy implementation",
+        "Relevance, impartiality, confidentiality, and international cooperation",
+        "Financial auditing, legal compliance, and human resource management",
+        "Data collection software, server infrastructure, and data storage"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material lists 'relevance, impartiality, professional standards, confidentiality and international cooperation' as areas covered by the principles."
+    },
+    {
+      "question": "After documenting a request to alter or delay statistical results without justification, what is the next recommended action?",
+      "options": [
+        "Ignore the request and proceed with the original release plan",
+        "Escalate through the proper channels described in your organisation's code of conduct",
+        "Seek legal advice from a personal attorney",
+        "Immediately resign from your position to avoid complicity"
+      ],
+      "correct_index": 1,
+      "explanation": "The course material advises that after documenting the request, one should 'Escalate through the proper channels described in your organisation's code of conduct'."
+    }
+  ]
+}

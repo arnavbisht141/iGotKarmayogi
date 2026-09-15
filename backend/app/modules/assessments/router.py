@@ -1,4 +1,5 @@
 import json
+import random
 import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -24,7 +25,10 @@ def get_assessment_for_test(
 
     course = assessment.course
     questions_data = []
-    for q in assessment.questions:
+    # Grading is by question id, so each sitting can present the questions in a fresh order.
+    questions = list(assessment.questions)
+    random.shuffle(questions)
+    for q in questions:
         try:
             options = json.loads(q.options_json)
         except Exception:
@@ -162,6 +166,9 @@ def submit_assessment(
         "course_id": assessment.course_id,
         "course_title": assessment.course.title,
         "organization": assessment.course.organization,
+        "duration_hours": assessment.course.duration_hours,
+        # Same format the profile certificates list uses, so the preview matches the stored credential.
+        "certificate_id": f"KARM-CERT-{assessment.course_id}-{current_user.id:04d}",
         "recipient_name": current_user.full_name,
         "breakdown": breakdown
     }

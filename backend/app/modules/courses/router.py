@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from app.core.database import get_db
 from app.core.security import get_current_user, get_current_active_user
 from app.models.models import (
@@ -16,7 +16,15 @@ def get_course_details(
     current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    course = db.query(Course).filter(Course.id == course_id).first()
+    course = (
+        db.query(Course)
+        .options(
+            selectinload(Course.modules).selectinload(Module.lessons),
+            selectinload(Course.course_skills).selectinload(CourseSkill.skill),
+        )
+        .filter(Course.id == course_id)
+        .first()
+    )
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
 
@@ -31,7 +39,7 @@ def get_course_details(
             db.add(lh)
         else:
             lh.viewed_at = datetime.datetime.utcnow()
-        db.commit()
+        # Committed after the response is built: committing now would expire the eagerly loaded modules and skills.
 
     # Calculate content type counts
     video_count = 0
@@ -85,7 +93,7 @@ def get_course_details(
                 "last_lesson_id": enr.last_lesson_id or (course.modules[0].lessons[0].id if course.modules and course.modules[0].lessons else None)
             }
 
-    return {
+    response = {
         "id": course.id,
         "title": course.title,
         "overview": course.overview,
@@ -109,6 +117,8 @@ def get_course_details(
         "assessment_id": course.assessment.id if course.assessment else None,
         "enrollment": enrollment_data
     }
+    db.commit()
+    return response
 
 @router.post("/{course_id}/enroll")
 def enroll_in_course(

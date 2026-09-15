@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Boolean, Float, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -22,6 +22,8 @@ class User(Base):
     planned_courses = relationship("PlannedCourse", back_populates="user", cascade="all, delete-orphan")
     learning_history = relationship("LearningHistory", back_populates="user", cascade="all, delete-orphan")
     search_history = relationship("SearchHistory", back_populates="user", cascade="all, delete-orphan")
+    cyber_sessions = relationship("CyberSandboxSession", back_populates="user", cascade="all, delete-orphan")
+    cyber_competency = relationship("UserCyberCompetency", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
 
 class UserProfile(Base):
@@ -158,6 +160,7 @@ class UserSkill(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     skill_id = Column(Integer, ForeignKey("skills.id", ondelete="CASCADE"), nullable=False)
     source_course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    competency_id = Column(Integer, ForeignKey("competencies.id", ondelete="SET NULL"), nullable=True)
     acquired_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="skills")
@@ -275,3 +278,418 @@ class SearchHistory(Base):
     searched_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="search_history")
+
+
+# ============================================================================
+# TECHNICAL COURSE CONTENT GENERATION PIPELINE MODELS
+# ============================================================================
+
+class TechnicalTranscript(Base):
+    __tablename__ = "technical_transcripts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    raw_text = Column(Text, nullable=False)
+    cleaned_text = Column(Text, nullable=False)
+    chunks_json = Column(Text, nullable=False)  # JSON list of chunks with metadata
+    metadata_json = Column(Text, nullable=True)  # JSON dict with token_count, source, etc.
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    learning_objectives = relationship("TechnicalLearningObjective", back_populates="transcript", cascade="all, delete-orphan")
+
+
+class TechnicalLearningObjective(Base):
+    __tablename__ = "technical_learning_objectives"
+
+    id = Column(Integer, primary_key=True, index=True)
+    transcript_id = Column(Integer, ForeignKey("technical_transcripts.id", ondelete="CASCADE"), nullable=True)
+    objective = Column(Text, nullable=False)
+    skill = Column(String(255), nullable=False, index=True)
+    difficulty = Column(String(50), default="intermediate")  # beginner, intermediate, advanced
+    action_verb = Column(String(100), nullable=False)  # implement, debug, analyze, configure, etc.
+    assessment_mode = Column(String(50), default="lab")  # lab or quiz
+    suitability_reason = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    transcript = relationship("TechnicalTranscript", back_populates="learning_objectives")
+    generated_labs = relationship("TechnicalGeneratedLab", back_populates="learning_objective")
+
+
+class TechnicalLabTemplate(Base):
+    __tablename__ = "technical_lab_templates"
+
+    id = Column(String(100), primary_key=True, index=True)  # Human-created template identifier
+    title = Column(String(255), nullable=False)
+    skill = Column(String(255), nullable=False, index=True)  # e.g., "FastAPI", "Pandas", "Python", "SQL"
+    language = Column(String(50), default="python", index=True)  # python, sql, bash, etc.
+    difficulty = Column(String(50), default="intermediate")  # beginner, intermediate, advanced
+    lab_type = Column(String(100), default="implementation")  # implementation, debugging, data_analysis, refactoring
+    tags_json = Column(Text, default="[]")  # JSON list of string tags for matching
+    instructions_template = Column(Text, nullable=False)
+    starter_code_template = Column(Text, nullable=False)
+    solution_template = Column(Text, nullable=True)
+    constraints_json = Column(Text, default="[]")  # JSON list of constraint strings
+    test_cases_template_json = Column(Text, default="[]")  # JSON list of test case specs
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    generated_labs = relationship("TechnicalGeneratedLab", back_populates="template")
+
+
+class TechnicalGeneratedLab(Base):
+    __tablename__ = "technical_generated_labs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String(100), ForeignKey("technical_lab_templates.id", ondelete="SET NULL"), nullable=True)
+    objective_id = Column(Integer, ForeignKey("technical_learning_objectives.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    objective = Column(Text, nullable=False)
+    language = Column(String(50), default="python")
+    difficulty = Column(String(50), default="intermediate")
+    instructions = Column(Text, nullable=False)
+    starter_code = Column(Text, nullable=False)
+    constraints_json = Column(Text, default="[]")  # JSON list of string constraints
+    test_cases_json = Column(Text, default="[]")  # JSON list of test case dicts
+    expected_behavior = Column(Text, nullable=True)
+    status = Column(String(50), default="draft")  # draft, pending_validation, validated, rejected
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    template = relationship("TechnicalLabTemplate", back_populates="generated_labs")
+    learning_objective = relationship("TechnicalLearningObjective", back_populates="generated_labs")
+    solution = relationship("TechnicalLabSolution", back_populates="lab", uselist=False, cascade="all, delete-orphan")
+    validation_results = relationship("TechnicalLabValidationResult", back_populates="lab", cascade="all, delete-orphan")
+
+
+class TechnicalLabSolution(Base):
+    __tablename__ = "technical_lab_solutions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("technical_generated_labs.id", ondelete="CASCADE"), unique=True, nullable=False)
+    reference_code = Column(Text, nullable=False)
+    explanation = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    lab = relationship("TechnicalGeneratedLab", back_populates="solution")
+
+
+class TechnicalLabValidationResult(Base):
+    __tablename__ = "technical_lab_validation_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("technical_generated_labs.id", ondelete="CASCADE"), nullable=False)
+    solution_id = Column(Integer, ForeignKey("technical_lab_solutions.id", ondelete="SET NULL"), nullable=True)
+    is_valid = Column(Boolean, default=False, nullable=False)
+    sandbox_type = Column(String(50), default="docker")  # docker or subprocess-dev-fallback
+    exit_code = Column(Integer, default=0)
+    execution_time_ms = Column(Float, default=0.0)
+    stdout = Column(Text, nullable=True)
+    stderr = Column(Text, nullable=True)
+    test_summary_json = Column(Text, nullable=True)  # JSON summary of individual test cases
+    error_message = Column(Text, nullable=True)
+    validated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    lab = relationship("TechnicalGeneratedLab", back_populates="validation_results")
+
+# ============================================================================
+# DIGITAL GOVERNANCE & CYBERSECURITY SANDBOX MODELS
+# ============================================================================
+
+class CyberSandboxTemplate(Base):
+    __tablename__ = "cyber_sandbox_templates"
+
+    id = Column(String(100), primary_key=True, index=True)
+    title = Column(String(255), nullable=False)
+    category = Column(String(100), nullable=False)
+    difficulty = Column(String(50), default="intermediate")
+    competency_id = Column(String(100), default="soc_investigation")
+    points = Column(Integer, default=100)
+    duration_minutes = Column(Integer, default=45)
+    tags_json = Column(Text, default="[]")
+    mitre_techniques_json = Column(Text, default="[]")
+    scenario_template = Column(Text, nullable=False)
+    instructions_template = Column(Text, nullable=False)
+    hints_template_json = Column(Text, default="[]")
+    artifacts_spec_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    challenges = relationship("CyberSandboxChallenge", back_populates="template")
+
+
+class CyberSandboxChallenge(Base):
+    __tablename__ = "cyber_sandbox_challenges"
+
+    id = Column(String(100), primary_key=True, index=True)
+    template_id = Column(String(100), ForeignKey("cyber_sandbox_templates.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(255), nullable=False)
+    category = Column(String(100), nullable=False)
+    difficulty = Column(String(50), default="intermediate")
+    points = Column(Integer, default=100)
+    duration_minutes = Column(Integer, default=45)
+    competency_id = Column(String(100), default="soc_investigation")
+    is_flagship = Column(Boolean, default=False)
+    tags_json = Column(Text, default="[]")
+    mitre_techniques_json = Column(Text, default="[]")
+    objectives_json = Column(Text, default="[]")
+    scenario_markdown = Column(Text, nullable=False)
+    flag = Column(String(255), nullable=False)
+    hints_json = Column(Text, default="[]")
+    artifacts_json = Column(Text, default="{}")
+    notebook_code = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    template = relationship("CyberSandboxTemplate", back_populates="challenges")
+    sessions = relationship("CyberSandboxSession", back_populates="challenge", cascade="all, delete-orphan")
+
+
+class CyberSandboxSession(Base):
+    __tablename__ = "cyber_sandbox_sessions"
+
+    id = Column(String(100), primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    challenge_id = Column(String(100), ForeignKey("cyber_sandbox_challenges.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String(50), default="running")
+    assigned_port = Column(Integer, nullable=False)
+    flag = Column(String(255), nullable=False)
+    unlocked_hints_json = Column(Text, default="[]")
+    total_penalties = Column(Integer, default=0)
+    final_score = Column(Integer, default=0)
+    is_solved = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    expires_at = Column(DateTime, nullable=False)
+    solved_at = Column(DateTime, nullable=True)
+
+    challenge = relationship("CyberSandboxChallenge", back_populates="sessions")
+    user = relationship("User", back_populates="cyber_sessions")
+
+
+class UserCyberCompetency(Base):
+    __tablename__ = "user_cyber_competencies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    soc_investigation = Column(Integer, default=0)
+    phishing_analysis = Column(Integer, default=0)
+    cloud_security = Column(Integer, default=0)
+    dpi_security = Column(Integer, default=0)
+    digital_forensics = Column(Integer, default=0)
+    total_score = Column(Integer, default=0)
+    solved_challenges_count = Column(Integer, default=0)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="cyber_competency")
+
+
+class CompetencyDomain(Base):
+    __tablename__ = "competency_domains"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(50), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+
+    competencies = relationship("Competency", back_populates="domain", cascade="all, delete-orphan")
+
+
+class Competency(Base):
+    __tablename__ = "competencies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    domain_id = Column(Integer, ForeignKey("competency_domains.id", ondelete="CASCADE"), nullable=False)
+    code = Column(String(100), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    max_level = Column(Integer, default=5)
+
+    domain = relationship("CompetencyDomain", back_populates="competencies")
+
+
+class CompetencyProfile(Base):
+    __tablename__ = "competency_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    statistical_score = Column(Float, default=0.0)
+    technical_score = Column(Float, default=0.0)
+    digital_governance_score = Column(Float, default=0.0)
+    behavioural_score = Column(Float, default=0.0)
+    last_computed_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")
+
+
+class UserCompetencyScore(Base):
+    __tablename__ = "user_competency_scores"
+    __table_args__ = (
+        UniqueConstraint("user_id", "competency_id", name="uq_user_competency"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    competency_id = Column(Integer, ForeignKey("competencies.id", ondelete="CASCADE"), nullable=False)
+    level = Column(Float, default=0.0)  # 0-5
+    evidence_source = Column(String(50), default="self_declared")  # self_declared, assessment, inferred
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")
+    competency = relationship("Competency")
+
+
+class GapAnalysis(Base):
+    __tablename__ = "gap_analyses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    domain_id = Column(Integer, ForeignKey("competency_domains.id", ondelete="CASCADE"), nullable=False)
+    target_level = Column(Float, nullable=False)
+    current_level = Column(Float, nullable=False)
+    gap = Column(Float, nullable=False)
+    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User")
+    domain = relationship("CompetencyDomain")
+
+
+class Recommendation(Base):
+    __tablename__ = "recommendations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="SET NULL"), nullable=True)
+    reason = Column(Text, nullable=False)
+    score = Column(Float, default=0.0)
+    status = Column(String(20), default="pending")  # pending, enrolled, dismissed
+    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User")
+    course = relationship("Course")
+
+
+class StatEngineQuestion(Base):
+    __tablename__ = "stat_engine_questions"
+
+    question_id = Column(String(100), primary_key=True)
+    template_id = Column(String(100), nullable=False)
+    skill_id = Column(String(100), nullable=False, index=True)
+    competency_id = Column(String(100), nullable=False)
+    question_type = Column(String(50), nullable=False)
+    difficulty = Column(String(50), nullable=False)
+    prompt = Column(Text, nullable=False)
+    parameters_json = Column(Text, nullable=False)
+    correct_answer_json = Column(Text, nullable=False)
+    tolerance = Column(Float, default=0.0)
+    options_map_json = Column(Text, nullable=False)
+    correct_option_id = Column(String(50), nullable=True)
+    explanation = Column(Text, nullable=True)
+    unit = Column(String(100), nullable=True)
+    chart_json = Column(Text, nullable=True)
+    seed = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class StatEngineAttempt(Base):
+    __tablename__ = "stat_engine_attempts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    attempt_id = Column(String(100), unique=True, nullable=False)
+    user_id = Column(String(100), nullable=False, index=True)
+    question_id = Column(String(100), nullable=False)
+    skill_id = Column(String(100), nullable=False, index=True)
+    submitted_answer = Column(String(255), nullable=True)
+    is_correct = Column(Boolean, default=False)
+    score = Column(Float, default=0.0)
+    misconception_id = Column(String(100), nullable=True)
+    time_taken_seconds = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class StatEngineMastery(Base):
+    __tablename__ = "stat_engine_mastery"
+    __table_args__ = (
+        UniqueConstraint("user_id", "skill_id", name="uq_stat_mastery_user_skill"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), nullable=False, index=True)
+    skill_id = Column(String(100), nullable=False)
+    mastery_json = Column(Text, nullable=False)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+
+class BehaviouralSessionResult(Base):
+    __tablename__ = "behavioural_session_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(100), unique=True, nullable=False, index=True)
+    session_type = Column(String(20), nullable=False)  # carryforward, interview
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    case_or_course_id = Column(String(100), nullable=True)
+    score = Column(Float, default=0.0)
+    result_json = Column(Text, nullable=False)
+    completed_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User")
+
+
+class EvidenceCompetencyMapping(Base):
+    __tablename__ = "evidence_competency_mapping"
+    __table_args__ = (
+        UniqueConstraint("source_system", "source_key", name="uq_evidence_mapping_source"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_system = Column(String(50), nullable=False)  # stat_engine_skill, stat_engine_competency, behavioural_competency
+    source_key = Column(String(255), nullable=False)
+    competency_id = Column(Integer, ForeignKey("competencies.id", ondelete="CASCADE"), nullable=False)
+
+    competency = relationship("Competency")
+
+
+class GeneratedQuiz(Base):
+    __tablename__ = "generated_quizzes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(255), nullable=False)
+    source_name = Column(String(255), nullable=False)
+    source_type = Column(String(20), nullable=False)  # pdf, pptx, docx, txt, md, vtt, srt, text
+    source_excerpt = Column(Text, nullable=True)
+    difficulty = Column(String(20), default="intermediate")
+    generator = Column(String(20), default="llm")  # llm, fallback
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    creator = relationship("User")
+    questions = relationship("GeneratedQuizQuestion", back_populates="quiz", cascade="all, delete-orphan", order_by="GeneratedQuizQuestion.order")
+    attempts = relationship("QuizAttempt", back_populates="quiz", cascade="all, delete-orphan")
+
+
+class GeneratedQuizQuestion(Base):
+    __tablename__ = "generated_quiz_questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quiz_id = Column(Integer, ForeignKey("generated_quizzes.id", ondelete="CASCADE"), nullable=False, index=True)
+    order = Column(Integer, default=1)
+    question_text = Column(Text, nullable=False)
+    options_json = Column(Text, nullable=False)
+    correct_option_index = Column(Integer, nullable=False)
+    explanation = Column(Text, nullable=True)
+    concept = Column(String(255), nullable=True)
+
+    quiz = relationship("GeneratedQuiz", back_populates="questions")
+
+
+class QuizAttempt(Base):
+    __tablename__ = "quiz_attempts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quiz_id = Column(Integer, ForeignKey("generated_quizzes.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    answers_json = Column(Text, nullable=False)
+    correct_count = Column(Integer, default=0)
+    total_questions = Column(Integer, default=0)
+    score_percent = Column(Float, default=0.0)
+    submitted_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    quiz = relationship("GeneratedQuiz", back_populates="attempts")
+    user = relationship("User")
+

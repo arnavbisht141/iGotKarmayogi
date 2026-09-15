@@ -1,0 +1,161 @@
+{
+  "domain": "price_statistics",
+  "version": 1,
+  "templates": [
+    {
+      "template_id": "price.rel.num.001",
+      "skill_id": "price.price_relative",
+      "type": "numeric",
+      "difficulty": "basic",
+      "prompt_template": "In a state statistical survey by MoSPI, the retail price of rice in the base period was ₹{base_price} per kg, and in the current period it rose to ₹{current_price} per kg. Calculate the price relative of rice for the current period.",
+      "parameters": {
+        "base_price": {"type": "integer", "min": 25, "max": 80, "step": 5},
+        "current_price": {"type": "integer", "min": 30, "max": 120, "step": 5, "constraint": "current_price > base_price"}
+      },
+      "operation": "price_relative",
+      "unit": "percent",
+      "tolerance": 0.5,
+      "explanation_template": "The price relative R is calculated as (Current Price / Base Price) × 100 = ({current_price} / {base_price}) × 100 = {answer:.2f}%."
+    },
+    {
+      "template_id": "price.rel.mcq.001",
+      "skill_id": "price.price_relative",
+      "type": "mcq",
+      "difficulty": "basic",
+      "prompt_template": "An official market price report records the price of Mustard Oil as ₹{base_price} in the base year (2020) and ₹{current_price} in the current year. What is the price relative?",
+      "parameters": {
+        "base_price": {"type": "integer", "min": 100, "max": 200, "step": 10},
+        "current_price": {"type": "integer", "min": 120, "max": 260, "step": 10, "constraint": "current_price != base_price"}
+      },
+      "operation": "price_relative",
+      "unit": "percent",
+      "distractor_rules": [
+        {"type": "inverted_ratio", "misconception_id": "err.price.inverted_ratio", "description": "Computed base_price / current_price * 100"},
+        {"type": "absolute_difference", "misconception_id": "err.price.absolute_difference", "description": "Computed current_price - base_price"},
+        {"type": "missing_percentage", "misconception_id": "err.price.missing_percentage", "description": "Did not multiply by 100"}
+      ],
+      "explanation_template": "Price Relative = (P_1 / P_0) × 100 = ({current_price} / {base_price}) × 100 = {answer:.2f}%."
+    },
+    {
+      "template_id": "price.cpi.weighted.mcq.001",
+      "skill_id": "price.cpi.weighted_price_relatives",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "prompt_template": "A district consumer basket consists of three essential commodity groups with the following price relatives and expenditure weights:\n• Food: Relative = {rel_food}, Weight = {w_food}\n• Housing: Relative = {rel_housing}, Weight = {w_housing}\n• Fuel & Light: Relative = {rel_fuel}, Weight = {w_fuel}\n\nCompute the overall Consumer Price Index (CPI) using the weighted average of price relatives method.",
+      "parameters": {
+        "rel_food": {"type": "integer", "min": 110, "max": 140, "step": 5},
+        "rel_housing": {"type": "integer", "min": 105, "max": 130, "step": 5},
+        "rel_fuel": {"type": "integer", "min": 115, "max": 150, "step": 5},
+        "w_food": {"type": "integer", "min": 40, "max": 50, "step": 5},
+        "w_housing": {"type": "integer", "min": 25, "max": 35, "step": 5},
+        "w_fuel": {"type": "integer", "min": 20, "max": 30, "step": 5}
+      },
+      "operation": "weighted_price_relatives_basket",
+      "unit": "index_points",
+      "distractor_rules": [
+        {"type": "unweighted_average", "misconception_id": "err.cpi.unweighted_average", "description": "Simple average of price relatives without weights"},
+        {"type": "swapped_weights", "misconception_id": "err.cpi.swapped_weights", "description": "Assigned highest weight to lowest relative"},
+        {"type": "offset_index", "misconception_id": "err.cpi.calculation_offset", "description": "Rounding or arithmetic summation error"}
+      ],
+      "explanation_template": "CPI = Σ(W × R) / ΣW = [({w_food}×{rel_food}) + ({w_housing}×{rel_housing}) + ({w_fuel}×{rel_fuel})] / ({w_food} + {w_housing} + {w_fuel}) = {answer:.2f}."
+    },
+    {
+      "template_id": "price.inf.num.001",
+      "skill_id": "price.inflation_rate",
+      "type": "numeric",
+      "difficulty": "basic",
+      "prompt_template": "The All-India Consumer Price Index (Base 2012=100) was {prev_cpi} in March 2023 and stood at {curr_cpi} in March 2024. Calculate the annual rate of inflation (percentage change in CPI) for March 2024.",
+      "parameters": {
+        "prev_cpi": {"type": "float", "min": 160.0, "max": 185.0, "step": 2.5},
+        "curr_cpi": {"type": "float", "min": 170.0, "max": 198.0, "step": 2.5, "constraint": "curr_cpi > prev_cpi"}
+      },
+      "operation": "inflation_rate",
+      "unit": "percent",
+      "tolerance": 0.2,
+      "explanation_template": "Inflation Rate = ((CPI_t - CPI_t-1) / CPI_t-1) × 100 = (({curr_cpi} - {prev_cpi}) / {prev_cpi}) × 100 = {answer:.2f}%."
+    },
+    {
+      "template_id": "price.laspeyres.mcq.001",
+      "skill_id": "price.laspeyres_index",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "prompt_template": "Consider an official MoSPI commodity basket with two major items. Base period prices are p0=[{p0_a}, {p0_b}], base quantities are q0=[{q0_a}, {q0_b}], and current period prices are p1=[{p1_a}, {p1_b}]. What is the Laspeyres Price Index?",
+      "parameters": {
+        "p0_a": {"type": "integer", "min": 10, "max": 25, "step": 5},
+        "p0_b": {"type": "integer", "min": 20, "max": 40, "step": 5},
+        "q0_a": {"type": "integer", "min": 4, "max": 10, "step": 2},
+        "q0_b": {"type": "integer", "min": 5, "max": 12, "step": 1},
+        "p1_a": {"type": "integer", "min": 15, "max": 35, "step": 5},
+        "p1_b": {"type": "integer", "min": 25, "max": 50, "step": 5}
+      },
+      "operation": "laspeyres_index_basket",
+      "unit": "index_points",
+      "distractor_rules": [
+        {"type": "inverted_laspeyres", "misconception_id": "err.index.inverted_fraction", "description": "Base expenditure divided by current expenditure"},
+        {"type": "unweighted_price_change", "misconception_id": "err.index.ignored_quantities", "description": "Averaged price change without base quantities"},
+        {"type": "paasche_substitution", "misconception_id": "err.index.paasche_confusion", "description": "Used hypothetically modified quantities"}
+      ],
+      "explanation_template": "Laspeyres Index I_L = (Σ(p1 × q0) / Σ(p0 × q0)) × 100 = {answer:.2f}."
+    },
+    {
+      "template_id": "price.fisher.mcq.001",
+      "skill_id": "price.fisher_index",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "prompt_template": "An econometric index calculation for agricultural commodities yields a Laspeyres price index of {laspeyres} and a Paasche price index of {paasche}. Calculate Fisher's Ideal Index.",
+      "parameters": {
+        "laspeyres": {"type": "float", "min": 120.0, "max": 150.0, "step": 2.0},
+        "paasche": {"type": "float", "min": 115.0, "max": 145.0, "step": 2.0, "constraint": "abs(laspeyres - paasche) <= 10.0"}
+      },
+      "operation": "fisher_index",
+      "unit": "index_points",
+      "distractor_rules": [
+        {"type": "arithmetic_mean", "misconception_id": "err.fisher.arithmetic_mean", "description": "Calculated (I_L + I_P) / 2 instead of sqrt(I_L * I_P)"},
+        {"type": "geometric_difference", "misconception_id": "err.fisher.subtraction", "description": "Took difference instead of product root"},
+        {"type": "laspeyres_bias", "misconception_id": "err.fisher.laspeyres_only", "description": "Selected Laspeyres value assuming upper bound"}
+      ],
+      "explanation_template": "Fisher's Ideal Index = sqrt(I_L × I_P) = sqrt({laspeyres} × {paasche}) = {answer:.2f}."
+    },
+    {
+      "template_id": "price.real.num.001",
+      "skill_id": "price.real_vs_nominal",
+      "type": "numeric",
+      "difficulty": "intermediate",
+      "prompt_template": "A statistical investigator's monthly nominal compensation in 2024 was ₹{nominal_wage}. If the applicable Consumer Price Index (Base 2016=100) in 2024 is {cpi_index}, what is the real wage at base year prices? (Round to nearest integer).",
+      "parameters": {
+        "nominal_wage": {"type": "integer", "min": 40000, "max": 90000, "step": 5000},
+        "cpi_index": {"type": "float", "min": 125.0, "max": 160.0, "step": 5.0}
+      },
+      "operation": "real_value",
+      "unit": "inr",
+      "tolerance": 50.0,
+      "explanation_template": "Real Wage = (Nominal Wage / CPI) × 100 = ({nominal_wage} / {cpi_index}) × 100 = ₹{answer:.2f}."
+    },
+    {
+      "template_id": "price.chart.trend.mcq.001",
+      "skill_id": "price.cpi.weighted_price_relatives",
+      "type": "chart_interpretation",
+      "difficulty": "intermediate",
+      "prompt_template": "Examine the 4-year CPI trajectory chart for the state statistical division. In which year was the largest annual jump (index increase) in CPI recorded?",
+      "parameters": {
+        "cpi_2020": {"type": "float", "min": 100.0, "max": 100.0},
+        "cpi_2021": {"type": "float", "min": 104.0, "max": 107.0, "step": 1.0},
+        "cpi_2022": {"type": "float", "min": 112.0, "max": 118.0, "step": 1.0},
+        "cpi_2023": {"type": "float", "min": 120.0, "max": 126.0, "step": 1.0}
+      },
+      "operation": "cpi_trend_max_jump",
+      "chart_spec": {
+        "type": "line",
+        "title": "State Consumer Price Index Trend (2020-2023)",
+        "xAxis": {"field": "year", "label": "Year"},
+        "yAxis": {"field": "cpi", "label": "Consumer Price Index (Base 2020=100)"}
+      },
+      "unit": "year",
+      "distractor_rules": [
+        {"type": "final_year_assumption", "misconception_id": "err.chart.confused_level_with_change", "description": "Selected highest index year rather than highest change"},
+        {"type": "base_year_assumption", "misconception_id": "err.chart.base_period_confusion", "description": "Selected base year"}
+      ],
+      "explanation_template": "Comparing the annual changes: 2021 increase = {diff_2021:.1f}, 2022 increase = {diff_2022:.1f}, 2023 increase = {diff_2023:.1f}. The largest annual increase was recorded in {answer}."
+    }
+  ]
+}

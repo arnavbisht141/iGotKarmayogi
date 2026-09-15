@@ -22,6 +22,10 @@ import { CertificateModal } from "@/components/certificate/CertificateModal";
 import { useI18n } from "@/lib/i18n";
 import confetti from "canvas-confetti";
 
+function formatClock(totalSeconds: number) {
+  return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`;
+}
+
 export default function AssessmentTestPage() {
   const { assessmentId } = useParams();
   const router = useRouter();
@@ -34,6 +38,10 @@ export default function AssessmentTestPage() {
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState<any>(null);
+  const [deadline, setDeadline] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const [confirmingSubmit, setConfirmingSubmit] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Certificate modal state
   const [showCertModal, setShowCertModal] = useState(false);
@@ -47,6 +55,27 @@ export default function AssessmentTestPage() {
       .finally(() => setLoading(false));
   }, [assessmentId]);
 
+  useEffect(() => {
+    if (!deadline || results) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [deadline, results]);
+
+  const secondsLeft = deadline ? Math.max(0, Math.ceil((deadline - now) / 1000)) : null;
+
+  // Time is up: submit whatever has been answered.
+  useEffect(() => {
+    if (secondsLeft === 0 && !results && !submitting) handleSubmit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft]);
+
+  const startTest = () => {
+    if (!assessment) return;
+    setDeadline(Date.now() + assessment.time_limit_minutes * 60_000);
+    setNow(Date.now());
+    setTestStarted(true);
+  };
+
   const handleSelectOption = (questionId: number, optionIdx: number) => {
     setUserAnswers((prev) => ({
       ...prev,
@@ -56,6 +85,8 @@ export default function AssessmentTestPage() {
 
   const handleSubmit = async () => {
     if (!assessment) return;
+    setConfirmingSubmit(false);
+    setSubmitError(null);
     setSubmitting(true);
 
     try {
@@ -75,7 +106,7 @@ export default function AssessmentTestPage() {
 
         // Prepare certificate data for instant preview
         setCertificateData({
-          certificate_id: `KARM-CERT-${data.course_id}-${Math.floor(1000 + Math.random() * 9000)}`,
+          certificate_id: data.certificate_id,
           course_id: data.course_id,
           course_title: data.course_title,
           organization: data.organization,
@@ -84,11 +115,11 @@ export default function AssessmentTestPage() {
           issued_date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
           score_percent: data.score_percent,
           verification_status: "Verified Official Credential",
-          duration_hours: 6.0,
+          duration_hours: data.duration_hours,
         });
       }
     } catch (err: any) {
-      alert("Error submitting assessment");
+      setSubmitError(err?.message || "Your answers could not be submitted. Check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -98,7 +129,7 @@ export default function AssessmentTestPage() {
     setUserAnswers({});
     setResults(null);
     setCurrentQuestionIdx(0);
-    setTestStarted(true);
+    startTest();
   };
 
   if (loading) {
@@ -172,7 +203,7 @@ export default function AssessmentTestPage() {
               {results.passed && (
                 <Button
                   onClick={() => setShowCertModal(true)}
-                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs"
+                  className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold shadow-xs cursor-pointer"
                 >
                   <Award className="h-4 w-4 mr-1.5 text-amber-400" />
                   {t("assess.viewCertificate")}
@@ -214,8 +245,16 @@ export default function AssessmentTestPage() {
                     <p className="font-bold text-slate-900">
                       Q{idx + 1}: {item.question_text}
                     </p>
-                    <Badge variant={item.is_correct ? "success" : "default"}>
-                      {item.is_correct ? "Correct ✓" : "Incorrect ✗"}
+                    <Badge variant={item.is_correct ? "success" : "default"} className="inline-flex items-center gap-1">
+                      {item.is_correct ? (
+                        <>
+                          <CheckCircle2 className="h-3 w-3" /> Correct
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-3 w-3" /> Incorrect
+                        </>
+                      )}
                     </Badge>
                   </div>
 
@@ -291,7 +330,8 @@ export default function AssessmentTestPage() {
               <h4 className="font-bold text-slate-900">Examination Instructions:</h4>
               <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
                 <li>Questions test conceptual rigor, sampling methods, and official standards.</li>
-                <li>Each question has one uniquely correct option.</li>
+                <li>Each question has one uniquely correct option. Unanswered questions are marked incorrect.</li>
+                <li>The timer starts when you begin. Your answers are submitted automatically when time runs out.</li>
                 <li>You may review and change your selected answers prior to final submission.</li>
                 <li>Under Phase 0 policy, unlimited attempts are permitted, and your best verified score is preserved on your official profile.</li>
               </ul>
@@ -313,8 +353,8 @@ export default function AssessmentTestPage() {
             </a>
             <Button
               size="sm"
-              onClick={() => setTestStarted(true)}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-6 shadow-xs"
+              onClick={startTest}
+              className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-semibold px-6 shadow-xs cursor-pointer"
             >
               {t("assess.startAssessment")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
@@ -332,18 +372,24 @@ export default function AssessmentTestPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Test Top Bar */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div>
-          <h3 className="text-xs font-bold text-slate-900 truncate max-w-sm">
+      <div className="flex items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xs font-bold text-slate-900 truncate max-w-[180px] sm:max-w-md">
             {assessment.title}
           </h3>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[10px] sm:text-[11px] text-slate-500">
             Question {currentQuestionIdx + 1} of {assessment.questions.length} • {answeredCount} answered
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
-          <Clock className="h-3.5 w-3.5 text-amber-600" />
-          <span>{assessment.time_limit_minutes}:00 mins</span>
+        <div
+          role="timer"
+          aria-label="Time remaining"
+          className={`flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-lg shrink-0 ${
+            secondsLeft !== null && secondsLeft <= 60 ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-700"
+          }`}
+        >
+          <Clock className="h-3.5 w-3.5 text-amber-600 shrink-0" aria-hidden="true" />
+          <span className="tabular-nums">{formatClock(secondsLeft ?? assessment.time_limit_minutes * 60)}</span>
         </div>
       </div>
 
@@ -368,7 +414,7 @@ export default function AssessmentTestPage() {
                 onClick={() => handleSelectOption(question.id, optIdx)}
                 className={`w-full p-3.5 rounded-xl border text-left text-xs font-medium transition-all cursor-pointer flex items-center gap-3 ${
                   isSelected
-                    ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                    ? "bg-[#1E3A8A] text-white border-[#1E3A8A] shadow-xs"
                     : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                 }`}
               >
@@ -402,14 +448,18 @@ export default function AssessmentTestPage() {
               <Button
                 size="sm"
                 onClick={() => setCurrentQuestionIdx((p) => p + 1)}
-                className="bg-slate-900 text-white text-xs px-5"
+                className="bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs px-5 cursor-pointer"
               >
                 Next Question <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             ) : (
               <Button
                 size="sm"
-                onClick={handleSubmit}
+                onClick={() =>
+                  answeredCount < assessment.questions.length && !confirmingSubmit
+                    ? setConfirmingSubmit(true)
+                    : handleSubmit()
+                }
                 disabled={submitting}
                 className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold px-6 shadow-xs"
               >
@@ -419,6 +469,29 @@ export default function AssessmentTestPage() {
           </div>
         </CardFooter>
       </Card>
+
+      {confirmingSubmit && (
+        <div role="alertdialog" aria-live="polite" className="flex flex-col gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs text-amber-950 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-pretty">
+            {assessment.questions.length - answeredCount} of {assessment.questions.length} questions are unanswered and will be marked incorrect.
+          </p>
+          <div className="flex shrink-0 gap-2">
+            <Button variant="outline" size="sm" className="text-xs" onClick={() => setConfirmingSubmit(false)}>
+              Review answers
+            </Button>
+            <Button size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs" onClick={handleSubmit} disabled={submitting}>
+              Submit anyway
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {submitError && (
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs text-rose-900">
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <p className="text-pretty">{submitError}</p>
+        </div>
+      )}
 
       {/* Question Quick Jump Grid */}
       <div className="flex flex-wrap items-center gap-2 p-3 bg-white rounded-xl border border-slate-200 text-xs">
@@ -432,7 +505,7 @@ export default function AssessmentTestPage() {
               onClick={() => setCurrentQuestionIdx(idx)}
               className={`h-7 w-7 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                 isCurrent
-                  ? "bg-slate-900 text-amber-400 ring-2 ring-slate-400"
+                  ? "bg-[#1E3A8A] text-white ring-2 ring-blue-300"
                   : isAnswered
                   ? "bg-emerald-100 text-emerald-800"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"

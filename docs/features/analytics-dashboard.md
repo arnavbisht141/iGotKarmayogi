@@ -33,6 +33,12 @@ The learner home dashboard (`frontend/src/app/(dashboard)/home/page.tsx`) implem
 | **9** | **Future Planned Courses** | Bookmarked courses marked by the officer for upcoming capacity building cycles. |
 | **10** | **Competencies Radar Summary** | Visual competency breakdown mapping acquired skills across MoSPI functional domains (e.g. National Accounts, Survey Sampling). |
 
+### 2.1 Institutional Layout, Non-AI Styling & Bilingual Support
+- **Seamless White Institutional Header:** Features ministry title (`OFFICIAL CADRE DASHBOARD • MINISTRY OF STATISTICS & PROGRAMME IMPLEMENTATION`), Lucide `Building2` icon, officer welcome headline, and official cadre designations.
+- **Continuous Slate Canvas (`#F8FAFC`):** The dashboard runs on a unified `#F8FAFC` background with subtle card borders, completely replacing previous dark gradient boxes and multi-colored floating cards.
+- **Zero Emojis / Zero AI Telltales:** All decorative emojis (`🎉`, `🔥`, `✨`) were eliminated; status indicators use semantic Lucide SVG icons (`Target`, `Flame`, `BookOpen`, `Clock`).
+- **100% Bilingual Localization:** Every widget header, metric counter, recommendation banner, progress bar label, and action button dynamically translates between English and Hindi using `useI18n()`.
+
 ---
 
 ## 3. Administrative Supervisory Console (`/admin`)
@@ -50,6 +56,11 @@ Restricted strictly to users with the `admin` role (`admin@karmayogi.gov.in`):
 ### 3.3 Curriculum Question Failure-Rate Analytics
 - Analyzes all `AssessmentAttempt` records to detect questions with unusually high failure rates.
 - Provides actionable diagnostic insights to curriculum coordinators to refine unclear questions or expand prerequisite lesson material.
+
+### 3.4 Institutional Admin Header & Clean Non-AI Badges
+- Features full-width white header with `CENTRAL ADMINISTRATION & CADRE OVERSIGHT • CAPACITY BUILDING COMMISSION` text and Lucide `Building2` iconography.
+- Replaced artificial saffron pill badges with subtle administrative authority chips and Lucide `CheckCircle2` indicators for completed onboarding statuses.
+- Standardized all admin actions onto Official Navy Primary (`#1E3A8A`).
 
 ---
 

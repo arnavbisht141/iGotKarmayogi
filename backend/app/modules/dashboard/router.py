@@ -1,13 +1,16 @@
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.models import (
-    User, Course, Enrollment, Progress, PlannedCourse, LearningHistory, UserSkill, Lesson
+    User, Course, Enrollment, Progress, PlannedCourse, LearningHistory, UserSkill, Lesson, Recommendation
 )
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+
+RECOMMENDED_COURSE_COUNT = 4
+
 
 @router.get("/summary")
 def get_dashboard_summary(
@@ -37,15 +40,16 @@ def get_dashboard_summary(
         }
 
     profile = current_user.profile
-    
+
     # 1. Continue Learning & Current Course Progress
     active_enrollment = (
         db.query(Enrollment)
+        .options(joinedload(Enrollment.course))
         .filter(Enrollment.user_id == current_user.id, Enrollment.status == "in_progress")
         .order_by(Enrollment.started_at.desc())
         .first()
     )
-    
+
     continue_learning = None
     if active_enrollment:
         course = active_enrollment.course
@@ -68,12 +72,23 @@ def get_dashboard_summary(
     # 3. Learning Streak
     streak_days = profile.current_streak_days if profile else 1
 
-    # 4. Recommended / Suggested Courses
-    # Filter based on department / interests if available, otherwise high-rated
-    recommended_query = db.query(Course)
-    if active_enrollment:
-        recommended_query = recommended_query.filter(Course.id != active_enrollment.course_id)
-    recommended_courses = recommended_query.limit(4).all()
+    # 4. Recommended courses: the learner's pending AI recommendations first, topped up with top-rated courses
+    enrolled_course_ids = {
+        row[0] for row in db.query(Enrollment.course_id).filter(Enrollment.user_id == current_user.id).all()
+    }
+    ai_recommended = (
+        db.query(Course)
+        .join(Recommendation, Recommendation.course_id == Course.id)
+        .filter(Recommendation.user_id == current_user.id, Recommendation.status == "pending")
+        .order_by(Recommendation.score.desc())
+        .all()
+    )
+    recommended_courses: List[Course] = []
+    for c in ai_recommended + db.query(Course).order_by(Course.rating.desc()).limit(12).all():
+        if c.id not in enrolled_course_ids and all(c.id != existing.id for existing in recommended_courses):
+            recommended_courses.append(c)
+        if len(recommended_courses) == RECOMMENDED_COURSE_COUNT:
+            break
 
     # 5. Trending Courses
     trending_courses = db.query(Course).order_by(Course.enrolled_count.desc()).limit(4).all()
@@ -81,6 +96,7 @@ def get_dashboard_summary(
     # 6. Recently Explored Courses
     recent_history = (
         db.query(LearningHistory)
+        .options(joinedload(LearningHistory.course))
         .filter(LearningHistory.user_id == current_user.id)
         .order_by(LearningHistory.viewed_at.desc())
         .limit(3)
@@ -107,7 +123,12 @@ def get_dashboard_summary(
     overall_progress = round(sum(e.progress_percent for e in all_enrollments) / max(len(all_enrollments), 1), 1) if all_enrollments else 0
 
     # 8. Future Planned Courses
-    planned_records = db.query(PlannedCourse).filter(PlannedCourse.user_id == current_user.id).all()
+    planned_records = (
+        db.query(PlannedCourse)
+        .options(joinedload(PlannedCourse.course))
+        .filter(PlannedCourse.user_id == current_user.id)
+        .all()
+    )
     future_planned = [
         {
             "id": p.id,
@@ -122,7 +143,12 @@ def get_dashboard_summary(
     ]
 
     # 9. Competencies / User Skills
-    user_skills = db.query(UserSkill).filter(UserSkill.user_id == current_user.id).all()
+    user_skills = (
+        db.query(UserSkill)
+        .options(joinedload(UserSkill.skill))
+        .filter(UserSkill.user_id == current_user.id)
+        .all()
+    )
     skills_list = [
         {
             "id": us.skill.id,

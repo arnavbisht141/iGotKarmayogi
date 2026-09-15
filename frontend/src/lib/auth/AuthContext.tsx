@@ -55,12 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUser(refreshedUser);
               localStorage.setItem("karmayogi_user", JSON.stringify(refreshedUser));
             })
-            .catch(() => {
-              // Token expired or invalid
-              localStorage.removeItem("karmayogi_token");
-              localStorage.removeItem("karmayogi_user");
-              setUser(null);
-              setToken(null);
+            .catch((err: { status?: number }) => {
+              // Only a rejected token signs out; network errors or a restarting backend keep the cached session.
+              if (err?.status === 401 || err?.status === 403) {
+                localStorage.removeItem("karmayogi_token");
+                localStorage.removeItem("karmayogi_user");
+                setUser(null);
+                setToken(null);
+              }
             });
         } catch (e) {
           localStorage.removeItem("karmayogi_token");
