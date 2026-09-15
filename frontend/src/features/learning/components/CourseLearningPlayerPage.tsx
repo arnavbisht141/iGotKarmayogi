@@ -26,6 +26,7 @@ import { CurrentLesson, ModuleSummary } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import confetti from "canvas-confetti";
 import { LabLauncherBanner } from "@/features/labs/components/LabLauncherBanner";
+import { LessonVideo } from "@/features/learning/components/LessonVideo";
 
 function LearningPlayerContent() {
   const { courseId } = useParams();
@@ -286,18 +287,7 @@ function LearningPlayerContent() {
         <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* Simulated Video Player if Content Type is Video */}
           {currentLesson.content_type === "video" && (
-            <div className="rounded-2xl overflow-hidden bg-slate-950 shadow-md aspect-video relative flex items-center justify-center text-white">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-              <div className="relative text-center p-6 space-y-3 z-10">
-                <div className="h-16 w-16 rounded-full navy-teal-gradient text-white flex items-center justify-center mx-auto shadow-lg hover:scale-105 transition-transform cursor-pointer">
-                  <PlayCircle className="h-10 w-10" />
-                </div>
-                <h4 className="text-base font-bold">{currentLesson.title}</h4>
-                <p className="text-xs text-slate-300">
-                  Interactive Video Lecture • National Statistical Systems Training Academy (NSSTA)
-                </p>
-              </div>
-            </div>
+            <LessonVideo title={currentLesson.title} videoUrl={currentLesson.video_url} />
           )}
 
           {/* Interactive Lab Launcher Banner if Content Type is Lab */}

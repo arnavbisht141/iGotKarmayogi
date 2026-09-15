@@ -449,7 +449,7 @@ export default function HomePage() {
                   </div>
                   {t("home.competencies")}
                 </CardTitle>
-                <a href="/progress" className="text-xs font-bold text-[#1E3A8A] hover:underline cursor-pointer">
+                <a href="/competency" className="text-xs font-bold text-[#1E3A8A] hover:underline cursor-pointer">
                   {t("home.competencyRadar")} →
                 </a>
               </CardHeader>

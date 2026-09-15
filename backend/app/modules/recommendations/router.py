@@ -1,11 +1,12 @@
 import logging
 from typing import Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import get_current_active_user
-from app.models.models import User, Recommendation
+from app.models.models import User, Recommendation, Enrollment
 from app.agents.recommendation.agent import generate_recommendations, get_llm_client
 from app.agents.recommendation.indexer import get_real_pinecone_index
 from .schemas import RecommendationSchema
@@ -13,6 +14,33 @@ from .schemas import RecommendationSchema
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
+
+RECOMMENDATION_STATUSES = {"pending", "enrolled", "dismissed"}
+
+
+class RecommendationStatusUpdate(BaseModel):
+    status: str
+
+
+@router.patch("/{recommendation_id}", response_model=RecommendationSchema)
+def update_recommendation_status(
+    recommendation_id: int,
+    req: RecommendationStatusUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    if req.status not in RECOMMENDATION_STATUSES:
+        raise HTTPException(status_code=400, detail=f"status must be one of {sorted(RECOMMENDATION_STATUSES)}")
+    rec = db.query(Recommendation).filter_by(id=recommendation_id, user_id=current_user.id).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recommendation not found")
+    rec.status = req.status
+    if req.status == "enrolled" and rec.course_id:
+        if not db.query(Enrollment).filter_by(user_id=current_user.id, course_id=rec.course_id).first():
+            db.add(Enrollment(user_id=current_user.id, course_id=rec.course_id, status="in_progress"))
+    db.commit()
+    db.refresh(rec)
+    return _serialize(rec)
 
 
 def _safe_pinecone_index():

@@ -24,7 +24,7 @@ def _resolve_mapping(db: Session, source_system: str, source_key: str) -> Option
     return row.competency_id if row else None
 
 
-def _collect_current_levels(db: Session, user_id: int) -> Dict[int, float]:
+def collect_current_levels(db: Session, user_id: int) -> Dict[int, float]:
     """Returns {competency_id: level (0-5)}, merging self-declared scores with
     resolved evidence via max() so evidence never lowers an already-recorded level."""
     levels: Dict[int, float] = {}
@@ -62,7 +62,7 @@ def run_gap_analysis(db: Session, user_id: int) -> dict:
         profile_row.job_role if profile_row else None,
     )
 
-    current_levels = _collect_current_levels(db, user_id)
+    current_levels = collect_current_levels(db, user_id)
 
     domains = db.query(CompetencyDomain).all()
     gaps: List[GapAnalysis] = []

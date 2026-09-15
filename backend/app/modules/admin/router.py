@@ -1,16 +1,109 @@
+import datetime
 import json
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import require_admin
 from app.models.models import (
-    User, Course, Module, Lesson, Enrollment, Assessment, Question, AssessmentAttempt
+    User, Course, Module, Lesson, Enrollment, Assessment, Question, AssessmentAttempt,
+    CompetencyDomain, CompetencyProfile, GapAnalysis, Recommendation, GeneratedQuiz, QuizAttempt,
 )
 from .schemas import CourseAssignmentRequest, CreateCourseRequest
 from app.agents.recommendation.indexer import index_course
 
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+DOMAIN_PROFILE_COLUMN = {
+    "statistical": "statistical_score",
+    "technical": "technical_score",
+    "digital_governance": "digital_governance_score",
+    "behavioural": "behavioural_score",
+}
+
+
+@router.get("/competency-analytics")
+def get_competency_analytics(admin_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+    domains = db.query(CompetencyDomain).order_by(CompetencyDomain.id).all()
+    profiles = db.query(CompetencyProfile).all()
+
+    average_scores = []
+    for d in domains:
+        column = DOMAIN_PROFILE_COLUMN.get(d.code)
+        values = [getattr(p, column) or 0.0 for p in profiles] if column else []
+        average_scores.append({
+            "domain_code": d.code, "domain_name": d.name,
+            "average_score": round(sum(values) / len(values), 1) if values else 0.0,
+        })
+
+    latest_gap = {}
+    for row in db.query(GapAnalysis).order_by(GapAnalysis.generated_at.desc()).all():
+        latest_gap.setdefault((row.user_id, row.domain_id), row)
+    gap_distribution = []
+    for d in domains:
+        rows = [r for (_, domain_id), r in latest_gap.items() if domain_id == d.id]
+        gap_distribution.append({
+            "domain_code": d.code, "domain_name": d.name,
+            "on_target": sum(1 for r in rows if r.gap <= 0),
+            "minor_gap": sum(1 for r in rows if 0 < r.gap <= 1),
+            "major_gap": sum(1 for r in rows if r.gap > 1),
+        })
+
+    cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+    by_day = {}
+    for row in db.query(GapAnalysis).filter(GapAnalysis.generated_at >= cutoff).all():
+        by_day.setdefault(row.generated_at.date().isoformat(), {}).setdefault(row.domain.code, []).append(row.gap)
+    gap_trend = [
+        {"date": day, **{code: round(sum(v) / len(v), 2) for code, v in gaps.items()}}
+        for day, gaps in sorted(by_day.items())
+    ]
+
+    # ponytail: half-over-half linear extrapolation, swap for a real forecasting model once there is months of history
+    projections = []
+    for d in domains:
+        series = [point[d.code] for point in gap_trend if d.code in point]
+        current = series[-1] if series else None
+        projected = current
+        if len(series) >= 2:
+            mid = len(series) // 2
+            first = sum(series[:mid]) / mid
+            second = sum(series[mid:]) / (len(series) - mid)
+            projected = max(0.0, round(second + (second - first), 2))
+        projections.append({"domain_code": d.code, "domain_name": d.name, "current_gap": current, "projected_gap_30d": projected})
+
+    quiz_attempts = db.query(QuizAttempt).all()
+    assessment_attempts = db.query(AssessmentAttempt).all()
+    enrollments = db.query(Enrollment).all()
+    training_effectiveness = {
+        "quizzes_generated": db.query(GeneratedQuiz).count(),
+        "quiz_attempts": len(quiz_attempts),
+        "average_quiz_score": round(sum(a.score_percent for a in quiz_attempts) / len(quiz_attempts), 1) if quiz_attempts else None,
+        "assessment_attempts": len(assessment_attempts),
+        "assessment_pass_rate": round(100.0 * sum(1 for a in assessment_attempts if a.passed) / len(assessment_attempts), 1) if assessment_attempts else None,
+        "enrollments_completed": sum(1 for e in enrollments if e.status == "completed"),
+        "enrollments_in_progress": sum(1 for e in enrollments if e.status != "completed"),
+    }
+
+    demand = (
+        db.query(Recommendation.course_id, func.count(Recommendation.id))
+        .filter(Recommendation.course_id.isnot(None))
+        .group_by(Recommendation.course_id)
+        .order_by(func.count(Recommendation.id).desc())
+        .limit(5)
+        .all()
+    )
+    titles = {c.id: c.title for c in db.query(Course).filter(Course.id.in_([cid for cid, _ in demand])).all()} if demand else {}
+
+    return {
+        "profiled_learners": len(profiles),
+        "average_scores": average_scores,
+        "gap_distribution": gap_distribution,
+        "gap_trend": gap_trend,
+        "projections": projections,
+        "training_effectiveness": training_effectiveness,
+        "top_recommended_courses": [{"course_id": cid, "title": titles.get(cid, ""), "recommended_to": count} for cid, count in demand],
+    }
 
 @router.get("/overview")
 def get_admin_overview(

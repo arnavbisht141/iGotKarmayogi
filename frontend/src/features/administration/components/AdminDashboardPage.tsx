@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { fetchApi } from "@/lib/api";
+import CompetencyAnalyticsSection from "@/features/administration/components/CompetencyAnalyticsSection";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
 
@@ -173,6 +174,7 @@ export default function AdminDashboardPage() {
 
       {/* 2. Main Content Canvas */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <CompetencyAnalyticsSection />
         {/* Aggregate Metrics Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           <Card className="border-slate-200 bg-white shadow-2xs rounded-xl overflow-hidden">

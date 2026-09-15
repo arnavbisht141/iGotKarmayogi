@@ -3,11 +3,75 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import get_current_active_user
-from app.models.models import User, CompetencyProfile, GapAnalysis
-from app.agents.competency.gap_agent import run_gap_analysis
+from app.models.models import (
+    User, CompetencyProfile, GapAnalysis, CompetencyDomain, Competency, UserCompetencyScore, Course, Recommendation,
+)
+from app.agents.competency.gap_agent import run_gap_analysis, collect_current_levels
+from app.agents.igot.client import domain_category_filter
 from .schemas import GapAnalysisResponse, CompetencyProfileSchema, DomainGapSchema
 
 router = APIRouter(prefix="/competency", tags=["competency"])
+
+
+@router.get("/domains/{domain_code}")
+def get_domain_detail(
+    domain_code: str,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    domain = db.query(CompetencyDomain).filter_by(code=domain_code).first()
+    if not domain:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Competency domain not found")
+
+    levels = collect_current_levels(db, current_user.id)
+    declared_sources = {
+        row.competency_id: row.evidence_source
+        for row in db.query(UserCompetencyScore).filter_by(user_id=current_user.id).all()
+    }
+    competencies = []
+    for competency in db.query(Competency).filter_by(domain_id=domain.id).order_by(Competency.id).all():
+        level = levels.get(competency.id, 0.0)
+        competencies.append({
+            "code": competency.code,
+            "name": competency.name,
+            "level": round(level, 2),
+            "evidence_source": declared_sources.get(competency.id) or ("assessment" if level else None),
+        })
+
+    latest = (
+        db.query(GapAnalysis)
+        .filter_by(user_id=current_user.id, domain_id=domain.id)
+        .order_by(GapAnalysis.generated_at.desc())
+        .first()
+    )
+    recommendations = {
+        r.course_id: r for r in db.query(Recommendation).filter_by(user_id=current_user.id).all() if r.course_id
+    }
+    courses = []
+    for course in db.query(Course).filter(domain_category_filter(domain.code)).all():
+        rec = recommendations.get(course.id)
+        courses.append({
+            "id": course.id,
+            "title": course.title,
+            "overview": course.overview,
+            "difficulty": course.difficulty,
+            "duration_hours": course.duration_hours,
+            "category": course.category,
+            "recommended": bool(rec and rec.status != "dismissed"),
+            "reason": rec.reason if rec else None,
+        })
+    courses.sort(key=lambda c: not c["recommended"])
+
+    return {
+        "domain": {"code": domain.code, "name": domain.name, "description": domain.description},
+        "target_level": latest.target_level if latest else None,
+        "current_level": latest.current_level if latest else None,
+        "gap": latest.gap if latest else None,
+        "analyzed_at": latest.generated_at.isoformat() if latest and latest.generated_at else None,
+        "competencies": competencies,
+        "courses": courses,
+        "is_default_framework": True,
+    }
 
 
 def _serialize_gap(gap: GapAnalysis) -> DomainGapSchema:

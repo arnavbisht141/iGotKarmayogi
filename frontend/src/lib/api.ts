@@ -1,26 +1,15 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
-export async function fetchApi<T = any>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+function authHeaders(): Record<string, string> {
   const token = typeof window !== "undefined" ? localStorage.getItem("karmayogi_token") : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(options.headers as Record<string, string>),
-  };
+function buildUrl(endpoint: string): string {
+  return `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+}
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
+async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let errorDetail = "An unexpected server error occurred";
     try {
@@ -29,8 +18,24 @@ export async function fetchApi<T = any>(
     } catch {
       errorDetail = response.statusText || errorDetail;
     }
-    throw new Error(errorDetail);
+    throw new Error(typeof errorDetail === "string" ? errorDetail : JSON.stringify(errorDetail));
   }
-
   return response.json();
+}
+
+export async function fetchApi<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const response = await fetch(buildUrl(endpoint), {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
+      ...authHeaders(),
+    },
+  });
+  return parseResponse<T>(response);
+}
+
+export async function uploadApi<T = any>(endpoint: string, formData: FormData): Promise<T> {
+  const response = await fetch(buildUrl(endpoint), { method: "POST", body: formData, headers: authHeaders() });
+  return parseResponse<T>(response);
 }

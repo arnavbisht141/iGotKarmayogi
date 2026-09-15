@@ -19,6 +19,8 @@ import {
   Video,
   LayoutDashboard,
   GraduationCap,
+  Target,
+  FileQuestion,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
@@ -147,9 +149,19 @@ export function Navbar() {
       icon: LayoutDashboard,
     },
     {
+      href: "/competency",
+      label: "Competency",
+      icon: Target,
+    },
+    {
       href: "/courses",
       label: t("nav.courses") || "Courses",
       icon: BookOpen,
+    },
+    {
+      href: "/quiz",
+      label: "AI Quiz",
+      icon: FileQuestion,
     },
     {
       href: "/behavioural/interview",
