@@ -15,6 +15,9 @@ import json
 import re
 import sys
 from pathlib import Path
+from types import SimpleNamespace
+
+import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -22,11 +25,44 @@ from sqlalchemy.orm import selectinload  # noqa: E402
 
 from app.agents.quiz.generator import _llm_questions  # noqa: E402
 from app.agents.recommendation.agent import get_llm_client  # noqa: E402
+from app.core.config import settings  # noqa: E402
 from app.core.database import SessionLocal  # noqa: E402
 from app.core.seed_demo import ASSESSMENT_BANK_PATH, assessment_question_target  # noqa: E402
 from app.models.models import Course, Module  # noqa: E402
 
-MAX_ROUNDS = 4
+MAX_ROUNDS = 6
+# Large arrays from the model often come back as malformed JSON; small batches parse reliably.
+BATCH_SIZE = 8
+
+
+def llm_for(provider: str):
+    if provider == "auto":
+        return get_llm_client()
+    if provider == "groq":
+        from langchain_groq import ChatGroq
+        return ChatGroq(model_name=settings.GROQ_MODEL, api_key=settings.GROQ_API_KEY, temperature=0.3)
+    return GeminiREST("gemini-2.5-flash")
+
+
+class GeminiREST:
+    """Minimal LangChain-style client over Gemini's REST API (the gRPC client hangs on DNS here)."""
+
+    def __init__(self, model: str):
+        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+    def invoke(self, prompt: str):
+        response = httpx.post(
+            self.url,
+            headers={"x-goog-api-key": settings.GOOGLE_API_KEY},
+            json={
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json"},
+            },
+            timeout=180,
+        )
+        response.raise_for_status()
+        parts = response.json()["candidates"][0]["content"]["parts"]
+        return SimpleNamespace(content="".join(p.get("text", "") for p in parts))
 
 
 def _key(text: str) -> str:
@@ -46,6 +82,7 @@ def learner_facing(text: str) -> str:
         lambda m: m.group(1).upper(),
         text,
     )
+    text = re.sub(r"\b(in|from) the ((?:[A-Z]\w* )?)source\b", r"\1 the \2course material", text)
     return re.sub(r"\b([Tt]he) source\b", r"\1 course material", text)
 
 
@@ -70,7 +107,7 @@ def build_for_course(llm, course: Course) -> list:
         if need <= 0:
             break
         try:
-            batch = _llm_questions(llm, source, need + 3, "intermediate")
+            batch = _llm_questions(llm, source, min(need + 2, BATCH_SIZE), "intermediate")
         except Exception as exc:  # network or parse failure: try another round
             print(f"  round failed: {exc}")
             continue
@@ -86,9 +123,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--refresh", action="store_true", help="regenerate courses already in the bank")
     parser.add_argument("--course", help="only build this course title")
+    parser.add_argument(
+        "--provider", choices=["auto", "groq", "gemini"], default="auto",
+        help="LLM provider; auto uses the app's Groq, OpenAI, Gemini fallback order",
+    )
     args = parser.parse_args()
 
-    llm = get_llm_client()
+    llm = llm_for(args.provider)
     if llm is None:
         sys.exit("No LLM key configured (GROQ_API_KEY, OPENAI_API_KEY or GOOGLE_API_KEY).")
 
