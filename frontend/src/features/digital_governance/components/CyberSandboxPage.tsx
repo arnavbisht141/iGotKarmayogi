@@ -847,9 +847,9 @@ export default function CyberSandboxPage() {
 
                 {/* Interactive Marimo Analyst Console / Embed */}
                 <div
-                  className={`bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-md ${fullscreen ? "fixed inset-4 z-50 flex flex-col" : ""}`}
+                  className={`bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs ${fullscreen ? "fixed inset-4 z-50 flex flex-col" : ""}`}
                 >
-                  <div className="bg-slate-800 text-slate-200 px-4 py-2.5 text-xs font-mono flex items-center justify-between border-b border-slate-700">
+                  <div className="bg-slate-50 text-slate-700 px-4 py-2.5 text-xs font-mono flex items-center justify-between border-b border-slate-200">
                     <div className="flex items-center gap-2">
                       <Terminal className="h-3.5 w-3.5 text-emerald-400" />
                       <span>
@@ -862,20 +862,20 @@ export default function CyberSandboxPage() {
                         href={activeSession.marimo_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="hover:text-amber-300 flex items-center gap-1 text-[11px] bg-slate-700 px-2 py-0.5 rounded transition-colors"
+                        className="hover:text-[#1E3A8A] flex items-center gap-1 text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded transition-colors"
                       >
                         <ExternalLink className="h-3 w-3" /> New Window
                       </a>
                       <button
                         onClick={() => setIframeKey((k) => k + 1)}
                         title="Reload Console Frame"
-                        className="hover:text-amber-300 p-1 rounded transition-colors text-slate-400"
+                        className="hover:text-[#1E3A8A] p-1 rounded transition-colors text-slate-500"
                       >
                         <RefreshCw className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => setFullscreen(!fullscreen)}
-                        className="hover:text-amber-300 p-1 rounded transition-colors"
+                        className="hover:text-[#1E3A8A] p-1 rounded transition-colors"
                       >
                         {fullscreen ? (
                           <Minimize2 className="h-3.5 w-3.5" />
@@ -888,7 +888,7 @@ export default function CyberSandboxPage() {
 
                   {/* Embedded Iframe */}
                   <div
-                    className={`w-full bg-slate-950 relative ${fullscreen ? "flex-1" : "h-[460px]"}`}
+                    className={`w-full bg-slate-100 relative ${fullscreen ? "flex-1" : "h-[460px]"}`}
                   >
                     <iframe
                       key={iframeKey}
@@ -899,7 +899,7 @@ export default function CyberSandboxPage() {
                     />
 
                     {/* Iframe badge */}
-                    <div className="absolute bottom-2 right-2 bg-slate-900/90 border border-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded backdrop-blur pointer-events-none">
+                    <div className="absolute bottom-2 right-2 bg-white/90 border border-slate-200 text-slate-600 text-[10px] px-2 py-1 rounded backdrop-blur pointer-events-none">
                       Interactive Analysis Console • Port{" "}
                       {activeSession.assigned_port}
                     </div>

@@ -11,9 +11,9 @@ export default function StatisticalExamRoute() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-slate-400 text-sm font-medium">Loading Adaptive Statistical Testing Engine...</p>
+        <div className="min-h-[70vh] bg-slate-50 flex flex-col items-center justify-center text-slate-900">
+          <div className="w-10 h-10 border-4 border-[#1E3A8A] border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-slate-500 text-sm font-medium">Loading Adaptive Statistical Testing Engine...</p>
         </div>
       }
     >

@@ -280,12 +280,12 @@ export default function HowItWorksPage() {
         </section>
 
         {/* Closing Action Banner */}
-        <section className="bg-slate-900 text-white rounded-2xl p-8 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
+        <section className="hero-gradient rounded-2xl p-8 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
           <div className="space-y-1.5 max-w-xl">
             <h3 className="text-xl font-bold tracking-tight">
               Ready to begin your Karmayogi competency journey?
             </h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Explore accredited foundational courses in National Sample Surveys, Consumer Price Index, and Public Financial Management today.
             </p>
           </div>

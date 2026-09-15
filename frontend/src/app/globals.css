@@ -213,8 +213,60 @@ video {
    GRADIENT UTILITIES
    ─────────────────────────────────────────────────────────── */
 
+/* Hero banners use a light, subtle surface. Their markup was written for a dark navy banner,
+   so light-on-dark utilities inside a hero are remapped to readable dark text here. Elements that
+   still sit on a dark fill (gradient buttons, photo overlays, dark avatars) opt out. */
 .hero-gradient {
-  background: linear-gradient(135deg, #070E20 0%, #0C1B3D 40%, #1E3A8A 80%, #0D9488 100%);
+  background: linear-gradient(135deg, #eef3ff 0%, #f6f8fc 50%, #ecf8f5 100%);
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.hero-gradient .hero-mesh,
+.hero-gradient.hero-mesh {
+  background-image:
+    linear-gradient(rgba(30, 58, 138, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 58, 138, 0.045) 1px, transparent 1px);
+}
+
+.hero-gradient :is(.text-white):not(:where(.navy-teal-gradient, .navy-teal-gradient *, .keep-on-dark, .keep-on-dark *, .bg-\[\#0C1B3D\])) {
+  color: #0f172a;
+}
+.hero-gradient :is(.text-white\/90, .text-white\/80):not(:where(.keep-on-dark *)) {
+  color: #334155;
+}
+.hero-gradient :is(.text-white\/70, .text-white\/60):not(:where(.keep-on-dark *)) {
+  color: #475569;
+}
+.hero-gradient :is(.text-white\/50, .text-white\/40, .text-white\/35):not(:where(.keep-on-dark *)) {
+  color: #64748b;
+}
+.hero-gradient :is(.text-teal-300, .text-teal-400):not(:where(.keep-on-dark *)) {
+  color: #0f766e;
+}
+.hero-gradient :is(.text-amber-300, .text-amber-400):not(:where(.keep-on-dark *)) {
+  color: #b45309;
+}
+.hero-gradient .text-blue-300 {
+  color: #1d4ed8;
+}
+.hero-gradient .text-emerald-400 {
+  color: #047857;
+}
+.hero-gradient .glass-light:not(:where(.keep-on-dark *)),
+.hero-gradient .glass-card:not(:where(.keep-on-dark *)),
+.hero-gradient .bg-blue-950\/50 {
+  background: #ffffff;
+  backdrop-filter: none;
+}
+.hero-gradient :is(.border-white\/10, .border-white\/15, .border-white\/20, .border-white\/30, .border-blue-800, .border-blue-800\/60, .border-blue-900\/40):not(:where(.keep-on-dark *)) {
+  border-color: #e2e8f0;
+}
+.hero-gradient .placeholder-white\/40::placeholder {
+  color: #94a3b8;
+}
+.hero-gradient :is(.hover\:bg-white\/10, .hover\:bg-white\/15, .hover\:bg-white\/20):not(:where(.keep-on-dark *)):hover {
+  background-color: #f1f5f9;
 }
 
 .navy-teal-gradient {

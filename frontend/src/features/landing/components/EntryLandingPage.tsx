@@ -176,7 +176,7 @@ export default function EntryLandingPage() {
             <div className="lg:col-span-5 w-full flex flex-col items-end animate-fade-in-up-delay-1">
               <div className="w-full">
                 <div
-                  className="relative w-full h-[200px] xs:h-[230px] sm:h-[270px] rounded-2xl overflow-hidden group"
+                  className="keep-on-dark relative w-full h-[200px] xs:h-[230px] sm:h-[270px] rounded-2xl overflow-hidden group"
                   style={{ boxShadow: "0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)" }}
                   onMouseEnter={() => setIsPaused(true)}
                   onMouseLeave={() => setIsPaused(false)}

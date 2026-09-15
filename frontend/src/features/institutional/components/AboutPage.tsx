@@ -263,16 +263,16 @@ export default function AboutPage() {
         </section>
 
         {/* Verifiable Credentials Banner */}
-        <section className="bg-slate-900 text-white rounded-2xl p-8 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
+        <section className="hero-gradient rounded-2xl p-8 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
           <div className="space-y-2 max-w-xl">
-            <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-amber-700 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="h-4 w-4" />
               Verified Digital Credential Standard
             </div>
             <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
               70% Passing Threshold for National Accreditation
             </h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Every course completion on iGOT Karmayogi requires passing standardized assessments evaluated by National Faculty Panels. Earned credentials include cryptographic verification hashes permanently recognized in central civil service personnel records.
             </p>
           </div>
@@ -284,7 +284,7 @@ export default function AboutPage() {
               </Button>
             </Link>
             <Link href="/help">
-              <Button variant="outline" className="border-slate-700 text-slate-200 hover:bg-slate-800 text-xs font-semibold px-5 cursor-pointer">
+              <Button variant="outline" className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold px-5 cursor-pointer">
                 Credential Verification FAQ
               </Button>
             </Link>
