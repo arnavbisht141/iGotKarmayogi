@@ -44,3 +44,32 @@ def test_competencies_link_to_domains(db_session):
     assert python_comp is not None
     assert python_comp.domain.code == "technical"
     assert python_comp.max_level == 5
+
+
+def test_new_competencies_backfill_on_already_seeded_domain(db_session):
+    # Simulates a DB that ran an earlier version of the seed (pre-Phase-2): the
+    # behavioural domain and only its original 6 competencies already exist. Re-running
+    # the (fixed) seed must add the 2 new Phase 2 competencies without skipping the
+    # whole domain, and must not duplicate the pre-existing 6.
+    original_behavioural = [
+        ("behavioural_leadership", "Leadership"),
+        ("behavioural_communication", "Communication"),
+        ("behavioural_project_management", "Project Management"),
+        ("behavioural_ethics", "Ethics"),
+        ("behavioural_decision_making", "Decision Making"),
+        ("behavioural_change_management", "Change Management"),
+    ]
+    domain = CompetencyDomain(code="behavioural", name="Behavioural & Managerial", description="pre-existing")
+    db_session.add(domain)
+    db_session.flush()
+    for code, name in original_behavioural:
+        db_session.add(Competency(domain_id=domain.id, code=code, name=name, max_level=5))
+    db_session.commit()
+
+    seed_competency_taxonomy(db_session)
+
+    codes = {c.code for c in db_session.query(Competency).filter_by(domain_id=domain.id).all()}
+    assert "behavioural_situational_awareness" in codes
+    assert "behavioural_accountability" in codes
+    assert len(codes) == 8  # 6 original + 2 new, no duplicates
+    assert db_session.query(CompetencyDomain).filter_by(code="behavioural").count() == 1

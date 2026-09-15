@@ -37,6 +37,21 @@ def test_list_courses_filters_by_category(db_session):
     assert technical_courses[0].title == "Intro to GIS"
 
 
+def test_list_courses_filters_by_category_with_real_seed_data_casing(db_session):
+    # real seed_data.py stores category as Title Case with spaces ("Digital Governance"),
+    # not the snake_case domain code ("digital_governance") used everywhere else.
+    db_session.add_all([
+        Course(title="Cyber Hygiene", overview="x", instructor="x", organization="MoSPI", category="Digital Governance"),
+        Course(title="Leadership 101", overview="x", instructor="x", organization="ISTM", category="Behavioural"),
+    ])
+    db_session.commit()
+
+    client = MockIgotClient(db_session)
+    courses = client.list_courses(domain="digital_governance")
+    assert len(courses) == 1
+    assert courses[0].title == "Cyber Hygiene"
+
+
 def test_get_enrollment_status_none_when_not_enrolled(db_session):
     user = User(email="a@b.gov.in", password_hash="x", full_name="A")
     course = Course(title="X", overview="x", instructor="x", organization="MoSPI")

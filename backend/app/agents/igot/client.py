@@ -6,6 +6,7 @@ IgotClient interface.
 """
 from abc import ABC, abstractmethod
 from typing import List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.models import Course, Enrollment
@@ -38,7 +39,10 @@ class MockIgotClient(IgotClient):
         # completeness but intentionally not filtered on here.
         query = self.db.query(Course)
         if domain:
-            query = query.filter(Course.category == domain)
+            # Course.category is stored Title Case with spaces ("Digital Governance");
+            # domain codes are snake_case ("digital_governance"). Normalize to compare.
+            normalized_category = func.lower(func.replace(Course.category, " ", "_"))
+            query = query.filter(normalized_category == domain)
         return query.all()
 
     def get_enrollment_status(self, user_id: int, course_id: int) -> Optional[str]:

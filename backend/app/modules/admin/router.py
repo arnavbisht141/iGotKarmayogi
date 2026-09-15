@@ -192,6 +192,8 @@ def reindex_course(
         index_course(db, course_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Vector index service unavailable") from e
 
     return {
         "success": True,

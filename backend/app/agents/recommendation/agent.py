@@ -1,7 +1,9 @@
 import logging
 from typing import List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.models.models import GapAnalysis, Course, Recommendation
 from app.agents.igot.client import MockIgotClient
 from app.agents.recommendation.embeddings import get_embedding_client
@@ -12,7 +14,10 @@ MAX_RECOMMENDATIONS = 5
 
 
 def _structured_candidates(db: Session, domain_code: str) -> List[Course]:
-    return db.query(Course).filter(Course.category == domain_code).all()
+    # Course.category is stored Title Case with spaces ("Digital Governance"); domain
+    # codes are snake_case ("digital_governance"). Normalize both sides to compare.
+    normalized_category = func.lower(func.replace(Course.category, " ", "_"))
+    return db.query(Course).filter(normalized_category == domain_code).all()
 
 
 def _vector_rerank(pinecone_index, gap_description: str, candidate_ids: List[int]) -> List[int]:
@@ -64,18 +69,59 @@ def _write_rationale(llm_client, gap_description: str, courses: List[Course]) ->
         return {c.id: f"Recommended to help close your {gap_description} gap." for c in courses}
 
 
+def get_llm_client():
+    """Constructs the real LLM client using the same Groq -> OpenAI -> Gemini fallback
+    chain as app/agents/router.py's process_query_node, but returns the client object
+    instead of invoking it. Returns None if no key works."""
+    if settings.GROQ_API_KEY:
+        try:
+            from langchain_groq import ChatGroq
+            return ChatGroq(model_name=settings.GROQ_MODEL, api_key=settings.GROQ_API_KEY, temperature=0.3)
+        except Exception as e:
+            logger.warning("Groq client construction failed, falling back: %s", e)
+
+    if settings.OPENAI_API_KEY:
+        try:
+            from langchain_openai import ChatOpenAI
+            return ChatOpenAI(model=settings.OPENAI_MODEL, api_key=settings.OPENAI_API_KEY, temperature=0.3)
+        except Exception as e:
+            logger.warning("OpenAI client construction failed, falling back: %s", e)
+
+    if settings.GOOGLE_API_KEY:
+        try:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+            return ChatGoogleGenerativeAI(model=settings.GEMINI_MODEL, google_api_key=settings.GOOGLE_API_KEY, temperature=0.3)
+        except Exception as e:
+            logger.warning("Gemini client construction failed: %s", e)
+
+    return None
+
+
 def generate_recommendations(
     db: Session, user_id: int, pinecone_index=None, llm_client=None
 ) -> List[Recommendation]:
     igot_client = MockIgotClient(db)
-    gaps = db.query(GapAnalysis).filter(GapAnalysis.user_id == user_id, GapAnalysis.gap > 0).order_by(GapAnalysis.generated_at.desc()).all()
+
+    # dedup gap_analyses (a history table) to the latest row per domain BEFORE filtering
+    # on gap > 0, otherwise a closed gap (latest row, gap==0) can be shadowed by an older
+    # still-open row for the same domain that the SQL filter would have kept instead.
+    all_gap_rows = db.query(GapAnalysis).filter(GapAnalysis.user_id == user_id).order_by(GapAnalysis.generated_at.desc()).all()
+    latest_by_domain = {}
+    for row in all_gap_rows:
+        if row.domain_id not in latest_by_domain:
+            latest_by_domain[row.domain_id] = row
+    gaps = [row for row in latest_by_domain.values() if row.gap > 0]
+
+    # supersede prior pending recommendations so re-running /generate doesn't accumulate
+    # duplicate rows; rows the user has already acted on (enrolled/dismissed) are untouched.
+    db.query(Recommendation).filter_by(user_id=user_id, status="pending").delete()
 
     seen_domains = set()
     recommendations: List[Recommendation] = []
 
     for gap in gaps:
         if gap.domain.code in seen_domains:
-            continue  # only the most recent gap row per domain
+            continue  # defensive: latest_by_domain already dedups by domain_id
         seen_domains.add(gap.domain.code)
 
         candidates = _structured_candidates(db, gap.domain.code)

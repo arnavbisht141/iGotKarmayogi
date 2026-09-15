@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -5,10 +6,29 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_active_user
 from app.models.models import User, Recommendation
-from app.agents.recommendation.agent import generate_recommendations
+from app.agents.recommendation.agent import generate_recommendations, get_llm_client
+from app.agents.recommendation.indexer import get_real_pinecone_index
 from .schemas import RecommendationSchema
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
+
+
+def _safe_pinecone_index():
+    try:
+        return get_real_pinecone_index()
+    except Exception as e:
+        logger.warning("Pinecone index unavailable, falling back to structured-only recommendations: %s", e)
+        return None
+
+
+def _safe_llm_client():
+    try:
+        return get_llm_client()
+    except Exception as e:
+        logger.warning("LLM client unavailable, falling back to templated rationale: %s", e)
+        return None
 
 
 @router.post("/generate", response_model=list[RecommendationSchema])
@@ -16,7 +36,11 @@ def generate_user_recommendations(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    recs = generate_recommendations(db, current_user.id)
+    recs = generate_recommendations(
+        db, current_user.id,
+        pinecone_index=_safe_pinecone_index(),
+        llm_client=_safe_llm_client(),
+    )
     return [_serialize(r) for r in recs]
 
 
