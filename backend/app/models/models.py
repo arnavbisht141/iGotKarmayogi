@@ -644,3 +644,52 @@ class EvidenceCompetencyMapping(Base):
 
     competency = relationship("Competency")
 
+
+class GeneratedQuiz(Base):
+    __tablename__ = "generated_quizzes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(255), nullable=False)
+    source_name = Column(String(255), nullable=False)
+    source_type = Column(String(20), nullable=False)  # pdf, pptx, docx, txt, md, vtt, srt, text
+    source_excerpt = Column(Text, nullable=True)
+    difficulty = Column(String(20), default="intermediate")
+    generator = Column(String(20), default="llm")  # llm, fallback
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    creator = relationship("User")
+    questions = relationship("GeneratedQuizQuestion", back_populates="quiz", cascade="all, delete-orphan", order_by="GeneratedQuizQuestion.order")
+    attempts = relationship("QuizAttempt", back_populates="quiz", cascade="all, delete-orphan")
+
+
+class GeneratedQuizQuestion(Base):
+    __tablename__ = "generated_quiz_questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quiz_id = Column(Integer, ForeignKey("generated_quizzes.id", ondelete="CASCADE"), nullable=False, index=True)
+    order = Column(Integer, default=1)
+    question_text = Column(Text, nullable=False)
+    options_json = Column(Text, nullable=False)
+    correct_option_index = Column(Integer, nullable=False)
+    explanation = Column(Text, nullable=True)
+    concept = Column(String(255), nullable=True)
+
+    quiz = relationship("GeneratedQuiz", back_populates="questions")
+
+
+class QuizAttempt(Base):
+    __tablename__ = "quiz_attempts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quiz_id = Column(Integer, ForeignKey("generated_quizzes.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    answers_json = Column(Text, nullable=False)
+    correct_count = Column(Integer, default=0)
+    total_questions = Column(Integer, default=0)
+    score_percent = Column(Float, default=0.0)
+    submitted_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    quiz = relationship("GeneratedQuiz", back_populates="attempts")
+    user = relationship("User")
+

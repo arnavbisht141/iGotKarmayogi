@@ -22,6 +22,7 @@ from app.modules.behavioural_cgp.router import router as behavioural_router
 from app.modules.technical_courses.router import router as technical_courses_router
 from app.modules.competency.router import router as competency_router
 from app.modules.recommendations.router import router as recommendations_router
+from app.modules.quiz.router import router as quiz_router
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -64,6 +65,7 @@ app.include_router(admin_router, prefix=settings.API_V1_STR)
 app.include_router(agents_router, prefix=settings.API_V1_STR)
 app.include_router(competency_router, prefix=settings.API_V1_STR)
 app.include_router(recommendations_router, prefix=settings.API_V1_STR)
+app.include_router(quiz_router, prefix=settings.API_V1_STR)
 # Statistical Engine & Adaptive Branching Exam
 app.include_router(stats_engine_router, prefix="/api/v1")
 app.include_router(stats_engine_router, prefix="/api")

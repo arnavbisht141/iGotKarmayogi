@@ -44,23 +44,26 @@ def _write_rationale(llm_client, gap_description: str, courses: List[Course]) ->
     """Returns {course_id: rationale_text}. Falls back to a templated rationale
     per course if the LLM call fails."""
     try:
-        course_list_text = "\n".join(f"- {c.title} ({c.category}, {c.difficulty}): {c.overview}" for c in courses)
+        from app.agents.llm_utils import parse_llm_json
+
+        course_list_text = "\n".join(f"- id {c.id}: {c.title} ({c.category}, {c.difficulty}): {c.overview}" for c in courses)
         prompt = (
-            f"An official has this skill gap: {gap_description}\n\n"
+            f"An official in India's Official Statistical System has this skill gap: {gap_description}\n\n"
             f"Candidate courses:\n{course_list_text}\n\n"
-            "For each course, write one short paragraph explaining why it helps close this gap. "
-            "Format as 'Course Title: rationale text', one per line."
+            "For each course write 2 sentences explaining how it closes this specific gap. "
+            'Respond ONLY with a JSON object mapping each course id (as a string) to its rationale, e.g. {"12": "..."}.'
         )
         response = llm_client.invoke(prompt)
-        text = response.content
+        payload = parse_llm_json(response.content)
+        valid_ids = {c.id for c in courses}
         rationales = {}
-        for line in text.split("\n"):
-            if ":" not in line:
+        for key, value in (payload.items() if isinstance(payload, dict) else []):
+            try:
+                course_id = int(str(key).strip())
+            except ValueError:
                 continue
-            title_part, rationale_part = line.split(":", 1)
-            match = next((c for c in courses if c.title.strip() == title_part.strip()), None)
-            if match:
-                rationales[match.id] = rationale_part.strip()
+            if course_id in valid_ids and isinstance(value, str) and value.strip():
+                rationales[course_id] = value.strip()
         for c in courses:
             rationales.setdefault(c.id, f"Recommended to help close your {gap_description} gap.")
         return rationales
