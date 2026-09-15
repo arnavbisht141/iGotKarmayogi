@@ -71,6 +71,8 @@ Ensure you have the following installed on your host machine:
 
 Follow these steps to run both backend and frontend locally in two terminal sessions.
 
+> For the complete, current setup (environment variables, virtual environment, database options, demo data, and what each competency area needs) see [LOCAL_SETUP.md](LOCAL_SETUP.md).
+
 ### Optional: Configure Environment Variables
 
 ```bash

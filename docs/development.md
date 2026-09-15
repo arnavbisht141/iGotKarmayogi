@@ -7,6 +7,8 @@
 
 ## 1. Quick Start Guide (Local Development)
 
+> The full, current setup guide, including environment variables, demo data and the requirements of every competency area, is [LOCAL_SETUP.md](../LOCAL_SETUP.md).
+
 The application runs natively on your machine using Python 3.12 (FastAPI) for the backend and Node.js (Next.js 16) for the frontend.
 
 ### 1.1 Backend Setup (FastAPI & Python 3.12)
