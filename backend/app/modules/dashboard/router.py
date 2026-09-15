@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.models import (
@@ -37,15 +37,16 @@ def get_dashboard_summary(
         }
 
     profile = current_user.profile
-    
+
     # 1. Continue Learning & Current Course Progress
     active_enrollment = (
         db.query(Enrollment)
+        .options(joinedload(Enrollment.course))
         .filter(Enrollment.user_id == current_user.id, Enrollment.status == "in_progress")
         .order_by(Enrollment.started_at.desc())
         .first()
     )
-    
+
     continue_learning = None
     if active_enrollment:
         course = active_enrollment.course
@@ -81,6 +82,7 @@ def get_dashboard_summary(
     # 6. Recently Explored Courses
     recent_history = (
         db.query(LearningHistory)
+        .options(joinedload(LearningHistory.course))
         .filter(LearningHistory.user_id == current_user.id)
         .order_by(LearningHistory.viewed_at.desc())
         .limit(3)
@@ -107,7 +109,12 @@ def get_dashboard_summary(
     overall_progress = round(sum(e.progress_percent for e in all_enrollments) / max(len(all_enrollments), 1), 1) if all_enrollments else 0
 
     # 8. Future Planned Courses
-    planned_records = db.query(PlannedCourse).filter(PlannedCourse.user_id == current_user.id).all()
+    planned_records = (
+        db.query(PlannedCourse)
+        .options(joinedload(PlannedCourse.course))
+        .filter(PlannedCourse.user_id == current_user.id)
+        .all()
+    )
     future_planned = [
         {
             "id": p.id,
@@ -122,7 +129,12 @@ def get_dashboard_summary(
     ]
 
     # 9. Competencies / User Skills
-    user_skills = db.query(UserSkill).filter(UserSkill.user_id == current_user.id).all()
+    user_skills = (
+        db.query(UserSkill)
+        .options(joinedload(UserSkill.skill))
+        .filter(UserSkill.user_id == current_user.id)
+        .all()
+    )
     skills_list = [
         {
             "id": us.skill.id,

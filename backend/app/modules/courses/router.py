@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from app.core.database import get_db
 from app.core.security import get_current_user, get_current_active_user
 from app.models.models import (
@@ -16,7 +16,15 @@ def get_course_details(
     current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    course = db.query(Course).filter(Course.id == course_id).first()
+    course = (
+        db.query(Course)
+        .options(
+            selectinload(Course.modules).selectinload(Module.lessons),
+            selectinload(Course.course_skills).selectinload(CourseSkill.skill),
+        )
+        .filter(Course.id == course_id)
+        .first()
+    )
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
 

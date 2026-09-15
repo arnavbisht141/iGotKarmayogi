@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.database import get_db
 from app.core.security import get_current_active_user
@@ -78,7 +78,7 @@ def list_user_recommendations(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Recommendation).filter_by(user_id=current_user.id)
+    query = db.query(Recommendation).options(joinedload(Recommendation.course)).filter_by(user_id=current_user.id)
     if status_filter:
         query = query.filter_by(status=status_filter)
     return [_serialize(r) for r in query.order_by(Recommendation.generated_at.desc()).all()]

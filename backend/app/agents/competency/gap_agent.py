@@ -1,5 +1,6 @@
 import json
-from typing import Dict, List, Optional
+from collections import defaultdict
+from typing import Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from app.models.models import (
@@ -17,23 +18,22 @@ DOMAIN_PROFILE_COLUMN = {
 }
 
 
-def _resolve_mapping(db: Session, source_system: str, source_key: str) -> Optional[int]:
-    row = db.query(EvidenceCompetencyMapping).filter_by(
-        source_system=source_system, source_key=source_key
-    ).first()
-    return row.competency_id if row else None
+def _load_evidence_mapping(db: Session) -> Dict[Tuple[str, str], int]:
+    # One query for the whole (small) table instead of one lookup per evidence row.
+    return {(m.source_system, m.source_key): m.competency_id for m in db.query(EvidenceCompetencyMapping).all()}
 
 
 def collect_current_levels(db: Session, user_id: int) -> Dict[int, float]:
     """Returns {competency_id: level (0-5)}, merging self-declared scores with
     resolved evidence via max() so evidence never lowers an already-recorded level."""
     levels: Dict[int, float] = {}
+    mapping = _load_evidence_mapping(db)
 
     for row in db.query(UserCompetencyScore).filter_by(user_id=user_id).all():
         levels[row.competency_id] = max(levels.get(row.competency_id, 0.0), row.level)
 
     for row in db.query(StatEngineMastery).filter_by(user_id=str(user_id)).all():
-        competency_id = _resolve_mapping(db, "stat_engine_skill", row.skill_id)
+        competency_id = mapping.get(("stat_engine_skill", row.skill_id))
         if competency_id is None:
             continue
         mastery = json.loads(row.mastery_json)
@@ -45,7 +45,7 @@ def collect_current_levels(db: Session, user_id: int) -> Dict[int, float]:
         result = json.loads(row.result_json)
         comp_scores = result.get("competency_scores", {})  # {"Leadership": 78.0, ...}
         for name, score in comp_scores.items():
-            competency_id = _resolve_mapping(db, "behavioural_competency", name)
+            competency_id = mapping.get(("behavioural_competency", name))
             if competency_id is None:
                 continue  # e.g. "Course Knowledge", intentionally unmapped
             level = min(5.0, float(score) / 20.0)
@@ -64,13 +64,16 @@ def run_gap_analysis(db: Session, user_id: int) -> dict:
 
     current_levels = collect_current_levels(db, user_id)
 
+    competency_ids_by_domain: Dict[int, List[int]] = defaultdict(list)
+    for competency in db.query(Competency).all():
+        competency_ids_by_domain[competency.domain_id].append(competency.id)
+
     domains = db.query(CompetencyDomain).all()
     gaps: List[GapAnalysis] = []
     domain_scores: Dict[str, float] = {}
 
     for domain in domains:
-        competency_ids = [c.id for c in db.query(Competency).filter_by(domain_id=domain.id).all()]
-        levels_in_domain = [current_levels[cid] for cid in competency_ids if cid in current_levels]
+        levels_in_domain = [current_levels[cid] for cid in competency_ids_by_domain[domain.id] if cid in current_levels]
         current_level = sum(levels_in_domain) / len(levels_in_domain) if levels_in_domain else 0.0
 
         gap_row = GapAnalysis(
