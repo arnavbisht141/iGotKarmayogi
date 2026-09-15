@@ -37,7 +37,7 @@ else:
         "pool_use_lifo": True,  # reuse the most recently used (still warm) connection first
     })
     connect_args = {
-        "connect_timeout": 15,
+        "connect_timeout": 30,  # generous: a slow link should delay startup, not crash it
         "keepalives": 1,
         "keepalives_idle": 30,
         "keepalives_interval": 10,
