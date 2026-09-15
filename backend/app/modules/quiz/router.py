@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import get_db
 from app.core.security import get_current_active_user
@@ -119,7 +119,13 @@ def generate_quiz(
 
 @router.get("")
 def list_quizzes(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    quizzes = db.query(GeneratedQuiz).order_by(GeneratedQuiz.created_at.desc()).all()
+    # Eager load so the list is three queries, not two extra round trips per quiz.
+    quizzes = (
+        db.query(GeneratedQuiz)
+        .options(selectinload(GeneratedQuiz.questions), selectinload(GeneratedQuiz.creator))
+        .order_by(GeneratedQuiz.created_at.desc())
+        .all()
+    )
     my_attempts = db.query(QuizAttempt).filter_by(user_id=current_user.id).all()
     best = {}
     for attempt in my_attempts:

@@ -26,13 +26,23 @@ if db_url.startswith("sqlite"):
             except Exception:
                 pass
 else:
-    # Production connection pool settings for PostgreSQL / Supabase
+    # Production connection pool settings for PostgreSQL / Supabase.
+    # Opening a connection to hosted Postgres costs 1-2 s, so connections are kept warm and long-lived
+    # instead of being recycled every few minutes; TCP keepalives stop idle ones from being dropped.
     engine_kwargs.update({
         "pool_pre_ping": True,
         "pool_size": 10,
         "max_overflow": 20,
-        "pool_recycle": 300,
+        "pool_recycle": 1800,
+        "pool_use_lifo": True,  # reuse the most recently used (still warm) connection first
     })
+    connect_args = {
+        "connect_timeout": 15,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5,
+    }
 
 engine = create_engine(
     db_url,
@@ -42,6 +52,21 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+def warm_connection_pool(connections: int = 4) -> None:
+    """Opens pooled connections up front so the first page loads do not each pay the connection cost."""
+    if db_url.startswith("sqlite"):
+        return
+    from concurrent.futures import ThreadPoolExecutor
+    from sqlalchemy import text
+
+    def _open(_):
+        with engine.connect() as conn:
+            conn.execute(text("select 1"))
+
+    with ThreadPoolExecutor(max_workers=connections) as pool:
+        list(pool.map(_open, range(connections)))
+
 
 def get_db():
     db = SessionLocal()

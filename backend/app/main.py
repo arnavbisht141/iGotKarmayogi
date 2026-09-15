@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.core.database import engine, Base, SessionLocal
+import threading
+from app.core.database import engine, Base, SessionLocal, warm_connection_pool
 from app.core.seed_data import seed_database
 from app.core.seed_competencies import seed_competency_taxonomy, seed_evidence_mapping
 
@@ -35,6 +36,9 @@ try:
     seed_evidence_mapping(db)
 finally:
     db.close()
+
+# Open pooled database connections in the background so the first page loads skip the connection cost.
+threading.Thread(target=warm_connection_pool, daemon=True).start()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
