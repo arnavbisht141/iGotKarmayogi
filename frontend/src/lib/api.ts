@@ -42,6 +42,19 @@ export async function fetchApi<T = any>(endpoint: string, options: RequestInit =
   return parseResponse<T>(response);
 }
 
+export async function fetchBlob(endpoint: string, options: RequestInit = {}): Promise<Blob> {
+  const response = await fetch(buildUrl(endpoint), {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
+      ...authHeaders(),
+    },
+  });
+  if (!response.ok) await parseResponse(response);
+  return response.blob();
+}
+
 export async function uploadApi<T = any>(endpoint: string, formData: FormData): Promise<T> {
   const response = await fetch(buildUrl(endpoint), { method: "POST", body: formData, headers: authHeaders() });
   return parseResponse<T>(response);

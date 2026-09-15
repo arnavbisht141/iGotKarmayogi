@@ -356,6 +356,8 @@ export function useInterviewMedia() {
     turnTally.current = newTally();
   }, []);
 
+  const getStream = useCallback(() => streamRef.current, []);
+
   useEffect(() => {
     window.addEventListener("pagehide", stop);
     return () => {
@@ -380,5 +382,6 @@ export function useInterviewMedia() {
     toggleMic,
     takeTurnMetrics,
     resetTurn,
+    getStream,
   };
 }

@@ -167,6 +167,10 @@ class InterviewTurnRequest(BaseModel):
     speaking_seconds: Optional[float] = None
     input_mode: Optional[str] = None  # "voice" or "typed"
 
+class SpeechSynthesisRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=2500)
+    language_code: str = "en-IN"
+
 class InterviewEndRequest(BaseModel):
     session_id: str
 
