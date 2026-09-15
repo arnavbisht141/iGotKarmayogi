@@ -73,11 +73,10 @@
   --font-mono:            var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* The product is light-only. The starter's dark-mode override turned the page background near-black for
+   anyone whose system is in dark mode, leaving dark headings unreadable, so the light scheme is pinned. */
+:root {
+  color-scheme: light;
 }
 
 /* ───────────────────────────────────────────────────────────

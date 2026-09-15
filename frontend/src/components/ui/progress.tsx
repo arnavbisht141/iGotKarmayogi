@@ -14,7 +14,7 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       {...props}
     >
       <div
-        className={cn("h-full bg-slate-900 transition-all duration-300 ease-in-out", indicatorClassName)}
+        className={cn("h-full bg-[#2a78d6] transition-all duration-300 ease-in-out", indicatorClassName)}
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
