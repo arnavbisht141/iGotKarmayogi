@@ -6,11 +6,13 @@ Every section is idempotent, so running the seed twice adds nothing the second t
 import datetime
 import json
 import logging
+import math
 import random
+from pathlib import Path
 from statistics import mean
 from typing import Callable, Dict, List
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.agents.competency.gap_agent import run_gap_analysis
 from app.agents.competency.target_levels import resolve_tier
@@ -70,6 +72,40 @@ PRIOR_TRAINING = [
     "Training on CAPI-based data collection",
     "Orientation on SDG monitoring frameworks",
 ]
+
+
+ASSESSMENT_BANK_PATH = Path(__file__).with_name("assessment_bank.json")
+MINUTES_PER_QUESTION = 1.25
+PASS_THRESHOLD = 70.0
+
+# One verified YouTube video per course, attached to the course's first reading lesson.
+# Every id was checked against YouTube oEmbed; courses without a fitting public video stay reading-only.
+LESSON_VIDEOS = {
+    "Fundamentals of National Sample Surveys (NSS)": "https://www.youtube.com/watch?v=_0WoqKgMnKs",
+    "Compilation of Consumer Price Index (CPI) & Inflation Metrics": "https://www.youtube.com/watch?v=t2BXjbiLmMo",
+    "National Accounts Statistics & GDP Compilation": "https://www.youtube.com/watch?v=WaKkU25C1-E",
+    "SDG Indicators & the National Indicator Framework": "https://www.youtube.com/watch?v=M-iJM02m_Hg",
+    "Index of Industrial Production (IIP) & Industrial Statistics": "https://www.youtube.com/watch?v=PRl3wUj-vLM",
+    "SQL for Official Statistics Databases": "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+    "R for Survey Data Analysis": "https://www.youtube.com/watch?v=4xfRZp_8XFs",
+    "GIS & Geospatial Analysis for Statistics": "https://www.youtube.com/watch?v=WpoSofhf9Y0",
+    "Machine Learning for Official Statistics": "https://www.youtube.com/watch?v=PeMlggyqz0Y",
+    "Cloud Computing & Data Engineering on Government Cloud": "https://www.youtube.com/watch?v=M988_fsOSWo",
+    "Data Privacy & the DPDP Act, 2023 for Statistical Offices": "https://www.youtube.com/watch?v=8XuQFVF7ipg",
+    "Digital Signatures, eSign & PKI in Government Workflows": "https://www.youtube.com/watch?v=s22eJ1eVLTU",
+    "Cybersecurity Essentials for Government Data Systems": "https://www.youtube.com/watch?v=EqNe55IzjAw",
+    "Communicating Statistics to Policymakers and the Public": "https://www.youtube.com/watch?v=Hfx1X9WSGYQ",
+    "Project Management for Large-Scale Surveys": "https://www.youtube.com/watch?v=AOmS_UrnBD0",
+}
+
+
+def assessment_question_target(lesson_count: int) -> int:
+    # Single-lesson courses do not carry enough material to ground a 15-question exam.
+    return 15 if lesson_count >= 3 else 10
+
+
+def assessment_time_limit(question_count: int) -> int:
+    return max(10, math.ceil(question_count * MINUTES_PER_QUESTION / 5) * 5)
 
 
 class _OfflineLLM:
@@ -441,6 +477,66 @@ def seed_demo_quizzes(db: Session, learners: List[User], use_llm: bool, rng: ran
     return created
 
 
+def apply_assessment_bank(db: Session) -> int:
+    """Loads the generated final-assessment bank so exams no longer repeat the lesson practice questions.
+
+    Idempotent: an assessment is rebuilt only when its question texts differ from the bank.
+    Time limits are recomputed for every assessment from its question count.
+    """
+    bank = json.loads(ASSESSMENT_BANK_PATH.read_text()) if ASSESSMENT_BANK_PATH.exists() else {}
+    rebuilt = 0
+    courses = db.query(Course).options(selectinload(Course.assessment).selectinload(Assessment.questions)).all()
+    for course in courses:
+        items = bank.get(course.title)
+        assessment = course.assessment
+        if not items:
+            if assessment and assessment.questions:
+                assessment.time_limit_minutes = assessment_time_limit(len(assessment.questions))
+            continue
+        if assessment is None:
+            assessment = Assessment(
+                course_id=course.id,
+                title=f"{course.title}: Final Assessment",
+                description="Answer every question. A score of 70% is required to pass and earn the course certificate.",
+                pass_threshold_percent=PASS_THRESHOLD,
+            )
+            db.add(assessment)
+            db.flush()
+        if [q.text for q in assessment.questions] != [item["question"] for item in items]:
+            assessment.questions.clear()
+            db.flush()
+            for order, item in enumerate(items, start=1):
+                assessment.questions.append(Question(
+                    text=item["question"],
+                    options_json=json.dumps(item["options"]),
+                    correct_option_index=item["correct_index"],
+                    explanation=item["explanation"],
+                    order=order,
+                ))
+            rebuilt += 1
+        assessment.time_limit_minutes = assessment_time_limit(len(items))
+    db.commit()
+    return rebuilt
+
+
+def attach_lesson_videos(db: Session) -> int:
+    attached = 0
+    for title, url in LESSON_VIDEOS.items():
+        course = db.query(Course).filter_by(title=title).first()
+        if not course:
+            continue
+        lessons = [l for m in course.modules for l in m.lessons]
+        target = next((l for l in lessons if l.content_type == "video"), None) or next(
+            (l for l in lessons if l.content_type == "reading"), None
+        )
+        if target and target.video_url != url:
+            target.content_type = "video"
+            target.video_url = url
+            attached += 1
+    db.commit()
+    return attached
+
+
 def seed_demo(
     db: Session, use_llm: bool = True, index_vectors: bool = True, log: Callable[[str], None] = logger.info
 ) -> dict:
@@ -452,6 +548,8 @@ def seed_demo(
     log(f"Catalogue: {len(new_courses)} new courses")
     new_officials = seed_demo_officials(db, rng)
     log(f"Officials: {len(new_officials)} new demo officials")
+    log(f"Assessments: {apply_assessment_bank(db)} rebuilt from the question bank")
+    log(f"Videos: {attach_lesson_videos(db)} lessons linked to a video")
 
     competencies_by_domain: Dict[str, List[Competency]] = {}
     for competency in db.query(Competency).all():
