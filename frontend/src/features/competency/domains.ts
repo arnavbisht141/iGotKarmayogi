@@ -5,6 +5,7 @@ import type { DomainCode } from "@/lib/types/competency";
 export interface DomainMeta {
   code: DomainCode;
   label: string;
+  shortLabel: string; // fits a chart axis tick without collisions
   description: string;
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
   practice: { label: string; href: string }[];
@@ -18,6 +19,7 @@ export const DOMAINS: Record<DomainCode, DomainMeta> = {
   statistical: {
     code: "statistical",
     label: "Statistical",
+    shortLabel: "Statistical",
     description:
       "Survey design, sampling, national accounts, price, labour, agricultural and industrial statistics, SDG indicators, metadata standards and data quality frameworks.",
     icon: BarChart3,
@@ -26,6 +28,7 @@ export const DOMAINS: Record<DomainCode, DomainMeta> = {
   technical: {
     code: "technical",
     label: "Technical",
+    shortLabel: "Technical",
     description:
       "Python, R, SQL, Stata, SPSS, SAS, GIS, data visualization, AI and machine learning, cloud computing, APIs and open data.",
     icon: Code,
@@ -34,6 +37,7 @@ export const DOMAINS: Record<DomainCode, DomainMeta> = {
   digital_governance: {
     code: "digital_governance",
     label: "Digital Governance",
+    shortLabel: "Digital Gov.",
     description:
       "Cybersecurity, data privacy, digital signatures, government cloud and digital public infrastructure.",
     icon: ShieldCheck,
@@ -45,6 +49,7 @@ export const DOMAINS: Record<DomainCode, DomainMeta> = {
   behavioural: {
     code: "behavioural",
     label: "Behavioural & Managerial",
+    shortLabel: "Behavioural",
     description:
       "Leadership, communication, project management, ethics, decision making, situational awareness, accountability and change management.",
     icon: Users,

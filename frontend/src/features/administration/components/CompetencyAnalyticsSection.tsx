@@ -56,6 +56,7 @@ const STATUS_SERIES = [
 
 const shortDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 const formatGap = (value: number | null) => (value === null ? "No data" : value.toFixed(2));
+const officials = (count: number) => `${count} ${count === 1 ? "official" : "officials"}`;
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -95,13 +96,20 @@ export default function CompetencyAnalyticsSection() {
   }
 
   const effectiveness = data.training_effectiveness;
-  const scoreData = DOMAIN_ORDER.map((code) => ({
-    domain: DOMAINS[code].label,
+  const scoreRows = DOMAIN_ORDER.map((code) => ({
+    code,
+    domain: DOMAINS[code].shortLabel,
     score: data.average_scores.find((s) => s.domain_code === code)?.average_score ?? 0,
   }));
-  const distributionData = DOMAIN_ORDER.map((code) => {
+  const distributionRows = DOMAIN_ORDER.map((code) => {
     const row = data.gap_distribution.find((d) => d.domain_code === code);
-    return { domain: DOMAINS[code].label, on_target: row?.on_target ?? 0, minor_gap: row?.minor_gap ?? 0, major_gap: row?.major_gap ?? 0 };
+    return {
+      code,
+      domain: DOMAINS[code].shortLabel,
+      on_target: row?.on_target ?? 0,
+      minor_gap: row?.minor_gap ?? 0,
+      major_gap: row?.major_gap ?? 0,
+    };
   });
   const lastTrendIndex = data.gap_trend.length - 1;
 
@@ -143,9 +151,9 @@ export default function CompetencyAnalyticsSection() {
               <CardContent className="space-y-3">
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={scoreData} margin={{ top: 20, right: 8, bottom: 0, left: -16 }}>
+                    <BarChart data={scoreRows} margin={{ top: 20, right: 8, bottom: 0, left: -16 }}>
                       <CartesianGrid vertical={false} stroke={CHART.grid} />
-                      <XAxis dataKey="domain" tick={axisTick} tickLine={false} axisLine={{ stroke: CHART.axis }} />
+                      <XAxis dataKey="domain" interval={0} tick={axisTick} tickLine={false} axisLine={{ stroke: CHART.axis }} />
                       <YAxis domain={[0, 100]} tick={axisTick} tickLine={false} axisLine={false} />
                       <Tooltip cursor={{ fill: "#f1f5f9" }} content={<ChartTooltip format={(v) => v.toFixed(1)} />} />
                       <Bar dataKey="score" name="Average score" fill={CHART.series[0]} maxBarSize={24} radius={[4, 4, 0, 0]}>
@@ -157,7 +165,7 @@ export default function CompetencyAnalyticsSection() {
                 <ChartTable
                   caption="Average competency score by domain"
                   columns={["Domain", "Average score"]}
-                  rows={scoreData.map((d) => [d.domain, d.score.toFixed(1)])}
+                  rows={scoreRows.map((d) => [DOMAINS[d.code].label, d.score.toFixed(1)])}
                 />
               </CardContent>
             </Card>
@@ -171,9 +179,9 @@ export default function CompetencyAnalyticsSection() {
                 <ChartLegend items={STATUS_SERIES.map((s) => ({ label: s.label, color: s.color }))} />
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={distributionData} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
+                    <BarChart data={distributionRows} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
                       <CartesianGrid vertical={false} stroke={CHART.grid} />
-                      <XAxis dataKey="domain" tick={axisTick} tickLine={false} axisLine={{ stroke: CHART.axis }} />
+                      <XAxis dataKey="domain" interval={0} tick={axisTick} tickLine={false} axisLine={{ stroke: CHART.axis }} />
                       <YAxis allowDecimals={false} tick={axisTick} tickLine={false} axisLine={false} />
                       <Tooltip cursor={{ fill: "#f1f5f9" }} content={<ChartTooltip />} />
                       {STATUS_SERIES.map((s, i) => (
@@ -195,7 +203,7 @@ export default function CompetencyAnalyticsSection() {
                 <ChartTable
                   caption="Officials by gap status and domain"
                   columns={["Domain", ...STATUS_SERIES.map((s) => s.label)]}
-                  rows={distributionData.map((d) => [d.domain, d.on_target, d.minor_gap, d.major_gap])}
+                  rows={distributionRows.map((d) => [DOMAINS[d.code].label, d.on_target, d.minor_gap, d.major_gap])}
                 />
               </CardContent>
             </Card>
@@ -278,14 +286,14 @@ export default function CompetencyAnalyticsSection() {
                   <tbody>
                     {DOMAIN_ORDER.map((code) => {
                       const p = data.projections.find((row) => row.domain_code === code);
-                      const worsening = p?.current_gap != null && p.projected_gap_30d != null && p.projected_gap_30d > p.current_gap;
+                      const widening = p?.current_gap != null && p.projected_gap_30d != null && p.projected_gap_30d > p.current_gap;
                       return (
                         <tr key={code}>
                           <th scope="row" className="border-b border-slate-100 py-2 pr-4 font-normal text-slate-700">{DOMAINS[code].label}</th>
                           <td className="border-b border-slate-100 py-2 pr-4 text-slate-900 tabular-nums">{formatGap(p?.current_gap ?? null)}</td>
                           <td className="border-b border-slate-100 py-2 pr-4 text-slate-900 tabular-nums">
                             {formatGap(p?.projected_gap_30d ?? null)}
-                            {worsening && <span className="ml-2 text-xs font-medium text-amber-800">Widening</span>}
+                            {widening && <span className="ml-2 text-xs font-medium text-amber-800">Widening</span>}
                           </td>
                         </tr>
                       );
@@ -298,7 +306,7 @@ export default function CompetencyAnalyticsSection() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base text-balance">Most-recommended courses</CardTitle>
-                <CardDescription>Emerging demand signal: courses matched to the most officials gaps.</CardDescription>
+                <CardDescription>Emerging demand: the courses matched to competency gaps for the most officials.</CardDescription>
               </CardHeader>
               <CardContent>
                 {data.top_recommended_courses.length === 0 ? (
@@ -308,7 +316,7 @@ export default function CompetencyAnalyticsSection() {
                     {data.top_recommended_courses.map((course) => (
                       <li key={course.course_id} className="flex items-center justify-between gap-4 text-sm">
                         <span className="truncate text-slate-800">{course.title}</span>
-                        <span className="shrink-0 text-slate-600 tabular-nums">{course.recommended_to} officials</span>
+                        <span className="shrink-0 text-slate-600 tabular-nums">{officials(course.recommended_to)}</span>
                       </li>
                     ))}
                   </ol>

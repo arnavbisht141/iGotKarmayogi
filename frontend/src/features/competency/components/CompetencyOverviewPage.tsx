@@ -45,7 +45,7 @@ export default function CompetencyOverviewPage() {
   const hasAnalysis = byCode.size > 0;
   const lastRun = gaps?.[0]?.generated_at;
   const chartData = DOMAIN_ORDER.map((code) => ({
-    domain: DOMAINS[code].label,
+    domain: DOMAINS[code].shortLabel,
     current: Number((byCode.get(code)?.current_level ?? 0).toFixed(1)),
     target: byCode.get(code)?.target_level ?? 0,
   }));
