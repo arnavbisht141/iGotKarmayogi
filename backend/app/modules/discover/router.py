@@ -2,12 +2,15 @@ import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.models import User, Course, SearchHistory
+from app.models.models import User, Course, SearchHistory, Module, Assessment
 
 router = APIRouter(prefix="/discover", tags=["discover"])
+
+RECENT_SEARCH_LIMIT = 5
+
 
 @router.get("/courses")
 def search_and_discover_courses(
@@ -66,6 +69,10 @@ def search_and_discover_courses(
 
     courses = query.all()
 
+    # Counted in two grouped queries rather than lazy-loading per course (a round trip each on hosted Postgres)
+    modules_per_course = dict(db.query(Module.course_id, func.count(Module.id)).group_by(Module.course_id).all())
+    courses_with_assessment = {row[0] for row in db.query(Assessment.course_id).all()}
+
     # Get categories list
     all_categories = [c[0] for c in db.query(Course.category).distinct().all() if c[0]]
 
@@ -75,18 +82,22 @@ def search_and_discover_courses(
         "UN-NQAF Data Quality", "Treasury Single Account PFMS", "Python Microdata Analysis"
     ]
 
-    # User's recent searches
+    # User's recent distinct searches, newest first. Deduplicated in Python: Postgres rejects
+    # SELECT DISTINCT combined with ORDER BY on a column that is not selected.
     user_recent_searches = []
     if current_user:
         history = (
             db.query(SearchHistory.query)
             .filter(SearchHistory.user_id == current_user.id)
             .order_by(SearchHistory.searched_at.desc())
-            .distinct()
-            .limit(5)
+            .limit(50)
             .all()
         )
-        user_recent_searches = [h[0] for h in history]
+        for (search_query,) in history:
+            if search_query not in user_recent_searches:
+                user_recent_searches.append(search_query)
+            if len(user_recent_searches) == RECENT_SEARCH_LIMIT:
+                break
 
     return {
         "total_results": len(courses),
@@ -105,8 +116,8 @@ def search_and_discover_courses(
                 "enrolled_count": c.enrolled_count,
                 "is_popular": c.is_popular,
                 "is_new": c.is_new,
-                "modules_count": len(c.modules),
-                "has_assessment": c.assessment is not None
+                "modules_count": modules_per_course.get(c.id, 0),
+                "has_assessment": c.id in courses_with_assessment
             }
             for c in courses
         ],

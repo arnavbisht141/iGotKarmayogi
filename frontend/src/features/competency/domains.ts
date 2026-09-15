@@ -64,6 +64,27 @@ export function isDomainCode(value: string): value is DomainCode {
   return (DOMAIN_ORDER as string[]).includes(value);
 }
 
+// Mirrors DOMAIN_CATEGORIES in backend/app/agents/igot/client.py.
+const DOMAIN_CATEGORIES: Record<DomainCode, string[]> = {
+  statistical: ["statistical", "sample surveys", "price statistics", "national accounts", "official statistics"],
+  technical: ["technical", "data science", "programming", "cloud computing", "ai/ml"],
+  digital_governance: ["digital governance", "data governance", "cybersecurity"],
+  behavioural: ["behavioural", "public administration", "leadership", "management"],
+};
+
+export function domainForCategory(category?: string | null): DomainCode | null {
+  const normalized = (category ?? "").trim().toLowerCase();
+  return DOMAIN_ORDER.find((code) => DOMAIN_CATEGORIES[code].includes(normalized)) ?? null;
+}
+
+// Same hues as the chart palette, so a domain reads as one color across the product.
+export const DOMAIN_ACCENT_CLASS: Record<DomainCode, string> = {
+  statistical: "bg-[#2a78d6]",
+  technical: "bg-[#eb6834]",
+  digital_governance: "bg-[#1baf7a]",
+  behavioural: "bg-[#eda100]",
+};
+
 export function levelLabel(level: number): string {
   if (level >= 4.5) return "Expert";
   if (level >= 3.5) return "Advanced";

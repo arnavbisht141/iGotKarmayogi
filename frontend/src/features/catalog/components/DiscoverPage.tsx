@@ -28,19 +28,12 @@ import { Input } from "@/components/ui/input";
 import { fetchApi } from "@/lib/api";
 import { CoursePreview } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
+import { DOMAIN_ACCENT_CLASS, domainForCategory } from "@/features/competency/domains";
 
-/** Accent color for category based course stripe */
+/** Accent stripe follows the course's competency domain */
 const getCategoryAccent = (category: string): string => {
-  const map: Record<string, string> = {
-    statistics: "bg-[#1E3A8A]",
-    economics:  "bg-[#0D9488]",
-    survey:     "bg-amber-500",
-    finance:    "bg-[#B45309]",
-    technology: "bg-[#059669]",
-    management: "bg-slate-600",
-    policy:     "bg-purple-600",
-  };
-  return map[category?.toLowerCase()] ?? "bg-[#1E3A8A]";
+  const domain = domainForCategory(category);
+  return domain ? DOMAIN_ACCENT_CLASS[domain] : "bg-slate-300";
 };
 
 const getDifficultyDot = (diff: string) => {
