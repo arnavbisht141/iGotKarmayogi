@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.models import Course, User
+from app.agents.igot.client import domain_category_filter
 from .schemas import (
     GovernmentDocument,
     CaseScenario,
@@ -39,9 +40,15 @@ router = APIRouter(prefix="/behavioural", tags=["behavioural_cgp"])
 # --- Course Curriculum & Case Mappings Endpoints ---
 
 @router.get("/courses", response_model=List[CourseCaseOverview])
-def list_courses_with_case_metadata(db: Session = Depends(get_db)):
-    """Returns all database courses with their mapped statutory notices and case scenario counts."""
-    courses = db.query(Course).order_by(Course.id).all()
+def list_courses_with_case_metadata(
+    behavioural_only: bool = Query(False, description="Only behavioural and managerial courses"),
+    db: Session = Depends(get_db),
+):
+    """Returns database courses with their mapped statutory notices and case scenario counts."""
+    query = db.query(Course)
+    if behavioural_only:
+        query = query.filter(domain_category_filter("behavioural"))
+    courses = query.order_by(Course.id).all()
     result = []
     for c in courses:
         cases = get_cases_for_course(c.id)
@@ -228,8 +235,8 @@ def start_live_interview(
         "officer_name": session.officer_name,
         "target_duration_minutes": session.target_duration_minutes,
         "initial_ai_question": first_q,
-        "current_phase": "Phase 1: Foundational Subject Matter & Conceptual Rigor",
-        "primary_competency": "Course Knowledge"
+        "current_phase": session.current_phase["name"],
+        "primary_competency": session.current_phase["primary"]
     }
 
 @router.post("/interview/turn", response_model=InterviewTurnResponse)
@@ -242,21 +249,12 @@ def submit_interview_turn(req: InterviewTurnRequest):
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
     
-    turn_res = session.process_turn(
+    telemetry = req.model_dump(exclude={"session_id", "officer_response", "elapsed_seconds"})
+    return session.process_turn(
         officer_text=req.officer_response,
         elapsed_seconds=req.elapsed_seconds,
-        speaking_pace_wpm=req.speaking_pace_wpm,
-        eye_contact_percent=req.eye_contact_percent,
-        composure_score=req.composure_score,
-        voice_clarity_score=req.voice_clarity_score,
-        posture_stability_score=req.posture_stability_score,
-        head_movement_rate=req.head_movement_rate,
-        fidgeting_index=req.fidgeting_index,
-        filler_words_count=req.filler_words_count,
-        pauses_count=req.pauses_count,
-        coherence_score=req.coherence_score
+        telemetry=telemetry,
     )
-    return turn_res
 
 @router.post("/interview/end", response_model=InterviewAnalysisResponse)
 def conclude_interview_by_body(req: InterviewEndRequest, db: Session = Depends(get_db)):

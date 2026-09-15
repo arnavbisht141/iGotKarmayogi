@@ -163,6 +163,9 @@ class InterviewTurnRequest(BaseModel):
     filler_words_count: Optional[int] = None
     pauses_count: Optional[int] = None
     coherence_score: Optional[float] = None
+    face_presence_percent: Optional[float] = None
+    speaking_seconds: Optional[float] = None
+    input_mode: Optional[str] = None  # "voice" or "typed"
 
 class InterviewEndRequest(BaseModel):
     session_id: str
@@ -194,29 +197,31 @@ class TranscriptEntry(BaseModel):
     timestamp_seconds: int
     behavioral_tags: List[str] = Field(default_factory=list)
 
+# Numeric signals are None when they were not captured (camera off, typed answers, analysis unavailable).
 class VideoBehaviouralTelemetry(BaseModel):
-    posture_stability: str  # e.g. "Stable upright posture maintained"
-    posture_stability_score: float
-    head_movement_observed: str  # e.g. "Controlled, responsive nodding"
-    gaze_alignment_percent: float
-    excessive_movement_fidgeting: str  # e.g. "Low (within standard bounds)"
+    posture_stability: str
+    posture_stability_score: Optional[float] = None
+    head_movement_observed: str
+    gaze_alignment_percent: Optional[float] = None
+    face_presence_percent: Optional[float] = None
+    excessive_movement_fidgeting: str
     observable_summary: str
 
 class SpeechAcousticTelemetry(BaseModel):
-    average_wpm: float
+    average_wpm: Optional[float] = None
     pace_assessment: str
     pauses_frequency: str
-    filler_word_count: int
-    clarity_score: float
+    filler_word_count: Optional[int] = None
+    clarity_score: Optional[float] = None
     clarity_rating: str
     coherence_assessment: str
     delivery_cadence: str
 
 class MultimodalTelemetrySummary(BaseModel):
-    average_speaking_wpm: float
-    delivery_composure_score: float
+    average_speaking_wpm: Optional[float] = None
+    delivery_composure_score: Optional[float] = None
     speech_clarity_rating: str
-    total_speaking_time_seconds: int
+    total_speaking_time_seconds: Optional[int] = None
     pacing_adherence: str
 
 class InterviewAnalysisResponse(BaseModel):
@@ -242,6 +247,7 @@ class InterviewAnalysisResponse(BaseModel):
     conversation_analysis: str
     video_behavioural_observations: VideoBehaviouralTelemetry
     speech_analysis: SpeechAcousticTelemetry
+    evaluation_method: Optional[str] = None
     transcript: List[TranscriptEntry]
     telemetry_summary: Optional[MultimodalTelemetrySummary] = None
     observable_signals_disclaimer: str = (

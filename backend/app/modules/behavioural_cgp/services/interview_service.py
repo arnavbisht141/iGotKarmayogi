@@ -1,22 +1,34 @@
-import uuid
+"""Live AI oral board interview for behavioural and managerial courses.
+
+The interviewer is an LLM grounded in the course's lessons and the running conversation; the
+template questions below are only used when no LLM answers in time. Delivery signals (speaking
+pace, face presence, facing the camera, head steadiness, filler words, pauses) are measured in the
+officer's browser and are reported only when they were actually captured.
+"""
 import json
-from typing import Dict, List, Optional, Any
-from sqlalchemy.orm import Session
-from app.core.config import settings
-from app.models.models import Course, Module, Lesson
+import logging
+import re
+import uuid
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+from typing import Any, Dict, List, Optional, Tuple
+
+from sqlalchemy.orm import Session, selectinload
+
+from app.agents.llm_utils import parse_llm_json
+from app.models.models import Course, Module
 from ..schemas import (
-    InterviewStartRequest,
-    InterviewTurnRequest,
-    InterviewTurnResponse,
     CompetencyScore,
-    TranscriptEntry,
-    MultimodalTelemetrySummary,
     InterviewAnalysisResponse,
+    InterviewStartRequest,
+    InterviewTurnResponse,
+    MultimodalTelemetrySummary,
+    SpeechAcousticTelemetry,
+    TranscriptEntry,
     VideoBehaviouralTelemetry,
-    SpeechAcousticTelemetry
 )
 
-# Standard Civil Service Behavioral Competencies
+logger = logging.getLogger(__name__)
+
 COMPETENCIES = [
     "Course Knowledge",
     "Leadership",
@@ -24,79 +36,191 @@ COMPETENCIES = [
     "Project Management",
     "Ethics",
     "Decision Making",
-    "Change Management"
+    "Change Management",
 ]
 
+# One phase per question: the interview always asks len(PHASES) questions.
 PHASES = [
     {
-        "phase_id": 1,
-        "name": "Phase 1: Foundational Subject Matter & Conceptual Rigor",
-        "primary_competency": "Course Knowledge",
-        "secondary_competency": "Communication",
-        "time_window": "00:00 - 06:00",
-        "objective": "Assess understanding of core frameworks, statutory rules, and methodological principles."
+        "name": "Phase 1: Course Knowledge & Application",
+        "primary": "Course Knowledge",
+        "secondary": "Communication",
+        "objective": "Check that the officer understands the course concepts and can apply them to their own work.",
     },
     {
-        "phase_id": 2,
-        "name": "Phase 2: Operational Execution & Project Management",
-        "primary_competency": "Project Management",
-        "secondary_competency": "Decision Making",
-        "time_window": "06:00 - 13:00",
-        "objective": "Assess scheduling, resource allocation, and field monitoring."
+        "name": "Phase 2: Planning & Execution",
+        "primary": "Project Management",
+        "secondary": "Decision Making",
+        "objective": "Probe scheduling, resourcing, risk and monitoring when putting the course ideas into practice.",
     },
     {
-        "phase_id": 3,
-        "name": "Phase 3: Crisis Resolution & Team Leadership",
-        "primary_competency": "Leadership",
-        "secondary_competency": "Communication",
-        "time_window": "13:00 - 20:00",
-        "objective": "Assess guiding cross-functional teams, handling unexpected bottlenecks, and public accountability."
+        "name": "Phase 3: Leading People Under Pressure",
+        "primary": "Leadership",
+        "secondary": "Communication",
+        "objective": "Probe how the officer guides a team through a setback, delegates and keeps accountability.",
     },
     {
-        "phase_id": 4,
-        "name": "Phase 4: Statutory Adherence & Ethical Dilemmas",
-        "primary_competency": "Ethics",
-        "secondary_competency": "Decision Making",
-        "time_window": "20:00 - 27:00",
-        "objective": "Assess impartiality, conflict of interest management, and non-negotiable adherence to rules."
+        "name": "Phase 4: Integrity & Ethical Dilemmas",
+        "primary": "Ethics",
+        "secondary": "Decision Making",
+        "objective": "Probe impartiality, conflicts of interest and professional independence under pressure.",
     },
     {
-        "phase_id": 5,
-        "name": "Phase 5: Institutional Modernization & Change Management",
-        "primary_competency": "Change Management",
-        "secondary_competency": "Leadership",
-        "time_window": "27:00 - 35:00",
-        "objective": "Assess overcoming institutional inertia, driving digital adoption, and leaving sustainable systems."
-    }
+        "name": "Phase 5: Leading Change",
+        "primary": "Change Management",
+        "secondary": "Leadership",
+        "objective": "Probe how the officer overcomes resistance and makes a new way of working stick.",
+    },
+    {
+        "name": "Phase 6: Judgement & Reflection",
+        "primary": "Decision Making",
+        "secondary": "Communication",
+        "objective": "Ask for a hard trade-off decision and what the officer would do differently, drawing on the whole conversation.",
+    },
 ]
+MAX_ANSWERS = len(PHASES)
+REPLY_TIMEOUT_SECONDS = 35
+EVALUATION_TIMEOUT_SECONDS = 75
+MATERIAL_CHARS = 5000
 
-# Course curriculum seed profiles for the interviewer
-COURSE_CONTEXTS: Dict[int, Dict[str, Any]] = {
-    1: {
-        "title": "Civil Service Conduct, Administrative Ethics & Interpersonal Leadership",
-        "organization": "Department of Personnel & Training (DoPT)",
-        "key_themes": ["CCS (Conduct) Rules 1964", "Rule 14 Quasi-Judicial Inquiries", "Audi Alteram Partem", "Public Grievance Resolution"],
-        "initial_question": "Good morning, Officer. Welcome to your oral competency examination on Civil Service Conduct and Administrative Ethics. To begin: as an Inquiring Authority under Rule 14 of CCS (CCA) Rules, how do you uphold the doctrine of natural justice when high-pressure ministerial directives demand immediate ex-parte conclusion against a subordinate?"
-    },
-    2: {
-        "title": "Compilation of Consumer Price Index (CPI) & Inflation Metrics",
-        "organization": "Central Statistics Office (CSO)",
-        "key_themes": ["Modified Laspeyres", "Jevons Geometric Mean", "Item basket weighting", "Quality adjustment"],
-        "initial_question": "Welcome, Officer. Let us assess your mastery of official inflation compilation. Could you explain the mathematical justification for utilizing the Jevons Geometric Mean at the elementary quotation level, and how you would handle an abrupt disappearance of a staple commodity from urban market price quotations?"
-    },
-    3: {
-        "title": "Python and Data Cleaning Pipelines for Public Policy",
-        "organization": "MoSPI Data Lab",
-        "key_themes": ["Pandas vectorization", "Reproducible pipelines", "Microdata wrangling", "Data governance"],
-        "initial_question": "Welcome, Officer. In processing millions of household observations from survey microdata, why are vectorized Pandas operations mandatory over iterative Python loops, and how do you ensure the reproducibility and auditability of data cleaning transformations?"
-    },
-    4: {
-        "title": "Cybersecurity Defense & Digital Public Infrastructure Governance",
-        "organization": "National Critical Information Infrastructure Protection Centre (NCIIPC)",
-        "key_themes": ["Treasury Single Account (TSA)", "CERT-In compliance", "Direct Benefit Transfer (DBT)", "Critical infrastructure defense"],
-        "initial_question": "Officer, in implementing the Treasury Single Account (TSA) under PFMS, what mechanisms prevent regional implementing agencies from parking unspent central scheme funds in commercial bank accounts, and how would you handle a severe cyber breach targeting state payment gateways?"
-    }
+FALLBACK_QUESTIONS = {
+    "Project Management": (
+        "Suppose you are responsible for putting what the course covers on {topic} into practice across several "
+        "regional offices, and two of them fall three weeks behind. How do you re-plan, what do you monitor, and what do you escalate?"
+    ),
+    "Leadership": (
+        "Your team discovers an error in figures that were already shared with a senior official. How do you lead the "
+        "team through correcting it, and how do you keep accountability without creating a culture of blame?"
+    ),
+    "Ethics": (
+        "A senior officer informally asks you to delay publishing results that are unfavourable to their department. "
+        "What do you do, and which principles guide you?"
+    ),
+    "Change Management": (
+        "Staff in your division resist a new way of working that '{title}' recommends. What would you do in the first "
+        "month to win them over, and how would you know it is working?"
+    ),
+    "Decision Making": (
+        "Describe a decision where you had to trade off speed against accuracy. What did you choose, why, and what "
+        "would you do differently after this course?"
+    ),
 }
+
+KEYWORDS = {
+    "Leadership": ["team", "delegate", "motivate", "mentor", "guide", "support my", "accountab", "responsib", "coach"],
+    "Communication": ["explain", "brief", "inform", "stakeholder", "clear", "message", "listen", "consult", "report"],
+    "Project Management": ["timeline", "milestone", "resource", "budget", "schedule", "risk", "monitor", "plan", "deadline"],
+    "Ethics": ["integrity", "impartial", "conflict of interest", "independen", "confidential", "transparen", "rule", "principle"],
+    "Decision Making": ["decide", "decision", "evidence", "trade-off", "priorit", "option", "weigh", "judgement", "judgment"],
+    "Change Management": ["change", "resist", "adopt", "training", "transition", "reform", "pilot", "buy-in", "modernis"],
+}
+
+_executor = ThreadPoolExecutor(max_workers=4)
+
+
+def _ask_llm(prompt: str, timeout: int) -> Optional[str]:
+    from app.agents.recommendation.agent import get_llm_client
+
+    llm = get_llm_client()
+    if llm is None:
+        return None
+    future = _executor.submit(llm.invoke, prompt)
+    try:
+        return future.result(timeout=timeout).content
+    except FutureTimeout:
+        logger.warning("Interview LLM call timed out after %ss", timeout)
+    except Exception as exc:
+        logger.warning("Interview LLM call failed: %s", exc)
+    return None
+
+
+def _ask_json(prompt: str, timeout: int) -> Optional[Any]:
+    text = _ask_llm(prompt, timeout)
+    if not text:
+        return None
+    try:
+        return parse_llm_json(text)
+    except (ValueError, json.JSONDecodeError) as exc:
+        logger.warning("Interview LLM returned unparseable JSON: %s", exc)
+        return None
+
+
+def _words(text: str) -> List[str]:
+    return re.findall(r"[a-z][a-z\-]+", text.lower())
+
+
+def _topic(module_title: str) -> str:
+    return re.sub(r"^module\s*\d+\s*:\s*", "", module_title, flags=re.I).strip() or module_title
+
+
+def _band(score: float) -> str:
+    if score >= 80:
+        return "Exemplary"
+    if score >= 60:
+        return "Proficient"
+    if score >= 40:
+        return "Developing"
+    return "Needs Attention"
+
+
+def _pace_label(wpm: float) -> str:
+    if wpm < 110:
+        return "unhurried"
+    if wpm <= 160:
+        return "comfortable"
+    return "fast"
+
+
+def _delivery_feedback(metrics: Dict[str, Any]) -> Optional[str]:
+    parts = []
+    wpm = metrics.get("speaking_pace_wpm")
+    if isinstance(wpm, (int, float)):
+        parts.append(f"Pace {wpm:.0f} words per minute ({_pace_label(wpm)}).")
+    fillers = metrics.get("filler_words_count")
+    if isinstance(fillers, int) and fillers:
+        parts.append(f"{fillers} filler word{'s' if fillers != 1 else ''}.")
+    gaze = metrics.get("eye_contact_percent")
+    if isinstance(gaze, (int, float)):
+        parts.append(f"Facing the camera for {gaze:.0f}% of the answer.")
+    return " ".join(parts) or None
+
+
+def _course_context(db: Optional[Session], course_id: int) -> Dict[str, Any]:
+    course = None
+    if db is not None:
+        course = (
+            db.query(Course)
+            .options(selectinload(Course.modules).selectinload(Module.lessons))
+            .filter(Course.id == course_id)
+            .first()
+        )
+    if course is None:
+        return {"title": f"Course {course_id}", "organization": "iGOT Karmayogi", "overview": "", "modules": [], "material": ""}
+    parts = []
+    for module in course.modules:
+        parts.append(f"## {module.title}")
+        for lesson in module.lessons:
+            parts.append(f"### {lesson.title}\n{(lesson.content or '').strip()}")
+    return {
+        "title": course.title,
+        "organization": course.organization or "iGOT Karmayogi",
+        "overview": course.overview or "",
+        "modules": [m.title for m in course.modules],
+        "material": "\n".join(parts)[:MATERIAL_CHARS],
+    }
+
+
+def _parse_score(item: Any) -> Optional[Tuple[float, str, str]]:
+    if not isinstance(item, dict):
+        return None
+    try:
+        score = max(0.0, min(100.0, float(item.get("score"))))
+    except (TypeError, ValueError):
+        return None
+    evidence = str(item.get("evidence") or "").strip() or "Not demonstrated in this interview."
+    recommendation = str(item.get("recommendation") or "").strip() or "Practise answering with a concrete example from your work."
+    return round(score, 1), evidence, recommendation
+
 
 class LiveInterviewSession:
     def __init__(
@@ -105,450 +229,336 @@ class LiveInterviewSession:
         course_id: int,
         officer_name: str,
         target_duration_minutes: int,
-        course_info_override: Optional[Dict[str, Any]] = None,
-        user_id: Optional[int] = None
+        course_info: Dict[str, Any],
+        user_id: Optional[int] = None,
     ):
         self.session_id = session_id
         self.course_id = course_id
         self.officer_name = officer_name
         self.target_duration_minutes = target_duration_minutes
+        self.course_info = course_info
         self.user_id = user_id
-        if course_info_override:
-            self.course_info = course_info_override
-        else:
-            self.course_info = COURSE_CONTEXTS.get(course_id, {
-                "title": f"Civil Service Competency Course {course_id}",
-                "organization": "iGot Karmayogi",
-                "key_themes": ["Administrative Rules", "Policy Implementation", "Public Ethics"],
-                "initial_question": f"Good morning, Officer {officer_name}. Welcome to your live oral evaluation. To begin, please articulate how your understanding of this course enables you to improve administrative efficiency and service delivery in your department."
-            })
-        self.current_turn = 1
-        self.max_turns = 6  # 5-6 structured turns covering all phases within 25-35 minutes
+        self.answers: List[Dict[str, Any]] = []
+        self.current_phase = PHASES[0]
+        self._terms: Optional[set] = None
         self.transcript: List[TranscriptEntry] = [
             TranscriptEntry(
                 speaker="AI Interviewer",
-                content=self.course_info["initial_question"],
+                content=self._opening_question(),
                 timestamp_seconds=0,
-                behavioral_tags=["Communication", "Course Knowledge"]
+                behavioral_tags=[PHASES[0]["primary"]],
             )
         ]
-        self.officer_responses: List[Dict[str, Any]] = []
-        self.is_concluded = False
+
+    def _opening_question(self) -> str:
+        modules = self.course_info["modules"]
+        topic = _topic(modules[0]) if modules else self.course_info["title"]
+        return (
+            f"Good morning, {self.officer_name}, and welcome to this oral board on {self.course_info['title']}. "
+            f"Over the next {self.target_duration_minutes} minutes I will ask you {MAX_ANSWERS} questions, starting with "
+            f"the course itself and moving on to planning, leadership, ethics and change. "
+            f"To begin: what is the most useful idea you took from the part of the course on {topic}, and where would you apply it in your own work?"
+        )
+
+    def _conversation(self, last: Optional[int] = None) -> str:
+        entries = self.transcript[-last:] if last else self.transcript
+        return "\n".join(
+            f"{'Board' if e.speaker == 'AI Interviewer' else 'Officer'}: {e.content}" for e in entries
+        )
+
+    def _material_terms(self) -> set:
+        if self._terms is None:
+            text = f"{self.course_info['material']} {self.course_info['overview']}"
+            self._terms = {w for w in _words(text) if len(w) >= 7}
+        return self._terms
+
+    def _keyword_tags(self, text: str) -> List[str]:
+        lower = text.lower()
+        tags = [comp for comp, words in KEYWORDS.items() if any(w in lower for w in words)]
+        if set(_words(text)) & self._material_terms():
+            tags.insert(0, "Course Knowledge")
+        return tags
 
     def process_turn(
-        self,
-        officer_text: str,
-        elapsed_seconds: int,
-        speaking_pace_wpm: Optional[float] = None,
-        eye_contact_percent: Optional[float] = None,
-        composure_score: Optional[float] = None,
-        voice_clarity_score: Optional[float] = None,
-        posture_stability_score: Optional[float] = None,
-        head_movement_rate: Optional[float] = None,
-        fidgeting_index: Optional[float] = None,
-        filler_words_count: Optional[int] = None,
-        pauses_count: Optional[int] = None,
-        coherence_score: Optional[float] = None
+        self, officer_text: str, elapsed_seconds: int, telemetry: Optional[Dict[str, Any]] = None
     ) -> InterviewTurnResponse:
-        self.current_turn += 1
-        
-        # Tag behavioral competencies detected in officer response
-        tags = self._detect_behavioral_tags(officer_text)
-        self.transcript.append(
-            TranscriptEntry(
-                speaker=f"Officer {self.officer_name}",
-                content=officer_text,
-                timestamp_seconds=elapsed_seconds,
-                behavioral_tags=tags
-            )
+        answer_number = len(self.answers) + 1
+        metrics = {k: v for k, v in (telemetry or {}).items() if v is not None}
+        question_asked = self.transcript[-1].content
+        officer_entry = TranscriptEntry(
+            speaker=f"Officer {self.officer_name}",
+            content=officer_text,
+            timestamp_seconds=elapsed_seconds,
+            behavioral_tags=[],
         )
+        self.transcript.append(officer_entry)
 
-        # Multimodal telemetry calculation
-        words = len(officer_text.split())
-        prev_elapsed = self.officer_responses[-1]["elapsed_seconds"] if self.officer_responses else 0
-        turn_duration = max(10, elapsed_seconds - prev_elapsed)
-        calc_wpm = round((words / max(0.2, turn_duration / 60.0)), 1)
-        effective_wpm = speaking_pace_wpm if (speaking_pace_wpm and speaking_pace_wpm > 0) else min(220.0, max(50.0, calc_wpm))
-        effective_composure = composure_score if (composure_score is not None and composure_score > 0) else 88.0
-        effective_clarity = voice_clarity_score if (voice_clarity_score is not None and voice_clarity_score > 0) else 92.0
-        effective_eye_contact = eye_contact_percent if (eye_contact_percent is not None and eye_contact_percent > 0) else 85.0
-        effective_posture = posture_stability_score if (posture_stability_score is not None and posture_stability_score > 0) else 86.0
-        effective_head = head_movement_rate if (head_movement_rate is not None and head_movement_rate > 0) else 2.1
-        effective_fidget = fidgeting_index if (fidgeting_index is not None) else 0.8
-        effective_fillers = filler_words_count if (filler_words_count is not None) else max(0, int(len(officer_text.split()) * 0.02))
-        effective_pauses = pauses_count if (pauses_count is not None) else max(1, int(turn_duration / 8))
-        effective_coherence = coherence_score if (coherence_score is not None and coherence_score > 0) else 89.0
+        is_final = answer_number >= MAX_ANSWERS
+        next_phase = None if is_final else PHASES[answer_number]
+        reply = self._llm_reply(next_phase)
+        if reply:
+            follow_up, tags, note = reply
+        else:
+            follow_up, tags, note = self._fallback_reply(officer_text, next_phase), self._keyword_tags(officer_text), None
 
-        self.officer_responses.append({
-            "turn": self.current_turn - 1,
+        officer_entry.behavioral_tags = tags
+        self.answers.append({
+            "turn": answer_number,
+            "question": question_asked,
             "response": officer_text,
             "elapsed_seconds": elapsed_seconds,
-            "speaking_duration": turn_duration,
-            "speaking_pace_wpm": effective_wpm,
-            "composure_score": effective_composure,
-            "voice_clarity_score": effective_clarity,
-            "eye_contact_percent": effective_eye_contact,
-            "posture_stability_score": effective_posture,
-            "head_movement_rate": effective_head,
-            "fidgeting_index": effective_fidget,
-            "filler_words_count": effective_fillers,
-            "pauses_count": effective_pauses,
-            "coherence_score": effective_coherence,
-            "tags": tags
+            "metrics": metrics,
+            "tags": tags,
         })
-
-        current_phase = self._resolve_phase(elapsed_seconds)
-
-        # Check if this is the final wrap-up turn
-        is_final = self.current_turn >= self.max_turns or elapsed_seconds >= (self.target_duration_minutes * 60 - 180)
-
-        # Generate adaptive follow-up question
-        follow_up_q, ack_note = self._generate_adaptive_follow_up(
-            officer_text=officer_text,
-            phase=current_phase,
-            is_final=is_final
-        )
-
         self.transcript.append(
             TranscriptEntry(
                 speaker="AI Interviewer",
-                content=follow_up_q,
-                timestamp_seconds=elapsed_seconds + 5,
-                behavioral_tags=[current_phase["primary_competency"], "Communication"]
+                content=follow_up,
+                timestamp_seconds=elapsed_seconds,
+                behavioral_tags=[next_phase["primary"]] if next_phase else [],
             )
         )
+        if next_phase:
+            self.current_phase = next_phase
 
-        if is_final:
-            self.is_concluded = True
-
-        # Pacing and delivery feedback
-        target_secs = self.target_duration_minutes * 60
-        remaining_secs = max(0, target_secs - elapsed_seconds)
-        rem_min = remaining_secs // 60
-        pacing_advice = f"Interview pacing optimal: ~{rem_min} minutes remaining. Transitioning to {current_phase['name']}."
-
-        if effective_wpm < 100:
-            pace_note = f"Measured speaking pace ({effective_wpm:.0f} WPM)."
-        elif effective_wpm > 165:
-            pace_note = f"Brisk speaking pace ({effective_wpm:.0f} WPM); recommend steady cadence."
-        else:
-            pace_note = f"Optimal executive cadence ({effective_wpm:.0f} WPM)."
-
-        delivery_feedback = f"{pace_note} High composure ({effective_composure:.0f}%) and articulate delivery."
-
+        remaining_minutes = max(0, self.target_duration_minutes * 60 - elapsed_seconds) // 60
+        pacing = (
+            "That was the final question. Your report is being prepared."
+            if is_final
+            else f"Question {answer_number + 1} of {MAX_ANSWERS}. About {remaining_minutes} minutes of the planned time remain."
+        )
         return InterviewTurnResponse(
-            turn_number=self.current_turn,
-            ai_question=follow_up_q,
-            phase_name=current_phase["name"],
-            phase_target_competency=current_phase["primary_competency"],
+            turn_number=answer_number + 1,
+            ai_question=follow_up,
+            phase_name=self.current_phase["name"],
+            phase_target_competency=self.current_phase["primary"],
             elapsed_seconds=elapsed_seconds,
             target_duration_minutes=self.target_duration_minutes,
-            turns_completed=len(self.officer_responses),
+            turns_completed=answer_number,
             is_final_turn=is_final,
-            pacing_advice=pacing_advice,
-            acknowledgement_note=ack_note,
+            pacing_advice=pacing,
+            acknowledgement_note=note,
             detected_competencies=tags,
-            delivery_feedback=delivery_feedback
+            delivery_feedback=_delivery_feedback(metrics),
         )
 
-    def _resolve_phase(self, elapsed_seconds: int) -> Dict[str, Any]:
-        """Map elapsed time and turn count onto the 25–35 minute five-phase board."""
-        target_secs = max(1, self.target_duration_minutes * 60)
-        ratio = max(0.0, elapsed_seconds / target_secs)
-        if ratio < 0.20:
-            time_idx = 0
-        elif ratio < 0.40:
-            time_idx = 1
-        elif ratio < 0.60:
-            time_idx = 2
-        elif ratio < 0.80:
-            time_idx = 3
-        else:
-            time_idx = 4
-        turn_idx = min(len(PHASES) - 1, max(0, self.current_turn - 2))
-        return PHASES[max(time_idx, turn_idx)]
-
-    def _detect_behavioral_tags(self, text: str) -> List[str]:
-        t = text.lower()
-        tags = []
-        if any(w in t for w in ["rule", "statute", "integrity", "impartial", "public interest", "conflict", "un-nqaf", "law", "gfr"]):
-            tags.append("Ethics")
-        if any(w in t for w in ["team", "inspire", "delegate", "supervise", "guide", "accountable", "responsibility"]):
-            tags.append("Leadership")
-        if any(w in t for w in ["timeline", "milestone", "resource", "budget", "monitoring", "schedule", "contingency"]):
-            tags.append("Project Management")
-        if any(w in t for w in ["decide", "evidence", "judgment", "priority", "balance", "risk", "evaluate"]):
-            tags.append("Decision Making")
-        if any(w in t for w in ["reform", "digital", "modernize", "transition", "resistance", "training", "capacity", "adopt"]):
-            tags.append("Change Management")
-        if any(w in t for w in ["clear", "brief", "structured", "coordinate", "inform", "stakeholder"]):
-            tags.append("Communication")
-        if any(w in t for w in ["sample", "cpi", "fsu", "inflation", "pfms", "pandas", "data", "formula", "survey", "methodology"]):
-            tags.append("Course Knowledge")
-        return list(set(tags)) if tags else ["Course Knowledge", "Communication"]
-
-    def _generate_adaptive_follow_up(self, officer_text: str, phase: Dict[str, Any], is_final: bool) -> tuple[str, str]:
-        # Attempt LLM generation if keys available
-        if settings.GOOGLE_API_KEY or settings.OPENAI_API_KEY:
-            try:
-                from langchain_core.messages import HumanMessage
-                prompt = f"""You are a distinguished Senior Civil Service Interview Board Member in India conducting an official oral competency assessment on iGot Karmayogi.
-Course Title: {self.course_info['title']}
-Target Duration: {self.target_duration_minutes} minutes
-Current Evaluation Phase: {phase['name']}
-Primary Competency Target: {phase['primary_competency']}
-Secondary Competency Target: {phase['secondary_competency']}
-Is Concluding Turn: {is_final}
-
-Previous Officer Response:
-"{officer_text}"
-
-Instructions:
-1. Briefly acknowledge and synthesize what the officer said (1 concise sentence).
-2. Ask a probing, intellectually rigorous follow-up question related to the course content and the competency '{phase['primary_competency']}'.
-3. Pose a realistic administrative dilemma testing their judgment, rules adherence, or field implementation.
-4. Keep the total output under 4 sentences. Speak directly to the officer."""
-
-                if settings.GOOGLE_API_KEY:
-                    from langchain_google_genai import ChatGoogleGenerativeAI
-                    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=settings.GOOGLE_API_KEY, temperature=0.3)
-                    res = llm.invoke([HumanMessage(content=prompt)])
-                    content = res.content.strip()
-                    ack = "I have noted your analytical position on this matter."
-                    return content, ack
-                elif settings.OPENAI_API_KEY:
-                    from langchain_openai import ChatOpenAI
-                    llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.OPENAI_API_KEY, temperature=0.3)
-                    res = llm.invoke([HumanMessage(content=prompt)])
-                    content = res.content.strip()
-                    ack = "Noted, Officer."
-                    return content, ack
-            except Exception as e:
-                print(f"LLM interview follow-up fallback: {e}")
-
-        # Deterministic Civil Service Follow-Up Matrix anchored in course syllabus
-        ack = "Thank you, Officer. Your perspective highlights key operational dimensions."
-        primary = phase["primary_competency"]
-
-        themes = self.course_info.get("key_themes", [])
-        theme_pm = themes[0] if len(themes) > 0 else "statutory milestones"
-        theme_lead = themes[1] if len(themes) > 1 else "field operations"
-        theme_eth = themes[2] if len(themes) > 2 else "statutory compliance and audit findings"
-        theme_cm = themes[3] if len(themes) > 3 else "digital administrative workflows"
-
-        if is_final:
-            return (
-                f"Thank you, Officer {self.officer_name}. As we conclude this {self.target_duration_minutes}-minute interview: "
-                f"Looking back at the institutional reforms required in '{self.course_info['title']}', what is the single most enduring "
-                f"administrative change you will personally champion to ensure sustainable ethical governance and team accountability?",
-                ack
-            )
-
-        if primary == "Project Management":
-            q = (
-                f"Building upon your point: during nationwide execution of '{self.course_info['title']}', specifically concerning '{theme_pm}', "
-                f"unforeseen field disruptions and resource constraints emerge across multiple directorates. "
-                f"How do you re-allocate project resources, adjust statutory milestones, and preserve implementation rigor without ballooning the budget?"
-            )
-        elif primary == "Leadership":
-            q = (
-                f"Let us examine team leadership under acute operational pressure in '{self.course_info['title']}': Suppose junior personnel "
-                f"responsible for '{theme_lead}' report severe pushback and intimidation from local influential actors during inspections. "
-                f"How do you lead from the front, protect field staff, and ensure official procedures are maintained without compromising administrative morale?"
-            )
-        elif primary == "Ethics":
-            q = (
-                f"That brings us to public integrity and statutory ethics: If an administrative authority informally urges withholding "
-                f"or recalculating adverse official findings related to '{theme_eth}' prior to parliamentary or audit scrutiny, "
-                f"how do you articulate your statutory duty, uphold the Civil Services Conduct Rules, and navigate this conflict?"
-            )
-        elif primary == "Change Management":
-            q = (
-                f"Regarding institutional modernization: Resistance to digital adoption and standardized workflows for '{theme_cm}' "
-                f"remains entrenched among senior staff accustomed to manual paper files. What change management strategy do you implement "
-                f"to overcome bureaucratic inertia and foster genuine digital adoption?"
+    def _llm_reply(self, next_phase: Optional[Dict[str, Any]]) -> Optional[Tuple[str, List[str], Optional[str]]]:
+        if next_phase:
+            task = (
+                f"Next, assess {next_phase['primary']} (and {next_phase['secondary']} where natural). Goal: {next_phase['objective']}\n"
+                "Reply as a real interviewer in 2 to 4 sentences: first react to something specific the officer just said "
+                "(acknowledge a good point, challenge a weak one, or ask for evidence), then ask exactly one clear question "
+                "built on a realistic situation from the course material. If the answer was vague, very short or off-topic, "
+                "say so politely and ask for a concrete example as part of your question."
             )
         else:
-            q = (
-                f"Under the technical provisions of '{self.course_info['title']}', how do you empirically demonstrate to the "
-                f"Executive Evaluation Commission that your implementation safeguards eliminate procedural errors and administrative bias?"
+            task = (
+                "That was the officer's final answer. In 2 sentences, react to one specific point from their answers and "
+                f"close the interview by thanking {self.officer_name}. Do not ask another question."
             )
+        prompt = f"""You are a senior member of a Government of India oral interview board. You are assessing an official of the Official Statistical System who has completed the course "{self.course_info['title']}" ({self.course_info['organization']}).
 
-        return q, ack
+Course overview: {self.course_info['overview']}
+
+Course material (ground your questions in it; do not recite it):
+{self.course_info['material']}
+
+Conversation so far:
+{self._conversation(last=14)}
+
+{task}
+
+Also judge the officer's most recent answer.
+Respond ONLY with JSON:
+{{"reply": "what you say next", "competencies_shown": ["only competencies from this list that the most recent answer clearly demonstrated: {', '.join(COMPETENCIES)}"], "feedback": "one short sentence of specific, constructive feedback on the content of the most recent answer"}}"""
+        data = _ask_json(prompt, REPLY_TIMEOUT_SECONDS)
+        if not isinstance(data, dict):
+            return None
+        reply = str(data.get("reply") or "").strip()
+        if not reply:
+            return None
+        shown = data.get("competencies_shown") if isinstance(data.get("competencies_shown"), list) else []
+        tags = [comp for comp in COMPETENCIES if comp in shown]
+        feedback = str(data.get("feedback") or "").strip() or None
+        return reply, tags, feedback
+
+    def _fallback_reply(self, officer_text: str, next_phase: Optional[Dict[str, Any]]) -> str:
+        if next_phase is None:
+            return f"Thank you, {self.officer_name}. That concludes the interview. Your assessment report is being prepared."
+        modules = self.course_info["modules"]
+        topic = _topic(modules[len(self.answers) % len(modules)]) if modules else self.course_info["title"]
+        question = FALLBACK_QUESTIONS[next_phase["primary"]].format(title=self.course_info["title"], topic=topic)
+        lead = (
+            "Thank you."
+            if len(officer_text.split()) >= 25
+            else "Thank you. In your next answer, please be more specific and use a concrete example."
+        )
+        return f"{lead} {question}"
+
+    def _llm_evaluation(self) -> Optional[Dict[str, Any]]:
+        prompt = f"""You chair a Government of India oral interview board. Write the assessment of an official after a live interview on the course "{self.course_info['title']}".
+
+Course material:
+{self.course_info['material'][:4000]}
+
+Full interview transcript:
+{self._conversation()}
+
+Score each competency from 0 to 100 using only what the officer actually said:
+- 80 to 100: specific, accurate and well reasoned, with concrete examples tied to the course or real work
+- 60 to 79: sound but general, or missing examples
+- 40 to 59: partial, vague or with notable gaps
+- below 40: not demonstrated, very short, incorrect or off-topic
+Never credit anything the officer did not say. Quote or closely paraphrase the officer as evidence. Address the officer as "you".
+
+Competencies: {', '.join(COMPETENCIES)}
+
+Respond ONLY with JSON:
+{{"competency_scores": {{"<competency name>": {{"score": 0, "evidence": "quote or paraphrase, or 'Not demonstrated in this interview'", "recommendation": "one concrete next step"}}}},
+"overall_assessment": "3 to 4 sentences",
+"course_understanding": "2 sentences",
+"communication_assessment": "2 sentences on how clear, structured and relevant the answers were",
+"decision_making_assessment": "2 sentences",
+"conversation_analysis": "2 sentences on consistency across the answers",
+"strengths": ["up to 3 specific strengths"],
+"improvements": ["up to 3 specific areas to improve"],
+"upskilling": ["up to 3 concrete learning actions, naming course topics where possible"]}}"""
+        data = _ask_json(prompt, EVALUATION_TIMEOUT_SECONDS)
+        return data if isinstance(data, dict) else None
+
+    def _heuristic_score(self, comp: str) -> Tuple[float, str, str]:
+        answers = [a["response"] for a in self.answers]
+        if not answers:
+            return 0.0, "No answers were recorded.", "Complete the interview to receive feedback."
+        if comp == "Course Knowledge":
+            hits = len({w for a in answers for w in _words(a)} & self._material_terms())
+            score = min(85.0, 20.0 + hits * 4.0)
+            evidence = f"Your answers used {hits} key terms from the course material."
+            recommendation = "Revisit the course modules and tie each answer to a specific concept."
+        else:
+            matching = [a for a in answers if any(w in a.lower() for w in KEYWORDS[comp])]
+            score = min(80.0, 15.0 + len(matching) * 15.0)
+            evidence = (
+                f"\"{matching[0][:160].strip()}\"" if matching else "Not demonstrated in this interview."
+            )
+            recommendation = f"Prepare a concrete example that shows {comp.lower()} in your own work."
+        average_words = sum(len(a.split()) for a in answers) / len(answers)
+        if average_words < 20:
+            score = min(score, 40.0)
+        return round(score, 1), evidence, recommendation
 
     def generate_analysis(self) -> InterviewAnalysisResponse:
-        total_answers = len(self.officer_responses)
-        all_text = " ".join([r["response"] for r in self.officer_responses])
-        all_tags = [tag for r in self.officer_responses for tag in r["tags"]]
+        answers = self.answers
+        count = len(answers)
+        evaluation = self._llm_evaluation() if answers else None
+        llm_scores = evaluation.get("competency_scores") if evaluation else None
+        llm_scores = llm_scores if isinstance(llm_scores, dict) else {}
 
-        # Multimodal Telemetry Metrics aggregation
-        wpms = [r.get("speaking_pace_wpm") for r in self.officer_responses if r.get("speaking_pace_wpm")]
-        avg_wpm = round(sum(wpms) / len(wpms), 1) if wpms else 126.0
-
-        composures = [r.get("composure_score") for r in self.officer_responses if r.get("composure_score")]
-        avg_composure = round(sum(composures) / len(composures), 1) if composures else 88.0
-
-        clarities = [r.get("voice_clarity_score") for r in self.officer_responses if r.get("voice_clarity_score")]
-        avg_clarity = round(sum(clarities) / len(clarities), 1) if clarities else 92.0
-        clarity_rating = "Executive Grade — Highly Articulate" if avg_clarity >= 85 else "Competent & Clear"
-
-        total_speaking_time = sum(r.get("speaking_duration", 30) for r in self.officer_responses)
-
-        telemetry_summary = MultimodalTelemetrySummary(
-            average_speaking_wpm=avg_wpm,
-            delivery_composure_score=avg_composure,
-            speech_clarity_rating=clarity_rating,
-            total_speaking_time_seconds=total_speaking_time,
-            pacing_adherence="Optimal — 25-35m Board Pacing Maintained"
-        )
-
-        # Calculate scores for each competency
         scores: Dict[str, CompetencyScore] = {}
         for comp in COMPETENCIES:
-            frequency = all_tags.count(comp)
-            word_count = len(all_text.split())
-            
-            # Base scoring: 72 + frequency * 4.5 + word depth
-            raw_score = 72.0 + (frequency * 4.5) + min(12.0, (word_count / 150) * 2.0)
-
-            # Multimodal modifier: Communication benefits from optimal WPM and clarity; Leadership from composure
-            if comp == "Communication":
-                wpm_bonus = 3.0 if (110 <= avg_wpm <= 150) else 1.0
-                raw_score += wpm_bonus + (avg_clarity - 80) * 0.1
-            elif comp == "Leadership":
-                raw_score += (avg_composure - 80) * 0.15
-
-            score_percent = min(96.0, max(65.0, round(raw_score, 1)))
-
-            if score_percent >= 85:
-                band = "Exemplary"
-                growth = f"Consolidate advanced institutional SOPs and mentor junior officers in {comp.lower()}."
-            elif score_percent >= 74:
-                band = "Proficient"
-                growth = f"Further deepen practical application of statutory frameworks when resolving complex {comp.lower()} dilemmas."
-            else:
-                band = "Needs Attention"
-                growth = f"Recommend targeted refresher modules on {comp.lower()} and administrative case law."
-
-            evidence = self._generate_evidence_for_competency(comp, self.officer_responses)
+            parsed = _parse_score(llm_scores.get(comp)) if evaluation else None
+            score, evidence, recommendation = parsed or self._heuristic_score(comp)
             scores[comp] = CompetencyScore(
                 competency_name=comp,
-                score_percent=score_percent,
-                rating_band=band,
+                score_percent=score,
+                rating_band=_band(score),
                 key_evidence=evidence,
-                growth_opportunity=growth
+                growth_opportunity=recommendation,
             )
 
-        # Video and Speech Telemetry Aggregations
-        postures = [r.get("posture_stability_score") for r in self.officer_responses if r.get("posture_stability_score")]
-        avg_posture = round(sum(postures) / len(postures), 1) if postures else 86.0
+        overall = round(sum(s.score_percent for s in scores.values()) / len(scores), 1) if answers else 0.0
+        overall_band = _band(overall)
+        ev = evaluation or {}
 
-        eyes = [r.get("eye_contact_percent") for r in self.officer_responses if r.get("eye_contact_percent")]
-        avg_eye = round(sum(eyes) / len(eyes), 1) if eyes else 85.0
+        def text(key: str, fallback: str) -> str:
+            value = ev.get(key)
+            return value.strip() if isinstance(value, str) and value.strip() else fallback
 
-        total_fillers = sum(r.get("filler_words_count", 0) for r in self.officer_responses)
-        total_pauses = sum(r.get("pauses_count", 0) for r in self.officer_responses)
+        def items(key: str, fallback: List[str]) -> List[str]:
+            value = ev.get(key)
+            cleaned = [str(v).strip() for v in value if str(v).strip()] if isinstance(value, list) else []
+            return cleaned[:5] or fallback
 
-        video_telemetry = VideoBehaviouralTelemetry(
-            posture_stability="Upright, centered executive seating maintained" if avg_posture >= 80 else "Adequate posture; occasional shifting observed",
-            posture_stability_score=avg_posture,
-            head_movement_observed="Controlled, responsive nodding aligned with active conversational exchange",
-            gaze_alignment_percent=avg_eye,
-            excessive_movement_fidgeting="Low / within standard baseline bounds",
-            observable_summary=f"Continuous visual telemetry indicated stable gaze orientation ({avg_eye:.0f}%) and disciplined physical composure ({avg_posture:.0f}% stability) without extraneous fidgeting."
+        average_words = sum(len(a["response"].split()) for a in answers) / count if count else 0
+        ranked = sorted(scores.values(), key=lambda s: s.score_percent, reverse=True)
+        fallback_strengths = [f"{s.competency_name}: {s.key_evidence}" for s in ranked if s.score_percent >= 60][:3] or [
+            "No clear strengths could be identified from the answers given."
+        ]
+        fallback_improvements = [
+            f"{s.competency_name} ({s.score_percent:.0f}/100): {s.growth_opportunity}" for s in ranked[::-1][:3]
+        ]
+        modules = [_topic(m) for m in self.course_info["modules"][:3]]
+        fallback_upskilling = [
+            f"Revisit the course modules on {', '.join(modules)}." if modules else "Revisit the course modules.",
+            "Practise answering with the situation, your action and the result of a real example.",
+        ]
+        overall_fallback = (
+            "No answers were recorded, so there is nothing to assess."
+            if not answers
+            else f"You answered {count} of {MAX_ANSWERS} questions on {self.course_info['title']}, "
+            f"with an overall score of {overall:.0f}/100 ({overall_band})."
         )
 
-        pace_desc = "Optimal executive cadence (115-145 WPM)" if (110 <= avg_wpm <= 150) else ("Measured delivery (<110 WPM)" if avg_wpm < 110 else "Rapid pace (>150 WPM)")
-        speech_telemetry = SpeechAcousticTelemetry(
-            average_wpm=avg_wpm,
-            pace_assessment=pace_desc,
-            pauses_frequency=f"Structured syntactic pauses ({total_pauses} measured pauses across responses)",
-            filler_word_count=total_fillers,
-            clarity_score=avg_clarity,
-            clarity_rating=clarity_rating,
-            coherence_assessment="High conceptual coherence: responses systematically state the administrative issue, cite the relevant statutory mandate, and articulate mitigating execution safeguards.",
-            delivery_cadence="Steady, authoritative, and audible delivery throughout examination."
-        )
+        def avg(key: str) -> Optional[float]:
+            values = [a["metrics"][key] for a in answers if isinstance(a["metrics"].get(key), (int, float))]
+            return round(sum(values) / len(values), 1) if values else None
 
-        overall_score = round(sum(s.score_percent for s in scores.values()) / len(scores), 1)
-        if overall_score >= 85:
-            overall_band = "Executive Grade — Exemplary"
-        elif overall_score >= 72:
-            overall_band = "Executive Grade — Proficient"
+        def total(key: str) -> Optional[int]:
+            values = [a["metrics"][key] for a in answers if isinstance(a["metrics"].get(key), (int, float))]
+            return int(round(sum(values))) if values else None
+
+        face = avg("face_presence_percent")
+        gaze = avg("eye_contact_percent")
+        steadiness = avg("posture_stability_score")
+        head_rate = avg("head_movement_rate")
+        wpm = avg("speaking_pace_wpm")
+        fillers = total("filler_words_count")
+        pauses = total("pauses_count")
+        speaking = total("speaking_seconds")
+        voice_answers = sum(1 for a in answers if a["metrics"].get("input_mode") == "voice")
+
+        if steadiness is None:
+            posture = "Not captured"
         else:
-            overall_band = "Development Required"
+            posture = ("Steady" if steadiness >= 75 else "Some movement" if steadiness >= 50 else "Frequent movement") + f" ({steadiness:.0f}/100)"
+        if face is None:
+            video_summary = "Camera signals were not captured (camera off, blocked, or face analysis unavailable)."
+        else:
+            video_summary = f"Your face was in frame for {face:.0f}% of your answers" + (
+                f" and you were facing the camera for {gaze:.0f}% of that time." if gaze is not None else "."
+            )
 
-        overall_assessment = (
-            f"Officer {self.officer_name} demonstrated a {overall_band.lower()} performance during the live oral examination. "
-            f"The officer exhibited disciplined mastery over the statutory requirements of '{self.course_info['title']}' "
-            f"combined with balanced executive decision-making under simulated procedural constraints."
+        conversation_analysis = text("conversation_analysis", f"{count} answers were recorded in this interview.")
+        video = VideoBehaviouralTelemetry(
+            posture_stability=posture,
+            posture_stability_score=steadiness,
+            head_movement_observed="Not captured" if head_rate is None else f"{head_rate:.1f} noticeable head turns per minute",
+            gaze_alignment_percent=gaze,
+            face_presence_percent=face,
+            excessive_movement_fidgeting="Not measured (body movement is not tracked)",
+            observable_summary=video_summary,
+        )
+        speech = SpeechAcousticTelemetry(
+            average_wpm=wpm,
+            pace_assessment="Not captured (answers were typed or too short to measure)" if wpm is None else f"{_pace_label(wpm).capitalize()} ({wpm:.0f} words per minute)",
+            pauses_frequency="Not captured" if pauses is None else f"{pauses} pauses of 2 seconds or longer",
+            filler_word_count=fillers,
+            clarity_score=None,
+            clarity_rating="Not measured",
+            coherence_assessment=conversation_analysis,
+            delivery_cadence=f"{voice_answers} of {count} answers were spoken"
+            + (f", with {speaking / 60:.1f} minutes of speech." if speaking else "."),
         )
 
-        course_understanding = (
-            f"Exhibited comprehensive comprehension of '{self.course_info['title']}'. Accurately cited key operational "
-            f"rules, statutory authorities ({self.course_info.get('organization', 'Central Cadre')}), and standard operating procedures. "
-            f"Effectively distinguished between mandatory statutory compliance and discretionary administrative adjustments."
-        )
-
-        communication_assessment = (
-            f"Communication was articulate and structured (Cadence: {avg_wpm:.0f} WPM, Clarity: {avg_clarity:.0f}%). "
-            f"The officer responded directly to prompts with minimal filler frequency ({total_fillers} instances) "
-            f"and maintained strong communicative engagement throughout."
-        )
-
-        decision_making_assessment = (
-            f"Decision-making score: {scores.get('Decision Making', CompetencyScore(competency_name='Decision Making', score_percent=82.0, rating_band='Proficient', key_evidence='', growth_opportunity='')).score_percent}%. "
-            f"The officer consistently prioritized the principles of natural justice (Audi Alteram Partem), "
-            f"fiscal integrity, and institutional accountability before exercising executive discretion."
-        )
-
-        conversation_analysis = (
-            f"Across {total_answers} structured oral turns, the candidate displayed logical progression and high "
-            f"thematic consistency. Early turns established foundational subject matter rigor, while subsequent responses "
-            f"successfully resolved crisis scenarios, resource trade-offs, and ethical challenges without contradictions."
-        )
-
-        areas_for_improvement = [
-            "Quantify contingency budget allocations and field reserve buffers earlier during project planning.",
-            "Formulate formalized stakeholder consultation frameworks during digital transformation and change management.",
-            "Streamline preliminary interlocutory administrative orders to preempt premature procedural appeals."
-        ]
-
-        elapsed_total = self.officer_responses[-1]["elapsed_seconds"] if self.officer_responses else 1800
-        mins = elapsed_total // 60
-        secs = elapsed_total % 60
-        formatted_duration = f"{mins}m {secs}s"
-
-        strengths = [
-            f"Demonstrated commendable command over the technical concepts of '{self.course_info['title']}'.",
-            f"Delivered structured, disciplined arguments with an optimal speaking cadence ({avg_wpm:.0f} WPM) and high poise ({avg_composure:.0f}% composure).",
-            "Consistently prioritized public interest, statutory compliance, and transparent reporting."
-        ]
-
-        development_areas = [
-            "Enhance crisis contingency planning by quantifying reserve resource allocations in advance.",
-            "Formulate formalized stakeholder consultation frameworks during digital transformation and change management."
-        ]
-
-        recommended_upskilling = [
-            f"Advanced Module: Administrative Jurisprudence and Quasi-Judicial Inquiries in '{self.course_info['title']}'",
-            "Executive Simulation: Crisis Management and Field Negotiation for Senior Officers",
-            "Masterclass: Public Financial Accountability and GFR Procurement Compliance (ISTM)",
-            "Seminar: Evidence-Based Public Policy Formulation & Algorithmic Governance"
-        ]
-
-        apar_actions = [
-            "Recommend accreditation for Senior Administrative Leadership & Policy Cadre.",
-            f"Assign as Master Trainer for regional capacity building in '{self.course_info['title']}'.",
-            "Nominate for specialized executive workshop in Public Financial Integrity and Vigilance Administration."
-        ]
-
-        summary = (
-            f"Officer {self.officer_name} successfully completed the comprehensive 25-35 minute live oral examination "
-            f"for '{self.course_info['title']}'. The evaluation confirmed strong grasp of course curriculum coupled with "
-            f"high standards of public integrity (Ethics: {scores.get('Ethics', CompetencyScore(competency_name='Ethics', score_percent=85.0, rating_band='Exemplary', key_evidence='', growth_opportunity='')).score_percent}%), "
-            f"structured problem solving (Decision Making: {scores.get('Decision Making', CompetencyScore(competency_name='Decision Making', score_percent=82.0, rating_band='Proficient', key_evidence='', growth_opportunity='')).score_percent}%), "
-            f"and executive poise ({avg_composure:.0f}% composure) at an average delivery cadence of {avg_wpm:.0f} WPM."
+        elapsed_total = answers[-1]["elapsed_seconds"] if answers else 0
+        minutes, seconds = divmod(int(elapsed_total), 60)
+        overall_assessment = text("overall_assessment", overall_fallback)
+        telemetry_summary = MultimodalTelemetrySummary(
+            average_speaking_wpm=wpm,
+            delivery_composure_score=steadiness,
+            speech_clarity_rating="Not measured",
+            total_speaking_time_seconds=speaking,
+            pacing_adherence=f"Finished in {minutes} of the planned {self.target_duration_minutes} minutes",
         )
 
         return InterviewAnalysisResponse(
@@ -556,96 +566,64 @@ Instructions:
             course_id=self.course_id,
             course_title=self.course_info["title"],
             officer_name=self.officer_name,
-            total_duration_formatted=formatted_duration,
-            total_turns=total_answers,
-            overall_score_percent=overall_score,
+            total_duration_formatted=f"{minutes}m {seconds}s",
+            total_turns=count,
+            overall_score_percent=overall,
             overall_rating_band=overall_band,
             overall_assessment=overall_assessment,
-            course_understanding=course_understanding,
-            communication_assessment=communication_assessment,
-            decision_making_assessment=decision_making_assessment,
-            executive_summary=summary,
+            course_understanding=text("course_understanding", scores["Course Knowledge"].key_evidence),
+            communication_assessment=text(
+                "communication_assessment",
+                f"Your answers averaged {average_words:.0f} words."
+                + (" Longer, structured answers with examples would score higher." if answers and average_words < 60 else ""),
+            ),
+            decision_making_assessment=text(
+                "decision_making_assessment",
+                f"Decision Making scored {scores['Decision Making'].score_percent:.0f}/100. {scores['Decision Making'].key_evidence}",
+            ),
+            executive_summary=overall_assessment,
             competency_scores=scores,
-            core_strengths=strengths,
-            areas_for_improvement=areas_for_improvement,
-            priority_development_areas=development_areas,
-            recommended_upskilling=recommended_upskilling,
-            recommended_apar_actions=apar_actions,
+            core_strengths=items("strengths", fallback_strengths),
+            areas_for_improvement=items("improvements", fallback_improvements),
+            priority_development_areas=items("improvements", fallback_improvements),
+            recommended_upskilling=items("upskilling", fallback_upskilling),
+            recommended_apar_actions=[],
             conversation_analysis=conversation_analysis,
-            video_behavioural_observations=video_telemetry,
-            speech_analysis=speech_telemetry,
+            video_behavioural_observations=video,
+            speech_analysis=speech,
             transcript=self.transcript,
             telemetry_summary=telemetry_summary,
             observable_signals_disclaimer=(
-                "Notice: Observable behavioral and speech telemetry reflect neutral physical metrics "
-                "(cadence, head orientation, and acoustic stability) captured in-browser. "
-                "They do not constitute emotional profiling, psychological diagnosis, or character judgements."
-            )
+                "Delivery signals describe observable behaviour measured in your browser (face in frame, facing the camera, "
+                "head steadiness, speaking pace, filler words and pauses). Video is not uploaded, and these signals are not "
+                "used to judge emotion, personality or character."
+            ),
+            evaluation_method=(
+                "Scored by the AI board from your transcript, with evidence taken from your answers."
+                if evaluation
+                else "The AI evaluator was unavailable, so scores are estimated from how fully your answers covered the "
+                "course and each competency. Treat them as indicative."
+            ),
         )
-
-    def _generate_evidence_for_competency(self, comp: str, responses: List[Dict[str, Any]]) -> str:
-        for r in responses:
-            if comp in r["tags"]:
-                snippet = r["response"][:140].replace("\n", " ").strip()
-                return f"Observed in Turn {r['turn']}: \"{snippet}...\""
-        return f"Consistently integrated {comp} principles across multi-turn administrative deliberations."
 
 
 class InterviewSessionManager:
+    # ponytail: in-memory sessions are lost on restart; persist them if interviews must survive deploys.
     _sessions: Dict[str, LiveInterviewSession] = {}
 
     @classmethod
-    def start_interview(cls, req: InterviewStartRequest, db: Optional[Session] = None, user_id: Optional[int] = None) -> LiveInterviewSession:
-        session_id = f"interview_{uuid.uuid4().hex[:12]}"
-
-        course_override = None
-        if db:
-            course = db.query(Course).filter(Course.id == req.course_id).first()
-            if course:
-                module_titles = [m.title for m in (course.modules or [])]
-                from .carryforward_generator import COURSE_NOTICE_MAPPING
-                mapped_notice_id = COURSE_NOTICE_MAPPING.get(course.id)
-                
-                notice_summary = ""
-                if mapped_notice_id:
-                    from .corpus import get_document_by_id
-                    doc = get_document_by_id(mapped_notice_id)
-                    if doc:
-                        notice_summary = f"{doc.title} ({doc.statutory_reference})"
-                
-                org_name = getattr(course, "organization", None) or "iGOT Karmayogi"
-                if req.course_id in COURSE_CONTEXTS:
-                    ctx = COURSE_CONTEXTS[req.course_id].copy()
-                    ctx["title"] = course.title
-                    ctx["organization"] = org_name
-                    if module_titles:
-                        ctx["key_themes"] = module_titles[:4]
-                    course_override = ctx
-                else:
-                    first_topic = module_titles[0] if module_titles else course.title
-                    init_q = (
-                        f"Good morning, Officer {req.officer_name or 'Candidate'}. Welcome to your oral competency examination on "
-                        f"'{course.title}', accredited under {org_name}. "
-                        f"To begin: Drawing from the core curriculum on '{first_topic}', what statutory procedures and administrative safeguards "
-                        f"must an officer enforce to guarantee procedural compliance and public accountability in your department?"
-                    )
-                    course_override = {
-                        "title": course.title,
-                        "organization": org_name,
-                        "key_themes": module_titles or ["Administrative Integrity", "Statutory Compliance", "Public Policy Execution"],
-                        "initial_question": init_q,
-                        "notice_summary": notice_summary
-                    }
-
+    def start_interview(
+        cls, req: InterviewStartRequest, db: Optional[Session] = None, user_id: Optional[int] = None
+    ) -> LiveInterviewSession:
         session = LiveInterviewSession(
-            session_id=session_id,
+            session_id=f"interview_{uuid.uuid4().hex[:12]}",
             course_id=req.course_id,
-            officer_name=req.officer_name or "Officer",
+            officer_name=(req.officer_name or "").strip() or "Officer",
             target_duration_minutes=req.target_duration_minutes,
-            course_info_override=course_override,
-            user_id=user_id
+            course_info=_course_context(db, req.course_id),
+            user_id=user_id,
         )
-        cls._sessions[session_id] = session
+        cls._sessions[session.session_id] = session
         return session
 
     @classmethod

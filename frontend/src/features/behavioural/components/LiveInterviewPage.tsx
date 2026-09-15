@@ -1,1457 +1,774 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Video,
-  VideoOff,
+  AlertCircle,
+  ArrowLeft,
+  Brain,
+  Camera,
+  CameraOff,
+  Clock,
+  Loader2,
   Mic,
   MicOff,
+  Play,
+  Send,
+  ShieldCheck,
+  Square,
   Volume2,
   VolumeX,
-  Clock,
-  Award,
-  CheckCircle2,
-  AlertCircle,
-  Play,
-  Square,
-  Send,
-  Sparkles,
-  ShieldCheck,
-  RotateCcw,
-  Printer,
-  ChevronRight,
-  TrendingUp,
-  UserCheck,
-  Brain,
-  MessageSquare,
-  Check
+  type LucideIcon,
 } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { ApiError, fetchApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { useInterviewMedia } from "@/features/behavioural/hooks/useInterviewMedia";
+import { countFillers, useSpeechCapture } from "@/features/behavioural/hooks/useSpeechCapture";
+import { InterviewReport } from "@/features/behavioural/components/InterviewReport";
+import type {
+  BehaviouralCourse,
+  InterviewReportData,
+  InterviewStartResponse,
+  InterviewTurnResponse,
+} from "@/features/behavioural/interview-types";
 
-interface CompetencyScore {
-  competency_name: string;
-  score_percent: number;
-  rating_band: string;
-  key_evidence: string;
-  growth_opportunity: string;
+const TOTAL_QUESTIONS = 6;
+const DURATIONS = [25, 30, 35];
+
+type Stage = "setup" | "room" | "concluding" | "report";
+
+interface ChatMessage {
+  role: "board" | "officer";
+  text: string;
+  tags?: string[];
+  note?: string | null;
 }
 
-interface TranscriptEntry {
-  speaker: string;
-  content: string;
-  timestamp_seconds: number;
-  behavioral_tags: string[];
+function errorMessage(err: unknown, fallback: string) {
+  if (err instanceof ApiError && err.status === 404) {
+    return "This interview session is no longer available on the server, which can happen after a restart. Start a new interview.";
+  }
+  return err instanceof Error && err.message ? err.message : fallback;
 }
 
-interface MultimodalTelemetrySummary {
-  average_speaking_wpm: number;
-  delivery_composure_score: number;
-  speech_clarity_rating: string;
-  total_speaking_time_seconds: number;
-  pacing_adherence: string;
+function formatClock(totalSeconds: number) {
+  return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`;
 }
 
-interface VideoBehaviouralTelemetry {
-  posture_stability: string;
-  posture_stability_score: number;
-  head_movement_observed: string;
-  gaze_alignment_percent: number;
-  excessive_movement_fidgeting: string;
-  observable_summary: string;
+function percentOrStatus(value: number | null, live: boolean) {
+  if (value !== null) return `${value}%`;
+  return live ? "Measuring..." : "Not captured";
 }
 
-interface SpeechAcousticTelemetry {
-  average_wpm: number;
-  pace_assessment: string;
-  pauses_frequency: string;
-  filler_word_count: number;
-  clarity_score: number;
-  clarity_rating: string;
-  coherence_assessment: string;
-  delivery_cadence: string;
-}
-
-interface InterviewAnalysisResponse {
-  session_id: string;
-  course_id: number;
-  course_title: string;
-  officer_name: string;
-  total_duration_formatted: string;
-  total_turns: number;
-  overall_score_percent: number;
-  overall_rating_band: string;
-  overall_assessment?: string;
-  course_understanding?: string;
-  communication_assessment?: string;
-  decision_making_assessment?: string;
-  executive_summary: string;
-  competency_scores: Record<string, CompetencyScore>;
-  core_strengths: string[];
-  areas_for_improvement?: string[];
-  priority_development_areas: string[];
-  recommended_upskilling?: string[];
-  recommended_apar_actions: string[];
-  conversation_analysis?: string;
-  video_behavioural_observations?: VideoBehaviouralTelemetry;
-  speech_analysis?: SpeechAcousticTelemetry;
-  transcript: TranscriptEntry[];
-  telemetry_summary?: MultimodalTelemetrySummary;
-  observable_signals_disclaimer?: string;
-}
-
-interface CourseOption {
-  id: number;
-  title: string;
-  organization: string;
-  category?: string;
-  mapped_notices?: number;
-}
-
-const DEFAULT_COURSES: CourseOption[] = [
-  { id: 1, title: "Fundamentals of National Sample Surveys (NSS)", organization: "NSSO", mapped_notices: 1 },
-  { id: 2, title: "Compilation of Consumer Price Index (CPI) & Inflation Metrics", organization: "CSO", mapped_notices: 1 },
-  { id: 3, title: "Data Quality Frameworks & Official Statistics in India", organization: "NSSTA", mapped_notices: 1 },
-  { id: 4, title: "Digital Governance & Public Financial Management System (PFMS)", organization: "ISTM", mapped_notices: 1 },
-  { id: 5, title: "Python and Statistical Computing for Public Policy", organization: "MoSPI Data Lab", mapped_notices: 1 }
-];
-
-const COMPETENCY_ORDER = [
-  "Course Knowledge",
-  "Leadership",
-  "Communication",
-  "Project Management",
-  "Ethics",
-  "Decision Making",
-  "Change Management"
-];
-
-function CompetencyRadar({ scores }: { scores: Record<string, CompetencyScore> }) {
-  const size = 280;
-  const cx = size / 2;
-  const cy = size / 2;
-  const radius = 96;
-  const axes = COMPETENCY_ORDER.filter((name) => scores[name]);
-  const points = axes.map((name, i) => {
-    const angle = (Math.PI * 2 * i) / axes.length - Math.PI / 2;
-    const mag = Math.max(0, Math.min(100, scores[name].score_percent)) / 100;
-    return {
-      name,
-      x: cx + Math.cos(angle) * radius * mag,
-      y: cy + Math.sin(angle) * radius * mag,
-      lx: cx + Math.cos(angle) * (radius + 22),
-      ly: cy + Math.sin(angle) * (radius + 22)
-    };
-  });
-  const polygon = points.map((p) => `${p.x},${p.y}`).join(" ");
-  const rings = [0.4, 0.7, 1];
-
+function SignalRow({ label, value }: { label: string; value: string }) {
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="mx-auto h-64 w-64" role="img" aria-label="Competency radar chart">
-      {rings.map((r) => (
-        <polygon
-          key={r}
-          fill="none"
-          stroke="#1e293b"
-          strokeWidth="1"
-          points={axes
-            .map((_, i) => {
-              const angle = (Math.PI * 2 * i) / axes.length - Math.PI / 2;
-              return `${cx + Math.cos(angle) * radius * r},${cy + Math.sin(angle) * radius * r}`;
-            })
-            .join(" ")}
-        />
-      ))}
-      {points.map((p, i) => {
-        const angle = (Math.PI * 2 * i) / axes.length - Math.PI / 2;
-        return (
-          <line
-            key={p.name}
-            x1={cx}
-            y1={cy}
-            x2={cx + Math.cos(angle) * radius}
-            y2={cy + Math.sin(angle) * radius}
-            stroke="#334155"
-          />
-        );
-      })}
-      <polygon points={polygon} fill="rgba(13,148,136,0.35)" stroke="#14b8a6" strokeWidth="2" />
-      {points.map((p) => (
-        <text
-          key={p.name}
-          x={p.lx}
-          y={p.ly}
-          textAnchor="middle"
-          className="fill-slate-400"
-          fontSize="8"
-        >
-          {p.name.replace(" Management", " Mgmt")}
-        </text>
-      ))}
-    </svg>
+    <div className="flex items-center justify-between gap-3 py-2">
+      <dt className="text-slate-600">{label}</dt>
+      <dd className="font-semibold tabular-nums text-slate-900">{value}</dd>
+    </div>
+  );
+}
+
+function IconToggle({
+  on,
+  onClick,
+  disabled,
+  onLabel,
+  offLabel,
+  OnIcon,
+  OffIcon,
+}: {
+  on: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+  onLabel: string;
+  offLabel: string;
+  OnIcon: LucideIcon;
+  OffIcon: LucideIcon;
+}) {
+  const Icon = on ? OnIcon : OffIcon;
+  const label = on ? onLabel : offLabel;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={on}
+      aria-label={label}
+      title={label}
+      className={`inline-flex size-9 items-center justify-center rounded-lg transition-colors disabled:opacity-40 ${
+        on ? "bg-white/15 text-white hover:bg-white/25" : "bg-rose-600 text-white hover:bg-rose-500"
+      }`}
+    >
+      <Icon className="size-4" aria-hidden="true" />
+    </button>
   );
 }
 
 export default function LiveInterviewPage() {
-  // Course State Grounded in Database
-  const [availableCourses, setAvailableCourses] = useState<CourseOption[]>(DEFAULT_COURSES);
-  const [isLoadingCourses, setIsLoadingCourses] = useState<boolean>(true);
-  const [selectedCourseId, setSelectedCourseId] = useState<number>(1);
-  const [officerName, setOfficerName] = useState<string>("Rajesh Kumar");
-  const [targetDuration, setTargetDuration] = useState<number>(30); // 25-35 minutes
-  const [isInterviewActive, setIsInterviewActive] = useState<boolean>(false);
+  const { user } = useAuth();
+  const media = useInterviewMedia();
+  const [draft, setDraft] = useState("");
+  const speech = useSpeechCapture(setDraft);
+
+  const [stage, setStage] = useState<Stage>("setup");
+  const [courses, setCourses] = useState<BehaviouralCourse[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [courseId, setCourseId] = useState<number | null>(null);
+  const [courseFromUrl, setCourseFromUrl] = useState<number | null>(null);
+  const [officerName, setOfficerName] = useState("");
+  const [duration, setDuration] = useState(30);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [phaseName, setPhaseName] = useState("");
+  const [starting, setStarting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [voiceOn, setVoiceOn] = useState(true);
+  const [elapsed, setElapsed] = useState(0);
+  const [lastPace, setLastPace] = useState<number | null>(null);
+  const [confirmEnd, setConfirmEnd] = useState(false);
+  const [report, setReport] = useState<InterviewReportData | null>(null);
 
-  // Live Media Feed State & Visualizer
-  const [cameraActive, setCameraActive] = useState<boolean>(true);
-  const [micActive, setMicActive] = useState<boolean>(true);
-  const [voiceEnabled, setVoiceEnabled] = useState<boolean>(true);
-  const [audioLevel, setAudioLevel] = useState<number>(0);
-  const [frequencyBars, setFrequencyBars] = useState<number[]>([12, 24, 38, 55, 42, 60, 48, 30, 22, 16, 28, 45]);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animFrameRef = useRef<number | null>(null);
+  const startedAtRef = useRef(0);
+  const threadRef = useRef<HTMLDivElement>(null);
 
-  // Multimodal Telemetry & Delivery Metrics
-  const [faceDetected, setFaceDetected] = useState<boolean>(true);
-  const [composureScore, setComposureScore] = useState<number>(91);
-  const [eyeContactPercent, setEyeContactPercent] = useState<number>(88);
-  const [liveWpm, setLiveWpm] = useState<number>(124);
-  const [lastTurnFeedback, setLastTurnFeedback] = useState<string | null>(null);
-  const [lastDetectedCompetencies, setLastDetectedCompetencies] = useState<string[]>([]);
-
-  // Speech Recognition State
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [speechSupported, setSpeechSupported] = useState<boolean>(false);
-  const recognitionRef = useRef<any>(null);
-
-  // Interview Progression & Pacing
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-  const [currentTurn, setCurrentTurn] = useState<number>(1);
-  const [currentPhase, setCurrentPhase] = useState<string>("Phase 1: Foundational Subject Matter & Conceptual Rigor");
-  const [targetCompetency, setTargetCompetency] = useState<string>("Course Knowledge");
-  const [currentAiQuestion, setCurrentAiQuestion] = useState<string>("");
-  const [officerInputText, setOfficerInputText] = useState<string>("");
-  const [isSubmittingTurn, setIsSubmittingTurn] = useState<boolean>(false);
-  const [pacingAdvice, setPacingAdvice] = useState<string>("");
-  const [liveTranscript, setLiveTranscript] = useState<TranscriptEntry[]>([]);
-
-  // End of Interview State
-  const [isConcluded, setIsConcluded] = useState<boolean>(false);
-  const [analysisReport, setAnalysisReport] = useState<InterviewAnalysisResponse | null>(null);
-  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState<boolean>(false);
-
-  // Fetch dynamic courses directly from the platform database
   useEffect(() => {
-    async function loadDatabaseCourses() {
-      try {
-        setIsLoadingCourses(true);
-        const data = await fetchApi<any[]>("/behavioural/courses");
-        if (data && Array.isArray(data) && data.length > 0) {
-          const mapped: CourseOption[] = data.map((c) => ({
-            id: c.course_id ?? c.id,
-            title: c.title,
-            organization: c.organization || "iGOT Karmayogi",
-            category: c.category || "Civil Service",
-            mapped_notices: c.mapped_notice_count ?? (c.mapped_notices ? c.mapped_notices.length : 1)
-          }));
-          setAvailableCourses(mapped);
-
-          // Check URL query param
-          if (typeof window !== "undefined") {
-            const params = new URLSearchParams(window.location.search);
-            const cId = params.get("courseId");
-            if (cId) {
-              const parsed = parseInt(cId, 10);
-              if (!isNaN(parsed) && mapped.some((m) => m.id === parsed)) {
-                setSelectedCourseId(parsed);
-                return;
-              }
-            }
-          }
-          if (mapped.length > 0) {
-            setSelectedCourseId((prev) => (mapped.some((m) => m.id === prev) ? prev : mapped[0].id));
-          }
-        }
-      } catch (err) {
-        console.log("Could not load dynamic courses from backend, falling back to accredited defaults:", err);
-      } finally {
-        setIsLoadingCourses(false);
-      }
-    }
-
-    loadDatabaseCourses();
+    const param = Number(new URLSearchParams(window.location.search).get("courseId"));
+    const fromUrl = Number.isInteger(param) && param > 0 ? param : null;
+    setCourseFromUrl(fromUrl);
+    fetchApi<BehaviouralCourse[]>("/behavioural/courses?behavioural_only=true")
+      .then((list) => {
+        setCourses(list);
+        setCourseId(fromUrl && list.some((c) => c.course_id === fromUrl) ? fromUrl : (list[0]?.course_id ?? null));
+      })
+      .catch(() => setError("Behavioural courses could not be loaded. Check that the backend is running."))
+      .finally(() => setCoursesLoading(false));
   }, []);
 
-  // Initialize Media Stream (Camera & Mic)
-  const setupMedia = async () => {
-    try {
-      if (mediaStreamRef.current && mediaStreamRef.current.active) {
-        if (videoRef.current && videoRef.current.srcObject !== mediaStreamRef.current) {
-          videoRef.current.srcObject = mediaStreamRef.current;
-        }
-        return mediaStreamRef.current;
-      }
-
-      if (!navigator?.mediaDevices?.getUserMedia) {
-        setCameraActive(false);
-        return null;
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: "user" },
-        audio: true
-      });
-      mediaStreamRef.current = stream;
-      setCameraActive(true);
-      setMicActive(true);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-
-      // Setup Audio Analyser for realistic audio visualizer
-      try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        const audioCtx = new AudioContextClass();
-        audioContextRef.current = audioCtx;
-        const source = audioCtx.createMediaStreamSource(stream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 64;
-        source.connect(analyser);
-        analyserRef.current = analyser;
-
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        const updateAudioMeter = () => {
-          if (analyserRef.current) {
-            analyserRef.current.getByteFrequencyData(dataArray);
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) {
-              sum += dataArray[i];
-            }
-            const average = sum / dataArray.length;
-            const curLevel = Math.min(100, Math.round((average / 128) * 100));
-            setAudioLevel(curLevel);
-
-            // Sample 12 frequency bars for animated equalizer
-            const step = Math.max(1, Math.floor(dataArray.length / 12));
-            const bars: number[] = [];
-            for (let b = 0; b < 12; b++) {
-              const idx = Math.min(dataArray.length - 1, b * step);
-              bars.push(Math.round((dataArray[idx] / 255) * 100));
-            }
-            setFrequencyBars(bars);
-          }
-          animFrameRef.current = requestAnimationFrame(updateAudioMeter);
-        };
-        updateAudioMeter();
-      } catch (audioErr) {
-        console.log("AudioContext visualizer not available:", audioErr);
-      }
-      return stream;
-    } catch (err) {
-      console.log("Camera or microphone permission not granted, running in fallback mode:", err);
-      setCameraActive(false);
-      return null;
-    }
-  };
+  useEffect(() => {
+    if (user?.full_name) setOfficerName((current) => current || user.full_name);
+  }, [user]);
 
   useEffect(() => {
-    setupMedia();
-  }, []);
+    if (stage !== "room") return;
+    const id = window.setInterval(() => setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000)), 1000);
+    return () => window.clearInterval(id);
+  }, [stage]);
 
-  // Re-attach camera stream whenever videoRef mounts or interview becomes active
   useEffect(() => {
-    if (isInterviewActive && videoRef.current && mediaStreamRef.current) {
-      videoRef.current.srcObject = mediaStreamRef.current;
-    }
-  }, [isInterviewActive]);
+    const thread = threadRef.current;
+    if (thread) thread.scrollTop = thread.scrollHeight;
+  }, [messages, submitting]);
 
-  // Check SpeechRecognition support and unmount cleanup
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        setSpeechSupported(true);
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = "en-IN";
+  // Never leave the interviewer talking after the officer navigates away.
+  useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
-        recognition.onresult = (event: any) => {
-          let fullText = "";
-          for (let i = 0; i < event.results.length; i++) {
-            fullText += event.results[i][0].transcript + " ";
-          }
-          setOfficerInputText(fullText.trim());
-        };
-
-        recognition.onerror = (e: any) => {
-          console.log("Speech recognition error:", e);
-          setIsListening(false);
-        };
-
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-
-        recognitionRef.current = recognition;
-      }
-    }
-
-    return () => {
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      }
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
-
-  // Update live WPM based on response length and cadence
-  useEffect(() => {
-    const words = officerInputText.trim().split(/\s+/).filter(Boolean).length;
-    if (words > 0) {
-      const estPace = Math.min(175, Math.max(90, Math.round(118 + (words % 25) * 1.3)));
-      setLiveWpm(estPace);
-    } else {
-      setLiveWpm(124);
-    }
-  }, [officerInputText]);
-
-  // Subtle telemetry composure drift simulation during active camera feed
-  useEffect(() => {
-    if (!isInterviewActive || !cameraActive) return;
-    const interval = setInterval(() => {
-      setComposureScore((prev) => Math.min(96, Math.max(86, prev + (Math.random() > 0.5 ? 1 : -1))));
-      setEyeContactPercent((prev) => Math.min(94, Math.max(82, prev + (Math.random() > 0.6 ? 1 : -1))));
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [isInterviewActive, cameraActive]);
-
-  // Timer Tick during active interview
-  useEffect(() => {
-    let timer: any = null;
-    if (isInterviewActive && !isConcluded) {
-      timer = setInterval(() => {
-        setElapsedSeconds((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isInterviewActive, isConcluded]);
-
-  // Voice synthesis helper (reads AI question aloud)
-  const speakAiQuestion = (text: string) => {
-    if (!voiceEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    try {
+  const speak = useCallback(
+    (text: string, force = false) => {
+      if ((!voiceOn && !force) || typeof window === "undefined" || !("speechSynthesis" in window)) return;
       window.speechSynthesis.cancel();
+      // Stop dictation so the interviewer's voice is not transcribed as the answer.
+      speech.stop();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
       utterance.lang = "en-IN";
       window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.log("TTS playback fallback:", e);
-    }
-  };
+    },
+    [voiceOn, speech],
+  );
 
-  // Toggle Camera
-  const toggleCamera = () => {
-    if (mediaStreamRef.current) {
-      const videoTrack = mediaStreamRef.current.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !cameraActive;
-        setCameraActive(!cameraActive);
-      }
-    }
-  };
-
-  // Toggle Mic
-  const toggleMic = () => {
-    if (mediaStreamRef.current) {
-      const audioTrack = mediaStreamRef.current.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !micActive;
-        setMicActive(!micActive);
-      }
-    }
-  };
-
-  // Start Speech Recognition
-  const toggleSpeechRecognition = () => {
-    if (!recognitionRef.current) return;
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (e) {
-        console.log("Failed to start speech recognition:", e);
-      }
-    }
-  };
-
-  // Start Live Interview
-  const handleStartInterview = async () => {
+  const conclude = async () => {
+    if (!sessionId) return;
+    speech.stop();
+    media.stop();
+    setConfirmEnd(false);
+    setError(null);
+    setStage("concluding");
     try {
-      setElapsedSeconds(0);
-      setIsConcluded(false);
-      setAnalysisReport(null);
-      setOfficerInputText("");
+      const result = await fetchApi<InterviewReportData>(`/behavioural/interview/${sessionId}/end`, { method: "POST" });
+      setReport(result);
+      setStage("report");
+    } catch (err) {
+      setError(errorMessage(err, "The assessment report could not be generated."));
+    }
+  };
 
-      const res = await fetchApi<{
-        session_id: string;
-        course_id: number;
-        course_title: string;
-        officer_name: string;
-        target_duration_minutes: number;
-        initial_ai_question: string;
-        current_phase: string;
-        primary_competency: string;
-      }>("/behavioural/interview/start", {
+  const handleStart = async () => {
+    if (!courseId) return;
+    setError(null);
+    setStarting(true);
+    try {
+      // The interview still runs if camera access is declined; video signals are simply not captured.
+      await media.start();
+      const res = await fetchApi<InterviewStartResponse>("/behavioural/interview/start", {
         method: "POST",
         body: JSON.stringify({
-          course_id: selectedCourseId,
-          officer_name: officerName,
-          target_duration_minutes: targetDuration
-        })
+          course_id: courseId,
+          officer_name: officerName.trim() || "Officer",
+          target_duration_minutes: duration,
+        }),
       });
-
       setSessionId(res.session_id);
-      setCurrentAiQuestion(res.initial_ai_question);
-      setCurrentPhase(res.current_phase);
-      setTargetCompetency(res.primary_competency);
-      setCurrentTurn(1);
-
-      // Ensure camera & mic stream is active and attached to the video DOM element
-      if (!mediaStreamRef.current || !mediaStreamRef.current.active) {
-        await setupMedia();
-      }
-
-      setIsInterviewActive(true);
-
-      setLiveTranscript([
-        {
-          speaker: "AI Interviewer",
-          content: res.initial_ai_question,
-          timestamp_seconds: 0,
-          behavioral_tags: ["Course Knowledge", "Communication"]
-        }
-      ]);
-
-      speakAiQuestion(res.initial_ai_question);
-    } catch (err: any) {
-      alert("Failed to start live interview: " + err.message);
+      setMessages([{ role: "board", text: res.initial_ai_question }]);
+      setPhaseName(res.current_phase);
+      setDraft("");
+      setLastPace(null);
+      setReport(null);
+      startedAtRef.current = Date.now();
+      setElapsed(0);
+      media.resetTurn();
+      setStage("room");
+      speak(res.initial_ai_question);
+    } catch (err) {
+      media.stop();
+      setError(errorMessage(err, "The interview could not be started."));
+    } finally {
+      setStarting(false);
     }
   };
 
-  // Submit Officer's Speech / Text Turn
-  const handleSendResponse = async () => {
-    if (!sessionId || !officerInputText.trim() || isSubmittingTurn) return;
+  const handleSubmit = async () => {
+    const answer = draft.trim();
+    if (!sessionId || !answer || submitting) return;
+    speech.stop();
+    window.speechSynthesis?.cancel();
 
-    const answer = officerInputText.trim();
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    }
+    const dictatedWords = speech.takeDictatedWords();
+    const turn = media.takeTurnMetrics();
+    const words = answer.split(/\s+/).length;
+    const spoken = dictatedWords >= words / 2;
+    const pace =
+      spoken && turn.speaking_seconds !== null && turn.speaking_seconds >= 5
+        ? Math.round(Math.min(260, Math.max(40, dictatedWords / (turn.speaking_seconds / 60))))
+        : null;
 
+    setSubmitting(true);
+    setError(null);
+    setMessages((current) => [...current, { role: "officer", text: answer }]);
+    setDraft("");
     try {
-      setIsSubmittingTurn(true);
-
-      // Add to transcript
-      setLiveTranscript((prev) => [
-        ...prev,
-        {
-          speaker: `Officer ${officerName}`,
-          content: answer,
-          timestamp_seconds: elapsedSeconds,
-          behavioral_tags: ["Deliberation"]
-        }
-      ]);
-
-      const res = await fetchApi<{
-        turn_number: number;
-        ai_question: string;
-        phase_name: string;
-        phase_target_competency: string;
-        elapsed_seconds: number;
-        target_duration_minutes: number;
-        turns_completed: number;
-        is_final_turn: boolean;
-        pacing_advice?: string;
-        acknowledgement_note?: string;
-        detected_competencies?: string[];
-        delivery_feedback?: string;
-      }>("/behavioural/interview/turn", {
+      const res = await fetchApi<InterviewTurnResponse>("/behavioural/interview/turn", {
         method: "POST",
         body: JSON.stringify({
           session_id: sessionId,
           officer_response: answer,
-          elapsed_seconds: elapsedSeconds,
-          speaking_pace_wpm: liveWpm > 0 ? liveWpm : 124.0,
-          eye_contact_percent: eyeContactPercent,
-          composure_score: composureScore,
-          voice_clarity_score: audioLevel > 15 ? 95.0 : 88.0
-        })
+          elapsed_seconds: Math.floor((Date.now() - startedAtRef.current) / 1000),
+          input_mode: spoken ? "voice" : "typed",
+          speaking_pace_wpm: pace,
+          speaking_seconds: spoken ? turn.speaking_seconds : null,
+          filler_words_count: spoken ? countFillers(answer) : null,
+          pauses_count: spoken ? turn.pauses_count : null,
+          face_presence_percent: turn.face_presence_percent,
+          eye_contact_percent: turn.eye_contact_percent,
+          posture_stability_score: turn.posture_stability_score,
+          head_movement_rate: turn.head_movement_rate,
+        }),
       });
-
-      setOfficerInputText("");
-      setCurrentTurn(res.turn_number);
-      setCurrentPhase(res.phase_name);
-      setTargetCompetency(res.phase_target_competency);
-      setCurrentAiQuestion(res.ai_question);
-      if (res.pacing_advice) setPacingAdvice(res.pacing_advice);
-      if (res.delivery_feedback) setLastTurnFeedback(res.delivery_feedback);
-      if (res.detected_competencies) setLastDetectedCompetencies(res.detected_competencies);
-
-      setLiveTranscript((prev) => [
-        ...prev,
-        {
-          speaker: "AI Interviewer",
-          content: res.ai_question,
-          timestamp_seconds: elapsedSeconds + 3,
-          behavioral_tags: [res.phase_target_competency, "Communication"]
-        }
-      ]);
-
-      speakAiQuestion(res.ai_question);
-
-      if (res.is_final_turn) {
-        // Automatically request concluding analysis
-        handleConcludeInterview();
-      }
-    } catch (err: any) {
-      alert("Error processing turn: " + err.message);
+      if (pace !== null) setLastPace(pace);
+      setMessages((current) => {
+        const next = [...current];
+        const last = next[next.length - 1];
+        next[next.length - 1] = { ...last, tags: res.detected_competencies, note: res.acknowledgement_note };
+        return [...next, { role: "board", text: res.ai_question }];
+      });
+      setPhaseName(res.phase_name);
+      speak(res.ai_question);
+      if (res.is_final_turn) await conclude();
+    } catch (err) {
+      setMessages((current) => current.slice(0, -1));
+      setDraft(answer);
+      setError(errorMessage(err, "Your answer could not be sent. Try again."));
     } finally {
-      setIsSubmittingTurn(false);
+      setSubmitting(false);
     }
   };
 
-  // Conclude Interview & Request Analysis Scorecard
-  const handleConcludeInterview = async () => {
-    if (!sessionId) return;
-    try {
-      setIsLoadingAnalysis(true);
-      setIsInterviewActive(false);
-      setIsConcluded(true);
-      if (window.speechSynthesis) window.speechSynthesis.cancel();
-
-      const report = await fetchApi<InterviewAnalysisResponse>(`/behavioural/interview/${sessionId}/end`, {
-        method: "POST"
-      });
-      setAnalysisReport(report);
-    } catch (err: any) {
-      alert("Failed to generate interview analysis: " + err.message);
-    } finally {
-      setIsLoadingAnalysis(false);
-    }
+  const restart = () => {
+    media.stop();
+    speech.stop();
+    window.speechSynthesis?.cancel();
+    setStage("setup");
+    setSessionId(null);
+    setMessages([]);
+    setReport(null);
+    setError(null);
   };
 
-  // Pacing Fast Forward for Testing
-  const fastForwardTime = (seconds: number) => {
-    setElapsedSeconds((prev) => prev + seconds);
-  };
+  const backHref = courseFromUrl ? `/courses/${courseFromUrl}` : "/competency/behavioural";
+  const backLabel = courseFromUrl ? "Back to course" : "Behavioural competencies";
+  const selectedCourse = courses.find((c) => c.course_id === courseId);
+  const answered = messages.filter((m) => m.role === "officer").length;
+  const draftWords = draft.trim() ? draft.trim().split(/\s+/).length : 0;
+  const live = media.status === "live";
 
-  // Format seconds to mm:ss
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  };
+  const cameraMessage =
+    media.status === "denied"
+      ? "Camera access was blocked, so video signals are not captured. You can still answer."
+      : media.status === "unavailable"
+        ? "No camera is available, so video signals are not captured."
+        : live
+          ? "Camera is off."
+          : "Camera is off.";
+
+  const faceLabel =
+    media.analyser === "loading"
+      ? "Loading face analysis"
+      : media.analyser === "unavailable"
+        ? "Face analysis unavailable"
+        : media.faceVisible === null
+          ? "Starting analysis"
+          : !media.faceVisible
+            ? "Face not detected"
+            : media.facingCamera === false
+              ? "Face in frame, looking away"
+              : "Face in frame";
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 pb-24">
-      {/* Top Header Bar */}
-      <div className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Live AI Executive Interview Board
-              </span>
-              <div className="text-sm font-bold text-white">
-                Oral Assessment & 6 Behavioral Competencies Evaluation
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/behavioural/cases"
-              className="text-xs font-semibold text-slate-400 hover:text-white transition-colors"
-            >
-              ← Back to Case Inquiries
-            </Link>
-
-            {isInterviewActive && (
-              <button
-                onClick={handleConcludeInterview}
-                className="rounded-lg bg-red-600/90 hover:bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <Square className="h-3.5 w-3.5" />
-                Conclude & Analyze
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-[calc(100vh-65px)] bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {!isInterviewActive && !analysisReport ? (
-          /* Pre-Interview Briefing & Configuration Panel */
-          <div className="max-w-2xl mx-auto mt-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-8 shadow-2xl">
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-900/40 text-blue-400 border border-blue-700/30">
-                <Brain className="h-7 w-7 text-[#0D9488]" />
-              </div>
-              <h2 className="mt-4 text-2xl font-bold text-white">
-                Live AI Competency Interview
-              </h2>
-              <p className="mt-2 text-xs text-slate-400 max-w-md mx-auto">
-                Real-time interactive oral board examining subject matter mastery alongside the 6 core civil service
-                competencies: Leadership, Communication, Project Management, Ethics, Decision Making, and Change Management.
-              </p>
-            </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href={backHref}
+            onClick={() => media.stop()}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900"
+          >
+            <ArrowLeft className="size-3.5" aria-hidden="true" />
+            {backLabel}
+          </Link>
 
-            <div className="mt-8 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300">
-                  Select Accredited Course Curriculum {isLoadingCourses ? "(Loading from database...)" : ""}
-                </label>
-                <select
-                  value={selectedCourseId}
-                  onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-                  className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-xs text-white focus:border-teal-500 focus:outline-hidden"
-                >
-                  {availableCourses.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      Course #{c.id}: {c.title} — {c.organization} {c.mapped_notices ? `(${c.mapped_notices} Notices)` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300">Candidate / Officer Name</label>
-                  <input
-                    type="text"
-                    value={officerName}
-                    onChange={(e) => setOfficerName(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2.5 text-xs text-white focus:border-blue-500 focus:outline-hidden"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300">
-                    Interview Pacing Target: {targetDuration} Minutes
-                  </label>
-                  <input
-                    type="range"
-                    min="25"
-                    max="35"
-                    step="1"
-                    value={targetDuration}
-                    onChange={(e) => setTargetDuration(Number(e.target.value))}
-                    className="mt-3.5 w-full accent-[#0D9488]"
-                  />
-                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                    <span>25 min (Accelerated)</span>
-                    <span>30 min (Standard)</span>
-                    <span>35 min (Comprehensive)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Assessment Protocol Notice */}
-              <div className="rounded-xl border border-blue-900/40 bg-blue-950/30 p-4 text-xs space-y-1.5 text-slate-300">
-                <span className="font-bold text-blue-400 block uppercase tracking-wider text-[10px]">
-                  Official Evaluation Rubric
+          {stage === "room" &&
+            (confirmEnd ? (
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-slate-600">
+                  End now and score {answered} {answered === 1 ? "answer" : "answers"}?
                 </span>
-                <p>
-                  • Target Duration: <span className="text-white font-semibold">{targetDuration} Minutes</span> across 5 evaluation phases.
-                </p>
-                <p>
-                  • Evaluated on: <span className="text-white font-semibold">Course Mastery, Leadership, Communication, Project Management, Ethics, Decision Making, and Change Management</span>.
-                </p>
-                <p>• Speak directly into your microphone or type in the response terminal.</p>
+                <Button size="sm" variant="outline" onClick={() => setConfirmEnd(false)}>
+                  Keep going
+                </Button>
+                <Button size="sm" variant="danger" onClick={() => void conclude()}>
+                  End interview
+                </Button>
               </div>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => setConfirmEnd(true)} disabled={submitting}>
+                <Square className="size-3.5" aria-hidden="true" />
+                End interview
+              </Button>
+            ))}
+        </div>
 
-              {/* Sensor & Camera Status Indicator */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${cameraActive ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`}></span>
-                  <span className="text-slate-300 font-medium">
-                    {cameraActive ? "Video Camera & Audio Stream Configured" : "Video Camera in Browser Standby Mode"}
-                  </span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {cameraActive ? "Sensor Live" : "Will Request Permission"}
-                </span>
-              </div>
+        <header className="mt-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#0D9488]">Behavioural &amp; managerial competencies</p>
+          <h1 className="mt-1 text-2xl font-bold text-balance text-slate-900">AI Oral Board Interview</h1>
+          <p className="mt-1 max-w-3xl text-sm text-pretty text-slate-600">
+            {stage === "setup"
+              ? "A spoken interview with an AI board member who asks about the course you studied, follows up on what you actually say, and scores seven competencies with evidence from your answers."
+              : selectedCourse?.title}
+          </p>
+        </header>
 
-              <button
-                onClick={handleStartInterview}
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1E3A8A] to-[#0D9488] py-3 text-sm font-bold text-white shadow-lg hover:opacity-95 transition-all cursor-pointer"
-              >
-                <Play className="h-4 w-4" />
-                Initialize Live Feed & Enter Board Room
-              </button>
-            </div>
+        {error && stage !== "concluding" && (
+          <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-900">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <p className="text-pretty">{error}</p>
           </div>
-        ) : isInterviewActive ? (
-          /* Active Live Interview Board Room */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left 5 Cols: Officer Live Video Feed & Audio Visualizer */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl aspect-4/3 flex items-center justify-center">
-                {/* Live Video Feed Element */}
-                <video
-                  ref={(el) => {
-                    videoRef.current = el;
-                    if (el && mediaStreamRef.current && el.srcObject !== mediaStreamRef.current) {
-                      el.srcObject = mediaStreamRef.current;
-                    }
-                  }}
-                  autoPlay
-                  playsInline
-                  muted
-                  className={`w-full h-full object-cover ${cameraActive ? "block" : "hidden"}`}
-                />
+        )}
 
-                {!cameraActive && (
-                  <div className="flex flex-col items-center justify-center text-slate-500">
-                    <UserCheck className="h-16 w-16 text-slate-700" />
-                    <span className="mt-2 text-xs font-semibold">Camera Feed Paused</span>
-                  </div>
-                )}
-
-                {/* Top Left Overlay: Live Status */}
-                <div className="absolute top-3 left-3 flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 border border-white/10">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white">
-                    Officer Feed • {officerName}
-                  </span>
+        {stage === "setup" && (
+          <div className="mt-6 grid gap-6 lg:grid-cols-5">
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs lg:col-span-3">
+              <h2 className="text-base font-semibold text-slate-900">Set up your interview</h2>
+              <div className="mt-5 space-y-5">
+                <div>
+                  <label htmlFor="interview-course" className="block text-xs font-semibold text-slate-700">
+                    Course
+                  </label>
+                  <select
+                    id="interview-course"
+                    value={courseId ?? ""}
+                    onChange={(e) => setCourseId(Number(e.target.value))}
+                    disabled={coursesLoading || courses.length === 0}
+                    className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-[#1E3A8A] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20"
+                  >
+                    {coursesLoading && <option value="">Loading behavioural courses...</option>}
+                    {courses.map((c) => (
+                      <option key={c.course_id} value={c.course_id}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedCourse?.overview && (
+                    <p className="mt-1.5 text-xs text-pretty text-slate-500">{selectedCourse.overview}</p>
+                  )}
                 </div>
 
-                {/* Top Right Overlay: Real-Time Telemetry Badge */}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 border border-teal-500/30">
-                  <Sparkles className="h-3 w-3 text-teal-400" />
-                  <span className="text-[10px] font-mono text-teal-300 font-bold">
-                    Face Aligned • {composureScore}% Poise
-                  </span>
-                </div>
-
-                {/* Bottom Overlay: Media Controls & Animated Spectrum Bar Visualizer */}
-                <div className="absolute bottom-3 inset-x-3 flex items-center justify-between rounded-xl bg-black/75 backdrop-blur-md p-2 border border-white/10">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={toggleCamera}
-                      className={`p-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        cameraActive ? "bg-slate-800 text-white" : "bg-red-600 text-white"
-                      }`}
-                      title="Toggle Camera"
-                    >
-                      {cameraActive ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-                    </button>
-
-                    <button
-                      onClick={toggleMic}
-                      className={`p-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        micActive ? "bg-slate-800 text-white" : "bg-red-600 text-white"
-                      }`}
-                      title="Toggle Microphone"
-                    >
-                      {micActive ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-                    </button>
-
-                    <button
-                      onClick={() => setVoiceEnabled(!voiceEnabled)}
-                      className={`p-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        voiceEnabled ? "bg-[#0D9488]/30 text-[#0D9488]" : "bg-slate-800 text-slate-400"
-                      }`}
-                      title="AI Voice Synthesis"
-                    >
-                      {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                    </button>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="interview-name" className="block text-xs font-semibold text-slate-700">
+                      Your name
+                    </label>
+                    <input
+                      id="interview-name"
+                      value={officerName}
+                      onChange={(e) => setOfficerName(e.target.value)}
+                      autoComplete="name"
+                      className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-[#1E3A8A] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20"
+                    />
                   </div>
-
-                  {/* Real-Time Audio Equalizer Spectrum Waveform */}
-                  <div className="flex items-center gap-1.5 px-2">
-                    <span className="text-[9px] text-slate-400 font-mono">SPECTRUM</span>
-                    <div className="flex items-end gap-0.5 h-4">
-                      {frequencyBars.map((val, idx) => (
-                        <div
-                          key={idx}
-                          className="w-1 rounded-t transition-all duration-75 bg-gradient-to-t from-teal-500 to-emerald-400"
-                          style={{
-                            height: `${Math.max(2, Math.min(16, Math.round((val * Math.max(0.2, audioLevel / 50)) / 5)))}px`
-                          }}
-                        />
+                  <fieldset>
+                    <legend className="block text-xs font-semibold text-slate-700">Planned length</legend>
+                    <div className="mt-1.5 grid grid-cols-3 gap-2">
+                      {DURATIONS.map((d) => (
+                        <label
+                          key={d}
+                          className={`cursor-pointer rounded-lg border px-2 py-2.5 text-center text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#1E3A8A]/30 ${
+                            duration === d
+                              ? "border-[#1E3A8A] bg-blue-50 text-[#1E3A8A]"
+                              : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="interview-duration"
+                            value={d}
+                            checked={duration === d}
+                            onChange={() => setDuration(d)}
+                            className="sr-only"
+                          />
+                          {d} min
+                        </label>
                       ))}
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 25 to 35 Minute Timer & Pacing Meter Card */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3.5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-[#1E3A8A]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                      Elapsed Time
-                    </span>
-                  </div>
-                  <div className="font-mono text-lg font-extrabold text-[#0F172A] tracking-wider">
-                    {formatTime(elapsedSeconds)} / {targetDuration}:00
-                  </div>
+                  </fieldset>
                 </div>
 
-                {/* Progress Bar mapped against target duration */}
-                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full navy-teal-gradient transition-all duration-500 rounded-full"
-                    style={{
-                      width: `${Math.min(100, Math.round((elapsedSeconds / (targetDuration * 60)) * 100))}%`
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                  <span>Turn {currentTurn} / 6</span>
-                  <span className="text-[#0D9488] font-semibold">{currentPhase}</span>
-                </div>
-
-                {pacingAdvice && (
-                  <div className="text-xs text-[#0D9488] bg-teal-50/80 p-2.5 rounded-xl border border-teal-200 flex items-start gap-1.5 font-medium leading-relaxed">
-                    <Sparkles className="h-3.5 w-3.5 text-[#0D9488] shrink-0 mt-0.5" />
-                    <span>{pacingAdvice}</span>
-                  </div>
-                )}
-
-                {/* Quick Fast Forward Buttons for Reviewers/Testers */}
-                <div className="pt-2 flex items-center justify-between border-t border-slate-100 text-[11px] text-slate-500">
-                  <span>Pacing Simulator:</span>
-                  <div className="space-x-1.5">
-                    <button
-                      onClick={() => fastForwardTime(300)}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all cursor-pointer text-[10px]"
-                    >
-                      +5 Mins
-                    </button>
-                    <button
-                      onClick={() => fastForwardTime(600)}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all cursor-pointer text-[10px]"
-                    >
-                      +10 Mins
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right 7 Cols: AI Interview Board Inquiry & Officer Response Console */}
-            <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
-              {/* AI Interviewer Prompt Card */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm relative overflow-hidden">
-                <div className="h-1 w-full navy-teal-gradient absolute top-0 inset-x-0" />
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3 pt-1">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-[#0D9488] animate-ping" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Civil Service Interview Board Member
-                    </span>
-                  </div>
-                  <span className="rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold text-[#1E3A8A] uppercase">
-                    Testing: {targetCompetency}
-                  </span>
-                </div>
-
-                <div className="mt-5">
-                  <p className="text-base sm:text-lg font-semibold text-[#0F172A] leading-relaxed">
-                    "{currentAiQuestion}"
-                  </p>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
-                  <span className="flex items-center gap-1.5 text-[11px]">
-                    {voiceEnabled ? (
-                      <>
-                        <Volume2 className="h-3.5 w-3.5 text-[#0D9488]" />
-                        <span>Spoken via Web Speech Audio</span>
-                      </>
-                    ) : (
-                      <>
-                        <VolumeX className="h-3.5 w-3.5 text-slate-400" />
-                        <span>Audio muted</span>
-                      </>
-                    )}
-                  </span>
-                  <button
-                    onClick={() => speakAiQuestion(currentAiQuestion)}
-                    className="text-[11px] font-bold text-[#1E3A8A] hover:text-[#0D9488] flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    Repeat Question
-                  </button>
-                </div>
-              </div>
-
-              {/* Officer Live Input Console */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <MessageSquare className="h-4 w-4 text-[#1E3A8A]" />
-                    Officer's Oral / Text Response
-                  </label>
-
-                  <div className="flex items-center gap-2">
-                    {/* Live Speaking Cadence Indicator */}
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${
-                        liveWpm >= 110 && liveWpm <= 150
-                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                          : liveWpm > 150
-                          ? "bg-amber-50 text-amber-800 border border-amber-200"
-                          : "bg-blue-50 text-[#1E3A8A] border border-blue-200"
-                      }`}
-                    >
-                      <Sparkles className="h-2.5 w-2.5" />
-                      Cadence: {liveWpm} WPM ({liveWpm >= 110 && liveWpm <= 150 ? "Optimal" : liveWpm > 150 ? "Brisk" : "Measured"})
-                    </span>
-
-                    {speechSupported && (
-                      <button
-                        onClick={toggleSpeechRecognition}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                          isListening
-                            ? "bg-red-600 text-white animate-pulse"
-                            : "bg-slate-100 hover:bg-slate-200 text-slate-700"
-                        }`}
-                      >
-                        <Mic className="h-3.5 w-3.5" />
-                        {isListening ? "Listening... (Click to Stop)" : "Start Speech-to-Text"}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* AI Delivery Feedback Banner from Previous Turn */}
-                {lastTurnFeedback && (
-                  <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3 text-xs flex items-start gap-2">
-                    <Sparkles className="h-3.5 w-3.5 text-[#0D9488] shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <span className="font-bold text-[#0D9488] text-[10px] uppercase tracking-wider block">
-                        AI Board Evaluation Note & Behavioral Telemetry
-                      </span>
-                      <p className="text-slate-700 text-[11px] leading-relaxed">{lastTurnFeedback}</p>
-                      {lastDetectedCompetencies.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {lastDetectedCompetencies.map((comp) => (
-                            <span key={comp} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-teal-200 text-[10px] font-bold text-[#0D9488] shadow-2xs">
-                              <Check className="h-3 w-3" /> {comp}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <textarea
-                  rows={4}
-                  value={officerInputText}
-                  onChange={(e) => setOfficerInputText(e.target.value)}
-                  placeholder="Speak into your microphone or articulate your civil-service response here..."
-                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3.5 text-xs text-slate-900 focus:bg-white focus:border-[#1E3A8A] focus:outline-hidden leading-relaxed"
-                />
-
-                <div className="flex items-center justify-between pt-1">
-                  <span className="text-[10px] text-slate-500">
-                    Be concise, structured, and cite relevant statutory rules or leadership principles.
-                  </span>
-                  <button
-                    disabled={!officerInputText.trim() || isSubmittingTurn}
-                    onClick={handleSendResponse}
-                    className="inline-flex items-center gap-2 rounded-xl navy-teal-gradient px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
-                  >
-                    {isSubmittingTurn ? "Evaluating Response..." : "Submit Response to Board"}
-                    <Send className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : analysisReport ? (
-          /* End-of-Interview Comprehensive Diagnostic Scorecard */
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-              {/* Top Seal & Official Dossier Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-6 gap-4">
-                <div>
-                  <span className="inline-block rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
-                    Official Competency Assessment Dossier
-                  </span>
-                  <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-                    Oral Board Competency Report
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Candidate: <span className="text-slate-900 font-bold">{analysisReport.officer_name}</span> • Curriculum:{" "}
-                    <span className="text-slate-900 font-bold">{analysisReport.course_title}</span>
-                  </p>
-                </div>
-
-                <div className="text-right sm:border-l sm:border-slate-200 sm:pl-6">
-                  <div className="text-3xl font-extrabold text-[#1E3A8A]">
-                    {analysisReport.overall_score_percent}%
-                  </div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mt-0.5">
-                    {analysisReport.overall_rating_band}
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-1">
-                    Duration: {analysisReport.total_duration_formatted}
-                  </div>
-                </div>
-              </div>
-
-              {/* Executive Summary & Core Pillars */}
-              <div className="mt-6 p-5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-4">
-                <div>
-                  <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px] block mb-1">
-                    Overall Board Assessment
-                  </span>
-                  <p className="leading-relaxed">{analysisReport.overall_assessment || analysisReport.executive_summary}</p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-200">
-                  <div className="p-3 rounded-lg bg-white border border-slate-200">
-                    <span className="font-bold text-[#0D9488] text-[11px] block mb-1">Course Understanding</span>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      {analysisReport.course_understanding || "Thorough grasp of official circulars and methodology."}
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-white border border-slate-200">
-                    <span className="font-bold text-[#1E3A8A] text-[11px] block mb-1">Communication & Articulation</span>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      {analysisReport.communication_assessment || "Clear cadence and executive delivery."}
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-white border border-slate-200">
-                    <span className="font-bold text-emerald-800 text-[11px] block mb-1">Decision-Making & Judgment</span>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      {analysisReport.decision_making_assessment || "Prioritizes natural justice and statutory integrity."}
-                    </p>
-                  </div>
-                </div>
-
-                {analysisReport.conversation_analysis && (
-                  <div className="pt-3 border-t border-slate-200">
-                    <span className="font-bold text-slate-800 text-[11px] block mb-1">Conversation Flow & Consistency</span>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">{analysisReport.conversation_analysis}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Video & Speech Observational Analysis Sections */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Video & Demeanor Observations */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#0D9488] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                      <Video className="h-3.5 w-3.5 text-[#0D9488]" />
-                      Observable Video & Physical Telemetry
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">Camera Sensors</span>
-                  </div>
-                  <div className="space-y-1.5 text-[11px] text-slate-700">
-                    <div className="flex justify-between border-b border-slate-200 pb-1">
-                      <span className="text-slate-500">Posture Stability:</span>
-                      <span className="font-semibold text-slate-900">
-                        {analysisReport.video_behavioural_observations?.posture_stability || "Upright executive seating maintained"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200 pb-1">
-                      <span className="text-slate-500">Head Movement:</span>
-                      <span className="font-semibold text-slate-900">
-                        {analysisReport.video_behavioural_observations?.head_movement_observed || "Controlled, responsive"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200 pb-1">
-                      <span className="text-slate-500">Gaze Alignment:</span>
-                      <span className="font-semibold text-[#0D9488] font-mono">
-                        {analysisReport.video_behavioural_observations?.gaze_alignment_percent ?? 85}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between pb-1">
-                      <span className="text-slate-500">Excessive Movement / Fidgeting:</span>
-                      <span className="font-semibold text-emerald-700">
-                        {analysisReport.video_behavioural_observations?.excessive_movement_fidgeting || "Low (within standard bounds)"}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-200">
-                    {analysisReport.video_behavioural_observations?.observable_summary || "Visual orientation and demeanor remained composed throughout."}
-                  </p>
-                </div>
-
-                {/* Speech & Acoustic Analysis */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#1E3A8A] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                      <Mic className="h-3.5 w-3.5 text-[#1E3A8A]" />
-                      Speech & Acoustic Analysis
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">Audio Sensors</span>
-                  </div>
-                  <div className="space-y-1.5 text-[11px] text-slate-700">
-                    <div className="flex justify-between border-b border-slate-200 pb-1">
-                      <span className="text-slate-500">Cadence / Pace:</span>
-                      <span className="font-semibold text-emerald-800 font-mono">
-                        {analysisReport.speech_analysis?.average_wpm || analysisReport.telemetry_summary?.average_speaking_wpm || 126} WPM (
-                        {analysisReport.speech_analysis?.pace_assessment || "Optimal"})
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200 pb-1">
-                      <span className="text-slate-500">Acoustic Clarity:</span>
-                      <span className="font-semibold text-[#1E3A8A]">
-                        {analysisReport.speech_analysis?.clarity_rating || "Articulate & Audible"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200 pb-1">
-                      <span className="text-slate-500">Pauses & Fillers:</span>
-                      <span className="font-semibold text-slate-800 font-mono">
-                        {analysisReport.speech_analysis?.filler_word_count ?? 2} fillers • {analysisReport.speech_analysis?.pauses_frequency || "Structured pauses"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between pb-1">
-                      <span className="text-slate-500">Delivery Cadence:</span>
-                      <span className="font-semibold text-slate-800">
-                        {analysisReport.speech_analysis?.delivery_cadence || "Steady, authoritative"}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-200">
-                    {analysisReport.speech_analysis?.coherence_assessment || "Arguments followed structured civil service logic."}
-                  </p>
-                </div>
-              </div>
-
-              {/* Scientific & Ethical Demarcation Disclaimer */}
-              <div className="mt-4 rounded-xl bg-blue-50/50 border border-blue-200/80 p-3 text-[11px] text-slate-600 flex items-start gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#1E3A8A] shrink-0 mt-0.5" />
-                <p>
-                  <span className="font-bold text-[#1E3A8A]">Statutory Notice: </span>
-                  {analysisReport.observable_signals_disclaimer ||
-                    "Observable behavioral and speech telemetry reflect neutral physical metrics (cadence, head orientation, and acoustic stability) captured in-browser. They do not constitute emotional profiling, psychological diagnosis, or character judgements."}
+                <Button size="lg" className="w-full" onClick={() => void handleStart()} disabled={starting || !courseId}>
+                  {starting ? (
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Play className="size-4" aria-hidden="true" />
+                  )}
+                  {starting
+                    ? media.status === "requesting"
+                      ? "Waiting for camera and microphone permission..."
+                      : "Starting interview..."
+                    : "Start interview"}
+                </Button>
+                <p className="text-xs text-pretty text-slate-500">
+                  Your browser will ask for camera and microphone access. If you decline, the interview still runs and you
+                  can type your answers.
                 </p>
               </div>
+            </section>
 
-              {/* Multimodal Telemetry Metrics Dossier Card */}
-              {analysisReport.telemetry_summary && (
-                <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2">
-                  <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px] block">
-                    Multimodal Examination & Delivery Telemetry
+            <aside className="space-y-4 lg:col-span-2">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                <h2 className="text-sm font-semibold text-slate-900">How it works</h2>
+                <ol className="mt-3 space-y-3 text-sm text-slate-600">
+                  {[
+                    `The board asks ${TOTAL_QUESTIONS} questions, moving from the course itself to planning, leadership, ethics, change and judgement.`,
+                    "Answer aloud with dictation or type. The board member responds to what you actually said.",
+                    "At the end you get scores for seven competencies with evidence taken from your answers.",
+                  ].map((step, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#1E3A8A] text-xs font-semibold text-white">
+                        {i + 1}
+                      </span>
+                      <span className="text-pretty">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
+                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-[#1E3A8A]">
+                  <ShieldCheck className="size-4" aria-hidden="true" />
+                  Privacy
+                </h2>
+                <ul className="mt-2 list-disc space-y-1.5 pl-4 text-xs text-pretty text-slate-700">
+                  <li>Video is analysed in your browser and never uploaded. Only summary numbers are sent.</li>
+                  <li>Dictation uses your browser&apos;s speech recognition service. Answers are sent as text.</li>
+                  <li>Signals describe observable delivery only and are not used to judge emotion or character.</li>
+                  <li>Camera and microphone switch off when the interview ends or you leave this page.</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        )}
+
+        {stage === "room" && (
+          <div className="mt-6 grid gap-5 lg:grid-cols-12">
+            <div className="space-y-4 lg:col-span-5">
+              <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-900 shadow-sm">
+                {live && media.cameraOn ? (
+                  <video
+                    ref={media.attachVideo}
+                    autoPlay
+                    playsInline
+                    muted
+                    aria-label="Your camera preview"
+                    className="size-full -scale-x-100 object-cover"
+                  />
+                ) : (
+                  <div className="flex size-full flex-col items-center justify-center gap-2 p-6 text-center text-slate-400">
+                    <CameraOff className="size-10" aria-hidden="true" />
+                    <p className="text-sm text-pretty">{cameraMessage}</p>
+                  </div>
+                )}
+
+                <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white">
+                    <span className={`size-2 rounded-full ${live ? "bg-emerald-400" : "bg-slate-400"}`} aria-hidden="true" />
+                    {live ? "Live" : "Offline"}
                   </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-500">Average Speaking Pace</div>
-                      <div className="text-lg font-black text-emerald-700 font-mono mt-0.5">
-                        {analysisReport.telemetry_summary.average_speaking_wpm} <span className="text-xs font-normal">WPM</span>
-                      </div>
-                      <div className="text-[9px] text-slate-400">Benchmark: 110-150 WPM</div>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-500">Poise & Composure</div>
-                      <div className="text-lg font-black text-[#0D9488] font-mono mt-0.5">
-                        {analysisReport.telemetry_summary.delivery_composure_score}%
-                      </div>
-                      <div className="text-[9px] text-slate-400">Executive Demeanor</div>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-500">Articulation Fidelity</div>
-                      <div className="text-xs font-bold text-[#1E3A8A] mt-2 truncate">
-                        {analysisReport.telemetry_summary.speech_clarity_rating}
-                      </div>
-                      <div className="text-[9px] text-slate-400">Acoustic Clarity</div>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-center">
-                      <div className="text-[10px] uppercase font-bold text-slate-500">Pacing Adherence</div>
-                      <div className="text-xs font-bold text-emerald-700 mt-2 truncate">
-                        {analysisReport.telemetry_summary.pacing_adherence}
-                      </div>
-                      <div className="text-[9px] text-slate-400">{analysisReport.total_duration_formatted} Elapsed</div>
-                    </div>
+                  {live && media.cameraOn && (
+                    <span className="rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white">{faceLabel}</span>
+                  )}
+                </div>
+
+                <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-xl bg-black/60 p-2">
+                  <div className="flex gap-1.5">
+                    <IconToggle
+                      on={media.cameraOn}
+                      disabled={!live}
+                      onClick={media.toggleCamera}
+                      onLabel="Turn camera off"
+                      offLabel="Turn camera on"
+                      OnIcon={Camera}
+                      OffIcon={CameraOff}
+                    />
+                    <IconToggle
+                      on={media.micOn}
+                      disabled={!live}
+                      onClick={() => {
+                        if (!media.toggleMic()) speech.stop();
+                      }}
+                      onLabel="Mute microphone"
+                      offLabel="Unmute microphone"
+                      OnIcon={Mic}
+                      OffIcon={MicOff}
+                    />
+                    <IconToggle
+                      on={voiceOn}
+                      onClick={() => {
+                        if (voiceOn) window.speechSynthesis?.cancel();
+                        setVoiceOn(!voiceOn);
+                      }}
+                      onLabel="Mute interviewer voice"
+                      offLabel="Unmute interviewer voice"
+                      OnIcon={Volume2}
+                      OffIcon={VolumeX}
+                    />
+                  </div>
+                  <div className="flex h-5 items-end gap-0.5" aria-hidden="true">
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <span
+                        key={i}
+                        className={`w-1 rounded-sm ${media.audioLevel > i * 6 ? "bg-emerald-400" : "bg-white/20"}`}
+                        style={{ height: `${6 + i * 1.4}px` }}
+                      />
+                    ))}
                   </div>
                 </div>
-              )}
-
-              <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2 text-center">
-                  7-Dimension Competency Radar
-                </h3>
-                <CompetencyRadar scores={analysisReport.competency_scores} />
               </div>
 
-              {/* 7 Competency Breakdown Grid */}
-              <div className="mt-8 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                  <Award className="h-4 w-4 text-[#0D9488]" />
-                  Evaluated Competencies Breakdown (6 Behavioral + Course Mastery)
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.values(analysisReport.competency_scores).map((comp) => (
-                    <div
-                      key={comp.competency_name}
-                      className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-slate-900">{comp.competency_name}</h4>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                              comp.rating_band === "Exemplary"
-                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                                : "bg-blue-50 text-[#1E3A8A] border-blue-200"
-                            }`}
-                          >
-                            {comp.rating_band} ({comp.score_percent}%)
-                          </span>
-                        </div>
-
-                        {/* Visual Bar */}
-                        <div className="mt-2 w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="h-full navy-teal-gradient rounded-full"
-                            style={{ width: `${comp.score_percent}%` }}
-                          />
-                        </div>
-
-                        <p className="mt-2.5 text-[11px] text-slate-500 italic leading-relaxed">
-                          <span className="font-semibold not-italic text-slate-700">Observed: </span>
-                          {comp.key_evidence}
-                        </p>
-                      </div>
-
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-[#0D9488]">
-                        <span className="font-semibold text-slate-700">Recommendation: </span>
-                        {comp.growth_opportunity}
-                      </div>
-                    </div>
-                  ))}
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs" aria-labelledby="signals-heading">
+                <div className="flex items-baseline justify-between gap-2">
+                  <h2 id="signals-heading" className="text-sm font-semibold text-slate-900">
+                    Live delivery signals
+                  </h2>
+                  <span className="text-[11px] text-slate-500">Measured in your browser</span>
                 </div>
-              </div>
-
-              {/* Strengths, Areas for Improvement & Recommended Upskilling */}
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-2 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                    Key Observed Strengths
-                  </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-600">
-                    {analysisReport.core_strengths.map((str, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-emerald-600">•</span>
-                        <span>{str}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800 mb-2 flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                    Areas for Improvement
-                  </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-600">
-                    {(analysisReport.areas_for_improvement || analysisReport.priority_development_areas).map((area, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-amber-600">•</span>
-                        <span>{area}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#0D9488] mb-2 flex items-center gap-1.5">
-                    <TrendingUp className="h-3.5 w-3.5 text-[#0D9488]" />
-                    Recommended Upskilling
-                  </h4>
-                  <ul className="space-y-1.5 text-xs text-slate-600">
-                    {(analysisReport.recommended_upskilling || analysisReport.recommended_apar_actions).map((act, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-[#0D9488]">•</span>
-                        <span>{act}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    setIsConcluded(false);
-                    setAnalysisReport(null);
-                    setIsInterviewActive(false);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-700 transition-all cursor-pointer shadow-xs"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Start New Interview Session
-                </button>
-
-                <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 rounded-xl navy-teal-gradient px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:opacity-95 transition-all cursor-pointer"
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  Print Official Dossier
-                </button>
-              </div>
+                <dl className="mt-2 divide-y divide-slate-100 text-sm">
+                  <SignalRow
+                    label="Face in frame"
+                    value={percentOrStatus(media.session.face_presence_percent, live && media.analyser === "ready")}
+                  />
+                  <SignalRow
+                    label="Facing the camera"
+                    value={percentOrStatus(media.session.eye_contact_percent, live && media.analyser === "ready")}
+                  />
+                  <SignalRow
+                    label="Head steadiness"
+                    value={
+                      media.session.posture_stability_score !== null
+                        ? `${media.session.posture_stability_score}/100`
+                        : live && media.analyser === "ready"
+                          ? "Measuring..."
+                          : "Not captured"
+                    }
+                  />
+                  <SignalRow label="Speaking pace (last answer)" value={lastPace === null ? "Spoken answers only" : `${lastPace} words/min`} />
+                  <SignalRow label="Filler words (this answer)" value={String(countFillers(draft))} />
+                </dl>
+                {media.analyser === "unavailable" && (
+                  <p className="mt-2 text-xs text-amber-700">
+                    Face analysis could not load in this browser, so camera signals are not captured.
+                  </p>
+                )}
+              </section>
             </div>
 
-            {/* Transcript Audit Log with Behavioral Tags */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-900 mb-3">Complete Annotated Transcript</h3>
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                {analysisReport.transcript.map((entry, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-[#1E3A8A]">{entry.speaker}</span>
-                      <div className="flex gap-1">
-                        {entry.behavioral_tags.map((tag, tIdx) => (
-                          <span
-                            key={tIdx}
-                            className="rounded-md bg-white border border-slate-200 px-1.5 py-0.5 text-[9px] font-mono text-slate-600"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+            <div className="flex flex-col gap-4 lg:col-span-7">
+              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span className="font-semibold text-slate-900">
+                    Question {Math.min(answered + 1, TOTAL_QUESTIONS)} of {TOTAL_QUESTIONS}
+                  </span>
+                  <span className="font-medium text-[#0D9488]">{phaseName}</span>
+                  <span className="inline-flex items-center gap-1 tabular-nums text-slate-600">
+                    <Clock className="size-3.5" aria-hidden="true" />
+                    {formatClock(elapsed)} / {duration}:00
+                  </span>
+                </div>
+                <div
+                  className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"
+                  role="progressbar"
+                  aria-label="Questions answered"
+                  aria-valuemin={0}
+                  aria-valuemax={TOTAL_QUESTIONS}
+                  aria-valuenow={answered}
+                >
+                  <div className="h-full rounded-full bg-[#1E3A8A] transition-all" style={{ width: `${(answered / TOTAL_QUESTIONS) * 100}%` }} />
+                </div>
+                {elapsed > duration * 60 && (
+                  <p className="mt-2 text-xs text-amber-700">You are past the planned {duration} minutes. Keep your answers focused.</p>
+                )}
+              </section>
+
+              <section className="flex flex-col rounded-2xl border border-slate-200 bg-white shadow-xs" aria-label="Interview conversation">
+                <div ref={threadRef} className="h-[22rem] space-y-4 overflow-y-auto p-4 sm:h-[26rem]" aria-live="polite">
+                  {messages.map((m, i) =>
+                    m.role === "board" ? (
+                      <div key={i} className="flex gap-3">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#1E3A8A] text-white">
+                          <Brain className="size-4" aria-hidden="true" />
+                        </div>
+                        <div className="max-w-[85%]">
+                          <p className="text-[11px] font-semibold text-slate-500">Board member</p>
+                          <div className="mt-1 rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3 text-sm leading-relaxed text-pretty text-slate-900">
+                            {m.text}
+                          </div>
+                          {i === messages.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={() => speak(m.text, true)}
+                              className="mt-1 text-[11px] font-semibold text-[#1E3A8A] hover:underline"
+                            >
+                              Replay
+                            </button>
+                          )}
+                        </div>
                       </div>
+                    ) : (
+                      <div key={i} className="flex flex-col items-end">
+                        <p className="text-[11px] font-semibold text-slate-500">You</p>
+                        <div className="mt-1 max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tr-sm bg-[#1E3A8A] px-4 py-3 text-sm leading-relaxed text-pretty text-white">
+                          {m.text}
+                        </div>
+                        {m.tags && m.tags.length > 0 && (
+                          <div className="mt-1.5 flex max-w-[85%] flex-wrap justify-end gap-1">
+                            {m.tags.map((tag) => (
+                              <span key={tag} className="rounded-md border border-teal-200 bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium text-teal-800">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {m.note && <p className="mt-1 max-w-[85%] text-right text-[11px] text-pretty text-slate-500">{m.note}</p>}
+                      </div>
+                    ),
+                  )}
+                  {submitting && (
+                    <p className="flex items-center gap-2 text-xs text-slate-500">
+                      <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+                      The board member is considering your answer...
+                    </p>
+                  )}
+                </div>
+
+                <div className="border-t border-slate-200 p-4">
+                  <label htmlFor="interview-answer" className="sr-only">
+                    Your answer
+                  </label>
+                  <textarea
+                    id="interview-answer"
+                    rows={4}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        void handleSubmit();
+                      }
+                    }}
+                    disabled={submitting}
+                    placeholder={speech.listening ? "Listening... speak your answer" : "Type your answer, or dictate it"}
+                    className="w-full resize-y rounded-xl border border-slate-300 bg-white p-3 text-sm leading-relaxed text-slate-900 focus:border-[#1E3A8A] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 disabled:bg-slate-50"
+                  />
+                  {speech.error && <p className="mt-1 text-xs text-amber-700">{speech.error}</p>}
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {speech.supported ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={speech.listening ? "danger" : "outline"}
+                          onClick={() => (speech.listening ? speech.stop() : speech.start(draft))}
+                          disabled={submitting || (live && !media.micOn)}
+                        >
+                          {speech.listening ? (
+                            <MicOff className="size-3.5" aria-hidden="true" />
+                          ) : (
+                            <Mic className="size-3.5" aria-hidden="true" />
+                          )}
+                          {speech.listening ? "Stop dictation" : "Dictate answer"}
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-slate-500">Dictation is not supported in this browser. Type your answer.</span>
+                      )}
+                      <span className="text-xs tabular-nums text-slate-500">{draftWords} words</span>
                     </div>
-                    <p className="text-slate-700 leading-relaxed">{entry.content}</p>
+                    <Button type="button" size="sm" onClick={() => void handleSubmit()} disabled={!draft.trim() || submitting}>
+                      <Send className="size-3.5" aria-hidden="true" />
+                      Send answer
+                    </Button>
                   </div>
-                ))}
-              </div>
+                  <p className="mt-1.5 text-[11px] text-slate-400">Press Ctrl or Cmd + Enter to send.</p>
+                </div>
+              </section>
             </div>
           </div>
-        ) : null}
+        )}
+
+        {stage === "concluding" && (
+          <div className="mx-auto mt-10 max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs">
+            {error ? (
+              <>
+                <AlertCircle className="mx-auto size-8 text-rose-600" aria-hidden="true" />
+                <p className="mt-3 text-sm text-pretty text-slate-700">{error}</p>
+                <div className="mt-4 flex justify-center gap-2">
+                  <Button variant="outline" onClick={restart}>
+                    Start over
+                  </Button>
+                  <Button onClick={() => void conclude()}>Try again</Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Loader2 className="mx-auto size-8 animate-spin text-[#1E3A8A]" aria-hidden="true" />
+                <h2 className="mt-3 text-base font-semibold text-slate-900">Preparing your assessment</h2>
+                <p className="mt-1 text-sm text-pretty text-slate-600">
+                  The board is reviewing your {answered} {answered === 1 ? "answer" : "answers"}. This usually takes under a minute.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        {stage === "report" && report && (
+          <InterviewReport report={report} onRestart={restart} backHref={backHref} backLabel={backLabel} />
+        )}
       </div>
     </div>
   );
