@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useRef, useState, Suspense } from "react";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   CheckCircle2,
   Circle,
@@ -27,6 +27,7 @@ import { useI18n } from "@/lib/i18n";
 import confetti from "canvas-confetti";
 import { LabLauncherBanner } from "@/features/labs/components/LabLauncherBanner";
 import { LessonVideo } from "@/features/learning/components/LessonVideo";
+import { LessonMarkdown } from "@/features/learning/components/LessonMarkdown";
 
 function LearningPlayerContent() {
   const { courseId } = useParams();
@@ -35,6 +36,9 @@ function LearningPlayerContent() {
   const { t } = useI18n();
 
   const lessonQueryId = searchParams?.get("lessonId");
+  const pathname = usePathname();
+  const mainRef = useRef<HTMLElement>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const [courseMeta, setCourseMeta] = useState<any>(null);
   const [modulesTree, setModulesTree] = useState<ModuleSummary[]>([]);
@@ -75,10 +79,17 @@ function LearningPlayerContent() {
     }
   }, [courseId, lessonQueryId]);
 
+  // Keep the lesson in the URL so reload, back/forward and shared links land on the same lesson.
   const handleSelectLesson = (lessonId: number) => {
     setMobileSyllabusOpen(false);
-    loadPlayerData(lessonId);
+    setActionError(null);
+    router.push(`${pathname}?lessonId=${lessonId}`);
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [currentLesson?.id]);
 
   const handleValidateActivity = async () => {
     if (!currentLesson || selectedActivityOption === null) return;
@@ -98,7 +109,7 @@ function LearningPlayerContent() {
         });
       }
     } catch (err: any) {
-      alert("Failed to validate practice answer");
+      setActionError("Your practice answer could not be checked. Try again.");
     } finally {
       setActivityChecking(false);
     }
@@ -119,10 +130,10 @@ function LearningPlayerContent() {
           router.push(`/progress`);
         }
       } else if (currentLesson.next_lesson_id) {
-        loadPlayerData(currentLesson.next_lesson_id);
+        handleSelectLesson(currentLesson.next_lesson_id);
       }
     } catch (err: any) {
-      alert("Failed to update lesson progress");
+      setActionError("Lesson progress could not be saved. Check your connection and try again.");
     }
   };
 
@@ -259,7 +270,11 @@ function LearningPlayerContent() {
       </aside>
 
       {/* Main Content Stage */}
-      <main className="flex-1 flex flex-col overflow-y-auto">
+      <main
+        ref={mainRef}
+        aria-busy={loading}
+        className={`flex-1 flex flex-col overflow-y-auto transition-opacity ${loading ? "opacity-50 pointer-events-none" : ""}`}
+      >
         {/* Lesson Header */}
         <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -296,8 +311,8 @@ function LearningPlayerContent() {
           )}
 
           {/* Reading / Lab Content Area */}
-          <div className="prose prose-slate max-w-none bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs leading-relaxed text-slate-800 text-sm whitespace-pre-wrap">
-            {currentLesson.content}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+            <LessonMarkdown content={currentLesson.content} title={currentLesson.title} />
           </div>
 
           {/* IN-LESSON PRACTICE ACTIVITY */}
@@ -390,6 +405,13 @@ function LearningPlayerContent() {
             </Card>
           )}
 
+          {actionError && (
+            <div role="alert" className="flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs text-rose-900">
+              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <p className="text-pretty">{actionError}</p>
+            </div>
+          )}
+
           {/* Navigation Controls Bar */}
           <div className="pt-6 border-t border-slate-200 flex items-center justify-between">
             <Button
@@ -398,7 +420,7 @@ function LearningPlayerContent() {
               disabled={!currentLesson.prev_lesson_id}
               onClick={() => {
                 if (currentLesson.prev_lesson_id) {
-                  loadPlayerData(currentLesson.prev_lesson_id);
+                  handleSelectLesson(currentLesson.prev_lesson_id);
                 }
               }}
               className="text-xs rounded-xl"
