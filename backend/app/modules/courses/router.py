@@ -39,7 +39,7 @@ def get_course_details(
             db.add(lh)
         else:
             lh.viewed_at = datetime.datetime.utcnow()
-        db.commit()
+        # Committed after the response is built: committing now would expire the eagerly loaded modules and skills.
 
     # Calculate content type counts
     video_count = 0
@@ -93,7 +93,7 @@ def get_course_details(
                 "last_lesson_id": enr.last_lesson_id or (course.modules[0].lessons[0].id if course.modules and course.modules[0].lessons else None)
             }
 
-    return {
+    response = {
         "id": course.id,
         "title": course.title,
         "overview": course.overview,
@@ -117,6 +117,8 @@ def get_course_details(
         "assessment_id": course.assessment.id if course.assessment else None,
         "enrollment": enrollment_data
     }
+    db.commit()
+    return response
 
 @router.post("/{course_id}/enroll")
 def enroll_in_course(

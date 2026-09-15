@@ -239,9 +239,9 @@ export default function AdminDashboardPage() {
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
+          <CardContent className="p-0 overflow-x-auto max-h-[36rem] overflow-y-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
+              <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
                 <tr>
                   <th className="px-6 py-3">{t("admin.colOfficial")}</th>
                   <th className="px-6 py-3">{t("admin.colDeptRole")}</th>
@@ -319,8 +319,13 @@ export default function AdminDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
+            {strugglingQuestions.length > 0 && (
+              <p className="mb-3 text-xs text-slate-500 tabular-nums">
+                The {Math.min(10, strugglingQuestions.length)} questions with the lowest cadre accuracy, out of {strugglingQuestions.length} analysed.
+              </p>
+            )}
             <div className="space-y-3">
-              {strugglingQuestions.map((sq: any) => (
+              {strugglingQuestions.slice(0, 10).map((sq: any) => (
                 <div
                   key={sq.question_id}
                   className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
