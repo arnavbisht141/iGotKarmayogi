@@ -1,11 +1,10 @@
 import logging
 from typing import List, Optional
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.models import GapAnalysis, Course, Recommendation
-from app.agents.igot.client import MockIgotClient
+from app.agents.igot.client import MockIgotClient, domain_category_filter
 from app.agents.recommendation.embeddings import get_embedding_client
 
 logger = logging.getLogger(__name__)
@@ -14,10 +13,7 @@ MAX_RECOMMENDATIONS = 5
 
 
 def _structured_candidates(db: Session, domain_code: str) -> List[Course]:
-    # Course.category is stored Title Case with spaces ("Digital Governance"); domain
-    # codes are snake_case ("digital_governance"). Normalize both sides to compare.
-    normalized_category = func.lower(func.replace(Course.category, " ", "_"))
-    return db.query(Course).filter(normalized_category == domain_code).all()
+    return db.query(Course).filter(domain_category_filter(domain_code)).all()
 
 
 def _vector_rerank(pinecone_index, gap_description: str, candidate_ids: List[int]) -> List[int]:
@@ -29,10 +25,14 @@ def _vector_rerank(pinecone_index, gap_description: str, candidate_ids: List[int
         embedding_client = get_embedding_client()
         query_vector = embedding_client.embed_query(gap_description)
         result = pinecone_index.query(vector=query_vector, top_k=10, include_metadata=True)
-        matched_ids_in_order = [
-            m["metadata"]["course_id"] for m in result.get("matches", [])
-            if m.get("metadata", {}).get("course_id") in candidate_ids
-        ]
+        # pinecone SDK returns a QueryResponse object; test fakes return a plain dict
+        matches = result.get("matches", []) if isinstance(result, dict) else (result.matches or [])
+        matched_ids_in_order = []
+        for m in matches:
+            metadata = m.get("metadata", {}) if isinstance(m, dict) else (m.metadata or {})
+            course_id = metadata.get("course_id")
+            if course_id is not None and int(course_id) in candidate_ids:
+                matched_ids_in_order.append(int(course_id))
         remaining = [cid for cid in candidate_ids if cid not in matched_ids_in_order]
         return matched_ids_in_order + remaining
     except Exception as e:

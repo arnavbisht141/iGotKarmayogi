@@ -10,6 +10,13 @@ from app.core.seed_competencies import seed_competency_taxonomy, seed_evidence_m
 from app.agents.recommendation.agent import generate_recommendations
 
 
+@pytest.fixture(autouse=True)
+def fake_embeddings(monkeypatch):
+    fake = MagicMock()
+    fake.embed_query.return_value = [0.1] * 768
+    monkeypatch.setattr("app.agents.recommendation.agent.get_embedding_client", lambda: fake)
+
+
 @pytest.fixture(name="db_session")
 def fixture_db_session():
     engine = create_engine(
