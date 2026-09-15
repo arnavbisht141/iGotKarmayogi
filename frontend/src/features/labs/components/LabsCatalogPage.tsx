@@ -1,278 +1,211 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  FlaskConical,
-  BookOpen,
-  Sparkles,
-  Search,
-  Filter,
-  CheckCircle2,
   ArrowRight,
-  ShieldCheck,
-  Cpu,
-  Layers,
+  BarChart3,
+  Brain,
+  Bug,
   Code2,
-  Clock,
-  Award,
-  Building2,
+  Database,
+  FlaskConical,
+  Search,
+  Server,
+  ShieldCheck,
+  Table2,
+  type LucideIcon,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorNotice } from "@/components/shared/ErrorNotice";
 import { fetchApi } from "@/lib/api";
-import { LabDetail } from "@/lib/types/labs";
-import { useI18n } from "@/lib/i18n";
+import type { LabDetail } from "@/lib/types/labs";
+
+const DIFFICULTIES = ["all", "beginner", "intermediate", "advanced"] as const;
+
+function labIcon(tags: string[] = []): LucideIcon {
+  const has = (...names: string[]) => tags.some((t) => names.includes(t.toLowerCase()));
+  if (has("sql", "database")) return Database;
+  if (has("pandas", "dataframe", "data-cleaning", "cleaning")) return Table2;
+  if (has("ai-ml", "machine-learning")) return Brain;
+  if (has("fastapi", "api", "backend")) return Server;
+  if (has("debugging", "bug")) return Bug;
+  if (has("data-visualization", "visualization", "chart")) return BarChart3;
+  return Code2;
+}
 
 export default function LabsCatalogPage() {
-  const { t } = useI18n();
-  const [labs, setLabs] = useState<LabDetail[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
-  const [selectedTag, setSelectedTag] = useState<string>("all");
+  const [labs, setLabs] = useState<LabDetail[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [difficulty, setDifficulty] = useState<(typeof DIFFICULTIES)[number]>("all");
+  const [skill, setSkill] = useState("all");
 
   useEffect(() => {
-    setLoading(true);
     fetchApi<LabDetail[]>("/technical-courses/labs")
-      .then((data) => setLabs(data))
-      .catch((err) => console.error("Error fetching labs:", err))
-      .finally(() => setLoading(false));
+      .then(setLabs)
+      .catch((err: Error) => setError(err.message));
   }, []);
 
-  const tags = ["all", "fastapi", "pandas", "data-cleaning", "api", "sampling", "cpi"];
+  // Skill chips come from the labs themselves, most common first.
+  const skills = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const lab of labs ?? []) for (const tag of lab.tags ?? []) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([tag]) => tag);
+  }, [labs]);
 
-  const filteredLabs = labs.filter((l) => {
-    const matchesSearch =
-      l.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.objective.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDifficulty =
-      difficultyFilter === "all" || l.difficulty.toLowerCase() === difficultyFilter.toLowerCase();
-    const matchesTag =
-      selectedTag === "all" ||
-      (l.tags && l.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()));
-
-    return matchesSearch && matchesDifficulty && matchesTag;
+  const filtered = (labs ?? []).filter((lab) => {
+    const text = `${lab.title} ${lab.objective}`.toLowerCase();
+    return (
+      text.includes(query.trim().toLowerCase()) &&
+      (difficulty === "all" || lab.difficulty === difficulty) &&
+      (skill === "all" || (lab.tags ?? []).includes(skill))
+    );
   });
+  const totalTests = (labs ?? []).reduce((sum, lab) => sum + (lab.test_cases_count ?? lab.test_cases?.length ?? 0), 0);
 
   return (
-    <div className="min-h-[calc(100vh-65px)] bg-slate-50 flex flex-col w-full">
-      {/* Hero Header - Full Edge-to-Edge with Digital Governance scale and looks */}
-      <section className="hero-gradient relative overflow-hidden py-12 sm:py-16 w-full text-white shadow-md border-b border-blue-900/40">
-        <div className="absolute inset-0 hero-mesh opacity-40 pointer-events-none" />
-        <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-teal-500/15 blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-light border border-white/20 text-xs font-bold text-teal-300 uppercase tracking-wider mb-4">
-            <Building2 className="h-3.5 w-3.5" />
-            Ministry of Statistics &amp; Programme Implementation (MoSPI)
+    <div className="min-h-[calc(100vh-65px)] bg-slate-50">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+        <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-[#0D9488]">Technical competency</p>
+            <h1 className="text-3xl font-bold text-balance text-slate-900">Hands-on labs</h1>
+            <p className="max-w-2xl text-pretty text-slate-600">
+              Practise real statistical programming tasks in a Jupyter notebook. Run your code cell by cell in a Python
+              sandbox, then submit it to be checked by automatic tests.
+            </p>
           </div>
+          {labs && (
+            <dl className="grid grid-cols-3 gap-3 text-center sm:w-96">
+              {[
+                ["Labs", labs.length],
+                ["Graded tests", totalTests],
+                ["Language", "Python"],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-xl border border-slate-200 bg-white p-3">
+                  <dt className="text-xs text-slate-500">{label}</dt>
+                  <dd className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </header>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
-            Technical Competency &amp; Virtual Labs
-          </h1>
-          <p className="mt-4 text-sm sm:text-base lg:text-lg text-white/70 max-w-3xl leading-relaxed">
-            Validate technical civil service workflows in isolated Docker sandboxes.
-            Switch seamlessly between standard <strong>Jupyter Notebooks</strong> and modern reactive{" "}
-            <strong>Marimo extensions</strong> with instant unit test verification.
-          </p>
-
-          {/* Core Interactive Action Buttons */}
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link href="/labs/lab-data-cleaning-cpi">
-              <Button
-                size="lg"
-                className="h-12 px-6 rounded-xl bg-white hover:bg-slate-100 text-[#1E3A8A] font-bold text-sm shadow-lg border-0 flex items-center gap-2.5 transition-transform hover:scale-105 cursor-pointer"
-              >
-                <FlaskConical className="h-5 w-5 text-[#1E3A8A]" />
-                Launch Flagship Lab (Data Cleaning)
-              </Button>
-            </Link>
-
-            <a href="#lab-catalog">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 px-6 rounded-xl border-white/30 hover:bg-white/15 text-white font-semibold text-sm flex items-center gap-2.5 cursor-pointer"
-              >
-                <Code2 className="h-5 w-5 text-teal-300" />
-                Browse 6 Practical Labs
-              </Button>
-            </a>
-
-            <Link href="/courses/3">
-              <Button
-                size="lg"
-                variant="ghost"
-                className="h-12 px-5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 text-sm font-medium flex items-center gap-2 cursor-pointer"
-              >
-                <BookOpen className="h-4 w-4" />
-                Browse Technical Courses
-              </Button>
-            </Link>
-          </div>
-
-          {/* Feature Badges */}
-          <div className="mt-6 flex flex-wrap gap-3 pt-2">
-            <div className="flex items-center gap-2 text-xs text-white/90 glass-light px-3 py-1.5 rounded-xl border border-white/15">
-              <BookOpen className="h-4 w-4 text-amber-300" />
-              <span>Jupyter Notebooks (.ipynb)</span>
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="relative md:w-96">
+              <label htmlFor="lab-search" className="sr-only">
+                Search labs
+              </label>
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                id="lab-search"
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search labs by title or goal"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 focus:border-[#1E3A8A] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20"
+              />
             </div>
-            <div className="flex items-center gap-2 text-xs text-white/90 glass-light px-3 py-1.5 rounded-xl border border-white/15">
-              <Sparkles className="h-4 w-4 text-teal-300" />
-              <span>Marimo Reactive DAG (.py)</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-white/90 glass-light px-3 py-1.5 rounded-xl border border-white/15">
-              <ShieldCheck className="h-4 w-4 text-blue-300" />
-              <span>Docker Container Sandbox</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Body Content - Search, Filters, Grid */}
-      <div id="lab-catalog" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
-
-        {/* Search & Filter Controls */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search practical labs, skills, or objectives..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#1E3A8A] bg-slate-50/50"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-400" />
-            <span className="text-xs font-semibold text-slate-600">Difficulty:</span>
-            <div className="flex gap-1">
-              {["all", "beginner", "intermediate", "advanced"].map((d) => (
+            <div role="radiogroup" aria-label="Difficulty" className="flex rounded-lg border border-slate-200 p-0.5">
+              {DIFFICULTIES.map((d) => (
                 <button
                   key={d}
-                  onClick={() => setDifficultyFilter(d)}
-                  className={`text-xs px-2.5 py-1 rounded-lg capitalize font-medium transition-all cursor-pointer ${
-                    difficultyFilter === d
-                      ? "bg-[#1E3A8A] text-white shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  type="button"
+                  role="radio"
+                  aria-checked={difficulty === d}
+                  onClick={() => setDifficulty(d)}
+                  className={`rounded-md px-3 py-1.5 text-sm capitalize transition-colors ${
+                    difficulty === d ? "bg-[#1E3A8A] font-medium text-white" : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  {d}
+                  {d === "all" ? "All levels" : d}
                 </button>
               ))}
             </div>
           </div>
+          {skills.length > 0 && (
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Skill">
+              {["all", ...skills].map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  role="radio"
+                  aria-checked={skill === tag}
+                  onClick={() => setSkill(tag)}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    skill === tag ? "border-[#1E3A8A] bg-blue-50 text-[#1E3A8A]" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {tag === "all" ? "All skills" : tag}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Tags Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {tags.map((t) => (
-            <button
-              key={t}
-              onClick={() => setSelectedTag(t)}
-              className={`text-xs px-3 py-1 rounded-full font-medium transition-all cursor-pointer shrink-0 ${
-                selectedTag === t
-                  ? "navy-teal-gradient text-white shadow-xs"
-                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-              }`}
-            >
-              {t === "all" ? "All Skills" : `#${t}`}
-            </button>
-          ))}
-        </div>
+        {error && <ErrorNotice message={error} />}
 
-        {/* Labs Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 rounded-2xl bg-slate-200 animate-pulse" />
+        {!labs && !error && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-60 w-full rounded-2xl" />
             ))}
           </div>
-        ) : filteredLabs.length === 0 ? (
-          <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-3">
-            <FlaskConical className="h-10 w-10 text-slate-400 mx-auto" />
-            <h3 className="text-sm font-bold text-slate-800">No matching technical labs found</h3>
-            <p className="text-xs text-slate-500">Try adjusting your search query or skill filter.</p>
+        )}
+
+        {labs && filtered.length === 0 && (
+          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
+            <FlaskConical className="mx-auto size-8 text-slate-400" aria-hidden="true" />
+            <h2 className="mt-2 text-sm font-semibold text-slate-900">No labs match these filters</h2>
+            <p className="mt-1 text-sm text-slate-500">Try a different search or skill.</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredLabs.map((labItem) => (
-              <Card
-                key={labItem.id}
-                className="border-slate-200 bg-white hover:border-[#1E3A8A] hover:shadow-md transition-all flex flex-col justify-between group"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] uppercase font-bold ${
-                        labItem.difficulty === "beginner"
-                          ? "border-emerald-300 text-emerald-800 bg-emerald-50"
-                          : labItem.difficulty === "intermediate"
-                          ? "border-blue-300 text-blue-800 bg-blue-50"
-                          : "border-amber-300 text-amber-800 bg-amber-50"
-                      }`}
-                    >
-                      {labItem.difficulty}
-                    </Badge>
+        )}
 
-                    <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                      <Cpu className="h-3 w-3 text-emerald-600" /> Python 3.11
-                    </span>
-                  </div>
-
-                  <CardTitle className="text-base font-bold text-slate-900 group-hover:text-[#1E3A8A] transition-colors line-clamp-2">
-                    {labItem.title}
-                  </CardTitle>
-                  <CardDescription className="text-xs text-slate-500 line-clamp-2 mt-1">
-                    {labItem.objective}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-3">
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between text-xs text-slate-600">
-                    <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                      {labItem.test_cases_count ?? 3} Test Assertions
-                    </span>
-                    <span className="font-mono text-[11px] text-slate-500">Docker Sandbox</span>
-                  </div>
-
-                  {labItem.tags && labItem.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {labItem.tags.slice(0, 3).map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-medium"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
+        {filtered.length > 0 && (
+          <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((lab) => {
+              const Icon = labIcon(lab.tags);
+              const testCount = lab.test_cases_count ?? lab.test_cases?.length ?? 0;
+              return (
+                <li key={lab.id}>
+                  <Link
+                    href={`/labs/${lab.id}`}
+                    className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:border-[#1E3A8A]/40 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A]"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="flex size-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                        <Icon className="size-5" aria-hidden="true" />
+                      </span>
+                      <span className="text-xs capitalize text-slate-500">{lab.difficulty}</span>
                     </div>
-                  )}
-                </CardContent>
-
-                <CardFooter className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-slate-400">
-                    ~20 mins
-                  </span>
-
-                  <Link href={`/labs/${labItem.id}`}>
-                    <Button
-                      size="sm"
-                      className="navy-teal-gradient text-white text-xs font-bold px-4 rounded-xl shadow-xs hover:opacity-95 transition-all cursor-pointer"
-                    >
-                      Open Workspace <ArrowRight className="h-3.5 w-3.5 ml-1" />
-                    </Button>
+                    <h2 className="mt-4 text-base font-semibold text-balance text-slate-900 group-hover:text-[#1E3A8A]">{lab.title}</h2>
+                    <p className="mt-1.5 line-clamp-2 text-sm text-pretty text-slate-600">{lab.objective}</p>
+                    {lab.tags && lab.tags.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {lab.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-4 text-sm">
+                      <span className="inline-flex items-center gap-1.5 text-slate-500">
+                        <ShieldCheck className="size-4" aria-hidden="true" />
+                        {testCount} graded {testCount === 1 ? "test" : "tests"}
+                      </span>
+                      <span className="inline-flex items-center gap-1 font-medium text-[#1E3A8A]">
+                        Open lab
+                        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                      </span>
+                    </div>
                   </Link>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
     </div>

@@ -16,7 +16,8 @@ export function getYouTubeEmbedUrl(url?: string | null): string | null {
         if (match) id = match[2];
       }
     }
-    return id && YOUTUBE_ID.test(id) ? `https://www.youtube-nocookie.com/embed/${id}?rel=0` : null;
+    // youtube-nocookie.com is blocked on some networks and by privacy extensions; the standard embed domain is more reliable.
+    return id && YOUTUBE_ID.test(id) ? `https://www.youtube.com/embed/${id}?rel=0` : null;
   } catch {
     return null;
   }

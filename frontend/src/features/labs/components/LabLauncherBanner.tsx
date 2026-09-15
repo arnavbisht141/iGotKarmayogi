@@ -20,7 +20,7 @@ interface LabLauncherBannerProps {
 export function LabLauncherBanner({
   title = "Interactive Practice Lab",
   labId = "1001",
-  description = "Isolated Python 3.11 execution sandbox with reactive Marimo extensions and automatic test case grading.",
+  description = "A Jupyter notebook backed by an isolated Python 3.11 sandbox, with automatic test grading.",
 }: LabLauncherBannerProps) {
   return (
     <div className="hero-gradient relative overflow-hidden rounded-2xl p-6 text-white border border-slate-800/40 shadow-md space-y-4">
@@ -28,7 +28,7 @@ export function LabLauncherBanner({
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-light text-teal-300 border border-white/20 text-[11px] font-bold uppercase tracking-wider">
-            <FlaskConical className="h-3.5 w-3.5 text-teal-300" /> Hands-on Jupyter &amp; Marimo Lab
+            <FlaskConical className="h-3.5 w-3.5 text-teal-300" /> Hands-on Jupyter Lab
           </div>
           <h3 className="text-base font-bold text-white">{title}</h3>
           <p className="text-xs text-white/80 max-w-xl leading-relaxed">
@@ -53,7 +53,7 @@ export function LabLauncherBanner({
         </div>
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-teal-300" />
-          <span>Marimo Reactive DAG</span>
+          <span>Automatic Test Grading</span>
         </div>
         <div className="flex items-center gap-2">
           <Terminal className="h-4 w-4 text-blue-300" />
