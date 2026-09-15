@@ -1,5 +1,4 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { Markdown } from "@/components/shared/Markdown";
 
 export function LessonMarkdown({ content, title }: { content?: string | null; title?: string }) {
   // Lesson bodies often open with "# <lesson title>", which the player header already shows.
@@ -15,20 +14,9 @@ export function LessonMarkdown({ content, title }: { content?: string | null; ti
   }
 
   return (
-    <article className="prose prose-slate max-w-none prose-headings:text-balance prose-headings:font-semibold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:text-pretty prose-a:text-[#1E3A8A] prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-slate-900 prose-table:text-sm">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
-          table: ({ node, ...props }) => (
-            <div className="overflow-x-auto">
-              <table {...props} />
-            </div>
-          ),
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    </article>
+    <Markdown
+      content={content}
+      className="prose prose-slate max-w-none prose-headings:text-balance prose-headings:font-semibold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:text-pretty prose-a:text-[#1E3A8A] prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-slate-900 prose-table:text-sm"
+    />
   );
 }

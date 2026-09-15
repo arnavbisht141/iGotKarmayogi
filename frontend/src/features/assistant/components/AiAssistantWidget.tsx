@@ -5,6 +5,7 @@ import { Send, X, Loader2, Minimize2, CheckCircle2, MessageSquare, Sparkles } fr
 import { Button } from "@/components/ui/button";
 import { fetchApi } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { Markdown } from "@/components/shared/Markdown";
 
 interface AiAssistantWidgetProps {
   context?: string;
@@ -153,7 +154,14 @@ export function AiAssistantWidget({ context }: AiAssistantWidgetProps) {
                     ? "navy-teal-gradient text-white rounded-br-sm shadow-sm"
                     : "bg-white text-slate-800 border border-slate-200 rounded-bl-sm shadow-sm border-l-2 border-l-[#0D9488]"
                 }`}>
-                  <p className="text-xs leading-relaxed">{m.content}</p>
+                  {m.role === "assistant" ? (
+                    <Markdown
+                      content={m.content}
+                      className="prose prose-sm prose-slate max-w-none text-xs leading-relaxed prose-p:my-1.5 prose-headings:my-2 prose-headings:text-sm prose-headings:font-semibold prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-pre:my-2 prose-code:before:content-none prose-code:after:content-none prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 [&_.katex-display]:my-2 [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display]:py-1 [&_.katex]:text-[1.05em]"
+                    />
+                  ) : (
+                    <p className="text-xs leading-relaxed whitespace-pre-wrap">{m.content}</p>
+                  )}
                 </div>
                 {m.source && m.role === "assistant" && (
                   <span className="text-[9px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
