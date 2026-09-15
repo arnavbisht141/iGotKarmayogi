@@ -48,7 +48,11 @@ def collect_current_levels(db: Session, user_id: int) -> Dict[int, float]:
             competency_id = mapping.get(("behavioural_competency", name))
             if competency_id is None:
                 continue  # e.g. "Course Knowledge", intentionally unmapped
-            level = min(5.0, float(score) / 20.0)
+            # Interview results store full score objects; case results store plain numbers.
+            value = score.get("score_percent") if isinstance(score, dict) else score
+            if value is None:
+                continue
+            level = min(5.0, float(value) / 20.0)
             levels[competency_id] = max(levels.get(competency_id, 0.0), level)
 
     return levels
