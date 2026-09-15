@@ -4,10 +4,13 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.models import (
-    User, Course, Enrollment, Progress, PlannedCourse, LearningHistory, UserSkill, Lesson
+    User, Course, Enrollment, Progress, PlannedCourse, LearningHistory, UserSkill, Lesson, Recommendation
 )
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+
+RECOMMENDED_COURSE_COUNT = 4
+
 
 @router.get("/summary")
 def get_dashboard_summary(
@@ -69,12 +72,23 @@ def get_dashboard_summary(
     # 3. Learning Streak
     streak_days = profile.current_streak_days if profile else 1
 
-    # 4. Recommended / Suggested Courses
-    # Filter based on department / interests if available, otherwise high-rated
-    recommended_query = db.query(Course)
-    if active_enrollment:
-        recommended_query = recommended_query.filter(Course.id != active_enrollment.course_id)
-    recommended_courses = recommended_query.limit(4).all()
+    # 4. Recommended courses: the learner's pending AI recommendations first, topped up with top-rated courses
+    enrolled_course_ids = {
+        row[0] for row in db.query(Enrollment.course_id).filter(Enrollment.user_id == current_user.id).all()
+    }
+    ai_recommended = (
+        db.query(Course)
+        .join(Recommendation, Recommendation.course_id == Course.id)
+        .filter(Recommendation.user_id == current_user.id, Recommendation.status == "pending")
+        .order_by(Recommendation.score.desc())
+        .all()
+    )
+    recommended_courses: List[Course] = []
+    for c in ai_recommended + db.query(Course).order_by(Course.rating.desc()).limit(12).all():
+        if c.id not in enrolled_course_ids and all(c.id != existing.id for existing in recommended_courses):
+            recommended_courses.append(c)
+        if len(recommended_courses) == RECOMMENDED_COURSE_COUNT:
+            break
 
     # 5. Trending Courses
     trending_courses = db.query(Course).order_by(Course.enrolled_count.desc()).limit(4).all()

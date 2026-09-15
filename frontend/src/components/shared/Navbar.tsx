@@ -25,6 +25,7 @@ import {
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { PracticeMenu, PRIMARY_NAV_HREFS } from "@/components/shared/PracticeMenu";
 
 export function Navbar() {
   const { user, logout, isAdmin } = useAuth();
@@ -277,7 +278,7 @@ export function Navbar() {
           ) : (
             /* Authenticated Navigation: Competencies & Cadre Tools */
             <>
-              {authenticatedNavItems.map(({ href, label, icon: Icon, badge, badgeColor }) => {
+              {authenticatedNavItems.filter((item) => PRIMARY_NAV_HREFS.includes(item.href)).map(({ href, label, icon: Icon, badge, badgeColor }) => {
                 const active = isActive(href);
                 return (
                   <Link
@@ -303,6 +304,11 @@ export function Navbar() {
                   </Link>
                 );
               })}
+
+              <PracticeMenu
+                items={authenticatedNavItems.filter((item) => !PRIMARY_NAV_HREFS.includes(item.href))}
+                isActive={isActive}
+              />
 
               {isAdmin && (
                 <Link
