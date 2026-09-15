@@ -301,7 +301,7 @@ function LearningPlayerContent() {
         {/* Lesson Body Content */}
         <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* Simulated Video Player if Content Type is Video */}
-          {currentLesson.content_type === "video" && (
+          {(currentLesson.content_type === "video" || currentLesson.video_url) && (
             <LessonVideo title={currentLesson.title} videoUrl={currentLesson.video_url} />
           )}
 

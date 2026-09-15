@@ -78,8 +78,8 @@ ASSESSMENT_BANK_PATH = Path(__file__).with_name("assessment_bank.json")
 MINUTES_PER_QUESTION = 1.25
 PASS_THRESHOLD = 70.0
 
-# One verified YouTube video per course, attached to the course's first reading lesson.
-# Every id was checked against YouTube oEmbed; courses without a fitting public video stay reading-only.
+# One verified YouTube video per course. A plain URL goes on the course's first reading lesson;
+# a (url, lesson title) pair targets that lesson. Every id was checked against YouTube oEmbed.
 LESSON_VIDEOS = {
     "Fundamentals of National Sample Surveys (NSS)": "https://www.youtube.com/watch?v=_0WoqKgMnKs",
     "Compilation of Consumer Price Index (CPI) & Inflation Metrics": "https://www.youtube.com/watch?v=t2BXjbiLmMo",
@@ -96,6 +96,18 @@ LESSON_VIDEOS = {
     "Cybersecurity Essentials for Government Data Systems": "https://www.youtube.com/watch?v=EqNe55IzjAw",
     "Communicating Statistics to Policymakers and the Public": "https://www.youtube.com/watch?v=Hfx1X9WSGYQ",
     "Project Management for Large-Scale Surveys": "https://www.youtube.com/watch?v=AOmS_UrnBD0",
+    "Data Quality Frameworks & Official Statistics in India": "https://www.youtube.com/watch?v=FckTWnJl9tc",
+    "Digital Governance & Public Financial Management System (PFMS)": "https://www.youtube.com/watch?v=6_ntDCR9kuE",
+    "Python and Statistical Computing for Public Policy": "https://www.youtube.com/watch?v=gtjxAH8uaP0",
+    "Digital Governance, Cyber Defense & Public Digital Architecture": (
+        "https://www.youtube.com/watch?v=DExPHdfbf9s",
+        "Lesson 2: SOC Authentication Telemetry & Incident Triage",
+    ),
+    "Periodic Labour Force Survey (PLFS): Concepts & Estimation": "https://www.youtube.com/watch?v=ErOa47rsDcE",
+    "Agricultural Statistics & Crop Estimation Surveys": ("https://www.youtube.com/watch?v=kQGlZTXRW1U", "Crop cutting experiments"),
+    "Leadership for Statistical Teams": "https://www.youtube.com/watch?v=hxgpvK8gJtg",
+    "Ethics, Integrity & Professional Independence in Official Statistics": "https://www.youtube.com/watch?v=moKAMtjxGTU",
+    "Change Management & Decision Making in Public Organisations": ("https://www.youtube.com/watch?v=8mVrDT9Atfc", "Creating urgency and a vision"),
 }
 
 
@@ -521,16 +533,22 @@ def apply_assessment_bank(db: Session) -> int:
 
 def attach_lesson_videos(db: Session) -> int:
     attached = 0
-    for title, url in LESSON_VIDEOS.items():
+    for title, entry in LESSON_VIDEOS.items():
+        url, lesson_title = (entry, None) if isinstance(entry, str) else entry
         course = db.query(Course).filter_by(title=title).first()
         if not course:
             continue
         lessons = [l for m in course.modules for l in m.lessons]
-        target = next((l for l in lessons if l.content_type == "video"), None) or next(
-            (l for l in lessons if l.content_type == "reading"), None
+        target = (
+            next((l for l in lessons if l.title == lesson_title), None)
+            or next((l for l in lessons if l.content_type == "video"), None)
+            or next((l for l in lessons if l.content_type == "reading"), None)
+            or next(iter(lessons), None)
         )
         if target and target.video_url != url:
-            target.content_type = "video"
+            # Labs keep their type and show the video above the lab launcher.
+            if target.content_type == "reading":
+                target.content_type = "video"
             target.video_url = url
             attached += 1
     db.commit()
